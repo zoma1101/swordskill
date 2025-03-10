@@ -54,9 +54,6 @@ public class SkillData {
         DUAL_HANDED_CLAW, // 両手爪
         SPEAR, // 槍
         WHIP, // 鞭
-        DUAL_WIELDING, // 二刀流
-        BOW, //弓
-        CROSSBOW, //クロスボウ
         SHIELD, //盾
         SCYTHE, //鎌
         DAGGER, //短剣

@@ -16,10 +16,12 @@ public class SwordSkillRegistry {
     public static final Map<Integer, SkillData> SKILLS = new HashMap<>();
     private static int nextSkillId = 0; // 自動ID生成用
 
+    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, MACE, ONE_HANDED_CLAW, DUAL_HANDED_CLAW, SPEAR, WHIP, SHIELD, SCYTHE, DAGGER, DUALSWORD);
+
     static {
         // スキル登録
-        registerSkill(new SkillData(getNextSkillId(), "how_to_use",100, SkillData.SkillType.SIMPLE, HowToUse.class, List.of(ONE_HANDED_SWORD, KATANA,AXE,DUALSWORD,SPEAR), false, 0));
-        registerSkill(new SkillData(getNextSkillId(), "slant",50, SkillData.SkillType.SIMPLE, Slant.class, List.of(ONE_HANDED_SWORD, KATANA,SPEAR,DUALSWORD), false, 0));
+        registerSkill(new SkillData(getNextSkillId(), "how_to_use",100, SkillData.SkillType.SIMPLE, HowToUse.class, AllWeapons, false, 0));
+        registerSkill(new SkillData(getNextSkillId(), "slant",50, SkillData.SkillType.SIMPLE, Slant.class, AllWeapons, false, 0));
         registerSkill(new SkillData(getNextSkillId(), "horizontal",60, SkillData.SkillType.TRANSFORM, Horizontal.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), false, 0));
         registerSkill(new SkillData(getNextSkillId(), "horizontal_arc",120, SkillData.SkillType.TRANSFORM, Horizontal_arc.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 0));
         registerSkill(new SkillData(getNextSkillId(), "horizontal_square", 240, SkillData.SkillType.TRANSFORM_FINISH, Horizontal_square.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 7));
