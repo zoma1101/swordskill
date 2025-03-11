@@ -36,12 +36,6 @@ public class WeaponTypeUtils {
                     || mainHandTypes.contains(SkillData.WeaponType.DAGGER) && offHandTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD)) {
                 availableWeaponTypes = Set.of(SkillData.WeaponType.DUALSWORD);
             }
-        } else if (mainHandItem.getItem() instanceof ShieldItem) {
-            availableWeaponTypes.addAll(WeaponTypeDetector.detectWeaponTypes(offHandItem));
-            availableWeaponTypes.add(SkillData.WeaponType.SHIELD);
-        } else if (offHandItem.getItem() instanceof ShieldItem) {
-            availableWeaponTypes.addAll(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
-            availableWeaponTypes.add(SkillData.WeaponType.SHIELD);
         }
         return availableWeaponTypes;
     }

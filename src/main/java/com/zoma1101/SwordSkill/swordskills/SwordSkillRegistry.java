@@ -16,7 +16,7 @@ public class SwordSkillRegistry {
     public static final Map<Integer, SkillData> SKILLS = new HashMap<>();
     private static int nextSkillId = 0; // 自動ID生成用
 
-    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, MACE, ONE_HANDED_CLAW, DUAL_HANDED_CLAW, SPEAR, WHIP, SHIELD, SCYTHE, DAGGER, DUALSWORD);
+    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, MACE, ONE_HANDED_CLAW, DUAL_HANDED_CLAW, SPEAR, WHIP, SCYTHE, DAGGER, DUALSWORD);
 
     static {
         // スキル登録

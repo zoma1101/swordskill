@@ -108,8 +108,10 @@
   "swordskill.weapon.axe": "斧",
   "swordskill.weapon.mace": "棍棒",
   "swordskill.weapon.one_handed_claw": "片手爪",
-  "swordskill.weapon.two_handed_claw": "両手爪",
+  "swordskill.weapon.dual_handed_claw": "両手爪",
   "swordskill.weapon.spear": "槍",
   "swordskill.weapon.whip": "鞭",
+  "swordskill.weapon.scythe": "大鎌",
+  "swordskill.weapon.dagger": "短剣",
   "swordskill.weapon.dualsword": "二刀流"
 }

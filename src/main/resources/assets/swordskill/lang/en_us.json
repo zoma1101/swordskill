@@ -109,8 +109,10 @@
   "swordskill.weapon.axe": "Axe",
   "swordskill.weapon.mace": "Mace",
   "swordskill.weapon.one_handed_claw": "One-Handed Claw",
-  "swordskill.weapon.two_handed_claw": "Two-Handed Claw",
+  "swordskill.weapon.dual_handed_claw": "Dual Handed Claw",
   "swordskill.weapon.spear": "Spear",
   "swordskill.weapon.whip": "Whip",
+  "swordskill.weapon.scythe": "Scythe",
+  "swordskill.weapon.dagger": "Short Sword",
   "swordskill.weapon.dualsword": "Dual Swords"
 }
