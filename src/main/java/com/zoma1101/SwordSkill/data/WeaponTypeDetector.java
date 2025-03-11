@@ -12,6 +12,7 @@ import java.util.Set;
 
 public class WeaponTypeDetector {
 
+
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
         Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
         String itemName = String.valueOf(ForgeRegistries.ITEMS.getKey(heldItem.getItem()));
@@ -39,11 +40,8 @@ public class WeaponTypeDetector {
         } else if (itemName.contains("sword")) {
             weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
         }
-        if (heldItem.getItem() instanceof SwordItem) {
-            weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
-        }
 
-
+        //else if (heldItem.getItem() instanceof SwordItem) {weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);}
 
         return weaponTypes;
     }

@@ -14,16 +14,22 @@ public class SkillTexture {
     }
 
     public static String AxeBlueSkillTexture() {
-        return "skill_particle_axe_blue";
+        return "axe_particle/simple_blue";
     }
     public static String AxeGreenSkillTexture() {
-        return "skill_particle_axe_green";
+        return "axe_particle/simple_green";
+    }
+    public static String AxeBloodSkillTexture() {
+        return "axe_particle/simple_blackred";
     }
     public static String AxeRedSkillTexture() {
-        return "skill_particle_axe_red";
+        return "axe_particle/simple_red";
     }
     public static String AxeKingSkillTexture() {
-        return "skill_particle_axe_king";
+        return "axe_particle/simple_king";
+    }
+    public static String AxePinkSkillTexture() {
+        return "axe_particle/simple_pink";
     }
 
     public static String Spia_Particle() {

@@ -3,6 +3,7 @@ package com.zoma1101.SwordSkill.main;
 import com.zoma1101.SwordSkill.config.ClientConfig;
 import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
+import com.zoma1101.SwordSkill.item.SampleItemRegistry;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,7 +32,7 @@ public class SwordSkill {
         registerClientHandlers(ctx); //クライアント側ハンドラーの登録
         ctx.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
-
+        SampleItemRegistry.register(modEventBus);
     }
 
     private void setup(FMLCommonSetupEvent event) {

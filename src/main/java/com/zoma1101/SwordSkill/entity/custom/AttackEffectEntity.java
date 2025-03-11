@@ -172,7 +172,7 @@ public class AttackEffectEntity extends Entity {
                 owner.heal((float) (damage * 0.25f));
             }
         }
-        if (Objects.equals(this.getSkillParticle(), AxeRedSkillTexture()) && entity.getMaxHealth() / 2 >= entity.getHealth()) {
+        if (Objects.equals(this.getSkillParticle(), AxeBloodSkillTexture()) && entity.getMaxHealth() / 2 >= entity.getHealth()) {
             DamagePer = 2.5f;
         }
         if (Objects.equals(this.getSkillParticle(), AxeKingSkillTexture())) {

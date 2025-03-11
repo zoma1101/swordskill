@@ -2,10 +2,13 @@ package com.zoma1101.SwordSkill.entity.renderer.skillRenderer;
 
 import com.mojang.blaze3d.vertex.*;
 import com.zoma1101.SwordSkill.main.SwordSkill;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 
@@ -43,7 +46,9 @@ public class BlueEffectRenderer {
         rotateEffect(matrix, normalMatrix, rotation, rotationCenter);
 
         // スケール適用
-        matrix.scale((float) scale.x, (float) scale.y, (float) scale.z);
+        matrix.scale(scale.x, scale.y, scale.z);
+
+        Vector3f cameraDirection = new Vector3f(0,0,1);
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
         VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
@@ -53,7 +58,7 @@ public class BlueEffectRenderer {
                 .uv(0f, 1f)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(light)
-                .normal(normalMatrix, 0, 0, 1)
+                .normal(normalMatrix, cameraDirection.x, cameraDirection.y, cameraDirection.z)
                 .endVertex();
 
         builder.vertex(matrix, 0.5f, 0f, -0.5f)
@@ -61,7 +66,7 @@ public class BlueEffectRenderer {
                 .uv(1f, 1f)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(light)
-                .normal(normalMatrix, 0, 0, 1)
+                .normal(normalMatrix, cameraDirection.x, cameraDirection.y, cameraDirection.z)
                 .endVertex();
 
         builder.vertex(matrix, 0.5f, 0f, 0.5f)
@@ -69,7 +74,7 @@ public class BlueEffectRenderer {
                 .uv(1f, 0f)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(light)
-                .normal(normalMatrix, 0, 0, 1)
+                .normal(normalMatrix, cameraDirection.x, cameraDirection.y, cameraDirection.z)
                 .endVertex();
 
         builder.vertex(matrix, -0.5f, 0f, 0.5f)
@@ -77,7 +82,7 @@ public class BlueEffectRenderer {
                 .uv(0f, 0f)
                 .overlayCoords(OverlayTexture.NO_OVERLAY)
                 .uv2(light)
-                .normal(normalMatrix, 0, 0, 1)
+                .normal(normalMatrix, cameraDirection.x, cameraDirection.y, cameraDirection.z)
                 .endVertex();
 
         poseStack.popPose(); // 変換を元に戻す

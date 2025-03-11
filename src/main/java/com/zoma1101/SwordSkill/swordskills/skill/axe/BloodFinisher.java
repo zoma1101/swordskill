@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.AxeRedSkillTexture;
+import static com.zoma1101.SwordSkill.swordskills.SkillTexture.AxeBloodSkillTexture;
 import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
 
 public class BloodFinisher implements ISkill {
@@ -38,7 +38,7 @@ public class BloodFinisher implements ISkill {
 
         int duration = 12;
         Vec3 rotation = calculateRotation(slashIndex);
-        String skill_particle = AxeRedSkillTexture();
+        String skill_particle = AxeBloodSkillTexture();
         spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle);
     }
     private Vec3 calculateRotation(int slashIndex) {

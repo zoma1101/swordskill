@@ -3,17 +3,18 @@ package com.zoma1101.SwordSkill.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class DataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final File DATA_DIR = new File("sword_skill_data");
 
     public static JsonObject loadPlayerData(ServerPlayer player) {
         File playerFile = getPlayerFile(player);
@@ -29,9 +30,7 @@ public class DataManager {
 
     public static void savePlayerData(ServerPlayer player, JsonObject data) {
         File playerFile = getPlayerFile(player);
-        if (!DATA_DIR.exists()) {
-            DATA_DIR.mkdirs();
-        }
+        playerFile.getParentFile().mkdirs(); // 親ディレクトリが存在しない場合は作成
         try (FileWriter writer = new FileWriter(playerFile)) {
             GSON.toJson(data, writer);
         } catch (IOException e) {
@@ -40,8 +39,10 @@ public class DataManager {
     }
 
     private static File getPlayerFile(ServerPlayer player) {
-        Level level = player.level(); // プレイヤーがいるワールドを取得
-        String worldUUID = level.dimension().location().toString(); // ワールドの UUID を取得
-        return new File(DATA_DIR, worldUUID + "_" + player.getStringUUID() + ".json"); // ワールドの UUID をファイル名に含める
+        ServerLevel serverLevel = player.serverLevel();
+        Path worldFolderPath = serverLevel.getServer().getWorldPath(LevelResource.ROOT);
+        File dataDir = worldFolderPath.resolve("swordskill_data").toFile(); // ワールドフォルダ内にデータフォルダを作成
+        String playerUUID = player.getUUID().toString();
+        return new File(dataDir, playerUUID + ".json");
     }
 }
