@@ -94,7 +94,7 @@ public class SkillUtils {
         player.connection.send(new ClientboundAnimatePacket(player, arm == HumanoidArm.LEFT ? 3 : 0));
     }
 
-    private static Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
+    private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
     private static void SwingArm(ServerPlayer player) {
         if (WeaponTypeUtils.getWeaponType(player) == SkillData.WeaponType.DUALSWORD) {
             UUID playerId = player.getUUID();
@@ -117,10 +117,7 @@ public class SkillUtils {
             return false; // PvP ゲームルールに関係なく false を返す
         } else if (!ServerConfig.PvP.get() && entity instanceof Player) {
             return false;
-        } else if (!ServerConfig.attackNeutralMobs.get() && entity instanceof Animal) {
-            return false;
-        }
-        return true;
+        } else return ServerConfig.attackNeutralMobs.get() || !(entity instanceof Animal);
     }
 
 }
