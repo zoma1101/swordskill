@@ -8,6 +8,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class WeaponTypeDetector {
@@ -15,7 +16,7 @@ public class WeaponTypeDetector {
 
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
         Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
-        String itemName = String.valueOf(ForgeRegistries.ITEMS.getKey(heldItem.getItem()));
+        String itemName = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(heldItem.getItem())).getPath();
 
         if (itemName.contains("great_sword") || itemName.contains("greatsword")) {
             weaponTypes.add(SkillData.WeaponType.TWO_HANDED_SWORD);

@@ -31,7 +31,8 @@ public class Hiougi implements ISkill {
 
     private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, String particle) {
         Vec3 lookVec = player.getLookAngle();
-        Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(2.0));
+        float Pos =slashIndex == 2 ? 3.5f : 2f;
+        Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(Pos));
         double damage = BaseDamage(player) * 2.5f;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = calculateScale(slashIndex);
