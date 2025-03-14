@@ -16,14 +16,14 @@ configのbackupが生成されるため何度の調整することは推奨し�
 
 ## 他Modの武器種対応
 まだ実装していませんが、仮でアイテムIDに含まれる文字から武器種を獲得する仕組みになっています。
-"great_sword" or "greatsword"　なら両手剣
-"katana"　なら刀
-"axe"　なら斧
-"rapier"　ならレイピア
-"claw"　なら爪
-"spear"　または トライデントアイテム　なら　槍
-"whip"　なら　鞭
-"scythe"　なら　鎌
-"dagger" または "short_sword"なら短剣
-"sword"　なら　片手剣
-これらに当てはまらないSwordItemは片手剣に分類するようになっています。
+- "great_sword" or "greatsword"　なら両手剣
+- "katana"　なら刀
+- "axe"　なら斧
+- "rapier"　ならレイピア
+- "claw"　なら爪
+- "spear"　または トライデントアイテム　なら　槍
+- "whip"　なら　鞭
+- "scythe"　なら　鎌
+- "dagger" または "short_sword"なら短剣
+- "sword"　なら　片手剣
+- これらに当てはまらないSwordItemは片手剣に分類するようになっています。
