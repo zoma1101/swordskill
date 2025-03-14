@@ -9,3 +9,7 @@ You can use the sword skills that appear in "Sword Art Online".
 別Modの武器でもソードスキルを使用できるように調整
 Added sword skills for other weapon types.
 Adjusted so that sword skills can be used with weapons from other mods.
+
+## HUDの調整方法
+設定にあるHUD設定キーを押しWASDで位置を調整可能
+configのbackupが生成されるため何度の調整することは推奨しません。
