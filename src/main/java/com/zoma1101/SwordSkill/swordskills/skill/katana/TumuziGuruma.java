@@ -36,16 +36,16 @@ public class TumuziGuruma implements ISkill {
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(7.2f, 3f, 7.2f);
         int duration = 12;
-        Vec3 Rotation = calculateRotation(slashIndex,player);
+        Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = AxeRedSkillTexture();
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 
-    private Vec3 calculateRotation(int slashIndex, ServerPlayer player) {
+    private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-10, 5, 0); // 1回目の斬撃
-            case 1 -> new Vec3(-2 * player.getXRot(), 180, 0); // 2回目の斬撃
+            case 1 -> new Vec3(-10, 180, 0); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };
     }

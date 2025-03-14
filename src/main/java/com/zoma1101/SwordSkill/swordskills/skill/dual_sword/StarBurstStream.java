@@ -6,6 +6,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
+import java.util.Objects;
+
 import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
@@ -15,56 +17,56 @@ public class StarBurstStream implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) {
-            performSlash(level, player, 0, 0.1F,1f);
+            performSlash(level, player, 0, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 6) {
-            performSlash(level, player, 1, 0.1F,1f);
+            performSlash(level, player, 1, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 11) {
-            performSlash(level, player, 2, 0.1F,1f);
+            performSlash(level, player, 2, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 14) {
-            performSlash(level, player, 3, 0.1F,1f);
+            performSlash(level, player, 3, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 20) {
-            performSlash(level, player, 4, 0.1F,1f);
+            performSlash(level, player, 4, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }else if (FinalTick == 22) {
-            performSlash(level, player, 5, 0.1F,1f);
+            performSlash(level, player, 5, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 28) {
-            performSlash(level, player, 6, 0.1F,2f);
-            performSlash(level, player, 7, 0.1F,2f);
+            performSlash(level, player, 6, 0.1F,2f,NomalSkillTexture());
+            performSlash(level, player, 7, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 32) {
-            performSlash(level, player, 8, 0.1F,2f);
-            performSlash(level, player, 9, 0.1F,2f);
+            performSlash(level, player, 8, 0.1F,2f,NomalSkillTexture());
+            performSlash(level, player, 9, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 38) {
-            performSlash(level, player, 10, 0.1F,2f);
-            performSlash(level, player, 11, 0.1F,2f);
+            performSlash(level, player, 10, 0.1F,2f,NomalSkillTexture());
+            performSlash(level, player, 11, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             Vec3 lookVec = player.getLookAngle();
             player.setDeltaMovement(lookVec.scale(2).x,lookVec.scale(2).y,lookVec.scale(2).z);
             player.hurtMarked = true;
         }
         else if (FinalTick == 42) {
-            performSlash(level, player, 12, 0.1F,2f);
+            performSlash(level, player, 12, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 45) {
-            performSlash(level, player, 13, 0.1F,2f);
+            performSlash(level, player, 13, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 50) {
-            performThrust(level, player, 14, 0.76F,2f);
+            performSlash(level, player, 14, 0.76F,2f,Spia_Particle());
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 55) {
-            performThrust(level, player, 15, 1.25F,4f);
+            performSlash(level, player, 15, 1.25F,4f,Spia_Particle());
             SimpleSkillSound(level,player.position());
             Vec3 lookVec = player.getLookAngle();
             player.setDeltaMovement(lookVec.scale(2).x,lookVec.scale(2).y,lookVec.scale(2).z);
@@ -73,27 +75,21 @@ public class StarBurstStream implements ISkill {
 
     }
 
-    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
+    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage,String Texture) {
         Vec3 spawnPos = calculateRelativePosition(player, slashIndex); // 相対座標を計算
         double damage = BaseDamage(player) * Damage;
         double knockbackForce = BaseKnowBack(player)*knockback;
-        Vector3f size = new Vector3f(7.2f, 3f, 1.4f);
+        Vector3f size;
+        if (Objects.equals(Texture, NomalSkillTexture())) {
+            size = new Vector3f(7.2f, 3f, 1.4f);
+        }
+        else {
+            size = new Vector3f(0.5f, 0.5f, 5f);
+        }
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
-        String skill_particle = NomalSkillTexture();
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
-    }
-    private void performThrust(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
-        Vec3 spawnPos = calculateRelativePosition(player, slashIndex); // 相対座標を計算
-        double damage = BaseDamage(player) * Damage;
-        double knockbackForce = BaseKnowBack(player)*knockback;
-        Vector3f size = new Vector3f(0.5f, 0.5f, 5f);
-        int duration = 12;
-        Vec3 Rotation = calculateRotation(slashIndex);
-        String skill_particle = Spia_Particle();
-
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Vec3.ZERO);
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, int slashIndex) {
@@ -102,7 +98,7 @@ public class StarBurstStream implements ISkill {
             case 14 ->-10;
             default -> 0;
         };
-        Vec3 lookVec = rotateLookVec(player,Yaw);
+        Vec3 lookVec = rotateLookVec(player,Yaw,0);
         Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
         Vec3 upVec = rightVec.cross(lookVec).normalize(); // 上方向ベクトル
         Vec3 relativePos = switch (slashIndex) {

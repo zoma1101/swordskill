@@ -49,7 +49,7 @@ public class SorvelteCharge implements ISkill {
                         Vec3 Rotation = new Vec3(0,0,40);
                         String skill_particle = Spia_Particle();
                         SimpleSkillSound(level,spawnPos);
-                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
 
                         Vec3 reverseLookVec = lookVec.reverse().scale(3);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));

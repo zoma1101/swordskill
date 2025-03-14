@@ -23,6 +23,6 @@ public class Vertical implements ISkill {
             Vec3 Rotation = new Vec3(-6,20,95);
             String skill_particle = NomalSkillTexture();
             SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }

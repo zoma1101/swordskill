@@ -36,7 +36,7 @@ public class Excite_triangle implements ISkill {
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = AxeGreenSkillTexture();
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, Vec3 lookVec, int slashIndex) {

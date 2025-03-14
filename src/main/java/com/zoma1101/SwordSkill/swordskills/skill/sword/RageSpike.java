@@ -52,7 +52,7 @@ public class RageSpike implements ISkill {
 
                         String skill_particle = NomalSkillTexture();
                         SimpleSkillSound(level, spawnPos);
-                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
                         Vec3 reverseLookVec = lookVec.reverse().scale(2.5);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         player.hurtMarked = true;

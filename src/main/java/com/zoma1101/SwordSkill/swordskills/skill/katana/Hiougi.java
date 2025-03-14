@@ -38,7 +38,7 @@ public class Hiougi implements ISkill {
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,particle,Vec3.ZERO);
     }
 
     private Vec3 calculateRotation(int slashIndex) {

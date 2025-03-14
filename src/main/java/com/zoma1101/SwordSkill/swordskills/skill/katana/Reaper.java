@@ -24,7 +24,7 @@ public class Reaper implements ISkill {
             Vec3 Rotation = new Vec3(0,0,40);
             String skill_particle = Spia_Particle();
             SimpleSkillSound(level,spawnPos);
-            spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+            spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
             double moveSpeed = 5;
             Vec3 moveVec = lookVec.scale(moveSpeed);
             player.setDeltaMovement(moveVec.x, moveVec.y, moveVec.z);

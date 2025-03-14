@@ -1,5 +1,8 @@
 package com.zoma1101.SwordSkill.swordskills;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SkillTexture {
 
 
@@ -41,10 +44,39 @@ public class SkillTexture {
     public static String Spia_Particle_AxeGreen() {
         return "spear_particle/simple_green";
     }
+    public static String Spia_Particle_SoftRed() {
+        return "spear_particle/simple_softred";
+    }
+    public static String Spia_Particle_Purple() {
+        return "spear_particle/simple_purple";
+    }
+    public static String FlashingPenetrator_Texture() {
+        return "spear_particle/super_blue";
+    }
 
     public static String BlueRollTexture() {
         return "skill_particle_sword/roll_blue";
     }
 
+    public static Set<String> Spia_ParticleType = new HashSet<>();
+    public static Set<String> Axe_ParticleType = new HashSet<>();
+    public static Set<String> Simple_ParticleType = new HashSet<>();
+    static {
+        Spia_ParticleType.add(Spia_Particle());
+        Spia_ParticleType.add(Spia_Particle_red());
+        Spia_ParticleType.add(Spia_Particle_AxeGreen());
+        Spia_ParticleType.add(Spia_Particle_SoftRed());
+        Spia_ParticleType.add(Spia_Particle_Purple());
 
+        Axe_ParticleType.add(AxeBlueSkillTexture());
+        Axe_ParticleType.add(AxeGreenSkillTexture());
+        Axe_ParticleType.add(AxeBloodSkillTexture());
+        Axe_ParticleType.add(AxeRedSkillTexture());
+        Axe_ParticleType.add(AxeKingSkillTexture());
+        Axe_ParticleType.add(AxePinkSkillTexture());
+
+        Simple_ParticleType.add(NomalSkillTexture());
+        Simple_ParticleType.add(RedSkillTexture());
+        Simple_ParticleType.add(YellowSkillTexture());
+    }
 }

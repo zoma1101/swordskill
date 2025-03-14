@@ -36,7 +36,7 @@ public class HolyCrossBrade implements ISkill {
         Vec3 rotation = calculateRotation(slashIndex);
         String skill_particle = YellowSkillTexture();
 
-        spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 
     private Vec3 calculateRotation(int slashIndex) {

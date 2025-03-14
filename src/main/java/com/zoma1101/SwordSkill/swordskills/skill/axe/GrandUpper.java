@@ -52,7 +52,7 @@ public class GrandUpper implements ISkill {
                         Vec3 Rotation = new Vec3(-6,20,95);
                         String skill_particle = AxeGreenSkillTexture();
                         SimpleSkillSound(level,spawnPos);
-                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, 0, duration,skill_particle);
+                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, 0, duration,skill_particle,Vec3.ZERO);
                         entity.setDeltaMovement(0,4.5f,0);
 
                         MobEffectInstance levitationEffect = new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 1);

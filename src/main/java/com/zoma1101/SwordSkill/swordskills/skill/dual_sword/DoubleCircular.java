@@ -48,7 +48,6 @@ public class DoubleCircular implements ISkill {
                     if (player.distanceTo(entity) < 1.5) {
                         NowTick = FinalTick;
                         isAttacked = true;
-                        System.out.println("攻撃?"+NowTick);
                         Vec3 reverseLookVec = player.getLookAngle().reverse().scale(1.25);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         // hurtMarked を true に設定
@@ -96,7 +95,7 @@ public class DoubleCircular implements ISkill {
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = RedSkillTexture();
         SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
     private void performThrust(Level level, ServerPlayer player) {
         Vec3 lookVec = player.getLookAngle();
@@ -107,7 +106,7 @@ public class DoubleCircular implements ISkill {
         int duration = 12;
         Vec3 Rotation = calculateRotation(1);
         String skill_particle = Spia_Particle_red();
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
         SimpleSkillSound(level,spawnPos);
     }
 

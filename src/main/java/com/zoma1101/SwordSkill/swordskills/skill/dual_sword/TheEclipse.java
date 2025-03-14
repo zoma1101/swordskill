@@ -126,7 +126,7 @@ public class TheEclipse implements ISkill {
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Vec3.ZERO);
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, int slashIndex) {
@@ -135,7 +135,7 @@ public class TheEclipse implements ISkill {
             case 14 ->-10;
             default -> 0;
         };
-        Vec3 lookVec = rotateLookVec(player,Yaw);
+        Vec3 lookVec = rotateLookVec(player,Yaw,0);
         Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
         Vec3 upVec = rightVec.cross(lookVec).normalize(); // 上方向ベクトル
         Vec3 relativePos = switch (slashIndex) {

@@ -25,6 +25,6 @@ public class KingAxe implements ISkill {
         StrongSkillSound(level,player.position());
         GodSkillSound(level,player.position());
 
-        spawnAttackEffect(level, spawnPos, Rotation,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }

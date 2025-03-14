@@ -17,7 +17,7 @@ public class WeaponTypeDetector {
         Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
         String itemName = String.valueOf(ForgeRegistries.ITEMS.getKey(heldItem.getItem()));
 
-        if (itemName.contains("two-handed sword") || itemName.contains("greatsword")) {
+        if (itemName.contains("great_sword") || itemName.contains("greatsword")) {
             weaponTypes.add(SkillData.WeaponType.TWO_HANDED_SWORD);
         } else if (itemName.contains("katana")) {
             weaponTypes.add(SkillData.WeaponType.KATANA);
@@ -25,8 +25,6 @@ public class WeaponTypeDetector {
             weaponTypes.add(SkillData.WeaponType.AXE);
         } else if (itemName.contains("rapier")) {
             weaponTypes.add(SkillData.WeaponType.RAPIER);
-        } else if (itemName.contains("mace")) {
-            weaponTypes.add(SkillData.WeaponType.MACE);
         } else if (itemName.contains("claw")) {
             weaponTypes.add(SkillData.WeaponType.ONE_HANDED_CLAW);
         } else if (itemName.contains("spear") || itemName.contains("trident") || heldItem.getItem() instanceof TridentItem) {

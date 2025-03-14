@@ -1,26 +1,24 @@
 package com.zoma1101.SwordSkill.entity.custom;
 
+import com.zoma1101.SwordSkill.swordskills.SkillTexture;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
 import static com.zoma1101.SwordSkill.swordskills.SkillUtils.SkillTargetEntity;
 
 public class AttackEffectEntity extends Entity {
 
-    private static final EntityDataAccessor<Float> ROTATION_X = SynchedEntityData.defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> ROTATION_Y = SynchedEntityData.defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> ROTATION_Z = SynchedEntityData.defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_X = SynchedEntityData.defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_Y = SynchedEntityData.defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
@@ -30,7 +28,8 @@ public class AttackEffectEntity extends Entity {
     private double damage = 4.0f; // ダメージ量
     private double knockbackStrength = 0.5; // ノックバック強さ
     private int duration = 15; // 生存時間 (tick)
-    private ServerPlayer owner;
+    private LivingEntity owner;
+    private Vec3 movement = new Vec3(0,0,2);
 
     public AttackEffectEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
@@ -38,8 +37,6 @@ public class AttackEffectEntity extends Entity {
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(ROTATION_X, 0.0f);
-        this.entityData.define(ROTATION_Y, 50.0f);
         this.entityData.define(ROTATION_Z, 0.0f);
         this.entityData.define(EFFECT_RADIUS_X,2f);
         this.entityData.define(EFFECT_RADIUS_Y,2f);
@@ -52,19 +49,16 @@ public class AttackEffectEntity extends Entity {
     public void tick() {
         super.tick();
 
-        if (!this.level().isClientSide && !hasAppliedDamage) {
-            if (Objects.equals(this.getSkillParticle(), Spia_Particle())) {
-                applyRayDamage();
-            } else if (Objects.equals(this.getSkillParticle(), Spia_Particle_AxeGreen())) {
-                applyRayDamage();
+        if (!this.level().isClientSide) {
+            if (!hasAppliedDamage) {
+                if (SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
+                    applyRayDamage();
+                } else if (!SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
+                    applyDamageAndKnockback();
+                }
             }
-            else if (!Objects.equals(this.getSkillParticle(), Spia_Particle()) && !Objects.equals(this.getSkillParticle(), Spia_Particle_AxeGreen())) {
-                applyDamageAndKnockback();
-            }
-
-            hasAppliedDamage = true;
+            Movement();
         }
-
         if (this.tickCount >= duration) {
             this.discard();
         }
@@ -79,78 +73,51 @@ public class AttackEffectEntity extends Entity {
 
         for (LivingEntity entity : entities) {
             ApplyDamage(entity);
-            if (owner != null) { // owner が null でないかチェック
-                Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
-                entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
-            }
+            KnowBack(entity);
         }
     }
 
     private void applyRayDamage() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        Vec3 direction = this.getLookAngle();
 
-        Vec3 rotation = getRotation();
-        Vec3 direction = new Vec3(Math.cos(Math.toRadians(rotation.y)) * Math.cos(Math.toRadians(rotation.x)),
-                Math.sin(Math.toRadians(rotation.x)),
-                Math.sin(Math.toRadians(rotation.y)) * Math.cos(Math.toRadians(rotation.x))).normalize();
-
-        // 視点方向を Y 軸周りに 90 度回転
-        Vec3 rotatedDirection = direction.yRot((float) Math.toRadians(90));
-
-        // 逆方向のベクトルを計算
-        Vec3 reverseRotatedDirection = rotatedDirection.scale(-1);
-
-        double rayLength = getEffectRadius().z;
-        double reverse_rayLength = rayLength;
-        System.out.println("射程は"+rayLength);
+        double rayLength = getEffectRadius().z * 0.5 ;
 
         // プレイヤーの位置ベクトルを取得
-        Vec3 playerPos = owner != null ? owner.position() : this.position(); // owner が null の場合はエンティティの位置を使用
 
-        // 逆方向の Ray の長さを調整
-        double distanceToPlayer = this.position().distanceTo(playerPos);
-        if (reverse_rayLength > distanceToPlayer) {
-            reverse_rayLength = distanceToPlayer;
+
+        // 視点方向の Ray の始点と終点を計算
+        Vec3 rayStart = this.position().add(direction.scale(rayLength));
+        Vec3 rayEnd = this.position().add(direction.scale(-rayLength));
+
+        if (!Objects.equals(this.getSkillParticle(), FlashingPenetrator_Texture())) {
+            Vec3 playerPos = owner != null ? owner.position() : this.position();
+            // 終点がエンティティとowner間の距離より遠い場合はownerの位置を終点にする
+            //フラッシングペネトレーターは除く
+            double distanceToOwner = rayStart.distanceTo(playerPos);
+            if (rayStart.distanceTo(rayEnd) > distanceToOwner) {
+                rayEnd = playerPos;
+            }
         }
 
-        // 視点方向の Ray
-        Vec3 rayStart = this.position();
-        Vec3 rayEnd = rayStart.add(rotatedDirection.scale(rayLength));
-
-        // 逆方向の Ray
-        Vec3 reverseRayStart = this.position();
-        Vec3 reverseRayEnd = reverseRayStart.add(reverseRotatedDirection.scale(reverse_rayLength));
-
-        AABB expandedBoundingBox = this.getBoundingBox().inflate(rayLength / 2);
+        AABB expandedBoundingBox = this.getBoundingBox().inflate(rayLength); // 範囲を調整
 
         // 視点方向の Ray の判定
         List<LivingEntity> entitiesInRange = serverLevel.getEntitiesOfClass(LivingEntity.class,
                 expandedBoundingBox,
-                entity -> (SkillTargetEntity(entity,owner)));
+                entity -> (SkillTargetEntity(entity, owner)));
 
+        Vec3 finalRayEnd = rayEnd;
         List<LivingEntity> hitEntities = entitiesInRange.stream()
-                .filter(entity -> isEntityInRay(entity, rayStart, rayEnd))
-                .collect(Collectors.toList());
+                .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd))
+                .toList();
 
         for (LivingEntity entity : hitEntities) {
-
             ApplyDamage(entity);
             if (owner != null) {
                 Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
                 entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
-            }
-        }
-
-        // 逆方向の Ray の判定
-        List<LivingEntity> reverseHitEntities = entitiesInRange.stream()
-                .filter(entity -> isEntityInRay(entity, reverseRayStart, reverseRayEnd))
-                .collect(Collectors.toList());
-
-        for (LivingEntity entity : reverseHitEntities) {
-            ApplyDamage(entity);
-            if (owner != null) {
-                Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
-                entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
+                hasAppliedDamage = true;
             }
         }
     }
@@ -184,12 +151,23 @@ public class AttackEffectEntity extends Entity {
         entity.invulnerableTime = 0;
     }
 
+    private void KnowBack(LivingEntity entity){
+        if (owner != null) {
+            //Vec3 knockbackDir = (this.position().subtract(owner.position())).scale(knockbackStrength);
+
+            Vec3 knockbackDir = (entity.position().subtract(this.position())).normalize().scale(knockbackStrength);
+
+            entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
+        }
+    }
+
+
 
     @Override
-    protected void readAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {}
+    protected void readAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {}
 
     @Override
-    protected void addAdditionalSaveData(net.minecraft.nbt.CompoundTag compound) {}
+    protected void addAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {}
 
     public void setDamage(double damage) {
         this.damage = damage;
@@ -207,22 +185,17 @@ public class AttackEffectEntity extends Entity {
 
     public void setDuration(int duration) { this.duration = duration; }
 
+    public void setMovement(Vec3 movement) { this.movement = movement; }
+
     public void setSkillParticle(String skillParticle) {this.entityData.set(SKILL_PARTICLE,skillParticle);
     }
 
-    //基本Rot(entity.getXRot(), -entity.getYRot(), 0)
-    public void setRotation(Vec3 rotation) {
-        this.entityData.set(ROTATION_X, (float) rotation.x);
-        this.entityData.set(ROTATION_Y, (float) rotation.y);
-        this.entityData.set(ROTATION_Z, (float) rotation.z);
+    public void setRotation(float rotationZ) {
+        this.entityData.set(ROTATION_Z, rotationZ);
     }
 
-    public Vec3 getRotation() {
-        return new Vec3(
-                this.entityData.get(ROTATION_X),
-                this.entityData.get(ROTATION_Y),
-                this.entityData.get(ROTATION_Z)
-        );
+    public float getRotation() {
+        return this.entityData.get(ROTATION_Z);
     }
     public Vector3f getEffectRadius(){
         return new Vector3f(
@@ -236,5 +209,29 @@ public class AttackEffectEntity extends Entity {
     }
 
 
-    public void setOwner(ServerPlayer owner) { this.owner = owner; }
+    public void setOwner(LivingEntity owner) { this.owner = owner; }
+
+    private void Movement() {
+        if (movement != Vec3.ZERO) {
+            Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
+            Vec3 velocity = direction.scale(movement.z / duration);
+
+            // 視点から見て上方向への移動
+            Vec3 upDirection = new Vec3(0, 1, 0).yRot((float) Math.toRadians(-this.getYRot()));
+            Vec3 upVelocity = upDirection.scale(movement.y / duration);
+
+            // 視点から見て右方向への移動
+            Vec3 rightDirection = direction.cross(new Vec3(0, 1, 0)).normalize();
+            Vec3 rightVelocity = rightDirection.scale(movement.x / duration);
+
+            // 全ての移動ベクトルを加算
+            Vec3 totalVelocity = velocity.add(upVelocity).add(rightVelocity);
+
+            this.setPos(this.position().add(totalVelocity));
+        }
+        else {
+            hasAppliedDamage = true;
+        }
+    }
+
 }

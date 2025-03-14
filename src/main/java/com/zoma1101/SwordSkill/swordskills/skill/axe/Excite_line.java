@@ -22,6 +22,6 @@ public class Excite_line implements ISkill {
         Vec3 Rotation = new Vec3(-20,0,35);
         String skill_particle = AxeGreenSkillTexture();
         StrongSkillSound(level,player.position());
-        spawnAttackEffect(level, spawnPos, Rotation,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }

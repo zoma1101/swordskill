@@ -26,29 +26,24 @@ public class SparkThrust implements ISkill {
     }
 
     private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
-        Vec3 lookVec = rotateLookVec(player,20);
         Vec3 spawnPos = calculateRelativePosition(player,slashIndex);
         double damage = BaseDamage(player) * Damage;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = switch (slashIndex){
-            case 0,1,2 -> new Vector3f(0.75f, 0.75f, 7f);
+            case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f);
             case 3 -> new Vector3f(7.2f, 3f, 2.4f);
             default -> new Vector3f().zero();
         };
 
         int duration = 12;
-        Vec3 rotation = calculateRotation(slashIndex,player);
-        String skill_particle = switch (slashIndex){
-            case 0,1,2 -> Spia_Particle();
-            case 3-> NomalSkillTexture();
-            default -> "nodata";
-        };
-        spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle);
+        Vec3 rotation = calculateRotation(slashIndex);
+        String skill_particle = slashIndex == 3 ? NomalSkillTexture() : Spia_Particle();
+        spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
         SimpleSkillSound(level,player.position());
     }
-    private Vec3 calculateRotation(int slashIndex, ServerPlayer player) {
+    private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0,1,2 -> new Vec3(0, 0, 40); // 1回目の斬撃
+            case 0,1,2 -> new Vec3(0, 0, 30); // 1回目の斬撃
             case 3 -> new Vec3(0, 0, 0); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };
@@ -56,20 +51,13 @@ public class SparkThrust implements ISkill {
 
     private Vec3 calculateRelativePosition(ServerPlayer player, int slashIndex) {
         double Yaw = switch (slashIndex){
-            case 0 ->0;
             case 1 ->10;
             case 2 ->-10;
             default -> 0;
         };
-        Vec3 lookVec = rotateLookVec(player,Yaw);
-        Vec3 relativePos = switch (slashIndex) {
-            case 0,1,2 -> // ^2 ^ ^
-                    lookVec.scale(3);
-            case 3 -> // ^-2 ^ ^
-                    lookVec.scale(2);
-            default -> Vec3.ZERO;
-        };
+        Vec3 lookVec = rotateLookVec(player,0,Yaw);
 
+        Vec3 relativePos = slashIndex==3 ? lookVec.scale(2) : lookVec.scale(3);
 
         return player.position().add(relativePos).add(0, player.getEyeHeight() * 0.65, 0); // プレイヤーの現在位置に相対座標を加算
     }

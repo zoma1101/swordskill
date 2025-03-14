@@ -2,14 +2,11 @@ package com.zoma1101.SwordSkill.entity.renderer.skillRenderer;
 
 import com.mojang.blaze3d.vertex.*;
 import com.zoma1101.SwordSkill.main.SwordSkill;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.Vec2;
 import org.joml.*;
 
 import java.lang.Math;
@@ -18,13 +15,13 @@ import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 public class BlueEffectRenderer {
 
-    private static final float R = 1f;
-    private static final float G = 1f;
-    private static final float B = 1f;
+    private static final float R = 2f;
+    private static final float G = 2f;
+    private static final float B = 2f;
 
     private static final int FRAME_TIME = 2; // 各フレームの表示時間 (Tick数)
 
-    public static void renderEffect(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vector3f scale, Vec3 rotation, Vec3 rotationCenter, int age, String setTexture) {
+    public static void renderEffect(Vec2 Minecraft_Rotation, PoseStack poseStack, MultiBufferSource bufferSource, int light, Vector3f scale, float rotation, int age, String setTexture) {
         poseStack.pushPose(); // 変換を保存
 
         // 現在のアニメーションフレームを計算
@@ -42,13 +39,13 @@ public class BlueEffectRenderer {
         Matrix4f matrix = poseStack.last().pose();
         Matrix3f normalMatrix = poseStack.last().normal();
 
-        // 回転適用
-        rotateEffect(matrix, normalMatrix, rotation, rotationCenter);
+        // Minecraft_Rotationに基づいて回転を適用
+        applyMinecraftRotation(matrix, normalMatrix, Minecraft_Rotation, rotation);
 
         // スケール適用
         matrix.scale(scale.x, scale.y, scale.z);
 
-        Vector3f cameraDirection = new Vector3f(0,0,1);
+        Vector3f cameraDirection = new Vector3f(1, 1, 1);
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
         VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
@@ -88,14 +85,11 @@ public class BlueEffectRenderer {
         poseStack.popPose(); // 変換を元に戻す
     }
 
-    /**
-     * 指定された回転を適用するメソッド
-     */
-    private static void rotateEffect(Matrix4f matrix, Matrix3f normalMatrix, Vec3 rotation, Vec3 rotationCenter) {
-        // 角度をラジアンに変換
-        float rotationX = (float) Math.toRadians(rotation.x);
-        float rotationY = (float) Math.toRadians(rotation.y);
-        float rotationZ = (float) Math.toRadians(rotation.z);
+    private static void applyMinecraftRotation(Matrix4f matrix, Matrix3f normalMatrix, Vec2 Minecraft_Rotation, float rotation) {
+        // Minecraftの回転角度をラジアンに変換
+        float rotationY = (float) Math.toRadians(-Minecraft_Rotation.y);
+        float rotationX = (float) Math.toRadians(Minecraft_Rotation.x);
+        float rotationZ = (float) Math.toRadians(rotation);
 
         // クォータニオンの適用順を修正 (Y → X → Z)
         Quaternionf quaternionY = new Quaternionf().rotationY(rotationY);
@@ -105,15 +99,7 @@ public class BlueEffectRenderer {
         // 回転の順序を Y → X → Z にする
         quaternionY.mul(quaternionX).mul(quaternionZ);
 
-        // 回転の中心を考慮
-        if (!rotationCenter.equals(Vec3.ZERO)) {
-            matrix.translate((float) rotationCenter.x, (float) rotationCenter.y, (float) rotationCenter.z);
-            matrix.rotate(quaternionY);
-            matrix.translate((float) -rotationCenter.x, (float) -rotationCenter.y, (float) -rotationCenter.z);
-        } else {
-            matrix.rotate(quaternionY);
-        }
-
+        matrix.rotate(quaternionY);
         normalMatrix.rotate(quaternionY);
     }
 }

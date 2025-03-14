@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.swordskills.skill.spear;
+package com.zoma1101.SwordSkill.swordskills.skill.rapier;
 
 import com.zoma1101.SwordSkill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,14 +14,14 @@ public class Linear implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
-        Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2.5)); // 目の前2ブロック
-        double damage = BaseDamage(player)*3f;
+        Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2.25)); // 目の前2ブロック
+        double damage = BaseDamage(player)*2.5f;
         double knockbackForce = BaseKnowBack(player)*0.5;
-        Vector3f size = new Vector3f(0.75f, 0.75f, 6f);
+        Vector3f size = new Vector3f(0.5f, 0.5f, 5f);
         int duration = 12;
         Vec3 Rotation = new Vec3(0,0,40);
         String skill_particle = Spia_Particle();
         SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }

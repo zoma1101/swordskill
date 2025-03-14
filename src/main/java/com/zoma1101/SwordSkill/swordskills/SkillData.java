@@ -15,10 +15,11 @@ public class SkillData {
     private final SkillType type; // スキルタイプ
     private final Class<? extends ISkill > skillClass; // 実行するスキルクラス
     private final List<WeaponType> availableWeaponTypes;
-    private boolean isHide;
+    private final boolean isHide;
     private final int final_tick;
+    private final int transform_limit_tick;
 
-    public SkillData(int id, String name,int cooldown, SkillType type, Class<? extends ISkill > skillClass, List<WeaponType> availableWeaponTypes, boolean isHide,int final_tick) {
+    public SkillData(int id, String name,int cooldown, SkillType type, Class<? extends ISkill > skillClass, List<WeaponType> availableWeaponTypes, boolean isHide,int final_tick, int TransformLimitTick) {
         this.id = id;
         this.name = name;
         this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID,"textures/gui/"+this.name+".png");
@@ -28,6 +29,7 @@ public class SkillData {
         this.availableWeaponTypes = availableWeaponTypes;
         this.isHide = isHide;
         this.final_tick = final_tick;
+        this.transform_limit_tick = TransformLimitTick;
     }
 
     // ゲッターメソッド
@@ -42,21 +44,23 @@ public class SkillData {
     public int getFinalTick(){
         return final_tick;
     }
+    public int getTransformLimitTick(){
+        return transform_limit_tick;
+    }
 
     public enum WeaponType {
-        ONE_HANDED_SWORD, // 片手剣
-        TWO_HANDED_SWORD, // 両手剣
-        KATANA, // 刀
-        AXE, // 斧
-        RAPIER,
-        MACE, // 棍棒
+        ONE_HANDED_SWORD, // 片手剣〇
+        TWO_HANDED_SWORD, // 両手剣〇
+        KATANA, // 刀〇
+        AXE, // 斧〇
+        RAPIER, //レイピア
         ONE_HANDED_CLAW, // 片手爪
         DUAL_HANDED_CLAW, // 両手爪
-        SPEAR, // 槍
+        SPEAR, // 槍〇
         WHIP, // 鞭
         SCYTHE, //鎌
         DAGGER, //短剣
-        DUALSWORD //二刀流
+        DUALSWORD //二刀流〇
     }
 
     public SkillType getType() { return type; }

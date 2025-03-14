@@ -22,6 +22,6 @@ public class Vertical_arc implements ISkill {
             Vec3 Rotation = new Vec3(-9,-20,75);
             String skill_particle = NomalSkillTexture();
             SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }

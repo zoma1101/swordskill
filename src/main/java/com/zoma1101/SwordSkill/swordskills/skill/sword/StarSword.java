@@ -58,7 +58,7 @@ public class StarSword implements ISkill {
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = YellowSkillTexture();
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
     private void performThrust(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
         Vec3 lookVec = player.getLookAngle();
@@ -70,7 +70,7 @@ public class StarSword implements ISkill {
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = Spia_Particle_AxeGreen();
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 
 

@@ -33,7 +33,7 @@ public class ClientForgeHandler {
     private static int addSkillIndex=0;
     private static Integer skillUsedTicks = null; // スキル使用後の経過 Tick をカウントする変数
 
-    private static final Integer limitTickMax = 12;
+    private static Integer limitTickMax = 12;
     private static final Integer limitTickMin = 7;
 
     public static void setSelectedSkillIndex(int index) {
@@ -96,6 +96,7 @@ public class ClientForgeHandler {
             if (weaponType != null && SkillData.getAvailableWeaponTypes().contains(weaponType)) { // 追加
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
                 cooldowns.put(CoolDown_SkillID, SkillData.getCooldown());
+                limitTickMax = SkillData.getTransformLimitTick();
             }
         }
     }

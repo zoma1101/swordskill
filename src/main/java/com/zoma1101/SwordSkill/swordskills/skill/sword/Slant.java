@@ -22,7 +22,7 @@ public class Slant implements ISkill { // インターフェースを実装
         Vec3 Rotation = new Vec3(-6,0,45);
         String skill_particle = NomalSkillTexture();
         SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 }
 // 他のスキルクラスも同様に修正

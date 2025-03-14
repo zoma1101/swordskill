@@ -33,7 +33,7 @@ public class XBreak implements ISkill {
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = NomalSkillTexture();
 
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
 
     private Vec3 calculateRotation(int slashIndex) {
