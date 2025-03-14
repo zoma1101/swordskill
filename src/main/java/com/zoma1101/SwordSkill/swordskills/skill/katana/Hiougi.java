@@ -23,7 +23,7 @@ public class Hiougi implements ISkill {
             SimpleSkillSound(level,player.position());
             move(player,0.3);
         } else if (FinalTick == 14) { // 2回目の斬撃
-            performSlash(level, player, 2, 0.5F,Spia_Particle_red());
+            performSlash(level, player, 2, 0.5F,Spia_Particle_SoftRed());
             StrongSkillSound(level,player.position());
             move(player,1);
         }
