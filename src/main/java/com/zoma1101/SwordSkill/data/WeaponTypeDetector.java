@@ -38,8 +38,7 @@ public class WeaponTypeDetector {
         } else if (itemName.contains("sword")) {
             weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
         }
-
-        //else if (heldItem.getItem() instanceof SwordItem) {weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);}
+        else if (heldItem.getItem() instanceof SwordItem) {weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);}
 
         return weaponTypes;
     }
