@@ -1,6 +1,5 @@
 package com.zoma1101.SwordSkill.data;
 
-import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,13 +20,6 @@ public class WeaponTypeDetector {
         if (instance == null) {
             instance = new WeaponTypeDetector(weaponTypeDataLoader);
         }
-    }
-
-    public static WeaponTypeDetector getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
-        }
-        return instance;
     }
 
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
