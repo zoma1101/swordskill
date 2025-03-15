@@ -1,0 +1,12 @@
+{
+  "name" : "iceandfire:broad_sword",
+  "item" : ["iceandfire:dragonbone_sword_fire",
+    "iceandfire:dragonbone_sword_ice",
+    "iceandfire:dragonbone_sword_lightning",
+    "iceandfire:dragonsteel_fire_sword",
+    "iceandfire:dragonsteel_ice_sword",
+    "iceandfire:dragonsteel_lightning_sword",
+    "iceandfire:dread_queen_sword"
+  ],
+  "weapontype" : ["ONE_HANDED_SWORD","TWO_HANDED_SWORD"]
+}
