@@ -39,7 +39,7 @@ Steps
 2. Create a weapon type json based on the [guide](https://github.com/zoma1101/swordskill/blob/main/src/main/java/com/zoma1101/SwordSkill/swordskills/SkillData.java)
 Please select weapon type from the list below.
 
-`<DataPackName/data/swordskill/weapon_types/youritems.json>`
+`DataPackName/data/swordskill/weapon_types/youritems.json`
 ```
 {
   "name" : "modname:youritems",
