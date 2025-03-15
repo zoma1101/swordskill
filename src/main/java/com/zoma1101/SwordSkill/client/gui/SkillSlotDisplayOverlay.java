@@ -22,8 +22,8 @@ public class SkillSlotDisplayOverlay {
 
     public static final IGuiOverlay HUD_SKILL_SLOT = (gui, guiGraphics, partialTicks, width, height) -> {
         RenderSystem.enableBlend();
-        SkillData.WeaponType weaponType = WeaponTypeUtils.getWeaponType();
-        if (weaponType != null) {
+        String weaponType = WeaponTypeUtils.getWeaponName();
+        if (weaponType != null && !weaponType.equals("None")) {
             int[] skillIds = ClientSkillSlotHandler.getSkillSlotInfo();
             int selectedSlot = ClientTickHandler.getSelectedSlot();
             int hudX = ClientConfig.hudPosX.get();

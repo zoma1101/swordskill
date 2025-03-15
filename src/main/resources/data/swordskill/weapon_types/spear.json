@@ -1,0 +1,5 @@
+{
+  "name" : "spear",
+  "item" : ["minecraft:trident"],
+  "weapontype" : ["SPEAR"]
+}

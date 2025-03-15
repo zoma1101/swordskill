@@ -1,0 +1,6 @@
+{
+  "name" : "one_handed_sword",
+  "item" : ["minecraft:wooden_sword","minecraft:stone_sword","minecraft:iron_sword",
+    "minecraft:golden_sword","minecraft:diamond_sword","minecraft:netherite_sword"],
+  "weapontype" : ["ONE_HANDED_SWORD"]
+}

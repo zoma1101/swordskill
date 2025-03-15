@@ -66,16 +66,16 @@ public class ServerEventHandler {
         JsonObject playerData = DataManager.loadPlayerData(player);
         JsonObject weaponSkills = playerData.getAsJsonObject("weaponSkills");
         if (weaponSkills != null) {
-            SkillData.WeaponType weaponType = WeaponTypeUtils.getWeaponType(player);
-            if (weaponType != null) {
-                JsonArray skillSlot = weaponSkills.getAsJsonArray(weaponType.name());
+            String weaponName = WeaponTypeUtils.getWeaponName();
+            if (weaponName != null) {
+                JsonArray skillSlot = weaponSkills.getAsJsonArray(weaponName);
                 int[] skillIds = new int[5];
                 if (skillSlot != null) {
                     for (int i = 0; i < 5; i++) {
                         skillIds[i] = skillSlot.get(i).getAsInt();
                     }
                 } else {
-                    LOGGER.warn("武器種 {} のスキルスロット情報が見つかりません。", weaponType.name()); // 追加
+                    LOGGER.warn("武器種 {} のスキルスロット情報が見つかりません。", weaponName); // 追加
                 }
                 NetworkHandler.INSTANCE.sendTo(new SkillSlotInfoPacket(skillIds), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
             } else {

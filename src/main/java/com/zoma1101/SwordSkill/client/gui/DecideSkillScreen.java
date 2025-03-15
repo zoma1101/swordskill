@@ -48,9 +48,9 @@ public class DecideSkillScreen extends Screen {
         if (minecraft != null && minecraft.player != null) {
             SkillData skill = SwordSkillRegistry.SKILLS.get(SELECTSKILL);
             if (skill != null) {
-                SkillData.WeaponType playerWeaponType = WeaponTypeUtils.getWeaponType(); // 追加
-                if (playerWeaponType != null) { // 追加
-                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponType)); // 修正
+                String playerWeaponName = WeaponTypeUtils.getWeaponName(); // 追加
+                if (playerWeaponName != null) { // 追加
+                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponName)); // 修正
                 } // 追加
             }
         }

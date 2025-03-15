@@ -22,6 +22,8 @@ import net.minecraftforge.client.event.InputEvent;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.zoma1101.SwordSkill.client.handler.ClientTickHandler.getSelectedSlot;
 import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.*;
@@ -51,7 +53,7 @@ public class ClientForgeHandler {
             if (SetWeaponType){
                 if (event.phase == TickEvent.Phase.END){
                     setWeaponType(player);
-                    NetworkHandler.sendToServer(new SkillLoadSlotPacket(getWeaponType()));
+                    NetworkHandler.sendToServer(new SkillLoadSlotPacket(getWeaponName()));
                     SetWeaponType = false;
                 }
             }
@@ -103,8 +105,9 @@ public class ClientForgeHandler {
     private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
         SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
         if (SkillData != null) {
-            SkillData.WeaponType weaponType = getWeaponType(); // 追加
-            if (weaponType != null && SkillData.getAvailableWeaponTypes().contains(weaponType)) { // 追加
+            Set<SkillData.WeaponType> weaponType = getWeaponType(); // 追加
+            String WeaponName = getWeaponName();
+            if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) { // 追加
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
                 cooldowns.put(CoolDown_SkillID, SkillData.getCooldown());
                 limitTickMax = SkillData.getTransformLimitTick();
@@ -129,10 +132,10 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown() && getWeaponType() != null) {
+        if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown() && getWeaponName() != null && !getWeaponName().equals("None")) {
             Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
         }
-         else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown() && getWeaponType() != null) {
+         else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown() && getWeaponName() != null && !getWeaponName().equals("None")) {
             Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
         }
     }

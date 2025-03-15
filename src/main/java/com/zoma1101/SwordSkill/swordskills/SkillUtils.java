@@ -40,7 +40,7 @@ public class SkillUtils {
     }
 
     public static double BaseDamage(ServerPlayer player){
-        if (WeaponTypeUtils.getWeaponType(player) == SkillData.WeaponType.DUALSWORD){
+        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)){
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
             double mainHandDamage = mainHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
@@ -78,7 +78,7 @@ public class SkillUtils {
 
     private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
     private static void SwingArm(ServerPlayer player) {
-        if (WeaponTypeUtils.getWeaponType(player) == SkillData.WeaponType.DUALSWORD) {
+        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)) {
             UUID playerId = player.getUUID();
             boolean isSwingRight = swingRight.getOrDefault(playerId, true); // 初期値は右手振り
 

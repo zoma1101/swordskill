@@ -60,7 +60,8 @@ public class SkillData {
         WHIP, // 鞭
         SCYTHE, //鎌
         DAGGER, //短剣
-        DUALSWORD //二刀流〇
+        DUALSWORD, //二刀流〇
+        NONE //設定しないでください
     }
 
     public SkillType getType() { return type; }

@@ -19,13 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 
+import java.util.Set;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 @OnlyIn(Dist.CLIENT)
 public class SwordSkillSelectionScreen extends Screen {
 
     public int selectedSkillIndex = 0;
-    private SkillData.WeaponType weaponType; // 追加
+    private Set<SkillData.WeaponType> weaponType; // 追加
 
     public SwordSkillSelectionScreen() {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
@@ -89,8 +90,8 @@ public class SwordSkillSelectionScreen extends Screen {
         if (minecraft != null && minecraft.player != null) {
             SkillData skill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
             if (skill != null) {
-                SkillData.WeaponType playerWeaponType = WeaponTypeUtils.getWeaponType(); // 追加
-                if (playerWeaponType != null) { // 追加
+                String playerWeaponType = WeaponTypeUtils.getWeaponName(); // 追加
+                if (playerWeaponType != null  && !playerWeaponType.equals("None")) { // 追加
                     NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponType)); // 修正
                 } // 追加
             }
@@ -161,7 +162,7 @@ public class SwordSkillSelectionScreen extends Screen {
         int previousIndex = currentIndex;
         do {
             previousIndex = (previousIndex - 1 + SwordSkillRegistry.SKILLS.size()) % SwordSkillRegistry.SKILLS.size();
-        } while (SwordSkillRegistry.SKILLS.get(previousIndex).isHide() || !SwordSkillRegistry.SKILLS.get(previousIndex).getAvailableWeaponTypes().contains(weaponType)); // 修正
+        } while (SwordSkillRegistry.SKILLS.get(previousIndex).isHide() || SwordSkillRegistry.SKILLS.get(previousIndex).getAvailableWeaponTypes().stream().noneMatch(weaponType::contains));
         return previousIndex;
     }
 
@@ -169,7 +170,7 @@ public class SwordSkillSelectionScreen extends Screen {
         int nextIndex = currentIndex;
         do {
             nextIndex = (nextIndex + 1) % SwordSkillRegistry.SKILLS.size();
-        } while (SwordSkillRegistry.SKILLS.get(nextIndex).isHide() || !SwordSkillRegistry.SKILLS.get(nextIndex).getAvailableWeaponTypes().contains(weaponType)); // 修正
+        } while (SwordSkillRegistry.SKILLS.get(nextIndex).isHide() || SwordSkillRegistry.SKILLS.get(nextIndex).getAvailableWeaponTypes().stream().noneMatch(weaponType::contains));
         return nextIndex;
     }
 

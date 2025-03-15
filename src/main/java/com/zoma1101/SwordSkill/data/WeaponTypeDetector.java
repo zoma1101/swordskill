@@ -1,46 +1,70 @@
 package com.zoma1101.SwordSkill.data;
 
+import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
-import net.minecraftforge.registries.ForgeRegistries;
-
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class WeaponTypeDetector {
 
+    private static WeaponTypeDetector instance;
+    private final WeaponTypeDataLoader weaponTypeDataLoader;
+
+    private WeaponTypeDetector(WeaponTypeDataLoader weaponTypeDataLoader) {
+        this.weaponTypeDataLoader = weaponTypeDataLoader;
+    }
+
+    public static void initialize(WeaponTypeDataLoader weaponTypeDataLoader) {
+        if (instance == null) {
+            instance = new WeaponTypeDetector(weaponTypeDataLoader);
+        }
+    }
+
+    public static WeaponTypeDetector getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
+        }
+        return instance;
+    }
 
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
-        Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
-        String itemName = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(heldItem.getItem())).getPath();
-
-        if (itemName.contains("great_sword") || itemName.contains("greatsword")) {
-            weaponTypes.add(SkillData.WeaponType.TWO_HANDED_SWORD);
-        } else if (itemName.contains("katana")) {
-            weaponTypes.add(SkillData.WeaponType.KATANA);
-        } else if (itemName.contains("axe")) {
-            weaponTypes.add(SkillData.WeaponType.AXE);
-        } else if (itemName.contains("rapier")) {
-            weaponTypes.add(SkillData.WeaponType.RAPIER);
-        } else if (itemName.contains("claw")) {
-            weaponTypes.add(SkillData.WeaponType.ONE_HANDED_CLAW);
-        } else if (itemName.contains("spear") || itemName.contains("trident") || heldItem.getItem() instanceof TridentItem) {
-            weaponTypes.add(SkillData.WeaponType.SPEAR);
-        } else if (itemName.contains("whip")) {
-            weaponTypes.add(SkillData.WeaponType.WHIP);
-        } else if (itemName.contains("scythe")) {
-            weaponTypes.add(SkillData.WeaponType.SCYTHE);
-        } else if (itemName.contains("dagger") || itemName.contains("short_sword") ) {
-            weaponTypes.add(SkillData.WeaponType.DAGGER);
-        } else if (itemName.contains("sword")) {
-            weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
+        if (instance == null) {
+            throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
         }
-        else if (heldItem.getItem() instanceof SwordItem) {weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);}
-        //System.out.println("武器名は"+itemName+"武器タイプは"+weaponTypes);
+        return instance.detectWeaponTypesInternal(heldItem);
+    }
+
+    private Set<SkillData.WeaponType> detectWeaponTypesInternal(ItemStack heldItem) {
+        Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
+        Item item = heldItem.getItem();
+        // JSONファイルから武器種を判定
+        for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
+            if (data.getItems().contains(item)) {
+                weaponTypes.addAll(data.getWeaponTypes());
+                return weaponTypes; // JSONに定義があれば、それを返す
+            }
+        }
         return weaponTypes;
+    }
+
+    // WeaponTypeDetector.java
+    public static String getWeaponName(ItemStack heldItem) {
+        if (instance == null) {
+            throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
+        }
+        return instance.getWeaponNameInternal(heldItem);
+    }
+
+    private String getWeaponNameInternal(ItemStack heldItem) {
+        Item item = heldItem.getItem();
+        for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
+            if (data.getItems().contains(item)) {
+                return data.getName();
+            }
+        }
+        return null;
     }
 }
