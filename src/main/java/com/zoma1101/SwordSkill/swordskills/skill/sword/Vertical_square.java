@@ -2,7 +2,6 @@ package com.zoma1101.SwordSkill.swordskills.skill.sword;
 
 import com.zoma1101.SwordSkill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;

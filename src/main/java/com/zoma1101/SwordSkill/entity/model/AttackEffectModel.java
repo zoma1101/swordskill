@@ -37,7 +37,4 @@ public class AttackEffectModel<T extends Entity> extends EntityModel<T> {
 		root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha * 0.8F);
 	}
 
-	public ModelPart getRoot() {
-		return root;
-	}
 }

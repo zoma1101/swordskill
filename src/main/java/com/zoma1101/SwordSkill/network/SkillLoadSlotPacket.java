@@ -2,7 +2,6 @@ package com.zoma1101.SwordSkill.network;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.zoma1101.SwordSkill.data.DataManager;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
 import net.minecraft.network.FriendlyByteBuf;

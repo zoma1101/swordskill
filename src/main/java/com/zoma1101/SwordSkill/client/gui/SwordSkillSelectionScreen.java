@@ -15,9 +15,9 @@ import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
-import java.util.ArrayList;
-import java.util.List;
+
 
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
@@ -25,24 +25,13 @@ import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 public class SwordSkillSelectionScreen extends Screen {
 
     public int selectedSkillIndex = 0;
-    private List<SkillData> displayableSkills;
     private SkillData.WeaponType weaponType; // 追加
 
     public SwordSkillSelectionScreen() {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
-
-        displayableSkills = new ArrayList<>();
         if (Minecraft.getInstance().player != null) {
             weaponType = WeaponTypeUtils.getWeaponType(); // 初期化
-            if (weaponType != null) {
-                for (SkillData skill : SwordSkillRegistry.SKILLS.values()) {
-                    if (!skill.isHide() && skill.getAvailableWeaponTypes().contains(weaponType)) {
-                        displayableSkills.add(skill);
-                    }
-                }
-            }
         }
-
         NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
     }
 
@@ -87,9 +76,7 @@ public class SwordSkillSelectionScreen extends Screen {
         super.init();
 
         // 決定ボタンを追加
-        addRenderableWidget(Button.builder(Component.translatable("gui."+SwordSkill.MOD_ID+".select"), button -> {
-            openSlotSelectionScreen();
-        }).bounds(width / 2 - 50, height - 40, 100, 20).build());
+        addRenderableWidget(Button.builder(Component.translatable("gui."+SwordSkill.MOD_ID+".select"), button -> openSlotSelectionScreen()).bounds(width / 2 - 50, height - 40, 100, 20).build());
     }
 
     private void openSlotSelectionScreen() {
@@ -112,7 +99,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics);
 
         int centerX = width / 2;
@@ -128,17 +115,15 @@ public class SwordSkillSelectionScreen extends Screen {
             int iconY = centerY - 35;
             for (SkillData.WeaponType type : skill.getAvailableWeaponTypes()) {
                 ResourceLocation iconTexture = getWeaponIconTexture(type); // アイコンテクスチャを取得
-                if (iconTexture != null) {
-                    guiGraphics.blit(iconTexture, iconX, iconY, 0, 0, 16, 16, 16, 16); // アイコンを描画
+                guiGraphics.blit(iconTexture, iconX, iconY, 0, 0, 16, 16, 16, 16); // アイコンを描画
 
-                    // マウスカーソルがアイコンの上にあるかどうかを判定
-                    if (mouseX >= iconX && mouseX < iconX + 16 && mouseY >= iconY && mouseY < iconY + 16) {
-                        // ツールチップで武器名を表示
-                        guiGraphics.renderTooltip(font, Component.translatable(SwordSkill.MOD_ID + ".weapon." + type.name().toLowerCase()), mouseX, mouseY);
-                    }
-
-                    iconX += 18; // 次のアイコンのX座標を調整
+                // マウスカーソルがアイコンの上にあるかどうかを判定
+                if (mouseX >= iconX && mouseX < iconX + 16 && mouseY >= iconY && mouseY < iconY + 16) {
+                    // ツールチップで武器名を表示
+                    guiGraphics.renderTooltip(font, Component.translatable(SwordSkill.MOD_ID + ".weapon." + type.name().toLowerCase()), mouseX, mouseY);
                 }
+
+                iconX += 18; // 次のアイコンのX座標を調整
             }
 
             int nameX = centerX - 50;
