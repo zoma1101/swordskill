@@ -56,7 +56,7 @@ public class HowlingOctave implements ISkill {
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size;
         if (Objects.equals(Texture, Spia_Particle())){
-            size = new Vector3f(0.5f, 0.5f, 5f);
+            size = new Vector3f(0.3f, 0.3f, 5f);
         }
         else {
             size = new Vector3f(7.2f, 3f, 1.4f);
@@ -74,7 +74,7 @@ public class HowlingOctave implements ISkill {
             case 4 ->-5;
             default -> 0;
         };
-        Vec3 lookVec = rotateLookVec(player,Yaw,0);
+        Vec3 lookVec = rotateLookVec(player,0,Yaw);
         Vec3 relativePos = switch (slashIndex) {
             case 0,1,2,3,4 -> // ^2 ^ ^
                     lookVec.scale(2.5);
