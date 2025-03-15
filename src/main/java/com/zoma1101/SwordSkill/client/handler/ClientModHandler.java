@@ -3,7 +3,7 @@ package com.zoma1101.SwordSkill.client.handler;
 
 import com.zoma1101.SwordSkill.client.gui.SkillSlotDisplayOverlay;
 import com.zoma1101.SwordSkill.client.screen.Keybindings;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

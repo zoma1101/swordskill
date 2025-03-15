@@ -1,7 +1,7 @@
 package com.zoma1101.SwordSkill.client.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.settings.KeyConflictContext;
 

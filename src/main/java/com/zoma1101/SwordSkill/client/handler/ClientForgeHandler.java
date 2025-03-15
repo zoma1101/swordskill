@@ -3,13 +3,15 @@ package com.zoma1101.SwordSkill.client.handler;
 import com.zoma1101.SwordSkill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.SwordSkill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.SwordSkill.client.screen.Keybindings;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
+import com.zoma1101.SwordSkill.network.SkillLoadSlotPacket;
 import com.zoma1101.SwordSkill.network.SkillRequestPacket;
 import com.zoma1101.SwordSkill.network.UseSkillPacket;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
 import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -22,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.zoma1101.SwordSkill.client.handler.ClientTickHandler.getSelectedSlot;
+import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.*;
 import static com.zoma1101.SwordSkill.swordskills.SkillData.SkillType.TRANSFORM;
 import static com.zoma1101.SwordSkill.swordskills.SkillData.SkillType.TRANSFORM_FINISH;
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.getWeaponType;
 
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientForgeHandler {
@@ -32,9 +34,9 @@ public class ClientForgeHandler {
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
     private static int addSkillIndex=0;
     private static Integer skillUsedTicks = null; // スキル使用後の経過 Tick をカウントする変数
-
     private static Integer limitTickMax = 12;
     private static final Integer limitTickMin = 7;
+    private static boolean SetWeaponType = false;
 
     public static void setSelectedSkillIndex(int index) {
         Minecraft.getInstance().player.getPersistentData().putInt("selectedSkillIndex", index);
@@ -42,9 +44,18 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void clientTick(TickEvent.ClientTickEvent event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player != null) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
             updateCooldowns();
+
+            if (SetWeaponType){
+                if (event.phase == TickEvent.Phase.END){
+                    setWeaponType(player);
+                    NetworkHandler.sendToServer(new SkillLoadSlotPacket(getWeaponType()));
+                    SetWeaponType = false;
+                }
+            }
+
 
             if (Keybindings.INSTANCE.SwordSkill_Use_Key.isDown()) {
                 Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick();
@@ -113,6 +124,7 @@ public class ClientForgeHandler {
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
+        SetWeaponType = true;
     }
 
     @SubscribeEvent
@@ -168,5 +180,6 @@ public class ClientForgeHandler {
                 }
             }
     }
+
 
 }

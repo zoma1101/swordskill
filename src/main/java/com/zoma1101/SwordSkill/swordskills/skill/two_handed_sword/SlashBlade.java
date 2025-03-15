@@ -17,13 +17,13 @@ public class SlashBlade implements ISkill {
             Vec3 lookVec = player.getLookAngle();
             Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(0.5)); // 目の前2ブロック
             double damage = BaseDamage(player)*2.3f;
-            double knockbackForce = BaseKnowBack(player)*0.25;
+            double knockbackForce = BaseKnowBack(player)*0.5;
             Vector3f size = new Vector3f(8f, 2f, 8f);
             int duration = 12;
-            Vec3 Rotation = new Vec3(-15,10,20);
+            Vec3 Rotation = new Vec3(0,0,20);
             String skill_particle = AxeRedSkillTexture();
             SimpleSkillSound(level,spawnPos);
-            Vec3 Move = new Vec3(0,0,72);
+            Vec3 Move = new Vec3(0,0,60);
             spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Move);
         }
 

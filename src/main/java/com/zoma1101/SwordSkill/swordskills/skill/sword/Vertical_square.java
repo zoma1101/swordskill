@@ -43,12 +43,9 @@ public class Vertical_square implements ISkill {
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, Vec3 lookVec, int slashIndex) {
-        Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
-        Vec3 upVec = rightVec.cross(lookVec).normalize(); // 上方向ベクトル
         Vec3 relativePos = lookVec.scale(2);
 
         Vec3 Hight = switch (slashIndex){
-            case 0,1 -> new Vec3(0,0,0);
             case 2,3 -> new Vec3(0,player.getEyeHeight() * 2.25,0);
             default -> new Vec3(0,0,0);
         };
@@ -64,13 +61,4 @@ public class Vertical_square implements ISkill {
         };
     }
 
-    protected final Vec3 calculateViewVector(float pitch, float yaw) {
-        float f = pitch * ((float) Math.PI / 180F);
-        float f1 = -yaw * ((float) Math.PI / 180F);
-        float f2 = Mth.cos(f1);
-        float f3 = Mth.sin(f1);
-        float f4 = Mth.cos(f);
-        float f5 = Mth.sin(f);
-        return new Vec3((double) (f3 * f4), (double) (-f5), (double) (f2 * f4));
-    }
 }

@@ -1,7 +1,7 @@
 package com.zoma1101.SwordSkill.entity;
 
 import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;

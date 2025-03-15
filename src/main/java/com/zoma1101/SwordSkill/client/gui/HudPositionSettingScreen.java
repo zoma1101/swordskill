@@ -1,7 +1,7 @@
 package com.zoma1101.SwordSkill.client.gui;
 
 import com.zoma1101.SwordSkill.config.ClientConfig;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;

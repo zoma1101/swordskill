@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.main;
+package com.zoma1101.SwordSkill;
 
 import com.zoma1101.SwordSkill.config.ClientConfig;
 import com.zoma1101.SwordSkill.config.ServerConfig;
@@ -52,4 +52,5 @@ public class SwordSkill {
     private void registerClientHandlers(FMLJavaModLoadingContext ctx) {
         com.zoma1101.SwordSkill.client.handler.ClientModHandler.register(ctx.getModEventBus());
     }
+
 }

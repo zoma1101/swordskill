@@ -1,6 +1,6 @@
 package com.zoma1101.SwordSkill.swordskills.skill;
 
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import com.zoma1101.SwordSkill.swordskills.ISkill;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

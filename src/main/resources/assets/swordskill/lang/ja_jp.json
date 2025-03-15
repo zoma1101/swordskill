@@ -76,6 +76,7 @@
   "swordskill.skill.aban_rash": "アバンラッシュ",
   "swordskill.skill.cyclone": "サイクロン",
   "swordskill.skill.stan_hazard": "スタン・ハザード",
+  "swordskill.skill.slash_blade": "スラッシュブレード",
   "swordskill.skill.linear": "リニアー",
   "swordskill.skill.parallel_sting": "パラレル・スティング",
   "swordskill.skill.quadraple_pain": "カドラプル・ペイン",
@@ -152,6 +153,5 @@
   "swordskill.weapon.whip": "鞭",
   "swordskill.weapon.scythe": "大鎌",
   "swordskill.weapon.dagger": "短剣",
-  "swordskill.weapon.dualsword": "二刀流",
-  "swordskill.skill.slash_blade": "Slash Blade"
+  "swordskill.weapon.dualsword": "二刀流"
 }

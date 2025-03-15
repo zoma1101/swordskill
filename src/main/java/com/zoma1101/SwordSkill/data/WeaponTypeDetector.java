@@ -40,7 +40,7 @@ public class WeaponTypeDetector {
             weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
         }
         else if (heldItem.getItem() instanceof SwordItem) {weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);}
-
+        //System.out.println("武器名は"+itemName+"武器タイプは"+weaponTypes);
         return weaponTypes;
     }
 }

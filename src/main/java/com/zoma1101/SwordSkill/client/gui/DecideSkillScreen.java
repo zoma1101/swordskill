@@ -1,7 +1,7 @@
 package com.zoma1101.SwordSkill.client.gui;
 
 import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.network.SkillSlotSelectionPacket;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 // スキルスロット選択画面
 public class DecideSkillScreen extends Screen {
@@ -37,7 +38,7 @@ public class DecideSkillScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics);
         guiGraphics.drawCenteredString(font, Component.translatable("gui." + SwordSkill.MOD_ID + ".select_slot"), width / 2, height / 2 - 60, 0xFFFFFF);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);

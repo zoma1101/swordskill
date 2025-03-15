@@ -13,7 +13,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import com.zoma1101.SwordSkill.main.SwordSkill;
+import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraftforge.network.NetworkDirection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger; // 追加
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.zoma1101.SwordSkill.client.handler.ClientTickHandler.SetSlotSkill;
+import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.setWeaponType;
 
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID)
 public class ServerEventHandler {
@@ -41,9 +42,8 @@ public class ServerEventHandler {
             if (mainHandItems.containsKey(player) && offHandItems.containsKey(player)) {
                 ItemStack previousMainHandItem = mainHandItems.get(player);
                 ItemStack previousOffHandItem = offHandItems.get(player);
-
                 if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
-                    // アイテムが変更された場合の処理
+                    setWeaponType(player);
                     sendSkillSlotInfo(player);
                     SetSlotSkill();
                 }
