@@ -4,6 +4,7 @@ import com.zoma1101.SwordSkill.config.ClientConfig;
 import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.data.WeaponTypeDataLoader;
 import com.zoma1101.SwordSkill.data.WeaponTypeDetector;
+import com.zoma1101.SwordSkill.effects.EffectRegistry;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
 import com.zoma1101.SwordSkill.item.SampleItemRegistry;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
@@ -37,6 +38,7 @@ public class SwordSkill {
         ctx.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
         SampleItemRegistry.register(modEventBus);
+        EffectRegistry.register(modEventBus);
         MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListener);
     }
 

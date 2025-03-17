@@ -1,5 +1,0 @@
-{
-  "name" : "halberd",
-  "item" : ["minecraft:iron_axe","minecraft:stone_axe"],
-  "weapontypes" : ["AXE", "SPEAR"]
-}

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.zoma1101.SwordSkill.swordskills.skill.HowToUse;
 import com.zoma1101.SwordSkill.swordskills.skill.axe.*;
+import com.zoma1101.SwordSkill.swordskills.skill.dagger.*;
 import com.zoma1101.SwordSkill.swordskills.skill.dual_sword.*;
 import com.zoma1101.SwordSkill.swordskills.skill.katana.*;
 import com.zoma1101.SwordSkill.swordskills.skill.rapier.*;
@@ -88,7 +89,14 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "stary_tier", 200, SkillData.SkillType.SIMPLE, StaryTier.class, List.of(RAPIER), false, 12,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "mothers_rosario", 300, SkillData.SkillType.SIMPLE, MothersRosario.class, List.of(RAPIER), false, 30,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "shooting_star", 200, SkillData.SkillType.RUSH, ShootingStar.class, List.of(RAPIER), false, 4,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "flashing_penetrator", 500, SkillData.SkillType.SIMPLE, FlashingPenetrator.class, List.of(RAPIER), false, 6,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "flashing_penetrator", 500, SkillData.SkillType.RUSH, FlashingPenetrator.class, List.of(RAPIER), false, 6,DefaultTransformTick));
+        //短剣
+        registerSkill(new SkillData(getNextSkillId(), "canine", 40, SkillData.SkillType.SIMPLE, Canine.class, List.of(DAGGER), false, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "face_liner", 80, SkillData.SkillType.SIMPLE, FaceLiner.class, List.of(DAGGER), false, 12,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "fad_edge", 120, SkillData.SkillType.SIMPLE, FadEdge.class, List.of(DAGGER), false, 15,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "rapid_bite", 200, SkillData.SkillType.RUSH, RapidBite.class, List.of(DAGGER), false, 200,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "octagon_edge", 100, SkillData.SkillType.SIMPLE, OctagonEdge.class, List.of(DAGGER), false, 15,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "kodati", 120, SkillData.SkillType.SIMPLE, Kodati.class, List.of(DAGGER), false, 10,DefaultTransformTick));
     }
 
     private static int getNextSkillId() {

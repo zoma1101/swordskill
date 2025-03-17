@@ -86,6 +86,14 @@
   "swordskill.skill.mothers_rosario": "マザーズ・ロザリオ",
   "swordskill.skill.shooting_star": "シューティング・スター",
   "swordskill.skill.flashing_penetrator": "フラッシング・ペネトレイター",
+  "swordskill.skill.canine": "ケイナイン",
+  "swordskill.skill.face_liner": "フェイス・ライナー",
+  "swordskill.skill.fad_edge": "ファッドエッジ",
+  "swordskill.skill.rapid_bite": "ラピッドバイト",
+  "swordskill.skill.octagon_edge": "オクタゴンエッジ",
+  "swordskill.skill.kodati": "小太刀",
+
+
 
   "swordskill.skill.how_to_use.description": "ソードスキルの使い方！！\n初期設定がAかDキーを押してスキルを選んでね\nそして即時ソードスキル0～4使用に割り当てているキーを押すことで\nスキルを登録できるよ！あとはソードスキル選択キーを押しながら、\nマウスホイールを動かすことでソードスキルを即座に選択できるよ！\nそして最後に、ソードスキル使用キーを押せばチュートリアルは終了だ！\nたのしんでね！！",
   "swordskill.skill.how_to_use.description2": "おめでとう！！",
@@ -140,6 +148,12 @@
   "swordskill.skill.mothers_rosario.description": "とある少女が創り出したオリジナルソードスキル。最強の11連撃",
   "swordskill.skill.shooting_star.description": "高速で敵を貫く突きを放つ高火力ソードスキル",
   "swordskill.skill.flashing_penetrator.description": "助走を付けた状態で敵に突撃し、通り過ぎた場所にいる敵全体に\n高いダメージとノックバックを与える",
+  "swordskill.skill.canine.description": "射程の短いかわりに高速で剣を振る",
+  "swordskill.skill.face_liner.description": "短剣ならではの高速さを活かして連続で突きまくる",
+  "swordskill.skill.fad_edge.description": "全身を使って敵に効果的なダメージを与える",
+  "swordskill.skill.rapid_bite.description": "空中に飛び上がり敵の頭上に舞い降りると慣性を乗せた高ダメージの突きを放てる。\n攻撃が命中した場合クールダウンが大幅に減少する",
+  "swordskill.skill.octagon_edge.description": "高速で八角形の頂点を通る斬撃を放つ",
+  "swordskill.skill.kodati.description": "高速で短剣を振るうことで青い衝撃波を打ち出す",
 
   "swordskill.weapon.one_handed_sword": "片手剣",
   "swordskill.weapon.rapier": "レイピア",
@@ -153,5 +167,7 @@
   "swordskill.weapon.whip": "鞭",
   "swordskill.weapon.scythe": "大鎌",
   "swordskill.weapon.dagger": "短剣",
-  "swordskill.weapon.dualsword": "二刀流"
+  "swordskill.weapon.dualsword": "二刀流",
+
+  "effect.swordskill.no_fall_damage": "落下ダメージ無効状態"
 }

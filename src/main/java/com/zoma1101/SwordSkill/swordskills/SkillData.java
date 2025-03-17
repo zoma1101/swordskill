@@ -1,6 +1,7 @@
 package com.zoma1101.SwordSkill.swordskills;
 
 import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.SwordSkill.config.ServerConfig;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -36,7 +37,9 @@ public class SkillData {
     public int getId() { return id; }
     public String getName() { return name; }
     public ResourceLocation getIconTexture() { return iconTexture; }
-    public int getCooldown() { return cooldown; }
+    public int getCooldown() {
+        return (int) (cooldown * ServerConfig.cooldownMultiplier.get());
+    }
     public List<WeaponType> getAvailableWeaponTypes() { return availableWeaponTypes; }
     public boolean isHide() {
         return isHide;
@@ -53,13 +56,13 @@ public class SkillData {
         TWO_HANDED_SWORD, // 両手剣〇
         KATANA, // 刀〇
         AXE, // 斧〇
-        RAPIER, //レイピア
+        RAPIER, //レイピア〇
         ONE_HANDED_CLAW, // 片手爪
         DUAL_HANDED_CLAW, // 両手爪
         SPEAR, // 槍〇
         WHIP, // 鞭
         SCYTHE, //鎌
-        DAGGER, //短剣
+        DAGGER, //短剣〇
         DUALSWORD, //二刀流〇
         NONE //設定しないでください
     }

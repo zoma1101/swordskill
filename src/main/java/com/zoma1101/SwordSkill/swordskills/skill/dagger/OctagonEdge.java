@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.SwordSkill.swordskills.skill.dagger;
 
 import com.zoma1101.SwordSkill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,25 +10,34 @@ import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
 import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
 
-public class XBreak implements ISkill {
+public class OctagonEdge implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
-            performSlash(level, player, 0, 0.1F);
+            performSlash(level, player, 0, 0.1F,1.5f);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 5) { // 2回目の斬撃
-            performSlash(level, player, 1, 0.75F);
+            performSlash(level, player, 1, 0.1F,1.5f);
+            SimpleSkillSound(level,player.position());
+        } else if (FinalTick == 8) { // 2回目の斬撃
+            performSlash(level, player, 2, 0.1F,1.5f);
+            SimpleSkillSound(level,player.position());
+        } else if (FinalTick == 11) { // 2回目の斬撃
+            performSlash(level, player, 3, 0.1F,1.5f);
+            SimpleSkillSound(level,player.position());
+        } else if (FinalTick == 14) { // 2回目の斬撃
+            performSlash(level, player, 2, 0.75F,2f);
             SimpleSkillSound(level,player.position());
         }
     }
 
-    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback) {
+    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback,double Damage) {
         Vec3 lookVec = player.getLookAngle();
-        Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(2.0));
-        double damage = BaseDamage(player) * 1.5f;
+        Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(1.5));
+        double damage = BaseDamage(player) * Damage;
         double knockbackForce = BaseKnowBack(player)*knockback;
-        Vector3f size = new Vector3f(7.2f, 3f, 2.4f);
+        Vector3f size = new Vector3f(5f, 3f, 2f);
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
         String skill_particle = NomalSkillTexture();
@@ -38,8 +47,10 @@ public class XBreak implements ISkill {
 
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0 -> new Vec3(-6, 5, 45); // 1回目の斬撃
-            case 1 -> new Vec3(6, -5, 135); // 2回目の斬撃
+            case 0 -> new Vec3(-6, 5, 45);
+            case 1 -> new Vec3(6, -5, 135);
+            case 2 -> new Vec3(-6, 5, 5);
+            case 3 -> new Vec3(0, 5, 79);
             default -> new Vec3(0, 0, 0);
         };
     }

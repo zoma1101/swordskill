@@ -87,6 +87,12 @@
   "swordskill.skill.mothers_rosario": "Mother's Rosario",
   "swordskill.skill.shooting_star": "Shooting Star",
   "swordskill.skill.flashing_penetrator": "Flashing Penetrator",
+  "swordskill.skill.canine": " Kei Nine",
+  "swordskill.skill.face_liner": "Face Liner",
+  "swordskill.skill.fad_edge": "Fad Edge",
+  "swordskill.skill.rapid_bite": "Rapid Bite",
+  "swordskill.skill.octagon_edge": "Octagon Edge",
+  "swordskill.skill.kodati": "Kodachi",
 
   "swordskill.skill.how_to_use.description": "Sword Skill Tutorial!!\nUse A or D to select a skill.\nThen, press the corresponding key to assign it to slots 0-4.\nWhile holding the Sword Skill selection key, \nscroll the mouse wheel to quickly select skills!\nFinally, press the Sword Skill use key to finish the tutorial!\nEnjoy!!",
   "swordskill.skill.how_to_use.description2": "Congratulations!!",
@@ -141,6 +147,12 @@
   "swordskill.skill.mothers_rosario.description": "An original sword skill created by a certain girl. The ultimate 11-hit combo.",
   "swordskill.skill.shooting_star.description": "A high-damage sword skill that launches a swift, piercing thrust.",
   "swordskill.skill.flashing_penetrator.description": "Charges at the enemy, dealing high damage and knockback to all enemies in the path.",
+  "swordskill.skill.canine.description": "Swings the sword at high speed, though with a short range.",
+  "swordskill.skill.face_liner.description": "Unleashes rapid thrusts, taking advantage of the dagger's inherent speed.",
+  "swordskill.skill.fad_edge.description": "Delivers a powerful strike utilizing the entire body to inflict significant damage on the enemy.",
+  "swordskill.skill.rapid_bite.description": "Leaps into the air and descends upon the enemy's head, unleashing a high-damage thrust fueled by momentum.\nSuccessfully landing an attack significantly reduces the cooldown.",
+  "swordskill.skill.octagon_edge.description": "Unleashes a rapid, eight-sided slash tracing the vertices of an octagon.",
+  "swordskill.skill.kodati.description": "Unleashes a blue shockwave by rapidly wielding a short sword.",
 
   "swordskill.weapon.one_handed_sword": "One-Handed Sword",
   "swordskill.weapon.rapier": "Rapier",
@@ -154,5 +166,7 @@
   "swordskill.weapon.whip": "Whip",
   "swordskill.weapon.scythe": "Scythe",
   "swordskill.weapon.dagger": "Short Sword",
-  "swordskill.weapon.dualsword": "Dual Swords"
+  "swordskill.weapon.dualsword": "Dual Swords",
+
+  "effect.swordskill.no_fall_damage": "Fall damage disabled"
 }

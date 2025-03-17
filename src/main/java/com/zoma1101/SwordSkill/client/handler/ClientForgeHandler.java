@@ -123,6 +123,11 @@ public class ClientForgeHandler {
         });
     }
 
+    public static void setCooldowns(int SkillID, int SetCoolDown){
+        cooldowns.put(SkillID, SetCoolDown);
+    }
+
+
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {

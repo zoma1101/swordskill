@@ -10,7 +10,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -99,7 +98,11 @@ public class SkillUtils {
             return false; // PvP ゲームルールに関係なく false を返す
         } else if (!ServerConfig.PvP.get() && entity instanceof Player) {
             return false;
-        } else return ServerConfig.attackNeutralMobs.get() || !(entity instanceof Animal);
+        } else if (entity.getType().getCategory() == MobCategory.CREATURE  || entity.getType().getCategory() == MobCategory.AMBIENT){
+            return ServerConfig.attackNeutralMobs.get();
+        } else {
+            return true;
+        }
     }
 
     public static Vec3 rotateLookVec(Player player, double pitch , double yaw) {
