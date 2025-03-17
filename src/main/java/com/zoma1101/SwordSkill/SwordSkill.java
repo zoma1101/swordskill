@@ -62,7 +62,6 @@ public class SwordSkill {
 
     private void onAddReloadListener(AddReloadListenerEvent event) {
         WeaponTypeDataLoader dataLoader = new WeaponTypeDataLoader();
-        System.out.println("dataLoaderは"+dataLoader+"です。");
         event.addListener(dataLoader);
         WeaponTypeDetector.initialize(dataLoader);
         System.out.println("onAddReloadListenerが呼ばれました");
