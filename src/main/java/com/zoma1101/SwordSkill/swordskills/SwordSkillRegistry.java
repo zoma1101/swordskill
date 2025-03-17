@@ -38,7 +38,7 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "sharp_neil",160, SkillData.SkillType.SIMPLE, SharpNeil.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "holy_cross_brade",100, SkillData.SkillType.SIMPLE, HolyCrossBrade.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "rage_spike",120, SkillData.SkillType.RUSH, RageSpike.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 9,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sonic_reap",240, SkillData.SkillType.RUSH, SonicReap.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 35,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "sonic_reap",240, SkillData.SkillType.RUSH, SonicReap.class, List.of(ONE_HANDED_SWORD,DUALSWORD,DAGGER), false, 35,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "savage_fulcrum",200, SkillData.SkillType.SIMPLE, SavageFulcrum.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "howling_octave",300, SkillData.SkillType.SIMPLE, HowlingOctave.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 26,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "vorpal_strike",300, SkillData.SkillType.RUSH, VorpalStrike.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 16,DefaultTransformTick));
@@ -68,7 +68,7 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "star_burst_stream", 600, SkillData.SkillType.RUSH, StarBurstStream.class, List.of(DUALSWORD), false, 60,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "the_eclipse", 800, SkillData.SkillType.SIMPLE, TheEclipse.class, List.of(DUALSWORD), false, 110,DefaultTransformTick));
         //刀
-        registerSkill(new SkillData(getNextSkillId(), "reaper", 100, SkillData.SkillType.RUSH, Reaper.class, List.of(ONE_HANDED_SWORD,KATANA), false, 3,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "reaper", 100, SkillData.SkillType.RUSH, Reaper.class, List.of(ONE_HANDED_SWORD,KATANA,DAGGER), false, 3,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "sakura_mai", 200, SkillData.SkillType.RUSH, SakuraMai.class, List.of(KATANA), false, 20,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "zekku", 90, SkillData.SkillType.SIMPLE, Zekkuu.class, List.of(KATANA), false, 2,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "tumuzi_guruma", 250, SkillData.SkillType.SIMPLE, TumuziGuruma.class, List.of(KATANA), false, 15,DefaultTransformTick));
