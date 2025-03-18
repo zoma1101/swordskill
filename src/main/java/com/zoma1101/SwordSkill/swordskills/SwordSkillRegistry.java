@@ -106,7 +106,7 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "requiem", 250, SkillData.SkillType.SIMPLE, Requiem.class, List.of(SCYTHE), false, 12,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "storm", 150, SkillData.SkillType.TRANSFORM, Storm.class, List.of(SCYTHE), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "storm_mirror", 250, SkillData.SkillType.TRANSFORM_FINISH, StormMirror.class, List.of(SCYTHE), true, 10,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "judgment", 500, SkillData.SkillType.TRANSFORM_FINISH, Judgment.class, List.of(SCYTHE), false, 30,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "judgment", 500, SkillData.SkillType.SIMPLE, Judgment.class, List.of(SCYTHE), false, 30,DefaultTransformTick));
 
     }
 
