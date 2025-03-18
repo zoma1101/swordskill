@@ -92,6 +92,14 @@
   "swordskill.skill.rapid_bite": "ラピッドバイト",
   "swordskill.skill.octagon_edge": "オクタゴンエッジ",
   "swordskill.skill.kodati": "小太刀",
+  "swordskill.skill.barrick": "バリック",
+  "swordskill.skill.reaper_of_life": "ライフリーパー",
+  "swordskill.skill.reaper_of_death": "デスリーパー",
+  "swordskill.skill.shadow_scythe": "シャドウ・サイス",
+  "swordskill.skill.requiem": "レクイエム",
+  "swordskill.skill.storm": "ストーム",
+  "swordskill.skill.storm_mirror": "ストーム・ミラー",
+  "swordskill.skill.judgment": "ジャッチメント",
 
 
 
@@ -154,6 +162,14 @@
   "swordskill.skill.rapid_bite.description": "空中に飛び上がり敵の頭上に舞い降りると慣性を乗せた高ダメージの突きを放てる。\n攻撃が命中した場合クールダウンが大幅に減少する",
   "swordskill.skill.octagon_edge.description": "高速で八角形の頂点を通る斬撃を放つ",
   "swordskill.skill.kodati.description": "高速で短剣を振るうことで青い衝撃波を打ち出す",
+  "swordskill.skill.barrick.description": "鎌を横に凪払い攻撃する",
+  "swordskill.skill.reaper_of_life.description": "不死者に対し高い火力を誇る2連撃",
+  "swordskill.skill.reaper_of_death.description": "生者に対し高い火力を誇る２連撃",
+  "swordskill.skill.shadow_scythe.description": "影に染まった斬撃を放つ",
+  "swordskill.skill.requiem.description": "死にゆく者への鎮魂歌として相応しい斬撃を放つ",
+  "swordskill.skill.storm.description": "鎌を振り回すことで周囲に斬撃を放つ\n派生ソードスキル：ストーム・ミラー",
+  "swordskill.skill.judgment.description": "死神となり目標を審判する9連撃ソードスキル。",
+
 
   "swordskill.weapon.one_handed_sword": "片手剣",
   "swordskill.weapon.rapier": "レイピア",

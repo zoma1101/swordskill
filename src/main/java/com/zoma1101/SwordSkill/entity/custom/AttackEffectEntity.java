@@ -133,16 +133,19 @@ public class AttackEffectEntity extends Entity {
         if (Objects.equals(this.getSkillParticle(), YellowSkillTexture()) && entity.getMobType() == MobType.UNDEAD) {
             DamagePer = 3f;
         }
-        if (Objects.equals(this.getSkillParticle(), RedSkillTexture()) && entity.getMobType() != MobType.UNDEAD) {
+        else if (Objects.equals(this.getSkillParticle(), BlackSkillTexture()) && entity.getMobType() != MobType.UNDEAD) {
+            DamagePer = 2.5f;
+        }
+        else if (Objects.equals(this.getSkillParticle(), RedSkillTexture()) && entity.getMobType() != MobType.UNDEAD) {
             DamagePer = 1.25f;
             if (owner != null) { // owner が null でないかチェック
                 owner.heal((float) (damage * 0.25f));
             }
         }
-        if (Objects.equals(this.getSkillParticle(), AxeBloodSkillTexture()) && entity.getMaxHealth() / 2 >= entity.getHealth()) {
+        else if (Objects.equals(this.getSkillParticle(), AxeBloodSkillTexture()) && entity.getMaxHealth() / 2 >= entity.getHealth()) {
             DamagePer = 2.5f;
         }
-        if (Objects.equals(this.getSkillParticle(), AxeKingSkillTexture())) {
+        else if (Objects.equals(this.getSkillParticle(), AxeKingSkillTexture())) {
             entity.hurt(this.damageSources().magic(), (float) (damage * 0.5f));
             entity.invulnerableTime = 0;
         }

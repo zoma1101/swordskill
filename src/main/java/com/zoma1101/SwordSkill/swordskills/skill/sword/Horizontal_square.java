@@ -47,14 +47,10 @@ public class Horizontal_square implements ISkill {
         Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
         new Vec3(0, 0, 0);
         Vec3 relativePos = switch (slashIndex) {
-            case 0 -> // ^2 ^ ^
-                    lookVec.scale(2);
-            case 1 -> // ^-2 ^ ^
-                    lookVec.scale(-2);
-            case 2 -> // ^ ^ ^2
-                    rightVec.scale(-2);
-            case 3 -> // ^ ^ ^-2
-                    rightVec.scale(2);
+            case 0 -> lookVec.scale(2);
+            case 1 -> lookVec.scale(-2);
+            case 2 -> rightVec.scale(-2);
+            case 3 -> rightVec.scale(2);
             default -> new Vec3(0, 0, 0);
         };
 

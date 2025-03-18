@@ -15,6 +15,12 @@ public class SkillTexture {
     public static String YellowSkillTexture() {
         return "skill_particle_sword/holy";
     }
+    public static String BlackSkillTexture() {
+        return "skill_particle_sword/death";
+    }
+    public static String PurpleSkillTexture() {
+        return "skill_particle_sword/purple";
+    }
 
     public static String AxeBlueSkillTexture() {
         return "axe_particle/simple_blue";
@@ -34,6 +40,10 @@ public class SkillTexture {
     public static String AxePinkSkillTexture() {
         return "axe_particle/simple_pink";
     }
+    public static String AxePurpleSkillTexture() {
+        return "axe_particle/simple_purple";
+    }
+
 
     public static String Spia_Particle() {
         return "spear_particle/simple_blue";
@@ -74,9 +84,12 @@ public class SkillTexture {
         Axe_ParticleType.add(AxeRedSkillTexture());
         Axe_ParticleType.add(AxeKingSkillTexture());
         Axe_ParticleType.add(AxePinkSkillTexture());
+        Axe_ParticleType.add(AxePurpleSkillTexture());
 
         Simple_ParticleType.add(NomalSkillTexture());
         Simple_ParticleType.add(RedSkillTexture());
         Simple_ParticleType.add(YellowSkillTexture());
+        Simple_ParticleType.add(BlackSkillTexture());
+        Simple_ParticleType.add(PurpleSkillTexture());
     }
 }

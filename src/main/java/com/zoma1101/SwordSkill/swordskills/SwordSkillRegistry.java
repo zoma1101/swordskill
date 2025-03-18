@@ -10,6 +10,7 @@ import com.zoma1101.SwordSkill.swordskills.skill.dagger.*;
 import com.zoma1101.SwordSkill.swordskills.skill.dual_sword.*;
 import com.zoma1101.SwordSkill.swordskills.skill.katana.*;
 import com.zoma1101.SwordSkill.swordskills.skill.rapier.*;
+import com.zoma1101.SwordSkill.swordskills.skill.scythe.*;
 import com.zoma1101.SwordSkill.swordskills.skill.spear.*;
 import com.zoma1101.SwordSkill.swordskills.skill.sword.*;
 import com.zoma1101.SwordSkill.swordskills.skill.two_handed_sword.*;
@@ -97,6 +98,16 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "rapid_bite", 200, SkillData.SkillType.RUSH, RapidBite.class, List.of(DAGGER), false, 200,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "octagon_edge", 100, SkillData.SkillType.SIMPLE, OctagonEdge.class, List.of(DAGGER), false, 15,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "kodati", 120, SkillData.SkillType.SIMPLE, Kodati.class, List.of(DAGGER), false, 10,DefaultTransformTick));
+        //鎌
+        registerSkill(new SkillData(getNextSkillId(), "barrick", 80, SkillData.SkillType.SIMPLE, Barrick.class, List.of(SCYTHE), false, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "reaper_of_life", 120, SkillData.SkillType.SIMPLE, ReaperOfLife.class, List.of(SCYTHE), false, 6,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "reaper_of_death", 120, SkillData.SkillType.SIMPLE, ReaperOfDeath.class, List.of(SCYTHE), false, 6,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "shadow_scythe", 150, SkillData.SkillType.SIMPLE, ShadowScythe.class, List.of(SCYTHE), false, 5,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "requiem", 250, SkillData.SkillType.SIMPLE, Requiem.class, List.of(SCYTHE), false, 12,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "storm", 150, SkillData.SkillType.TRANSFORM, Storm.class, List.of(SCYTHE), false, 10,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "storm_mirror", 250, SkillData.SkillType.TRANSFORM_FINISH, StormMirror.class, List.of(SCYTHE), true, 10,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "judgment", 500, SkillData.SkillType.TRANSFORM_FINISH, Judgment.class, List.of(SCYTHE), false, 30,DefaultTransformTick));
+
     }
 
     private static int getNextSkillId() {

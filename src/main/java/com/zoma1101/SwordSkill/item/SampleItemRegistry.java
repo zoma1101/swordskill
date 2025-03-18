@@ -15,6 +15,7 @@ public class SampleItemRegistry {
     public static final RegistryObject<Item> SAMPLE_BREAD = ITEMS.register("sample_great_sword", () -> new SampleKatana(Tiers.IRON, 5, -3.2F, new Item.Properties()));
     public static final RegistryObject<Item> SAMPLE_RAPIER = ITEMS.register("sample_rapier", () -> new SampleKatana(Tiers.IRON, 3, -2.0F, new Item.Properties()));
     public static final RegistryObject<Item> SAMPLE_DAGGER = ITEMS.register("sample_dagger", () -> new SampleKatana(Tiers.IRON, 2, -1.8F, new Item.Properties()));
+    public static final RegistryObject<Item> SAMPLE_SCYTHE = ITEMS.register("sample_scythe", () -> new SampleKatana(Tiers.IRON, 2, -1.8F, new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -1,0 +1,5 @@
+{
+  "name" : "scythe",
+  "item" : ["swordskill:sample_scythe"],
+  "weapontype" : ["SCYTHE"]
+}
