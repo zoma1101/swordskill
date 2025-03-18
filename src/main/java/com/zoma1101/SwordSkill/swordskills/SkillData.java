@@ -61,7 +61,7 @@ public class SkillData {
         DUAL_HANDED_CLAW, // 両手爪
         SPEAR, // 槍〇
         WHIP, // 鞭
-        SCYTHE, //鎌
+        SCYTHE, //鎌〇
         DAGGER, //短剣〇
         DUALSWORD, //二刀流〇
         NONE //設定しないでください
