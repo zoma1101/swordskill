@@ -11,8 +11,6 @@ import com.zoma1101.SwordSkill.item.SampleItemRegistry;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
@@ -33,9 +31,7 @@ public class SwordSkill {
 
         SwordSkill_Entities.register(modEventBus);
         modEventBus.addListener(this::setup);
-
         MinecraftForge.EVENT_BUS.register(this);
-        registerClientHandlers(ctx); //クライアント側ハンドラーの登録
         ctx.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
         SampleItemRegistry.register(modEventBus);
@@ -57,17 +53,9 @@ public class SwordSkill {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void registerClientHandlers(FMLJavaModLoadingContext ctx) {
-        com.zoma1101.SwordSkill.client.handler.ClientModHandler.register(ctx.getModEventBus());
-    }
-
     private void onAddReloadListener(AddReloadListenerEvent event) {
         WeaponTypeDataLoader dataLoader = new WeaponTypeDataLoader();
         event.addListener(dataLoader);
         WeaponTypeDetector.initialize(dataLoader);
-        System.out.println("onAddReloadListenerが呼ばれました");
     }
-
-
 }
