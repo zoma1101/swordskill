@@ -48,7 +48,7 @@ public class BlueEffectRenderer {
         matrix.scale(scale.x, scale.y, scale.z);
 
         Vector3f cameraDirection;
-        if (rotation > -90 && rotation < 90){
+        if (rotation >= -90 && rotation <= 90){
             cameraDirection = new Vector3f(0,1,0);
         }
         else {cameraDirection = new Vector3f(0, -1, 0);}
