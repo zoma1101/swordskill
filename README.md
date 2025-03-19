@@ -30,16 +30,16 @@ You can change the config to obtain the weapon type from the letters contained i
 - "dagger" または "short_sword"なら短剣
 - "sword"　なら　片手剣
 - これらに当てはまらないSwordItemは片手剣に分類するようになっています。
-  Sword items that do not fit these criteria are classified as one-handed swords.
+Sword items that do not fit these criteria are classified as one-handed swords.
 
 ## Using DataPack
 You can create data packs and make any weapon compatible.
 Steps
 1. Create a data pack
 2. Create a weapon type json based on the [guide](https://github.com/zoma1101/swordskill/blob/main/src/main/java/com/zoma1101/SwordSkill/swordskills/SkillData.java)
-   Please select weapon type from the list below.
+Please select weapon type from the list below.
 
-`<DataPackName/data/swordskill/weapontype/youritems.json>`
+`DataPackName/data/swordskill/weapon_types/youritems.json`
 ```
 {
   "name" : "modname:youritems",
