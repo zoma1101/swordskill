@@ -149,6 +149,10 @@ public class AttackEffectEntity extends Entity {
             entity.hurt(this.damageSources().magic(), (float) (damage * 0.5f));
             entity.invulnerableTime = 0;
         }
+        else if (Objects.equals(this.getSkillParticle(), GoldSkillTexture())) {
+            entity.hurt(this.damageSources().magic(), (float) (damage * 0.25f));
+            entity.invulnerableTime = 0;
+        }
 
         entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
         entity.invulnerableTime = 0;

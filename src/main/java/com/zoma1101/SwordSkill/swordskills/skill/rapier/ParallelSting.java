@@ -40,7 +40,7 @@ public class ParallelSting implements ISkill {
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-7, 0, 30); // 1回目の斬撃
-            case 1 -> new Vec3(7, 0, -30); // 2回目の斬撃
+            case 1 -> new Vec3(7, 0, 30); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };
     }

@@ -1,0 +1,5 @@
+{
+  "name" : "whip",
+  "item" : ["swordskill:sample_whip"],
+  "weapontype" : ["WHIP"]
+}

@@ -1,6 +1,7 @@
 package com.zoma1101.SwordSkill.data;
 
 import com.zoma1101.SwordSkill.config.ServerConfig;
+import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,6 +38,8 @@ public class WeaponTypeUtils {
             Set<SkillData.WeaponType> offHandAvailableWeaponTypes = new HashSet<>(WeaponTypeDetector.detectWeaponTypes(offHandItem));
             boolean mainHandOneHandedSword = availableWeaponTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
             boolean offHandOneHandedSword = offHandAvailableWeaponTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
+            boolean mainHandClaw = availableWeaponTypes.contains(SkillData.WeaponType.CLAW);
+            boolean offHandClaw = offHandAvailableWeaponTypes.contains(SkillData.WeaponType.CLAW);
 
             if (mainHandOneHandedSword && offHandOneHandedSword) {
                 // 武器種をまとめる
@@ -48,6 +51,11 @@ public class WeaponTypeUtils {
                 availableWeaponTypes.clear();
                 availableWeaponTypes.addAll(combinedTypes);
                 return new WeaponData(availableWeaponTypes,"dual_sword");
+            }
+            if (mainHandClaw && offHandClaw) {
+                float default_cooldown = (float) player.getAttributeValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get());
+                Objects.requireNonNull(player.getAttribute(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get())).setBaseValue(default_cooldown-0.5);
+                return new WeaponData(availableWeaponTypes,"dual_claw");
             }
         }
         return null;

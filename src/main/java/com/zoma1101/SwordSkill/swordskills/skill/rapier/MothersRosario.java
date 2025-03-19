@@ -68,14 +68,14 @@ public class MothersRosario implements ISkill {
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-24, -12, 30);
-            case 1 -> new Vec3(-16, -6, -30);
-            case 2, 7 -> new Vec3(-8, 0, -30);
-            case 3 -> new Vec3(0, 6, -30);
-            case 4 -> new Vec3(8, 12, -30);
+            case 1 -> new Vec3(-16, -6, 30);
+            case 2, 7 -> new Vec3(-8, 0, 30);
+            case 3 -> new Vec3(0, 6, 30);
+            case 4 -> new Vec3(8, 12, 30);
             case 5 -> new Vec3(-24, 12, 30);
-            case 6 -> new Vec3(-16, 6, -30);
-            case 8 -> new Vec3(0, -6, -30);
-            case 9 -> new Vec3(8, -12, -30);
+            case 6 -> new Vec3(-16, 6, 30);
+            case 8 -> new Vec3(0, -6, 30);
+            case 9 -> new Vec3(8, -12, 30);
             default -> new Vec3(0, 0, 20);
         };
     }

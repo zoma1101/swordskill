@@ -21,6 +21,12 @@ public class SkillTexture {
     public static String PurpleSkillTexture() {
         return "skill_particle_sword/purple";
     }
+    public static String GreenSkillTexture() {
+        return "skill_particle_sword/green";
+    }
+    public static String GoldSkillTexture() {
+        return "skill_particle_sword/gold";
+    }
 
     public static String AxeBlueSkillTexture() {
         return "axe_particle/simple_blue";
@@ -68,6 +74,7 @@ public class SkillTexture {
         return "skill_particle_sword/roll_blue";
     }
 
+
     public static Set<String> Spia_ParticleType = new HashSet<>();
     public static Set<String> Axe_ParticleType = new HashSet<>();
     public static Set<String> Simple_ParticleType = new HashSet<>();
@@ -91,5 +98,7 @@ public class SkillTexture {
         Simple_ParticleType.add(YellowSkillTexture());
         Simple_ParticleType.add(BlackSkillTexture());
         Simple_ParticleType.add(PurpleSkillTexture());
+        Simple_ParticleType.add(GreenSkillTexture());
+        Simple_ParticleType.add(GoldSkillTexture());
     }
 }

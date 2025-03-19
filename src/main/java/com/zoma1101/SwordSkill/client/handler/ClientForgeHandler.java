@@ -1,9 +1,10 @@
 package com.zoma1101.SwordSkill.client.handler;
 
+import com.zoma1101.SwordSkill.SwordSkill;
 import com.zoma1101.SwordSkill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.SwordSkill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.SwordSkill.client.screen.Keybindings;
-import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.network.SkillLoadSlotPacket;
 import com.zoma1101.SwordSkill.network.SkillRequestPacket;
@@ -15,10 +16,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.client.event.InputEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,7 +110,7 @@ public class ClientForgeHandler {
             String WeaponName = getWeaponName();
             if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) { // 追加
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
-                cooldowns.put(CoolDown_SkillID, SkillData.getCooldown());
+                cooldowns.put(CoolDown_SkillID, getCoolDown(SkillData));
                 limitTickMax = SkillData.getTransformLimitTick();
             }
         }
@@ -156,11 +157,11 @@ public class ClientForgeHandler {
                     for (int i = skillId + 1; i < SwordSkillRegistry.SKILLS.size(); i++) {
                         SkillData nextSkill = SwordSkillRegistry.SKILLS.get(i);
                         if (nextSkill.getType() == TRANSFORM_FINISH) {
-                            return 1.0f - (float) remainingTicks / nextSkill.getCooldown();
+                            return 1.0f - (float) remainingTicks / getCoolDown(nextSkill);
                         }
                     }
                 }
-                return 1.0f - (float) remainingTicks / skill.getCooldown();
+                return 1.0f - (float) remainingTicks / getCoolDown(skill);
             }
         }
         return 1.0f; // クールダウンがない場合は1.0を返す
@@ -189,5 +190,10 @@ public class ClientForgeHandler {
             }
     }
 
+    private static int getCoolDown(SkillData SkillData){
+        LocalPlayer player = Minecraft.getInstance().player;
+        double cooldown = player != null ? player.getAttributeBaseValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get()) : 0;
+        return (int) (SkillData.getCooldown() * cooldown);
+    }
 
 }

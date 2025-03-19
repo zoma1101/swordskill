@@ -100,7 +100,14 @@
   "swordskill.skill.storm": "ストーム",
   "swordskill.skill.storm_mirror": "ストーム・ミラー",
   "swordskill.skill.judgment": "ジャッチメント",
-
+  "swordskill.skill.talon": "タロン",
+  "swordskill.skill.hant": "ハント",
+  "swordskill.skill.hant_killer": "ハント・キラー",
+  "swordskill.skill.tiger_claw": "タイガー・クロー",
+  "swordskill.skill.dragon_claw": "ドラゴンクロー",
+  "swordskill.skill.beast_claw": "ビーストクロー",
+  "swordskill.skill.golden_claw": "ゴールデンクロー",
+  "swordskill.skill.fast": "ファスト",
 
 
   "swordskill.skill.how_to_use.description": "ソードスキルの使い方！！\n初期設定がAかDキーを押してスキルを選んでね\nそして即時ソードスキル0～4使用に割り当てているキーを押すことで\nスキルを登録できるよ！あとはソードスキル選択キーを押しながら、\nマウスホイールを動かすことでソードスキルを即座に選択できるよ！\nそして最後に、ソードスキル使用キーを押せばチュートリアルは終了だ！\nたのしんでね！！",
@@ -169,6 +176,14 @@
   "swordskill.skill.requiem.description": "死にゆく者への鎮魂歌として相応しい斬撃を放つ",
   "swordskill.skill.storm.description": "鎌を振り回すことで周囲に斬撃を放つ\n派生ソードスキル：ストーム・ミラー",
   "swordskill.skill.judgment.description": "死神となり目標を審判する9連撃ソードスキル。",
+  "swordskill.skill.talon.description": "右上から爪で切り裂く",
+  "swordskill.skill.hant.description": "敵の頭上から爪で切り裂く\n派生ソードスキル：ハント・キラー",
+  "swordskill.skill.hant_killer.description": "敵に突進しながら前方を爪で引き裂く",
+  "swordskill.skill.tiger_claw.description": "高速で敵に突撃し爪で深い傷跡を残す",
+  "swordskill.skill.dragon_claw.description": "竜のように空中へ攻撃するソードスキル。",
+  "swordskill.skill.beast_claw.description": "獣のように紅いエフェクトを残すソードスキル。\nシャープネイル同様回復効果がある",
+  "swordskill.skill.golden_claw.description": "黄金の軌跡で敵に特殊なダメージを与えるソードスキル。\n25％の魔法ダメージを追加で与える",
+  "swordskill.skill.fast.description": "高速で敵の懐に潜り込み非常に高い攻撃力で敵を引き裂く",
 
 
   "swordskill.weapon.one_handed_sword": "片手剣",
@@ -177,8 +192,7 @@
   "swordskill.weapon.katana": "刀",
   "swordskill.weapon.axe": "斧",
   "swordskill.weapon.mace": "棍棒",
-  "swordskill.weapon.one_handed_claw": "片手爪",
-  "swordskill.weapon.dual_handed_claw": "両手爪",
+  "swordskill.weapon.claw": "爪",
   "swordskill.weapon.spear": "槍",
   "swordskill.weapon.whip": "鞭",
   "swordskill.weapon.scythe": "大鎌",

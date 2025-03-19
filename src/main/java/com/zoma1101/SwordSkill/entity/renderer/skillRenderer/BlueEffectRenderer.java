@@ -2,6 +2,7 @@ package com.zoma1101.SwordSkill.entity.renderer.skillRenderer;
 
 import com.mojang.blaze3d.vertex.*;
 import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.SwordSkill.swordskills.SkillTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -45,7 +46,12 @@ public class BlueEffectRenderer {
         // スケール適用
         matrix.scale(scale.x, scale.y, scale.z);
 
-        Vector3f cameraDirection = new Vector3f(1, 1, 1);
+        Vector3f cameraDirection;
+        if (rotation>=180 || rotation< 0){
+            cameraDirection = new Vector3f(-1, -1, -1);
+        }else {
+            cameraDirection = new Vector3f(1, 1, 1);
+        }
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
         VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));

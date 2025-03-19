@@ -57,8 +57,7 @@ public class SkillData {
         KATANA, // 刀〇
         AXE, // 斧〇
         RAPIER, //レイピア〇
-        ONE_HANDED_CLAW, // 片手爪
-        DUAL_HANDED_CLAW, // 両手爪
+        CLAW, // 片手爪
         SPEAR, // 槍〇
         WHIP, // 鞭
         SCYTHE, //鎌〇

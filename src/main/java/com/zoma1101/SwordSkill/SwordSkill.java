@@ -5,11 +5,14 @@ import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.data.WeaponTypeDataLoader;
 import com.zoma1101.SwordSkill.data.WeaponTypeDetector;
 import com.zoma1101.SwordSkill.effects.EffectRegistry;
+import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
 import com.zoma1101.SwordSkill.item.SampleItemRegistry;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
@@ -19,8 +22,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 
 @Mod(SwordSkill.MOD_ID)
@@ -38,6 +39,7 @@ public class SwordSkill {
         ctx.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
         SampleItemRegistry.register(modEventBus);
+        SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
         MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListener);
     }
@@ -66,5 +68,6 @@ public class SwordSkill {
         WeaponTypeDetector.initialize(dataLoader);
         System.out.println("onAddReloadListenerが呼ばれました");
     }
+
 
 }

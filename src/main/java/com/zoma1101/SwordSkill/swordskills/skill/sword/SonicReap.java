@@ -1,5 +1,6 @@
 package com.zoma1101.SwordSkill.swordskills.skill.sword;
 
+import com.zoma1101.SwordSkill.effects.EffectRegistry;
 import com.zoma1101.SwordSkill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -26,7 +27,7 @@ public class SonicReap implements ISkill {
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 3.5;
-
+            player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE.get(), 160));
             // プレイヤーを吹き飛ばす
             Vec3 moveVec = lookVec.scale(moveSpeed);
             player.setDeltaMovement(moveVec.x, moveVec.y+0.5, moveVec.z);

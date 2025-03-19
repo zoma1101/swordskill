@@ -4,12 +4,15 @@ import com.zoma1101.SwordSkill.data.DataManager;
 import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.network.SkillSlotInfoPacket;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,8 +32,8 @@ public class ServerEventHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(); // 追加
 
-    private static Map<ServerPlayer, ItemStack> mainHandItems = new HashMap<>();
-    private static Map<ServerPlayer, ItemStack> offHandItems = new HashMap<>();
+    private static final Map<ServerPlayer, ItemStack> mainHandItems = new HashMap<>();
+    private static final Map<ServerPlayer, ItemStack> offHandItems = new HashMap<>();
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -56,8 +59,7 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) event.getEntity();
+        if (event.getEntity() instanceof ServerPlayer player) {
             sendSkillSlotInfo(player);
         }
     }
@@ -83,4 +85,6 @@ public class ServerEventHandler {
             }
         }
     }
+
+
 }

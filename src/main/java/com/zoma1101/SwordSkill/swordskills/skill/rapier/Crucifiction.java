@@ -51,11 +51,10 @@ public class Crucifiction implements ISkill {
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-6, 0, 30);
-            case 1, 4 -> new Vec3(0, 0, -30);
-            case 2 -> new Vec3(6, 0, -30);
-            case 3 -> new Vec3(0, -7, -30);
-            case 5 -> new Vec3(0, 7, -30);
-            default -> new Vec3(0, 0, 0);
+            case 2 -> new Vec3(6, 0, 30);
+            case 3 -> new Vec3(0, -7, 30);
+            case 5 -> new Vec3(0, 7, 30);
+            default -> new Vec3(0, 0, 30);
         };
     }
 

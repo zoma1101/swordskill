@@ -45,9 +45,9 @@ public class QuadraplePain implements ISkill {
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-7, 6, 30);
-            case 1 -> new Vec3(-7, -6, -30);
-            case 2 -> new Vec3(7, 6, -30);
-            case 3 -> new Vec3(7, -6, -30);
+            case 1 -> new Vec3(-7, -6, 30);
+            case 2 -> new Vec3(7, 6, 30);
+            case 3 -> new Vec3(7, -6, 30);
             default -> new Vec3(0, 0, 0);
         };
     }
