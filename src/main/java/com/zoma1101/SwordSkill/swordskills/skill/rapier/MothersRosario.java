@@ -9,7 +9,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle_Purple;
 import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
 

@@ -1,25 +1,21 @@
 package com.zoma1101.SwordSkill.server.handler;
 
-import com.zoma1101.SwordSkill.data.DataManager;
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
+import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.SwordSkill.data.DataManager;
+import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
 import com.zoma1101.SwordSkill.network.SkillSlotInfoPacket;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraftforge.network.NetworkDirection;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger; // 追加
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;

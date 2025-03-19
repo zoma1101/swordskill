@@ -1,16 +1,17 @@
 package com.zoma1101.SwordSkill.entity.renderer.skillRenderer;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.swordskills.SkillTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import org.joml.*;
-
-import java.lang.Math;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
