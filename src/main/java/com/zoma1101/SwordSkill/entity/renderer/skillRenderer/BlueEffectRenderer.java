@@ -48,11 +48,10 @@ public class BlueEffectRenderer {
         matrix.scale(scale.x, scale.y, scale.z);
 
         Vector3f cameraDirection;
-        if (rotation>=180 || rotation< 0){
-            cameraDirection = new Vector3f(-1, -1, -1);
-        }else {
-            cameraDirection = new Vector3f(1, 1, 1);
+        if (rotation > -90 && rotation < 90){
+            cameraDirection = new Vector3f(0,1,0);
         }
+        else {cameraDirection = new Vector3f(0, -1, 0);}
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
         VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));

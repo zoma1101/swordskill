@@ -2,13 +2,16 @@ package com.zoma1101.SwordSkill.client.gui;
 
 import com.zoma1101.SwordSkill.config.ClientConfig;
 import com.zoma1101.SwordSkill.SwordSkill;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 @OnlyIn(Dist.CLIENT)
@@ -59,7 +62,7 @@ public class HudPositionSettingScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -86,8 +89,9 @@ public class HudPositionSettingScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft.player != null) {
-            minecraft.player.closeContainer();
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            player.closeContainer();
         }
     }
 }
