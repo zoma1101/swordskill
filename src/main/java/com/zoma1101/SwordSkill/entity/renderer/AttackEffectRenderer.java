@@ -29,7 +29,6 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
         String SkillParticle = entity.getSkillParticle();
 
-        // エフェクトを描画
         renderEffect(entity.getRotationVector(),poseStack, bufferSource, packedLight, scale, rotationZ, entity.tickCount,SkillParticle);
 
         poseStack.popPose();

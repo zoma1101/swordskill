@@ -105,9 +105,9 @@ public class SkillUtils {
         }
     }
 
-    public static Vec3 rotateLookVec(Player player, double pitch , double yaw) {
-        float RotX = (float) (player.getXRot()+ pitch);
-        float RotY = (float) (player.getYRot()+ yaw);
+    public static Vec3 rotateLookVec(Entity entity, double pitch , double yaw) {
+        float RotX = (float) (entity.getXRot()+ pitch);
+        float RotY = (float) (entity.getYRot()+ yaw);
         float f = RotX * ((float)Math.PI / 180F);
         float f1 = -RotY * ((float)Math.PI / 180F);
         float f2 = Mth.cos(f1);

@@ -60,6 +60,7 @@ public class SkillData {
         CLAW, // 片手爪〇
         SPEAR, // 槍〇
         WHIP, // 鞭
+        MACE,
         SCYTHE, //鎌〇
         DAGGER, //短剣〇
         DUALSWORD, //二刀流〇

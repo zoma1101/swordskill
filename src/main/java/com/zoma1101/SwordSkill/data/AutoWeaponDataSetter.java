@@ -30,7 +30,9 @@ public class AutoWeaponDataSetter {
             return new WeaponData(Set.of(SkillData.WeaponType.SPEAR),"spear");
         } else if (itemName.contains("whip")) {
             return new WeaponData(Set.of(SkillData.WeaponType.WHIP),"whip");
-        } else if (itemName.contains("scythe")) {
+        }  else if (itemName.contains("mace") || itemName.contains("hammer")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.MACE),"mace");
+        }  else if (itemName.contains("scythe")) {
             return new WeaponData(Set.of(SkillData.WeaponType.SCYTHE),"scythe");
         } else if (itemName.contains("dagger") || itemName.contains("short_sword")) {
             return new WeaponData(Set.of(SkillData.WeaponType.DAGGER),"dagger");

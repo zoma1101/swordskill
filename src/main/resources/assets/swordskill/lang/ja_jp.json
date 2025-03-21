@@ -108,7 +108,11 @@
   "swordskill.skill.beast_claw": "ビーストクロー",
   "swordskill.skill.golden_claw": "ゴールデンクロー",
   "swordskill.skill.fast": "ファスト",
-
+  "swordskill.skill.grand": "グランド",
+  "swordskill.skill.double_creep": "ダブルクリープ",
+  "swordskill.skill.hammer_down": "ハンマーダウン",
+  "swordskill.skill.diastrophism": "ダイアストロフィズム",
+  "swordskill.skill.mace_impact": "メイス・インパクト",
 
   "swordskill.skill.how_to_use.description": "ソードスキルの使い方！！\n初期設定がAかDキーを押してスキルを選んでね\nそして即時ソードスキル0～4使用に割り当てているキーを押すことで\nスキルを登録できるよ！あとはソードスキル選択キーを押しながら、\nマウスホイールを動かすことでソードスキルを即座に選択できるよ！\nそして最後に、ソードスキル使用キーを押せばチュートリアルは終了だ！\nたのしんでね！！",
   "swordskill.skill.how_to_use.description2": "おめでとう！！",
@@ -184,7 +188,11 @@
   "swordskill.skill.beast_claw.description": "獣のように紅いエフェクトを残すソードスキル。\nシャープネイル同様回復効果がある",
   "swordskill.skill.golden_claw.description": "黄金の軌跡で敵に特殊なダメージを与えるソードスキル。\n25％の魔法ダメージを追加で与える",
   "swordskill.skill.fast.description": "高速で敵の懐に潜り込み非常に高い攻撃力で敵を引き裂く",
-
+  "swordskill.skill.grand.description": "メイスを水平に振り敵に打撃を与える\n打撃を与えた相手に移動速度低下を与える",
+  "swordskill.skill.double_creep.description": "連続で敵の弱点にメイスを当てる\n打撃を与えた相手に移動速度低下を与える",
+  "swordskill.skill.hammer_down.description": "メイスを頭上から振り降ろし大ダメージを与える\n打撃を与えた相手に移動速度低下を与える",
+  "swordskill.skill.diastrophism.description": "シンプルな三連撃ソードスキル。\n打撃を与えた相手に移動速度低下を与える",
+  "swordskill.skill.mace_impact.description": "頭上に飛び上がり、着地したときに落下したブロック分増幅させた大ダメージを与える。\n打撃を与えた相手に移動速度低下を与える",
 
   "swordskill.weapon.one_handed_sword": "片手剣",
   "swordskill.weapon.rapier": "レイピア",

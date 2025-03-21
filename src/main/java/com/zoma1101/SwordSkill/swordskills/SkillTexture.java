@@ -16,7 +16,10 @@ public class SkillTexture {
         return "skill_particle_sword/holy";
     }
     public static String BlackSkillTexture() {
-        return "skill_particle_sword/death";
+        return "skill_particle_sword/black";
+    }
+    public static String WhiteSkillTexture() {
+        return "skill_particle_sword/white";
     }
     public static String PurpleSkillTexture() {
         return "skill_particle_sword/purple";
@@ -50,7 +53,6 @@ public class SkillTexture {
         return "axe_particle/simple_purple";
     }
 
-
     public static String Spia_Particle() {
         return "spear_particle/simple_blue";
     }
@@ -70,14 +72,29 @@ public class SkillTexture {
         return "spear_particle/super_blue";
     }
 
+    public static String MaceBlue_Texture() {
+        return "mace_particle/blue";
+    }
+    public static String MaceGreen_Texture() {
+        return "mace_particle/green";
+    }
+    public static String MacePurple_Texture() {
+        return "mace_particle/purple";
+    }
+
+
     public static String BlueRollTexture() {
         return "skill_particle_sword/roll_blue";
     }
-
+    public static String NomalWhipTexture() {
+        return "whip_particle/blue";
+    }
 
     public static Set<String> Spia_ParticleType = new HashSet<>();
     public static Set<String> Axe_ParticleType = new HashSet<>();
     public static Set<String> Simple_ParticleType = new HashSet<>();
+    public static Set<String> Whip_ParticleType = new HashSet<>();
+    public static Set<String> Mace_ParticleType = new HashSet<>();
     static {
         Spia_ParticleType.add(Spia_Particle());
         Spia_ParticleType.add(Spia_Particle_red());
@@ -100,5 +117,11 @@ public class SkillTexture {
         Simple_ParticleType.add(PurpleSkillTexture());
         Simple_ParticleType.add(GreenSkillTexture());
         Simple_ParticleType.add(GoldSkillTexture());
+
+        Whip_ParticleType.add(NomalWhipTexture());
+
+        Mace_ParticleType.add(MaceBlue_Texture());
+        Mace_ParticleType.add(MaceGreen_Texture());
+        Mace_ParticleType.add(MacePurple_Texture());
     }
 }

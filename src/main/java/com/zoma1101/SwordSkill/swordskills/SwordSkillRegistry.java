@@ -10,6 +10,7 @@ import com.zoma1101.SwordSkill.swordskills.skill.claw.*;
 import com.zoma1101.SwordSkill.swordskills.skill.dagger.*;
 import com.zoma1101.SwordSkill.swordskills.skill.dual_sword.*;
 import com.zoma1101.SwordSkill.swordskills.skill.katana.*;
+import com.zoma1101.SwordSkill.swordskills.skill.mace.*;
 import com.zoma1101.SwordSkill.swordskills.skill.rapier.*;
 import com.zoma1101.SwordSkill.swordskills.skill.scythe.*;
 import com.zoma1101.SwordSkill.swordskills.skill.spear.*;
@@ -23,7 +24,7 @@ public class SwordSkillRegistry {
     private static int nextSkillId = 0; // 自動ID生成用
     private static final int DefaultTransformTick = 12;
     
-    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, CLAW, SPEAR, WHIP, SCYTHE, DAGGER, DUALSWORD);
+    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, CLAW, SPEAR, WHIP, SCYTHE, DAGGER, DUALSWORD,MACE);
 
     static {
         // スキル登録
@@ -47,14 +48,14 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "star_sword",240, SkillData.SkillType.SIMPLE, StarSword.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 32,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "world_nova",400, SkillData.SkillType.SIMPLE, WorldNova.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 31,DefaultTransformTick));
         //斧
-        registerSkill(new SkillData(getNextSkillId(), "wall_wind", 120, SkillData.SkillType.SIMPLE, WallWind.class, List.of(AXE,TWO_HANDED_SWORD), false, 7,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "wall_wind", 120, SkillData.SkillType.SIMPLE, WallWind.class, List.of(AXE,TWO_HANDED_SWORD,MACE), false, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "blood_finisher", 300, SkillData.SkillType.SIMPLE, BloodFinisher.class, List.of(AXE), false, 16,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite", 80, SkillData.SkillType.TRANSFORM, Excite.class, List.of(AXE,TWO_HANDED_SWORD), false, 0,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite_line",120, SkillData.SkillType.TRANSFORM, Excite_line.class, List.of(AXE,TWO_HANDED_SWORD), true, 0,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite_triangle",300, SkillData.SkillType.TRANSFORM_FINISH, Excite_triangle.class, List.of(AXE,TWO_HANDED_SWORD), true, 7,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "excite", 80, SkillData.SkillType.TRANSFORM, Excite.class, List.of(AXE,TWO_HANDED_SWORD,MACE), false, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "excite_line",120, SkillData.SkillType.TRANSFORM, Excite_line.class, List.of(AXE,TWO_HANDED_SWORD,MACE), true, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "excite_triangle",300, SkillData.SkillType.TRANSFORM_FINISH, Excite_triangle.class, List.of(AXE,TWO_HANDED_SWORD,MACE), true, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "king_axe", 800, SkillData.SkillType.SIMPLE, KingAxe.class, List.of(AXE), false, 0,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "lumber_jack", 250, SkillData.SkillType.SIMPLE, LumberJack.class, List.of(AXE), false, 21,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "grand_upper", 120, SkillData.SkillType.RUSH, GrandUpper.class, List.of(AXE,TWO_HANDED_SWORD), false, 16,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "lumber_jack", 250, SkillData.SkillType.SIMPLE, LumberJack.class, List.of(AXE,MACE), false, 21,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "grand_upper", 120, SkillData.SkillType.RUSH, GrandUpper.class, List.of(AXE,TWO_HANDED_SWORD,MACE), false, 16,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "ryuuko_souhaku", 480, SkillData.SkillType.SIMPLE, RyuukoSouhaku.class, List.of(AXE), false, 21,DefaultTransformTick));
         //槍
         registerSkill(new SkillData(getNextSkillId(), "thrusts", 100, SkillData.SkillType.SIMPLE, Thrusts.class, List.of(SPEAR), false, 0,DefaultTransformTick));
@@ -117,6 +118,12 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "beast_claw", 200, SkillData.SkillType.SIMPLE, BeastClaw.class, List.of(CLAW), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "golden_claw", 300, SkillData.SkillType.SIMPLE, GoldClaw.class, List.of(CLAW), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "fast", 160, SkillData.SkillType.SIMPLE, Fast.class, List.of(CLAW), false, 10,DefaultTransformTick));
+        //メイス
+        registerSkill(new SkillData(getNextSkillId(), "grand", 70, SkillData.SkillType.SIMPLE, Grand.class, List.of(MACE), false, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "double_creep", 100, SkillData.SkillType.SIMPLE, DoubleCreep.class, List.of(MACE), false, 7,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "hammer_down", 150, SkillData.SkillType.SIMPLE, HammerDown.class, List.of(MACE), false, 8,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "diastrophism", 180, SkillData.SkillType.SIMPLE, Diastrophism.class, List.of(MACE), false, 12,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "mace_impact", 250, SkillData.SkillType.SIMPLE, MaceImpact.class, List.of(MACE), false, 200,DefaultTransformTick));
     }
 
     private static int getNextSkillId() {
