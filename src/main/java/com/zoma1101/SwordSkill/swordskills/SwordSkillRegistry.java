@@ -123,7 +123,7 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "double_creep", 100, SkillData.SkillType.SIMPLE, DoubleCreep.class, List.of(MACE), false, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "hammer_down", 150, SkillData.SkillType.SIMPLE, HammerDown.class, List.of(MACE), false, 8,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "diastrophism", 180, SkillData.SkillType.SIMPLE, Diastrophism.class, List.of(MACE), false, 12,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "mace_impact", 250, SkillData.SkillType.SIMPLE, MaceImpact.class, List.of(MACE), false, 200,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "mace_impact", 300, SkillData.SkillType.SIMPLE, MaceImpact.class, List.of(MACE), false, 200,DefaultTransformTick));
     }
 
     private static int getNextSkillId() {

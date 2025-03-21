@@ -49,8 +49,7 @@ public class FlashingPenetrator implements ISkill {
         int duration = 14;
         Vec3 Rotation = new Vec3(-Rot.y-player.getXRot(),Rot.x-player.getYRot(),45);
         SimpleSkillSound(level,player.position());
-        Vec3 Move = new Vec3(0,0,2);
-        spawnAttackEffect(level, SpawnPos, Rotation ,size, player, damage, knockbackForce, duration, FlashingPenetrator_Texture(),Move);
+        spawnAttackEffect(level, SpawnPos, Rotation ,size, player, damage, knockbackForce, duration, FlashingPenetrator_Texture(),Vec3.ZERO);
     }
 
 }

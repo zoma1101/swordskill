@@ -35,8 +35,7 @@ public class ShootingStar implements ISkill {
         int duration = 12;
         Vec3 Rotation = new Vec3(0,0,20);
         SimpleSkillSound(level,spawnPos);
-        Vec3 Move = new Vec3(0,0,2);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration, Spia_Particle(),Move);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration, Spia_Particle(),Vec3.ZERO);
     }
 
 }

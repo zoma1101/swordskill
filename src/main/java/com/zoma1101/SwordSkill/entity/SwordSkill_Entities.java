@@ -16,7 +16,8 @@ public class SwordSkill_Entities {
     public static final RegistryObject<EntityType<AttackEffectEntity>> ATTACK_EFFECT =
             ENTITY_TYPES.register("attack_effect",()->
                     EntityType.Builder.of(AttackEffectEntity::new, MobCategory.MISC)
-                            .sized(1,1).build("attack_effect"));
+                            .sized(1,1)
+                            .build("attack_effect"));
 
 
     public static void register(IEventBus eventBus) {

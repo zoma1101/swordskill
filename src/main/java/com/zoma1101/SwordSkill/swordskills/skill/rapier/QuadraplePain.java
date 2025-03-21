@@ -38,8 +38,7 @@ public class QuadraplePain implements ISkill {
         Vector3f size = Setsize(Texture);
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
-        Vec3 Move = new Vec3(0,0,1.5);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Move);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Vec3.ZERO);
     }
 
     private Vec3 calculateRotation(int slashIndex) {

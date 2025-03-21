@@ -26,7 +26,7 @@ public class ShadowScythe implements ISkill {
     private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback) {
         Vec3 lookVec = player.getLookAngle();
         Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(2.0));
-        double damage = BaseDamage(player) * 2f;
+        double damage = BaseDamage(player) * 0.8f;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(8f, 3f, 4f);
         int duration = 12;

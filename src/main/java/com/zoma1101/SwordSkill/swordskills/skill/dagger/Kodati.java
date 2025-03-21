@@ -28,7 +28,7 @@ public class Kodati implements ISkill {
     private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback) {
         Vec3 lookVec = player.getLookAngle();
         Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(1.5));
-        double damage = BaseDamage(player) * 0.75;
+        double damage = BaseDamage(player) * 0.35;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(4.5f, 3f, 2f);
         int duration = 12;

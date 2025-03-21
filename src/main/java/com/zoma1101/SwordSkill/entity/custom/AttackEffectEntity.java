@@ -7,10 +7,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -21,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.YellowSkillTexture;
 import static com.zoma1101.SwordSkill.swordskills.SkillUtils.SkillTargetEntity;
 
 public class AttackEffectEntity extends Entity {
@@ -36,7 +32,6 @@ public class AttackEffectEntity extends Entity {
     private double knockbackStrength = 0.5; // ノックバック強さ
     private int duration = 15; // 生存時間 (tick)
     private LivingEntity owner;
-    private Vec3 movement = new Vec3(0,0,2);
 
     public AttackEffectEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
@@ -55,6 +50,7 @@ public class AttackEffectEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+        Movement();
         if (!this.level().isClientSide) {
             if (!hasAppliedDamage) {
                 if (SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
@@ -62,8 +58,9 @@ public class AttackEffectEntity extends Entity {
                 } else if (!SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
                     applyDamageAndKnockback();
                 }
+                hasAppliedDamage = this.getDeltaMovement().equals(Vec3.ZERO);
             }
-            Movement();
+
         }
         if (this.tickCount >= duration) {
             this.discard();
@@ -119,7 +116,6 @@ public class AttackEffectEntity extends Entity {
             if (owner != null) {
                 Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
                 entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
-                hasAppliedDamage = true;
             }
         }
     }
@@ -166,8 +162,6 @@ public class AttackEffectEntity extends Entity {
         }
     }
 
-
-
     @Override
     protected void readAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {}
     @Override
@@ -185,7 +179,20 @@ public class AttackEffectEntity extends Entity {
         this.entityData.set(EFFECT_RADIUS_Z, effectRadius.z);
     }
     public void setDuration(int duration) { this.duration = duration; }
-    public void setMovement(Vec3 movement) {this.movement = movement;}
+    public void setMovement(Vec3 movement) {
+        Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
+        Vec3 velocity = direction.scale(movement.z / duration);
+
+        // 視点から見て上方向への移動
+        Vec3 upDirection = new Vec3(0, 1, 0).yRot((float) Math.toRadians(-this.getYRot()));
+        Vec3 upVelocity = upDirection.scale(movement.y / duration);
+
+        // 視点から見て右方向への移動
+        Vec3 rightDirection = direction.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 rightVelocity = rightDirection.scale(movement.x / duration);
+        // 全ての移動ベクトルを加算
+        setDeltaMovement(velocity.add(upVelocity).add(rightVelocity).scale(0.8f));
+    }
     public void setSkillParticle(String skillParticle) {this.entityData.set(SKILL_PARTICLE,skillParticle);
     }
     public void setRotation(float rotationZ) {
@@ -207,26 +214,17 @@ public class AttackEffectEntity extends Entity {
         return this.entityData.get(SKILL_PARTICLE);
     }
 
-    private void Movement() {
-        if (movement != Vec3.ZERO) {
-            Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
-            Vec3 velocity = direction.scale(movement.z / duration);
-
-            // 視点から見て上方向への移動
-            Vec3 upDirection = new Vec3(0, 1, 0).yRot((float) Math.toRadians(-this.getYRot()));
-            Vec3 upVelocity = upDirection.scale(movement.y / duration);
-
-            // 視点から見て右方向への移動
-            Vec3 rightDirection = direction.cross(new Vec3(0, 1, 0)).normalize();
-            Vec3 rightVelocity = rightDirection.scale(movement.x / duration);
-
-            // 全ての移動ベクトルを加算
-            Vec3 totalVelocity = velocity.add(upVelocity).add(rightVelocity);
-            this.setPos(this.position().add(totalVelocity));
-        }
-        else {
-            hasAppliedDamage = true;
-        }
+    private void Movement(){
+        Vec3 vec3 = getDeltaMovement();
+        double d2 = this.getX() + vec3.x;
+        double d0 = this.getY() + vec3.y;
+        double d1 = this.getZ() + vec3.z;
+        Vec3 movement = new Vec3(d2,d0,d1);
+        this.setDeltaMovement(vec3.scale(0.99));
+        this.move(MoverType.SELF,vec3);
+        if (!this.position().equals(movement) && getDeltaMovement() != Vec3.ZERO){
+            this.discard();
+        }//移動するソードスキルが壁に当たると消滅する。消滅時の処理を記述
     }
 
 }

@@ -16,7 +16,7 @@ public class SlashBlade implements ISkill {
         if (FinalTick == 2){
             Vec3 lookVec = player.getLookAngle();
             Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(0.5)); // 目の前2ブロック
-            double damage = BaseDamage(player)*2.3f;
+            double damage = BaseDamage(player)*1.2f;
             double knockbackForce = BaseKnowBack(player)*0.5;
             Vector3f size = new Vector3f(8f, 2f, 8f);
             int duration = 12;

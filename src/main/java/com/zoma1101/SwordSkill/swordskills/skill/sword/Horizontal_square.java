@@ -15,16 +15,16 @@ public class Horizontal_square implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) {
-            performSlash(level, player, 0, 0.1F,0.5f,false);
+            performSlash(level, player, 0, 0.1F,0.75f,false);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 3) {
-            performSlash(level, player, 1, 0.75F,0.5f,false);
+            performSlash(level, player, 1, 0.75F,0.75f,false);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 5) {
-            performSlash(level, player, 0, 0.75F,3f,true);
-            performSlash(level, player, 1, 0.75F,3f,true);
-            performSlash(level, player, 2, 0.75F,3f,true);
-            performSlash(level, player, 3, 0.75F,3f,true);
+            performSlash(level, player, 0, 0.75F,1.75f,true);
+            performSlash(level, player, 1, 0.75F,1.75f,true);
+            performSlash(level, player, 2, 0.75F,1.75f,true);
+            performSlash(level, player, 3, 0.75F,1.75f,true);
             SimpleSkillSound(level,player.position());
         }
     }
