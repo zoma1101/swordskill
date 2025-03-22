@@ -1,7 +1,8 @@
 package com.zoma1101.SwordSkill.entity;
 
-import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
 import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
+import com.zoma1101.SwordSkill.entity.custom.WhipAttackEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -19,10 +20,14 @@ public class SwordSkill_Entities {
                             .sized(1,1)
                             .build("attack_effect"));
 
+    public static final RegistryObject<EntityType<WhipAttackEffect>> WHIP_EFFECT =
+            ENTITY_TYPES.register("whip_effect",()->
+                    EntityType.Builder.of(WhipAttackEffect::new, MobCategory.MISC)
+                            .sized(1,1)
+                            .build("whip_effect"));
+
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }
-
-
 }

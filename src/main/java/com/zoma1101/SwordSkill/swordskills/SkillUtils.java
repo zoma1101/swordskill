@@ -4,6 +4,7 @@ import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
 import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
+import com.zoma1101.SwordSkill.entity.custom.WhipAttackEffect;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -13,10 +14,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class SkillUtils {
     public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner, double damage, double knockback, int duration, String skill_particle,Vec3 Movement) {
@@ -37,6 +42,25 @@ public class SkillUtils {
             SwingArm((ServerPlayer) owner);
         }
     }
+
+    public static void spawnWhipEffect(Level level, Vec3 position, Vec2 Rotation, LivingEntity owner, String SkillTexture,int Duration, float Damage, double KnockBack, float size,float movement) {
+        if (!level.isClientSide) {
+            WhipAttackEffect effect = new WhipAttackEffect(SwordSkill_Entities.WHIP_EFFECT.get(),level);
+            effect.setDuration(Duration);
+            effect.setPos(position.x, position.y, position.z);
+            effect.setXRot(owner.getXRot() + Rotation.x);
+            effect.setYRot(owner.getYRot() + Rotation.y);
+            effect.setSkillParticle(SkillTexture);
+            effect.setDamage(Damage);
+            effect.setKnockback(KnockBack);
+            effect.setSize(size);
+            effect.setOwner(owner);
+            effect.setDeltaMovement(effect.getLookAngle().scale(movement));
+            level.addFreshEntity(effect); // エンティティを追加
+            SwingArm((ServerPlayer) owner);
+        }
+    }
+
 
     public static double BaseDamage(ServerPlayer player){
         if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)){
