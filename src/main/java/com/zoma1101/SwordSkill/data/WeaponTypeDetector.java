@@ -17,9 +17,7 @@ public class WeaponTypeDetector {
     }
 
     public static void initialize(WeaponTypeDataLoader weaponTypeDataLoader) {
-        if (instance == null) {
-            instance = new WeaponTypeDetector(weaponTypeDataLoader);
-        }
+        instance = new WeaponTypeDetector(weaponTypeDataLoader);
     }
 
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
@@ -34,9 +32,9 @@ public class WeaponTypeDetector {
         Item item = heldItem.getItem();
         // JSONファイルから武器種を判定
         for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
-            if (data.getItems().contains(item)) {
-                weaponTypes.addAll(data.getWeaponTypes());
-                return weaponTypes; // JSONに定義があれば、それを返す
+            if (data.items().contains(item)) {
+                weaponTypes.addAll(data.weaponTypes());
+                return weaponTypes;
             }
         }
         return weaponTypes;
@@ -53,8 +51,8 @@ public class WeaponTypeDetector {
     private String getWeaponNameInternal(ItemStack heldItem) {
         Item item = heldItem.getItem();
         for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
-            if (data.getItems().contains(item)) {
-                return data.getName();
+            if (data.items().contains(item)) {
+                return data.name();
             }
         }
         return null;

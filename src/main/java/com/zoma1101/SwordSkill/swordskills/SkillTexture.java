@@ -18,9 +18,6 @@ public class SkillTexture {
     public static String BlackSkillTexture() {
         return "skill_particle_sword/black";
     }
-    public static String WhiteSkillTexture() {
-        return "skill_particle_sword/white";
-    }
     public static String PurpleSkillTexture() {
         return "skill_particle_sword/purple";
     }
@@ -88,9 +85,6 @@ public class SkillTexture {
         return "skill_particle_sword/roll_blue";
     }
 
-    public static String NomalWhipTexture() {
-        return ("textures/entity/whip_particle/blue.png");
-    }
 
 
 
@@ -98,7 +92,6 @@ public class SkillTexture {
     public static Set<String> Axe_ParticleType = new HashSet<>();
     public static Set<String> Simple_ParticleType = new HashSet<>();
     public static Set<String> Mace_ParticleType = new HashSet<>();
-    public static Set<String> Whip_ParticleType = new HashSet<>();
     static {
         Spia_ParticleType.add(Spia_Particle());
         Spia_ParticleType.add(Spia_Particle_red());
@@ -125,7 +118,5 @@ public class SkillTexture {
         Mace_ParticleType.add(MaceBlue_Texture());
         Mace_ParticleType.add(MaceGreen_Texture());
         Mace_ParticleType.add(MacePurple_Texture());
-
-        Whip_ParticleType.add(NomalWhipTexture());
     }
 }

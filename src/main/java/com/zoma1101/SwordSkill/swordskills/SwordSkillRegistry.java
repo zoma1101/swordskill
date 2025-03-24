@@ -16,7 +16,6 @@ import com.zoma1101.SwordSkill.swordskills.skill.scythe.*;
 import com.zoma1101.SwordSkill.swordskills.skill.spear.*;
 import com.zoma1101.SwordSkill.swordskills.skill.sword.*;
 import com.zoma1101.SwordSkill.swordskills.skill.two_handed_sword.*;
-import com.zoma1101.SwordSkill.swordskills.skill.whip.Whip;
 
 import static com.zoma1101.SwordSkill.swordskills.SkillData.WeaponType.*;
 
@@ -25,13 +24,13 @@ public class SwordSkillRegistry {
     private static int nextSkillId = 0; // 自動ID生成用
     private static final int DefaultTransformTick = 12;
     
-    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, CLAW, SPEAR, WHIP, SCYTHE, DAGGER, DUALSWORD,MACE);
+    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, AXE, RAPIER, CLAW, SPEAR, SCYTHE, DAGGER, DUALSWORD,MACE);
 
     static {
         // スキル登録
         //片手剣
         registerSkill(new SkillData(getNextSkillId(), "how_to_use",100, SkillData.SkillType.SIMPLE, HowToUse.class, AllWeapons, false, 0,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "slant",50, SkillData.SkillType.SIMPLE, Slant.class, List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, RAPIER, WHIP, DUALSWORD), false, 0,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "slant",50, SkillData.SkillType.SIMPLE, Slant.class, List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, RAPIER, DUALSWORD), false, 0,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "horizontal",60, SkillData.SkillType.TRANSFORM, Horizontal.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), false, 0,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "horizontal_arc",120, SkillData.SkillType.TRANSFORM, Horizontal_arc.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 0,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "horizontal_square", 240, SkillData.SkillType.TRANSFORM_FINISH, Horizontal_square.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 7,DefaultTransformTick));
@@ -125,9 +124,6 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "hammer_down", 150, SkillData.SkillType.SIMPLE, HammerDown.class, List.of(MACE), false, 8,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "diastrophism", 180, SkillData.SkillType.SIMPLE, Diastrophism.class, List.of(MACE), false, 12,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "mace_impact", 300, SkillData.SkillType.SIMPLE, MaceImpact.class, List.of(MACE), false, 200,DefaultTransformTick));
-        //鞭
-        registerSkill(new SkillData(getNextSkillId(), "whip", 80, SkillData.SkillType.SIMPLE, Whip.class, List.of(WHIP), false, 0,DefaultTransformTick));
-
     }
 
     private static int getNextSkillId() {

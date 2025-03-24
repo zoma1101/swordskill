@@ -1,24 +1,22 @@
 package com.zoma1101.SwordSkill.data;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.zoma1101.SwordSkill.swordskills.SkillData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static net.minecraft.resources.ResourceLocation.parse;
 
@@ -26,36 +24,52 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private final Map<String, WeaponTypeData> weaponTypeDataMap = new HashMap<>();
+    private final Map<ResourceLocation, JsonObject> previousJsonMap = new HashMap<>(); // 以前読み込んだ JSON を保存
 
     public WeaponTypeDataLoader() {
         super(GSON, "weapon_types");
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> objectIn, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
-        weaponTypeDataMap.clear();
+    protected void apply(Map<ResourceLocation, JsonElement> objectIn, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
+        Map<ResourceLocation, JsonObject> currentJsonMap = new HashMap<>();
+        Map<String, WeaponTypeData> newWeaponTypeDataMap = new HashMap<>();
+        boolean updated = false;
 
-        objectIn.forEach((resourceLocation, jsonElement) -> {
+        for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
+            ResourceLocation resourceLocation = entry.getKey();
+            if (resourceLocation.getPath().startsWith("_")) continue;
+
             try {
-                JsonObject jsonObject = jsonElement.getAsJsonObject();
-                LOGGER.info("JsonObjectは" + jsonObject);
-                WeaponTypeData weaponTypeData = parseWeaponTypeData(jsonObject);
-                weaponTypeDataMap.put(weaponTypeData.getName(), weaponTypeData);
+                JsonObject jsonObject = GsonHelper.convertToJsonObject(entry.getValue(), "top element");
+                currentJsonMap.put(resourceLocation, jsonObject);
 
-                // ここで WeaponTypeData の内容をログ出力
-                System.out.println("Loaded WeaponTypeData:");
-                System.out.println("Name:" + weaponTypeData.getName());
-                System.out.println("WeaponTypes:" + weaponTypeData.getWeaponTypes());
-                LOGGER.info("  Items: {}",
-                        weaponTypeData.getItems().stream()
-                                .map(item -> ForgeRegistries.ITEMS.getKey(item).toString())
-                                .collect(Collectors.toList()));
+                if (!previousJsonMap.containsKey(resourceLocation) || !previousJsonMap.get(resourceLocation).equals(jsonObject)) {
+                    // 新規ファイルまたは内容が変更されたファイル
+                    WeaponTypeData weaponTypeData = parseWeaponTypeData(jsonObject);
+                    newWeaponTypeDataMap.put(weaponTypeData.name(), weaponTypeData);
+                    updated = true;
+                } else {
+                    // 内容が変わっていないファイル
+                    newWeaponTypeDataMap.put(weaponTypeDataMap.get(resourceLocation.toString()).name(), weaponTypeDataMap.get(resourceLocation.toString()));
+                }
 
-            } catch (Exception e) {
-                LOGGER.error("Failed to load weapon type data from {}", resourceLocation, e);
+            } catch (JsonParseException e) {
+                LOGGER.error("Parsing error loading weapon type data {}", resourceLocation, e);
             }
-        });
-        LOGGER.info("Loaded {} weapon type data files", weaponTypeDataMap.size());
+        }
+
+        if (updated || weaponTypeDataMap.size() != currentJsonMap.size()) {
+            weaponTypeDataMap.clear();
+            weaponTypeDataMap.putAll(newWeaponTypeDataMap);
+            previousJsonMap.clear();
+            previousJsonMap.putAll(currentJsonMap);
+            LOGGER.info("Weapon type data reloaded. Total files: {}", weaponTypeDataMap.size());
+            //WeaponTypeDetector.initialize(this);
+            // 必要に応じて Mod のロジックに更新を通知する処理を追加
+        } else {
+            LOGGER.info("Weapon type data not changed.");
+        }
     }
 
     private WeaponTypeData parseWeaponTypeData(JsonObject jsonObject) {
@@ -84,27 +98,6 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
         return weaponTypeDataMap;
     }
 
-    public static class WeaponTypeData {
-        private final String name;
-        private final List<SkillData.WeaponType> weaponTypes;
-        private final List<Item> items;
-
-        public WeaponTypeData(String name, List<SkillData.WeaponType> weaponTypes, List<Item> items) {
-            this.name = name;
-            this.weaponTypes = weaponTypes;
-            this.items = items;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public List<SkillData.WeaponType> getWeaponTypes() {
-            return weaponTypes;
-        }
-
-        public List<Item> getItems() {
-            return items;
-        }
+    public record WeaponTypeData(String name, List<SkillData.WeaponType> weaponTypes, List<Item> items) {
     }
 }

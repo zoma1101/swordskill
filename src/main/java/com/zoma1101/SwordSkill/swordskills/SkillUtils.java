@@ -4,7 +4,6 @@ import com.zoma1101.SwordSkill.config.ServerConfig;
 import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
 import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
-import com.zoma1101.SwordSkill.entity.custom.WhipAttackEffect;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -38,24 +37,6 @@ public class SkillUtils {
             effect.setSkillParticle(skill_particle);
             effect.setDuration(duration); // 持続時間設定
             effect.setMovement(Movement);
-            level.addFreshEntity(effect); // エンティティを追加
-            SwingArm((ServerPlayer) owner);
-        }
-    }
-
-    public static void spawnWhipEffect(Level level, Vec3 position, Vec2 Rotation, LivingEntity owner, String SkillTexture,int Duration, float Damage, double KnockBack, float size,float movement) {
-        if (!level.isClientSide) {
-            WhipAttackEffect effect = new WhipAttackEffect(SwordSkill_Entities.WHIP_EFFECT.get(),level);
-            effect.setDuration(Duration);
-            effect.setPos(position.x, position.y, position.z);
-            effect.setXRot(owner.getXRot() + Rotation.x);
-            effect.setYRot(owner.getYRot() + Rotation.y);
-            effect.setSkillParticle(SkillTexture);
-            effect.setDamage(Damage);
-            effect.setKnockback(KnockBack);
-            effect.setSize(size);
-            effect.setOwner(owner);
-            effect.setDeltaMovement(effect.getLookAngle().scale(movement));
             level.addFreshEntity(effect); // エンティティを追加
             SwingArm((ServerPlayer) owner);
         }

@@ -28,9 +28,7 @@ public class AutoWeaponDataSetter {
             return new WeaponData(Set.of(SkillData.WeaponType.CLAW),"claw");
         } else if (itemName.contains("spear") || itemName.contains("trident") || heldItem.getItem() instanceof TridentItem) {
             return new WeaponData(Set.of(SkillData.WeaponType.SPEAR),"spear");
-        } else if (itemName.contains("whip")) {
-            return new WeaponData(Set.of(SkillData.WeaponType.WHIP),"whip");
-        }  else if (itemName.contains("mace") || itemName.contains("hammer")) {
+        } else if (itemName.contains("mace") || itemName.contains("hammer")) {
             return new WeaponData(Set.of(SkillData.WeaponType.MACE),"mace");
         }  else if (itemName.contains("scythe")) {
             return new WeaponData(Set.of(SkillData.WeaponType.SCYTHE),"scythe");

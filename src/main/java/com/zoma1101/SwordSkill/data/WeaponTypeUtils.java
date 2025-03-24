@@ -24,7 +24,6 @@ public class WeaponTypeUtils {
             return availableWeaponTypes;
         }
         availableWeaponTypes.addAll(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
-
         return availableWeaponTypes;
     }
 

@@ -59,8 +59,7 @@ public class SkillData {
         RAPIER, //レイピア〇
         CLAW, // 片手爪〇
         SPEAR, // 槍〇
-        WHIP, // 鞭
-        MACE,
+        MACE,//メイス〇
         SCYTHE, //鎌〇
         DAGGER, //短剣〇
         DUALSWORD, //二刀流〇
