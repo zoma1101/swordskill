@@ -42,7 +42,9 @@ public class ClientForgeHandler {
     private static boolean SetWeaponType = false;
 
     public static void setSelectedSkillIndex(int index) {
-        Minecraft.getInstance().player.getPersistentData().putInt("selectedSkillIndex", index);
+        if (Minecraft.getInstance().player != null) {
+            Minecraft.getInstance().player.getPersistentData().putInt("selectedSkillIndex", index);
+        }
     }
 
     @SubscribeEvent
