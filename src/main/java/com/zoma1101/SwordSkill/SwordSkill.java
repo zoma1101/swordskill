@@ -9,10 +9,8 @@ import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
 import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
 import com.zoma1101.SwordSkill.item.SampleItemRegistry;
 import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.network.SkillLoadSlotPacket;
 import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
@@ -22,9 +20,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.getWeaponName;
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.setWeaponType;
 
 
 @Mod(SwordSkill.MOD_ID)

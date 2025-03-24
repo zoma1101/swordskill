@@ -13,7 +13,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
@@ -47,12 +46,11 @@ public class SkillUtils {
         if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)){
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
-            double mainHandDamage = mainHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
-            double offHandDamage = offHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
-            double totalDamageHalf = (mainHandDamage + offHandDamage) / 2;
-            double attackDamageMinusMainHand = Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue() - mainHandDamage;
-            return (totalDamageHalf + attackDamageMinusMainHand)* ServerConfig.damageMultiplier.get() ;
-
+                double mainHandDamage = mainHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
+                double offHandDamage = offHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
+                double totalDamageHalf = (mainHandDamage + offHandDamage) / 2;
+                double attackDamageMinusMainHand = Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue() - mainHandDamage;
+                return (totalDamageHalf + attackDamageMinusMainHand) * ServerConfig.damageMultiplier.get();
         } else {
             return Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue() * ServerConfig.damageMultiplier.get();
         }
