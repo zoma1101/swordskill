@@ -1,0 +1,6 @@
+{
+  "name" : "axe",
+  "item" : ["wom:iron_greataxe","wom:golden_greataxe","wom:diamond_greataxe","wom:netherite_greataxe","wom:tormented_mind"
+  ],
+  "weapontype" : ["AXE"]
+}
