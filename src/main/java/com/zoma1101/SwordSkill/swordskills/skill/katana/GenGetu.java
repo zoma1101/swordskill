@@ -8,7 +8,7 @@ import org.joml.Vector3f;
 
 import java.util.Random;
 
-import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;

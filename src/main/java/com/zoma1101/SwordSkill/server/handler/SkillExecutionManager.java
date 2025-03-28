@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 
 public class SkillExecutionManager {
     public static final Map<UUID, SkillExecutionData> skillExecutions = new HashMap<>();

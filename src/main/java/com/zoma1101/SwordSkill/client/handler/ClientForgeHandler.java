@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.client.handler.ClientTickHandler.getSelectedSlot;
 import static com.zoma1101.swordskill.data.WeaponTypeUtils.*;
 import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;

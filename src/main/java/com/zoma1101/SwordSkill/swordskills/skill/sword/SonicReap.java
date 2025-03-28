@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;

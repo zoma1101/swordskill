@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.AxePurpleSkillTexture;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
