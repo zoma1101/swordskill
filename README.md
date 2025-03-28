@@ -55,7 +55,7 @@ Steps
 ```
 
 From swordskill v1.1 onwards, if you only want to add default weapon types,
-you can easily create data packs by just modifying the "item" list [here](https://github.com/zoma1101/swordskill/tree/main/src/main/resources/data/swordskill/weapon_types):
+you can easily create data packs by just modifying the "item" list [here](https://github.com/zoma1101/swordskill/tree/main/src/main/resources/data/swordskill/weapon_type_sample):
 
 ```
 {
