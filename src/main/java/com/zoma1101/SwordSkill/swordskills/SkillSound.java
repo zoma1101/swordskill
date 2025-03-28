@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.swordskills;
+package com.zoma1101.swordskill.swordskills;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.Level;

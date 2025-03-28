@@ -1,17 +1,17 @@
-package com.zoma1101.SwordSkill.client.gui;
+package com.zoma1101.swordskill.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.zoma1101.SwordSkill.client.handler.ClientForgeHandler;
-import com.zoma1101.SwordSkill.client.handler.ClientSkillSlotHandler;
-import com.zoma1101.SwordSkill.client.handler.ClientTickHandler;
-import com.zoma1101.SwordSkill.config.ClientConfig;
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
-import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
+import com.zoma1101.swordskill.client.handler.ClientForgeHandler;
+import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
+import com.zoma1101.swordskill.client.handler.ClientTickHandler;
+import com.zoma1101.swordskill.config.ClientConfig;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 @OnlyIn(Dist.CLIENT)
 public class SkillSlotDisplayOverlay {

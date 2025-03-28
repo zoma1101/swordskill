@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.entity.custom;
+package com.zoma1101.swordskill.entity.custom;
 
-import com.zoma1101.SwordSkill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.SkillTexture;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -17,8 +17,8 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Objects;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.SkillTargetEntity;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.SkillTargetEntity;
 
 public class AttackEffectEntity extends Entity {
 
@@ -75,8 +75,8 @@ public class AttackEffectEntity extends Entity {
                 entity -> (SkillTargetEntity(entity,owner)));
 
         for (LivingEntity entity : entities) {
-            ApplyDamage(entity);
             KnowBack(entity);
+            ApplyDamage(entity);
         }
     }
     private void applyRayDamage() {
@@ -89,7 +89,7 @@ public class AttackEffectEntity extends Entity {
         Vec3 rayStart = this.position().add(direction.scale(rayLength));
         Vec3 rayEnd = this.position().add(direction.scale(-rayLength));
 
-        if (!Objects.equals(this.getSkillParticle(), FlashingPenetrator_Texture())) {
+        if (!Objects.equals(this.getSkillParticle(), FlashingPenetrator_Texture()) || this.getDeltaMovement() != Vec3.ZERO) {
             Vec3 playerPos = owner != null ? owner.position() : this.position();
             // 終点がエンティティとowner間の距離より遠い場合はownerの位置を終点にする
             //フラッシングペネトレーターは除く
@@ -152,11 +152,17 @@ public class AttackEffectEntity extends Entity {
         else if (Mace_ParticleType.contains(this.getSkillParticle())) {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100,1));
         }
+
         entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
-        entity.invulnerableTime = 0;
+        if (getDeltaMovement() == Vec3.ZERO){
+            entity.invulnerableTime = 0;
+        }
+        else {
+            entity.invulnerableTime = 8;
+        }
     }
     private void KnowBack(LivingEntity entity){
-        if (owner != null) {
+        if (owner != null && entity.invulnerableTime == 0) {
             Vec3 knockbackDir = (entity.position().subtract(this.position())).normalize().scale(knockbackStrength);
             entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
         }

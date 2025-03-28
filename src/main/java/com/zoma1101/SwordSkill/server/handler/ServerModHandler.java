@@ -1,7 +1,7 @@
-package com.zoma1101.SwordSkill.server.handler;
+package com.zoma1101.swordskill.server.handler;
 
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.swordskills.skill.katana;
+package com.zoma1101.swordskill.swordskills.skill.katana;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -8,9 +8,10 @@ import org.joml.Vector3f;
 
 import java.util.Random;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class GenGetu implements ISkill {
     @Override
@@ -18,6 +19,12 @@ public class GenGetu implements ISkill {
         if (FinalTick == 8){
             Random random = new Random();
             int result = random.nextBoolean() ? 0 : 1;
+            if (result==0){
+                PlayerAnimation(SkillID,"upper");
+            }
+            else {
+                PlayerAnimation(SkillID,"under");
+            }
             Vec3 lookVec = player.getLookAngle();
             Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2)); // 目の前2ブロック
             double damage = RushDamage(player)*3.5f;
@@ -27,9 +34,9 @@ public class GenGetu implements ISkill {
             Vec3 Rotation;
 
             if (result == 0){
-                Rotation = new Vec3(0,0,60);
+                Rotation = new Vec3(0,0,125);
             } else {
-                Rotation = new Vec3(0, 0, 240);
+                Rotation = new Vec3(0, 0, -35);
             }
             String skill_particle = RedSkillTexture();
             SimpleSkillSound(level,spawnPos);

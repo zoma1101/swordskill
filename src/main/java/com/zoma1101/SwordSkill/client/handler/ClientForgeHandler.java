@@ -1,16 +1,16 @@
-package com.zoma1101.SwordSkill.client.handler;
+package com.zoma1101.swordskill.client.handler;
 
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.client.gui.HudPositionSettingScreen;
-import com.zoma1101.SwordSkill.client.gui.SwordSkillSelectionScreen;
-import com.zoma1101.SwordSkill.client.screen.Keybindings;
-import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
-import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.network.SkillLoadSlotPacket;
-import com.zoma1101.SwordSkill.network.SkillRequestPacket;
-import com.zoma1101.SwordSkill.network.UseSkillPacket;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
-import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
+import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
+import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.effects.SwordSkillAttribute;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.SkillLoadSlotPacket;
+import com.zoma1101.swordskill.network.SkillRequestPacket;
+import com.zoma1101.swordskill.network.UseSkillPacket;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.zoma1101.SwordSkill.client.handler.ClientTickHandler.getSelectedSlot;
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillData.SkillType.TRANSFORM;
-import static com.zoma1101.SwordSkill.swordskills.SkillData.SkillType.TRANSFORM_FINISH;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.client.handler.ClientTickHandler.getSelectedSlot;
+import static com.zoma1101.swordskill.data.WeaponTypeUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
 
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientForgeHandler {
@@ -108,12 +108,18 @@ public class ClientForgeHandler {
     private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
         SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
         if (SkillData != null) {
-            Set<SkillData.WeaponType> weaponType = getWeaponType(); // 追加
+            Set<SkillData.WeaponType> weaponType = getWeaponType();
             String WeaponName = getWeaponName();
-            if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) { // 追加
+            if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) {
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
                 cooldowns.put(CoolDown_SkillID, getCoolDown(SkillData));
                 limitTickMax = SkillData.getTransformLimitTick();
+                if (SkillData.getType().equals(RUSH)){
+                    PlayerAnimation(SkillID,"start");
+                }
+                else {
+                    PlayerAnimation(SkillID,"");
+                }
             }
         }
     }
@@ -197,5 +203,4 @@ public class ClientForgeHandler {
         double cooldown = player != null ? player.getAttributeBaseValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get()) : 0;
         return (int) (SkillData.getCooldown() * cooldown);
     }
-
 }

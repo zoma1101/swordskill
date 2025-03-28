@@ -1,7 +1,7 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.SwordSkill.effects.EffectRegistry;
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.effects.EffectRegistry;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -13,9 +13,11 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class SonicReap implements ISkill {
     private static boolean isAttacked = false;
@@ -37,6 +39,9 @@ public class SonicReap implements ISkill {
             MobEffectInstance levitationEffect = new MobEffectInstance(MobEffects.SLOW_FALLING, 30, 1);
             player.addEffect(levitationEffect);
         }
+
+
+
         if (!isAttacked) {
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
@@ -46,6 +51,7 @@ public class SonicReap implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
+                        PlayerAnimation(SkillID,"finish");
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0).add(lookVec.scale(2.0));
                         double damage = RushDamage(player) * 2f;
                         double knockbackForce = BaseKnowBack(player);
@@ -64,6 +70,13 @@ public class SonicReap implements ISkill {
                     }
                 }
             }
+            else {
+                PlayerAnimation(SkillID,"move");
+            }
+        }
+        if (FinalTick > 5 && player.onGround()){
+            skillExecutions.remove(player.getUUID());
+            PlayerAnimation(0,"");
         }
     }
 }

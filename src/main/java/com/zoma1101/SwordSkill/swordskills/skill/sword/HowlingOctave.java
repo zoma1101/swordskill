@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -8,40 +8,40 @@ import org.joml.Vector3f;
 
 import java.util.Objects;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class HowlingOctave implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 2) {
             performSlash(level, player, 0, 0.1F,1f,Spia_Particle());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 3) {
+        } else if (FinalTick == 5) {
             performSlash(level, player, 1, 0.1F,1f,Spia_Particle());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 5) {
+        } else if (FinalTick == 8) {
             performSlash(level, player, 2, 0.1F,1f,Spia_Particle());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 7) {
+        } else if (FinalTick == 11) {
             performSlash(level, player, 3, 0.1F,1f,Spia_Particle());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 9) {
+        } else if (FinalTick == 15) {
             performSlash(level, player, 4, 0.1F,1f,Spia_Particle());
             SimpleSkillSound(level,player.position());
         }
 
-        else if (FinalTick == 11) {
+        else if (FinalTick == 19) {
             performSlash(level, player, 5, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 18) {
+        } else if (FinalTick == 22) {
             performSlash(level, player, 6, 0.25F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,0.8f,0));
             player.hurtMarked = true;
-        } else if (FinalTick == 25) {
+        } else if (FinalTick == 32) {
             performSlash(level, player, 7, 1.75F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,-0.8f,0));

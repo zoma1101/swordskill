@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.item;
+package com.zoma1101.swordskill.item;
 
-import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkill;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;

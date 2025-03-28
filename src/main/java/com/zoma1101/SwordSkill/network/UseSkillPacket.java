@@ -1,15 +1,16 @@
-package com.zoma1101.SwordSkill.network;
+package com.zoma1101.swordskill.network;
 
-import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.util.function.Supplier;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
-import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
-import com.zoma1101.SwordSkill.swordskills.ISkill;
 
 public class UseSkillPacket {
     private static final Logger LOGGER = LogManager.getLogger();

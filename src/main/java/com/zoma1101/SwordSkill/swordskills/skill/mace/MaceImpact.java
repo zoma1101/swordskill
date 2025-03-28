@@ -1,22 +1,27 @@
-package com.zoma1101.SwordSkill.swordskills.skill.mace;
+package com.zoma1101.swordskill.swordskills.skill.mace;
 
-import com.zoma1101.SwordSkill.effects.EffectRegistry;
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.effects.EffectRegistry;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.server.handler.SkillExecutionManager.skillExecutions;
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.MaceGreen_Texture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
+import static com.zoma1101.swordskill.swordskills.SkillSound.*;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.MaceGreen_Texture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class MaceImpact implements ISkill {
     private static float s_PosY;
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
+        if (!player.onGround()){
+            PlayerAnimation(SkillID,"move");
+        }
+
         if (FinalTick == 1) {
             player.setDeltaMovement(new Vec3(0, 3, 0));
             player.hurtMarked = true;
@@ -37,7 +42,7 @@ public class MaceImpact implements ISkill {
                 player.setDeltaMovement(moveVec);
                 player.hurtMarked = true;
                 skillExecutions.remove(player.getUUID());
-
+                PlayerAnimation(SkillID,"finish");
             }
         }
     }

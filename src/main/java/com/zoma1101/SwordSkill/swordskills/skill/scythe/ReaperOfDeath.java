@@ -1,23 +1,23 @@
-package com.zoma1101.SwordSkill.swordskills.skill.scythe;
+package com.zoma1101.swordskill.swordskills.skill.scythe;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class ReaperOfDeath implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 5) {
             performSlash(level, player, 0, 0.1F);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 5) {
+        } else if (FinalTick == 11) {
             performSlash(level, player, 1, 0.75F);
             SimpleSkillSound(level,player.position());
         }
@@ -38,8 +38,8 @@ public class ReaperOfDeath implements ISkill {
 
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0 -> new Vec3(-6, 5, 45); // 1回目の斬撃
-            case 1 -> new Vec3(6, -5, 165); // 2回目の斬撃
+            case 0 -> new Vec3(-6, 5, 135); // 1回目の斬撃
+            case 1 -> new Vec3(6, -5, -15); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };
     }

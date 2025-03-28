@@ -1,20 +1,20 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class WorldNova implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 2) {
             performSlash(level, player, 0, 0.25F,1f);
             SimpleSkillSound(level,player.position());
         }
@@ -22,28 +22,28 @@ public class WorldNova implements ISkill {
             performSlash(level, player, 1, 0.25F,1f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 9) {
+        else if (FinalTick == 8) {
             performSlash(level, player, 2, 0.25F,1f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 12) {
-            performSlash(level, player, 3, 0.25F,1f);
+        else if (FinalTick == 13) {
+            performSlash(level, player, 3, 0.25F,2f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 17) {
+        else if (FinalTick == 18) {
             performSlash(level, player, 4, 0.25F,1f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 21) {
+        else if (FinalTick == 19) {
             performSlash(level, player, 5, 0.25F,1f);
             SimpleSkillSound(level,player.position());
         }
 
-        else if (FinalTick == 25) {
-            performSlash(level, player, 6, 0.1F,2f);
+        else if (FinalTick == 22) {
+            performSlash(level, player, 6, 0.1F,2.5f);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 30) {
-            performThrust(level, player, 7, 0.25F,2f);
+        } else if (FinalTick == 25) {
+            performThrust(level, player);
             SimpleSkillSound(level,player.position());
         }
     }
@@ -59,13 +59,13 @@ public class WorldNova implements ISkill {
 
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
-    private void performThrust(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
-        Vec3 spawnPos = calculateRelativePosition(player, slashIndex); // 相対座標を計算
-        double damage = BaseDamage(player) * Damage;
-        double knockbackForce = BaseKnowBack(player)*knockback;
+    private void performThrust(Level level, ServerPlayer player) {
+        Vec3 spawnPos = calculateRelativePosition(player, 7);
+        double damage = BaseDamage(player) * 2f;
+        double knockbackForce = BaseKnowBack(player)* 0.25;
         Vector3f size = new Vector3f(0.5f, 0.5f, 5f);
         int duration = 12;
-        Vec3 Rotation = calculateRotation(slashIndex);
+        Vec3 Rotation = calculateRotation(7);
         String skill_particle = Spia_Particle();
 
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
@@ -92,10 +92,10 @@ public class WorldNova implements ISkill {
         return switch (slashIndex) {
             case 0 -> new Vec3(0, 5, 30);
             case 1 -> new Vec3(-6, 5, 30);
-            case 2 -> new Vec3(-12, 5, 30);
-            case 3 -> new Vec3(0, 5, 150);
-            case 4 -> new Vec3(-6, 5, 150);
-            case 5 -> new Vec3(-12, 5, 150);
+            case 2 -> new Vec3(0, 20, 90);
+            case 3 -> new Vec3(0, 5, 45);
+            case 4 -> new Vec3(-6, 5, -135);
+            case 5 -> new Vec3(-12, 5, 40);
             case 6 -> new Vec3(-10, 0, 0);
             default -> new Vec3(0, 0, 30);
         };

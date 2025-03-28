@@ -1,15 +1,15 @@
-package com.zoma1101.SwordSkill;
+package com.zoma1101.swordskill;
 
-import com.zoma1101.SwordSkill.config.ClientConfig;
-import com.zoma1101.SwordSkill.config.ServerConfig;
-import com.zoma1101.SwordSkill.data.WeaponTypeDataLoader;
-import com.zoma1101.SwordSkill.data.WeaponTypeDetector;
-import com.zoma1101.SwordSkill.effects.EffectRegistry;
-import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
-import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
-import com.zoma1101.SwordSkill.item.SampleItemRegistry;
-import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.config.ClientConfig;
+import com.zoma1101.swordskill.config.ServerConfig;
+import com.zoma1101.swordskill.data.WeaponTypeDataLoader;
+import com.zoma1101.swordskill.data.WeaponTypeDetector;
+import com.zoma1101.swordskill.effects.EffectRegistry;
+import com.zoma1101.swordskill.effects.SwordSkillAttribute;
+import com.zoma1101.swordskill.entity.SwordSkill_Entities;
+import com.zoma1101.swordskill.item.SampleItemRegistry;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;

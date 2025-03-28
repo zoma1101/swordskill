@@ -13,6 +13,7 @@
   "entity.swordskill.attack_effect": "Slash",
 
   "key.swordskill.open_skill_gui": "Open Sword Skill Select GUI",
+  "key.swordskill.hud_setting_key": "Adjust the HUD position",
   "gui.swordskill.title": "Select Skill",
   "gui.swordskill.select": "Done",
   "gui.swordskill.cooldown": "CoolDown: %s tick",

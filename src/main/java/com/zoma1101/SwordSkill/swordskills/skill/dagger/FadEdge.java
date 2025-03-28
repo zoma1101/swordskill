@@ -1,35 +1,35 @@
-package com.zoma1101.SwordSkill.swordskills.skill.dagger;
+package com.zoma1101.swordskill.swordskills.skill.dagger;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
-import com.zoma1101.SwordSkill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.SkillTexture;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
-public class FadEdge implements ISkill { // インターフェースを実装
+public class FadEdge implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 4) {
             performSlash(level, player, 0, 0.25F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 3) {
+        } else if (FinalTick == 8) {
             performSlash(level, player, 1, 0.25F,1.25f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,0.8,0));
             player.hurtMarked = true;
-        } else if (FinalTick == 7) {
+        } else if (FinalTick == 10) {
             player.setDeltaMovement(new Vec3(0,-1,0));
             player.hurtMarked = true;
-        } else if (FinalTick == 13) {
+        } else if (FinalTick == 14) {
             performSlash(level, player, 2, 0.35F,3f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 15) {
+        } else if (FinalTick == 17) {
             performSlash(level, player, 3, 0.75F,3f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
@@ -47,10 +47,10 @@ public class FadEdge implements ISkill { // インターフェースを実装
 
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0 -> new Vec3(-5, 0, 30);
+            case 0 -> new Vec3(-5, 0, 150);
             case 1 -> new Vec3(-3, 10, -80);
-            case 2 -> new Vec3(-6, 5, 30);
-            case 3 -> new Vec3(-12, 5, 30);
+            case 2 -> new Vec3(-6, 5, 150);
+            case 3 -> new Vec3(-12, 5, -30);
             default -> new Vec3(0, 0, 0);
         };
     }

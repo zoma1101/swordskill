@@ -1,7 +1,7 @@
-package com.zoma1101.SwordSkill.swordskills;
+package com.zoma1101.swordskill.swordskills;
 
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.config.ServerConfig;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.config.ServerConfig;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;

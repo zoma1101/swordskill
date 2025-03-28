@@ -1,25 +1,26 @@
-package com.zoma1101.SwordSkill.client.gui;
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.network.SkillSlotSelectionPacket;
-import com.zoma1101.SwordSkill.client.screen.Keybindings;
-import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.network.SkillRequestPacket;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
-import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
+package com.zoma1101.swordskill.client.gui;
+
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.SkillRequestPacket;
+import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import com.zoma1101.SwordSkill.SwordSkill;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-
 import java.util.Set;
+
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 @OnlyIn(Dist.CLIENT)

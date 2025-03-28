@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.swordskills.skill.claw;
+package com.zoma1101.swordskill.swordskills.skill.claw;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -10,9 +10,10 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.GreenSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.GreenSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Fast implements ISkill {
     private static boolean isAttacked = false;
@@ -31,7 +32,9 @@ public class Fast implements ISkill {
             player.hurtMarked = true;
             player.invulnerableTime = 10;
         }
+
         if (!isAttacked) {
+            PlayerAnimation(SkillID,"move");
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
             List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, boundingBox, entity -> SkillTargetEntity(entity,player)); // LivingEntity のみ取得
@@ -40,6 +43,7 @@ public class Fast implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
+                        PlayerAnimation(SkillID,"finish");
                         performNeil(level,player);
                         Vec3 reverseLookVec = lookVec.reverse().scale(1.5);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));

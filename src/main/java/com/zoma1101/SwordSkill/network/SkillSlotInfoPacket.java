@@ -1,8 +1,9 @@
-package com.zoma1101.SwordSkill.network;
+package com.zoma1101.swordskill.network;
 
-import com.zoma1101.SwordSkill.client.handler.ClientSkillSlotHandler;
+import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+
 import java.util.function.Supplier;
 
 public class SkillSlotInfoPacket {

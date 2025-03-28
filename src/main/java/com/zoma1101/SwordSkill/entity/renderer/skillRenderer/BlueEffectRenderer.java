@@ -1,8 +1,8 @@
-package com.zoma1101.SwordSkill.entity.renderer.skillRenderer;
+package com.zoma1101.swordskill.entity.renderer.skillRenderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkill;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -48,8 +48,14 @@ public class BlueEffectRenderer {
         matrix.scale(scale.x, scale.y, scale.z);
 
         Vector3f cameraDirection;
-        if (rotation >= -90 && rotation <= 90){
+        if (rotation > -80 && rotation < 80){
             cameraDirection = new Vector3f(0,1,0);
+        }
+        else if (rotation < 110 && rotation > 70){
+            cameraDirection = new Vector3f(1,0,0);
+        }
+        else if (rotation > -110 && rotation < -70){
+            cameraDirection = new Vector3f(-1,0,0);
         }
         else {cameraDirection = new Vector3f(0, -1, 0);}
 

@@ -13,6 +13,7 @@
   "entity.swordskill.attack_effect": "斬撃",
 
   "key.swordskill.open_skill_gui": "ソードスキル選択GUIを開く",
+  "key.swordskill.hud_setting_key": "HUDの位置を調整する",
   "gui.swordskill.title": "ソードスキル選択",
   "gui.swordskill.select": "決定",
   "gui.swordskill.cooldown": "クールダウン: %s tick",

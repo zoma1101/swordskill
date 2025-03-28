@@ -1,12 +1,13 @@
-package com.zoma1101.SwordSkill.network;
+package com.zoma1101.swordskill.network;
 
-import com.zoma1101.SwordSkill.data.DataManager;
 import com.google.gson.JsonObject;
+import com.zoma1101.swordskill.data.DataManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.util.function.Supplier;
 
 public class SkillSelectionPacket {

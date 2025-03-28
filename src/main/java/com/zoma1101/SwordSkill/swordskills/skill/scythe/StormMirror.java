@@ -1,39 +1,44 @@
-package com.zoma1101.SwordSkill.swordskills.skill.scythe;
+package com.zoma1101.swordskill.swordskills.skill.scythe;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.AxePurpleSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.AxePurpleSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class StormMirror implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
+            PlayerAnimation(SkillID,"move");
             Vec3 moveVec = player.getLookAngle().scale(4);
             player.setDeltaMovement(moveVec.x, moveVec.y, moveVec.z);
             player.hurtMarked = true;
         }
+        else if (FinalTick == 3){
+            PlayerAnimation(SkillID,"finish");
+        }
         else if (FinalTick == 5) { // 1回目の斬撃
-                performSlash(level, player, 0, 0.3F,2);
+                performSlash(level, player, 0, 0.3F);
                 SimpleSkillSound(level,player.position());
             player.setDeltaMovement(Vec3.ZERO);
             player.hurtMarked = true;
         }
-         else if (FinalTick == 9) { // 2回目の斬撃
-            performSlash(level, player, 1, 0.75F,2);
+         else if (FinalTick == 7) { // 2回目の斬撃
+            performSlash(level, player, 1, 0.75F);
             SimpleSkillSound(level,player.position());
         }
     }
 
-    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, double Damage) {
+    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback) {
         Vec3 spawnPos = player.position().add(0, player.getEyeHeight() * 0.75, 0);
-        double damage = BaseDamage(player) * Damage;
+        double damage = BaseDamage(player) * 2;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(7.2f, 3f, 7.2f);
         int duration = 12;

@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
-import com.zoma1101.SwordSkill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
@@ -9,7 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.None_WeaponData;
+import static com.zoma1101.swordskill.data.WeaponTypeUtils.None_WeaponData;
 
 public class AutoWeaponDataSetter {
 

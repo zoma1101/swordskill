@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.client.handler;
+package com.zoma1101.swordskill.client.handler;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

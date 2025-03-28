@@ -1,7 +1,7 @@
-package com.zoma1101.SwordSkill.client.gui;
+package com.zoma1101.swordskill.client.gui;
 
-import com.zoma1101.SwordSkill.config.ClientConfig;
-import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.config.ClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
@@ -44,7 +44,7 @@ public class HudPositionSettingScreen extends Screen {
         this.addRenderableWidget(new AbstractSliderButton(this.width / 2, this.height - 80, 150, 20, Component.translatable("gui."+SwordSkill.MOD_ID+".setting.hud.scale", ClientConfig.hudScale.get()), (ClientConfig.HUD_SCALE_MAX - 0.0) / ClientConfig.HUD_SCALE_MAX) {
             @Override
             protected void updateMessage() {
-                this.setMessage(Component.translatable("gui."+SwordSkill.MOD_ID+".setting.hud.scale", (int) (this.value * ClientConfig.HUD_SCALE_MAX)));
+                this.setMessage(Component.translatable("gui."+ SwordSkill.MOD_ID+".setting.hud.scale", (int) (this.value * ClientConfig.HUD_SCALE_MAX)));
             }
 
             @Override

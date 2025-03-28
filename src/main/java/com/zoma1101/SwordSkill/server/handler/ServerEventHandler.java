@@ -1,12 +1,12 @@
-package com.zoma1101.SwordSkill.server.handler;
+package com.zoma1101.swordskill.server.handler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.data.DataManager;
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.network.SkillSlotInfoPacket;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.SkillSlotInfoPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
@@ -20,8 +20,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.zoma1101.SwordSkill.client.handler.ClientTickHandler.SetSlotSkill;
-import static com.zoma1101.SwordSkill.data.WeaponTypeUtils.setWeaponType;
+import static com.zoma1101.swordskill.client.handler.ClientTickHandler.SetSlotSkill;
+import static com.zoma1101.swordskill.data.WeaponTypeUtils.setWeaponType;
 
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID)
 public class ServerEventHandler {

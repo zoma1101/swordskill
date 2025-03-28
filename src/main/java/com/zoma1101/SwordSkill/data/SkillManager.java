@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
 import com.google.gson.JsonObject;
 import net.minecraft.server.level.ServerPlayer;

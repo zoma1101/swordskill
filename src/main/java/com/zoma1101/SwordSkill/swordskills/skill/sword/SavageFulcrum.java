@@ -1,26 +1,26 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class SavageFulcrum implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
-            performSlash(level, player, 0, 0.1F,2f);
+            performSlash(level, player, 0, 0.1F,1f);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 5) { // 2回目の斬撃
-            performThrust(level, player, 1, 0.1F,2f);
+            performThrust(level, player, 1, 0.1F,1.5f);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 9) { // 2回目の斬撃
-            performSlash(level, player, 2, 0.75F,2f);
+        } else if (FinalTick == 11) { // 2回目の斬撃
+            performSlash(level, player, 2, 0.75F,3f);
             SimpleSkillSound(level,player.position());
         }
 

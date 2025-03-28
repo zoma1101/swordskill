@@ -1,5 +1,5 @@
-package com.zoma1101.SwordSkill.effects;
-import com.zoma1101.SwordSkill.SwordSkill;
+package com.zoma1101.swordskill.effects;
+import com.zoma1101.swordskill.SwordSkill;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;

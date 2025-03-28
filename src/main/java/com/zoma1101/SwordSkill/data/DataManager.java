@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

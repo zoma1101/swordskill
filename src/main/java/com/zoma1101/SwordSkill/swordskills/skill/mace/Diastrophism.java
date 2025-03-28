@@ -1,26 +1,26 @@
-package com.zoma1101.SwordSkill.swordskills.skill.mace;
+package com.zoma1101.swordskill.swordskills.skill.mace;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.MacePurple_Texture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.StrongSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.MacePurple_Texture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Diastrophism implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 5) {
             performSlash(level, player, 0, 0.1F);
             StrongSkillSound(level,player.position());
-        } else if (FinalTick == 7) {
+        } else if (FinalTick == 11) {
             performSlash(level, player, 1, 0.75F);
             StrongSkillSound(level,player.position());
-        } else if (FinalTick == 12) {
+        } else if (FinalTick == 18) {
             performSlash(level, player, 2, 0.75F);
             StrongSkillSound(level,player.position());
             Vec3 moveVec = player.getLookAngle().scale(-1.5);
@@ -44,9 +44,9 @@ public class Diastrophism implements ISkill {
 
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0 -> new Vec3(-10, 5, 45);
-            case 1 -> new Vec3(6, -5, 135);
-            case 2 -> new Vec3(-15, -5, 4);
+            case 0 -> new Vec3(-10, 5, 135);
+            case 1 -> new Vec3(6, -5, 45);
+            case 2 -> new Vec3(-15, -5, 174);
             default -> new Vec3(0, 0, 0);
         };
     }

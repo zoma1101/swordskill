@@ -1,29 +1,27 @@
-package com.zoma1101.SwordSkill.swordskills.skill.dual_sword;
+package com.zoma1101.swordskill.swordskills.skill.dual_sword;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.SkillTexture;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class TheEclipse implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 6) {
             performSlash(level, player, 0, 0.1F,0.5f,NomalSkillTexture());
-            SimpleSkillSound(level,player.position());
-        }
-        else if (FinalTick == 4) {
             performSlash(level, player, 1, 0.1F,0.5f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,0.8f,0));
             player.hurtMarked = true;
         }
-        else if (FinalTick == 10) {
+        else if (FinalTick == 11) {
             performSlash(level, player, 2, 0.1F,0.75f,NomalSkillTexture());
             performSlash(level, player, 3, 0.1F,0.75f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
@@ -37,79 +35,73 @@ public class TheEclipse implements ISkill {
             player.setDeltaMovement(player.getDeltaMovement().add(0,-0.8f,0));
             player.hurtMarked = true;
         }
-        else if (FinalTick == 21) {
+        else if (FinalTick == 23) {
             performSlash(level, player, 6, 0.1F,0.4f,AxeBlueSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 24) {
+        else if (FinalTick == 26) {
             performSlash(level, player, 7, 0.1F,0.4f,AxeBlueSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 34) {
+        else if (FinalTick == 30) {
             performSlash(level, player, 6, 0.1F,0.4f,AxeBlueSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 37) {
+        else if (FinalTick == 33) {
             performSlash(level, player, 7, 0.1F,0.4f,AxeBlueSkillTexture()); //10連撃
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 41) {
+        else if (FinalTick == 42) {
             performSlash(level, player, 8, 0.1F,0.75f,NomalSkillTexture());
             performSlash(level, player, 9, 0.1F,0.75f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 46) {
+        else if (FinalTick == 48) {
             performSlash(level, player, 10, 0.1F,2f,Spia_Particle());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 51) {
+        else if (FinalTick == 54) {
             performSlash(level, player, 11, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 56) {
+        else if (FinalTick == 59) {
             performSlash(level, player, 12, 0.1F,1f,NomalSkillTexture()); //15
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 62) {
+        else if (FinalTick == 66) {
             performSlash(level, player, 13, 0.1F,1f,NomalSkillTexture());
             performSlash(level, player, 14, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 68) {
+        else if (FinalTick == 73) {
             performSlash(level, player, 15, 0.1F,1f,NomalSkillTexture());
             performSlash(level, player, 16, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 72) {
+        else if (FinalTick == 83) {
             performSlash(level, player, 17, 0.1F,1f,NomalSkillTexture()); //20
-            SimpleSkillSound(level,player.position());
-        }
-        else if (FinalTick == 74) {
             performSlash(level, player, 18, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 80) {
+        else if (FinalTick == 89) {
             performSlash(level, player, 19, 0.1F,1f,NomalSkillTexture());
-            SimpleSkillSound(level,player.position());
-        }
-        else if (FinalTick == 81) {
             performSlash(level, player, 20, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 90) {
-            performSlash(level, player, 2, 0.1F,1f,NomalSkillTexture());
-            performSlash(level, player, 3, 0.1F,1f,NomalSkillTexture());
+        else if (FinalTick == 97) {
+            performSlash(level, player, 0, 0.1F,1f,NomalSkillTexture());
+            performSlash(level, player, 1, 0.1F,1f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 100) {
-            performSlash(level, player, 10, 0.8F,3f,Spia_Particle());
+        else if (FinalTick == 106) {
+            performSlash(level, player, 21, 0.8F,3f,Spia_Particle());
             SimpleSkillSound(level,player.position());
             Vec3 lookVec = player.getLookAngle();
             player.setDeltaMovement(lookVec.scale(0.5).x,lookVec.scale(0.5).y,lookVec.scale(0.5).z);
             player.hurtMarked = true;
         }
-        else if (FinalTick == 105) {
-            performSlash(level, player, 10, 0.8F,3f,Spia_Particle());
+        else if (FinalTick == 115) {
+            performSlash(level, player, 22, 0.8F,3f,Spia_Particle());
             SimpleSkillSound(level,player.position());
         }
     }
@@ -118,11 +110,7 @@ public class TheEclipse implements ISkill {
         Vec3 spawnPos = calculateRelativePosition(player, slashIndex); // 相対座標を計算
         double damage = BaseDamage(player) * Damage;
         double knockbackForce = BaseKnowBack(player)*knockback;
-        Vector3f size = switch (slashIndex){
-            case 4,5,6,7 -> new Vector3f(6f, 2f, 6f);
-            case 10 -> new Vector3f(0.5f, 0.5f, 5f);
-            default -> new Vector3f(7.2f, 3f, 1.4f);
-        };
+        Vector3f size = setSize(Texture);
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
 
@@ -139,12 +127,14 @@ public class TheEclipse implements ISkill {
         Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
         Vec3 upVec = rightVec.cross(lookVec).normalize(); // 上方向ベクトル
         Vec3 relativePos = switch (slashIndex) {
-            case 0,11,12,17,18,19,20 -> lookVec.scale(2.5);
-            case 1 -> lookVec.scale(2.5).add(upVec.scale(1.5f));
-            case 2,13,16 -> lookVec.scale(2.5).add(rightVec.scale(0.25));
-            case 3,14,15 -> lookVec.scale(2.5).add(rightVec.scale(-0.25));
+            case 2,11,12,17,18,19,20 -> lookVec.scale(2.5);
+            case 3 -> lookVec.scale(2.5).add(upVec.scale(1.5f));
+            case 0,14,16 -> lookVec.scale(2.5).add(rightVec.scale(0.25));
+            case 1,13,15 -> lookVec.scale(2.5).add(rightVec.scale(-0.25));
             case 4,5 -> lookVec.scale(1.0);
             case 10 -> lookVec.scale(3);
+            case 21 -> lookVec.scale(3).add(rightVec.scale(0.5));
+            case 22 -> lookVec.scale(3).subtract(rightVec.scale(0.5));
             default -> Vec3.ZERO;
         };
 
@@ -153,8 +143,8 @@ public class TheEclipse implements ISkill {
     }
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0,1,11 -> new Vec3(-10, 7, -80);
-            case 2,3 -> new Vec3(-6,20,95);
+            case 2,3,11 -> new Vec3(-10, 7, -80);
+            case 0,1 -> new Vec3(-6,20,95);
             case 4 -> new Vec3(-10, 0, -45);
             case 5 -> new Vec3(-10, 0, -135);
             case 6,7 -> new Vec3(-10, 7, 20);
@@ -164,12 +154,25 @@ public class TheEclipse implements ISkill {
             case 12 -> new Vec3(-20,0,5);
             case 13,14 -> new Vec3(-6,0,45);
             case 15,16 -> new Vec3(-6,0,-45);
-            case 17 -> new Vec3(-10, 0, 25); // 1回目の斬撃
-            case 18 -> new Vec3(-10, 0, 155); // 2回目の斬撃
-            case 19 -> new Vec3(-15, 0, 0); // 2回目の斬撃
-            case 20 -> new Vec3(-15, 0, 180); // 2回目の斬撃
+            case 17 -> new Vec3(-10, 0, 25);
+            case 18 -> new Vec3(-10, 0, 155);
+            case 19 -> new Vec3(-15, 0, 0);
+            case 20 -> new Vec3(-15, 0, 180);
             default -> new Vec3(0, 0, 0);
         };
     }
+
+    private Vector3f setSize(String Texture){
+        Vector3f size;
+        if (SkillTexture.Spia_ParticleType.contains(Texture)){
+            size = new Vector3f(0.25f, 0.25f, 5f);
+        } else if (SkillTexture.Axe_ParticleType.contains(Texture)){
+            size = new Vector3f(6f, 2f, 6f);
+        } else {
+            size = new Vector3f(7.2f, 2f, 3f);
+        }
+        return size;
+    }
+
 
 }

@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.swordskills.skill.spear;
+package com.zoma1101.swordskill.swordskills.skill.spear;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -12,9 +12,10 @@ import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.AnimationUtils.PlayerAnimation;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class FallingStar implements ISkill {
     private static boolean isAttacked = false;
@@ -37,6 +38,7 @@ public class FallingStar implements ISkill {
             player.addEffect(levitationEffect);
         }
         if (FinalTick == 10) {
+            PlayerAnimation(SkillID,"start");
             isAttacked = false;
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
@@ -49,6 +51,8 @@ public class FallingStar implements ISkill {
             player.hurtMarked = true;
             player.invulnerableTime = 35;
         }
+
+
         if (!isAttacked) {
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
@@ -58,15 +62,17 @@ public class FallingStar implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2.5)); // 目の前2ブロック
-                        double damage = RushDamage(player)*2f;
+                        PlayerAnimation(SkillID,"finish");
+                        Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.7, 0).add(lookVec.scale(1)); // 目の前2ブロック
+                        double damage = RushDamage(player)*3f;
                         double knockbackForce = BaseKnowBack(player)*0.5;
-                        Vector3f size = new Vector3f(0.75f, 0.75f, 6f);
+                        Vector3f size = new Vector3f(0.5f, 0.5f, 6f);
                         int duration = 12;
                         Vec3 Rotation = new Vec3(0,0,40);
                         String skill_particle = Spia_Particle();
                         SimpleSkillSound(level,spawnPos);
-                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
+                        Vec3 Move = new Vec3(0,0,0.1);
+                        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Move);
 
                         Vec3 reverseLookVec = lookVec.reverse().scale(3);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
@@ -76,6 +82,7 @@ public class FallingStar implements ISkill {
                     }
                 }
             }
+
         }
     }
 }

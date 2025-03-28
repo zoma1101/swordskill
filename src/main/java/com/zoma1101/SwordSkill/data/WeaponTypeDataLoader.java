@@ -1,7 +1,7 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
 import com.google.gson.*;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -13,10 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.minecraft.resources.ResourceLocation.parse;
 
@@ -33,9 +31,11 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> objectIn, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
         Map<ResourceLocation, JsonObject> currentJsonMap = new HashMap<>();
+        Map<String, List<PendingWeaponTypeData>> pendingWeaponTypeDataMap = new HashMap<>();
         Map<String, WeaponTypeData> newWeaponTypeDataMap = new HashMap<>();
         boolean updated = false;
 
+        // 一時的にデータを保持する
         for (Map.Entry<ResourceLocation, JsonElement> entry : objectIn.entrySet()) {
             ResourceLocation resourceLocation = entry.getKey();
             if (resourceLocation.getPath().startsWith("_")) continue;
@@ -43,20 +43,37 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
             try {
                 JsonObject jsonObject = GsonHelper.convertToJsonObject(entry.getValue(), "top element");
                 currentJsonMap.put(resourceLocation, jsonObject);
+                PendingWeaponTypeData pendingData = parsePendingWeaponTypeData(jsonObject);
+                String key = generateKey(pendingData.name(), pendingData.weaponTypes());
+
+                if (!pendingWeaponTypeDataMap.containsKey(key)) {
+                    pendingWeaponTypeDataMap.put(key, new ArrayList<>());
+                }
+                pendingWeaponTypeDataMap.get(key).add(pendingData);
 
                 if (!previousJsonMap.containsKey(resourceLocation) || !previousJsonMap.get(resourceLocation).equals(jsonObject)) {
-                    // 新規ファイルまたは内容が変更されたファイル
-                    WeaponTypeData weaponTypeData = parseWeaponTypeData(jsonObject);
-                    newWeaponTypeDataMap.put(weaponTypeData.name(), weaponTypeData);
                     updated = true;
-                } else {
-                    // 内容が変わっていないファイル
-                    newWeaponTypeDataMap.put(weaponTypeDataMap.get(resourceLocation.toString()).name(), weaponTypeDataMap.get(resourceLocation.toString()));
                 }
 
             } catch (JsonParseException e) {
                 LOGGER.error("Parsing error loading weapon type data {}", resourceLocation, e);
             }
+        }
+
+        // 同じキーを持つデータを結合して WeaponTypeData を作成
+        for (List<PendingWeaponTypeData> pendingList : pendingWeaponTypeDataMap.values()) {
+            if (pendingList.isEmpty()) continue;
+
+            PendingWeaponTypeData first = pendingList.get(0);
+            List<Item> combinedItems = new ArrayList<>();
+            for (PendingWeaponTypeData pending : pendingList) {
+                combinedItems.addAll(pending.items());
+            }
+            // アイテムの重複を削除
+            List<Item> uniqueItems = combinedItems.stream().distinct().collect(Collectors.toList());
+
+            WeaponTypeData weaponTypeData = new WeaponTypeData(first.name(), first.weaponTypes(), uniqueItems);
+            newWeaponTypeDataMap.put(weaponTypeData.name(), weaponTypeData);
         }
 
         if (updated || weaponTypeDataMap.size() != currentJsonMap.size()) {
@@ -72,7 +89,7 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
         }
     }
 
-    private WeaponTypeData parseWeaponTypeData(JsonObject jsonObject) {
+    private PendingWeaponTypeData parsePendingWeaponTypeData(JsonObject jsonObject) {
         String name = jsonObject.get("name").getAsString();
 
         JsonArray weaponTypesJson = jsonObject.getAsJsonArray("weapontype");
@@ -91,11 +108,18 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
             }
         });
 
-        return new WeaponTypeData(name, weaponTypes, items);
+        return new PendingWeaponTypeData(name, weaponTypes, items);
+    }
+
+    private String generateKey(String name, List<SkillData.WeaponType> weaponTypes) {
+        return name + ":" + weaponTypes.stream().map(Enum::name).collect(Collectors.joining(","));
     }
 
     public Map<String, WeaponTypeData> getWeaponTypeDataMap() {
         return weaponTypeDataMap;
+    }
+
+    private record PendingWeaponTypeData(String name, List<SkillData.WeaponType> weaponTypes, List<Item> items) {
     }
 
     public record WeaponTypeData(String name, List<SkillData.WeaponType> weaponTypes, List<Item> items) {

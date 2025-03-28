@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.effects;
+package com.zoma1101.swordskill.effects;
 
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;

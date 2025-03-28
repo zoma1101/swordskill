@@ -1,11 +1,11 @@
-package com.zoma1101.SwordSkill.client.gui;
+package com.zoma1101.swordskill.client.gui;
 
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.network.NetworkHandler;
-import com.zoma1101.SwordSkill.network.SkillSlotSelectionPacket;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
-import com.zoma1101.SwordSkill.swordskills.SwordSkillRegistry;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

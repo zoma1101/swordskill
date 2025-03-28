@@ -1,14 +1,14 @@
-package com.zoma1101.SwordSkill.swordskills.skill.sword;
+package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Horizontal implements ISkill {
     @Override
@@ -19,7 +19,7 @@ public class Horizontal implements ISkill {
             double knockbackForce = BaseKnowBack(player)*0.05f;
             Vector3f size = new Vector3f(7.2f, 3f, 2.4f);
             int duration = 12;
-            Vec3 Rotation = new Vec3(-20,0,5);
+            Vec3 Rotation = new Vec3(-20,0,175);
             String skill_particle = NomalSkillTexture();
             SimpleSkillSound(level,spawnPos);
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);

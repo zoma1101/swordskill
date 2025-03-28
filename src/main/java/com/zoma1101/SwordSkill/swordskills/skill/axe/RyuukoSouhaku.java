@@ -1,35 +1,35 @@
-package com.zoma1101.SwordSkill.swordskills.skill.axe;
+package com.zoma1101.swordskill.swordskills.skill.axe;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.StrongSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class RyuukoSouhaku implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 5) {
             performSlash(level, player, 0, 0.1F,0.75f);
             StrongSkillSound(level,player.position());
         }
-        else if (FinalTick == 6) {
+        else if (FinalTick == 11) {
             performSlash(level, player, 1, 0.1F,0.75f);
             StrongSkillSound(level,player.position());
         }
-        else if (FinalTick == 11) {
+        else if (FinalTick == 18) {
             performSlash(level, player, 2, 0.1F,1.75f);
             StrongSkillSound(level,player.position());
         }
-        else if (FinalTick == 15) {
+        else if (FinalTick == 23) {
             performSlash(level, player, 3, 0.1F,2f);
             StrongSkillSound(level,player.position());
         }
-        else if (FinalTick == 20) {
+        else if (FinalTick == 31) {
             performSlash(level, player, 4, 2.0F,2f);
             StrongSkillSound(level,player.position());
         }

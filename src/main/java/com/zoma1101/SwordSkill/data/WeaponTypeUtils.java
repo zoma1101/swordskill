@@ -1,8 +1,8 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
-import com.zoma1101.SwordSkill.config.ServerConfig;
-import com.zoma1101.SwordSkill.effects.SwordSkillAttribute;
-import com.zoma1101.SwordSkill.swordskills.SkillData;
+import com.zoma1101.swordskill.config.ServerConfig;
+import com.zoma1101.swordskill.effects.SwordSkillAttribute;
+import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
 import java.util.*;
 
 
@@ -117,7 +118,7 @@ public class WeaponTypeUtils {
         WeaponData weaponData = getWeaponData();
         // weaponData が null の可能性
         if (weaponData != null) {
-            return weaponData.getWeaponType();
+            return weaponData.weaponType();
         }
         return Collections.emptySet(); // null を返さないようにする
     }
@@ -127,7 +128,7 @@ public class WeaponTypeUtils {
         WeaponData weaponData = getWeaponData();
         // weaponData が null の可能性
         if (weaponData != null) {
-            return weaponData.getWeaponName();
+            return weaponData.weaponName();
         }
         return null; // null を返す可能性を残す (呼び出し元で null チェックが必要)
     }
@@ -136,7 +137,7 @@ public class WeaponTypeUtils {
         WeaponData weaponData = getWeaponData(player);
         // weaponData が null の可能性
         if (weaponData != null) {
-            return weaponData.getWeaponType();
+            return weaponData.weaponType();
         }
         return Collections.emptySet(); // null を返さないようにする
     }

@@ -1,28 +1,28 @@
-package com.zoma1101.SwordSkill.swordskills.skill.katana;
+package com.zoma1101.swordskill.swordskills.skill.katana;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillSound.StrongSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Hiougi implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
+        if (FinalTick == 6) { // 1回目の斬撃
             performSlash(level, player, 0, 0.2F,AxeRedSkillTexture());
             SimpleSkillSound(level,player.position());
             move(player,0.3);
-        } else if (FinalTick == 8) { // 2回目の斬撃
+        } else if (FinalTick == 10) { // 2回目の斬撃
             performSlash(level, player, 1, 0.2F,AxeRedSkillTexture());
             SimpleSkillSound(level,player.position());
             move(player,0.3);
-        } else if (FinalTick == 14) { // 2回目の斬撃
+        } else if (FinalTick == 16) { // 2回目の斬撃
             performSlash(level, player, 2, 0.5F,Spia_Particle_SoftRed());
             StrongSkillSound(level,player.position());
             move(player,1);

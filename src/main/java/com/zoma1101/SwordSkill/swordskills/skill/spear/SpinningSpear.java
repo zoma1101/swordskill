@@ -1,29 +1,29 @@
-package com.zoma1101.SwordSkill.swordskills.skill.spear;
+package com.zoma1101.swordskill.swordskills.skill.spear;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class SpinningSpear implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 2) { // 1回目の斬撃
+        if (FinalTick == 5) { // 1回目の斬撃
             performSlash(level, player, 0, 0.1F,2f);
-        } else if (FinalTick == 7) { // 2回目の斬撃
+        } else if (FinalTick == 12) { // 2回目の斬撃
             performSlash(level, player, 1, 1.75f,0.75f);
-        } else if (FinalTick == 10) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75F,0.75f);
-        } else if (FinalTick == 13) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75f,0.75f);
-        } else if (FinalTick == 16) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75F,0.75f);
         } else if (FinalTick == 20) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.75f);
+        } else if (FinalTick == 26) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75f,0.75f);
+        } else if (FinalTick == 28) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.75f);
+        } else if (FinalTick == 32) { // 2回目の斬撃
             performSlash(level, player, 1, 1.75f,0.75f);
         }
     }

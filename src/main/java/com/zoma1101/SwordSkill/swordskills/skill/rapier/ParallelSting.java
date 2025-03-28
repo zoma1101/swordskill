@@ -1,26 +1,25 @@
-package com.zoma1101.SwordSkill.swordskills.skill.rapier;
+package com.zoma1101.swordskill.swordskills.skill.rapier;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
-import com.zoma1101.SwordSkill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.SkillTexture;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.*;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class ParallelSting implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
+        if (FinalTick == 4) { // 1回目の斬撃
             performSlash(level, player, 0, 0.25F,1.25f,Spia_Particle());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 5) { // 2回目の斬撃
+        } else if (FinalTick == 10) { // 2回目の斬撃
             performSlash(level, player, 1, 0.5F,1.75f,Spia_Particle());
             SimpleSkillSound(level,player.position());
         }
@@ -39,7 +38,7 @@ public class ParallelSting implements ISkill {
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-7, 0, 30); // 1回目の斬撃
-            case 1 -> new Vec3(7, 0, 30); // 2回目の斬撃
+            case 1 -> new Vec3(9, 0, 30); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };
     }
@@ -47,7 +46,7 @@ public class ParallelSting implements ISkill {
     private Vec3 calculateRelativePosition(ServerPlayer player, int slashIndex) {
         Vec2 relativePos = switch (slashIndex) {
             case 0 -> new Vec2(-15, 0);
-            case 1 -> new Vec2(15, 0);
+            case 1 -> new Vec2(4, 0);
             default -> new Vec2(0, 0);
         };
         Vec3 LockVec = rotateLookVec(player,relativePos.x,relativePos.y);

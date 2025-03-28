@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.config;
+package com.zoma1101.swordskill.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

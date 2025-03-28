@@ -1,14 +1,14 @@
-package com.zoma1101.SwordSkill.swordskills.skill.katana;
+package com.zoma1101.swordskill.swordskills.skill.katana;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Zekkuu implements ISkill { // インターフェースを実装
     @Override
@@ -20,7 +20,7 @@ public class Zekkuu implements ISkill { // インターフェースを実装
             double knockbackForce = BaseKnowBack(player) * 0.5;
             Vector3f size = new Vector3f(6f, 3f, 0.5f);
             int duration = 12;
-            Vec3 Rotation = new Vec3(-6, 0, -135);
+            Vec3 Rotation = new Vec3(-6, 0, -45);
             String skill_particle = NomalSkillTexture();
             SimpleSkillSound(level, spawnPos);
             spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, skill_particle,Vec3.ZERO);

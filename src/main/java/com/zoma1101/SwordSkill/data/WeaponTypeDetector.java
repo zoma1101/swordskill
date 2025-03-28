@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.data;
+package com.zoma1101.swordskill.data;
 
-import com.zoma1101.SwordSkill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 

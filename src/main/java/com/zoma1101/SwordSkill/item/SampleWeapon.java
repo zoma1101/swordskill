@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.item;
+package com.zoma1101.swordskill.item;
 
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;

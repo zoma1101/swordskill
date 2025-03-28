@@ -1,52 +1,52 @@
-package com.zoma1101.SwordSkill.swordskills.skill.rapier;
+package com.zoma1101.swordskill.swordskills.skill.rapier;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
-import com.zoma1101.SwordSkill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.SkillTexture;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle_Purple;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle_Purple;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class MothersRosario implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
+        if (FinalTick == 4) { // 1回目の斬撃
             performSlash(level, player, 0, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 3) { // 2回目の斬撃
+        } else if (FinalTick == 7) { // 2回目の斬撃
             performSlash(level, player, 1, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 5) { // 2回目の斬撃
+        } else if (FinalTick == 10) { // 2回目の斬撃
             performSlash(level, player, 2, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 8) { // 2回目の斬撃
+        } else if (FinalTick == 12) { // 2回目の斬撃
             performSlash(level, player, 3, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 11) { // 2回目の斬撃
+        } else if (FinalTick == 16) { // 2回目の斬撃
             performSlash(level, player, 4, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 14) { // 1回目の斬撃
+        } else if (FinalTick == 19) { // 1回目の斬撃
             performSlash(level, player, 5, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 17) { // 2回目の斬撃
+        } else if (FinalTick == 22) { // 2回目の斬撃
             performSlash(level, player, 6, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 19) { // 2回目の斬撃
+        } else if (FinalTick == 25) { // 2回目の斬撃
             performSlash(level, player, 7, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 21) { // 2回目の斬撃
+        } else if (FinalTick == 28) { // 2回目の斬撃
             performSlash(level, player, 8, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 23) { // 2回目の斬撃
+        } else if (FinalTick == 32) { // 2回目の斬撃
             performSlash(level, player, 9, 0.05F,1.5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 28) { // 2回目の斬撃
+        } else if (FinalTick == 37) { // 2回目の斬撃
             performSlash(level, player, 10, 0.75F,5f,Spia_Particle_Purple());
             SimpleSkillSound(level,player.position());
         }
@@ -60,8 +60,7 @@ public class MothersRosario implements ISkill {
         Vector3f size = Setsize(Texture,slashIndex);
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
-        Vec3 Move = new Vec3(0,0,0.5);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Move);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Vec3.ZERO);
     }
 
     private Vec3 calculateRotation(int slashIndex) {

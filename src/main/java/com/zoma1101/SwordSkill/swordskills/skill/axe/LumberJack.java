@@ -1,14 +1,14 @@
-package com.zoma1101.SwordSkill.swordskills.skill.axe;
+package com.zoma1101.swordskill.swordskills.skill.axe;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.AxeGreenSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.StrongSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.AxeGreenSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class LumberJack implements ISkill {
     @Override
@@ -16,16 +16,16 @@ public class LumberJack implements ISkill {
         if (FinalTick == 2) { // 1回目の斬撃
             performSlash(level, player, 0, 0.1F,2f);
             StrongSkillSound(level,player.position());
-        } else if (FinalTick == 8) { // 2回目の斬撃
+        } else if (FinalTick == 11) { // 2回目の斬撃
             performSlash(level, player, 1, 0.5f,0.75f);
             StrongSkillSound(level,player.position());
-        } else if (FinalTick == 12) { // 2回目の斬撃
+        } else if (FinalTick == 17) { // 2回目の斬撃
             performSlash(level, player, 2, 2.75F,0.75f);
             StrongSkillSound(level,player.position());
-        }else if (FinalTick == 16) { // 2回目の斬撃
+        }else if (FinalTick == 24) { // 2回目の斬撃
             performSlash(level, player, 1, 2.75F,0.75f);
             StrongSkillSound(level,player.position());
-        }else if (FinalTick == 20) { // 2回目の斬撃
+        }else if (FinalTick == 29) { // 2回目の斬撃
             performSlash(level, player, 2, 2.75F,0.75f);
             StrongSkillSound(level,player.position());
         }

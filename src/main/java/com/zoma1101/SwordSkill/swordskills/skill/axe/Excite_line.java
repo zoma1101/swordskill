@@ -1,14 +1,14 @@
-package com.zoma1101.SwordSkill.swordskills.skill.axe;
+package com.zoma1101.swordskill.swordskills.skill.axe;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.StrongSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.AxeGreenSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.StrongSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.AxeGreenSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class Excite_line implements ISkill {
     @Override
@@ -19,7 +19,7 @@ public class Excite_line implements ISkill {
         double knockbackForce = BaseKnowBack(player)*0.25f;
         Vector3f size = new Vector3f(7.2f, 3f, 7.2f);
         int duration = 12;
-        Vec3 Rotation = new Vec3(-20,0,35);
+        Vec3 Rotation = new Vec3(-20,0,-35);
         String skill_particle = AxeGreenSkillTexture();
         StrongSkillSound(level,player.position());
         spawnAttackEffect(level, spawnPos, Rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);

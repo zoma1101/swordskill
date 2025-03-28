@@ -1,27 +1,26 @@
-package com.zoma1101.SwordSkill.swordskills.skill.spear;
+package com.zoma1101.swordskill.swordskills.skill.spear;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.Spia_Particle;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class SparkThrust implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
-            performSlash(level, player, 0, 1.25F,2f);
-        } else if (FinalTick == 3) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.25f,2f);
-        } else if (FinalTick == 5) { // 2回目の斬撃
-            performSlash(level, player, 2, 1.25F,2f);
-        } else if (FinalTick == 13) { // 2回目の斬撃
-            performSlash(level, player, 3, 0.5f,0.5f);
+        if (FinalTick == 6) { // 1回目の斬撃
+            performSlash(level, player, 0, 0.15F,1.6f);
+        } else if (FinalTick == 10) { // 2回目の斬撃
+            performSlash(level, player, 1, 0.15f,1.6f);
+        } else if (FinalTick == 15) { // 2回目の斬撃
+            performSlash(level, player, 2, 0.15F,1.6f);
+        } else if (FinalTick == 22) { // 2回目の斬撃
+            performSlash(level, player, 3, 1.5f,2.5f);
         }
     }
 
@@ -31,13 +30,13 @@ public class SparkThrust implements ISkill {
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = switch (slashIndex){
             case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f);
-            case 3 -> new Vector3f(7.2f, 3f, 2.4f);
+            case 3 -> new Vector3f(7.2f, 3f, 7.2f);
             default -> new Vector3f().zero();
         };
 
         int duration = 12;
         Vec3 rotation = calculateRotation(slashIndex);
-        String skill_particle = slashIndex == 3 ? NomalSkillTexture() : Spia_Particle();
+        String skill_particle = slashIndex == 3 ? AxeBlueSkillTexture() : Spia_Particle();
         spawnAttackEffect(level, spawnPos, rotation,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
         SimpleSkillSound(level,player.position());
     }
@@ -57,7 +56,7 @@ public class SparkThrust implements ISkill {
         };
         Vec3 lookVec = rotateLookVec(player,0,Yaw);
 
-        Vec3 relativePos = slashIndex==3 ? lookVec.scale(2) : lookVec.scale(3);
+        Vec3 relativePos = slashIndex==3 ? Vec3.ZERO : lookVec.scale(3.5);
 
         return player.position().add(relativePos).add(0, player.getEyeHeight() * 0.65, 0); // プレイヤーの現在位置に相対座標を加算
     }

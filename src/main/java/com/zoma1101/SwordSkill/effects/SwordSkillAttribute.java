@@ -1,6 +1,6 @@
-package com.zoma1101.SwordSkill.effects;
+package com.zoma1101.swordskill.effects;
 
-import com.zoma1101.SwordSkill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkill;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraftforge.eventbus.api.IEventBus;

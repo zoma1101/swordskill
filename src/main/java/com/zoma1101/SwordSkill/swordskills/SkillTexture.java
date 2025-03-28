@@ -1,4 +1,4 @@
-package com.zoma1101.SwordSkill.swordskills;
+package com.zoma1101.swordskill.swordskills;
 
 import java.util.HashSet;
 import java.util.Set;

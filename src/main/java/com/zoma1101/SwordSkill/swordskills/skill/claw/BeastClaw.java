@@ -1,29 +1,29 @@
-package com.zoma1101.SwordSkill.swordskills.skill.claw;
+package com.zoma1101.swordskill.swordskills.skill.claw;
 
-import com.zoma1101.SwordSkill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.SwordSkill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.SwordSkill.swordskills.SkillTexture.RedSkillTexture;
-import static com.zoma1101.SwordSkill.swordskills.SkillUtils.*;
+import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.RedSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class BeastClaw implements ISkill {
 
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
+        if (FinalTick == 3) { // 1回目の斬撃
             performNeil(level,player,0);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 3) { // 2回目の斬撃
+        } else if (FinalTick == 4) { // 2回目の斬撃
             performNeil(level,player,3);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 9) { // 2回目の斬撃
+        } else if (FinalTick == 7) { // 2回目の斬撃
             performNeil(level,player,6);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 10) { // 2回目の斬撃
+        } else if (FinalTick == 9) { // 2回目の斬撃
             performNeil(level,player,9);
             SimpleSkillSound(level,player.position());
             move(player);

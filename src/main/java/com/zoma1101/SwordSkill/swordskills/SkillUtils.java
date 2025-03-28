@@ -1,9 +1,9 @@
-package com.zoma1101.SwordSkill.swordskills;
+package com.zoma1101.swordskill.swordskills;
 
-import com.zoma1101.SwordSkill.config.ServerConfig;
-import com.zoma1101.SwordSkill.data.WeaponTypeUtils;
-import com.zoma1101.SwordSkill.entity.SwordSkill_Entities;
-import com.zoma1101.SwordSkill.entity.custom.AttackEffectEntity;
+import com.zoma1101.swordskill.config.ServerConfig;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.entity.SwordSkill_Entities;
+import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -80,7 +80,7 @@ public class SkillUtils {
 
     private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
     private static void SwingArm(ServerPlayer player) {
-        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)) {
+        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD) || Objects.requireNonNull(WeaponTypeUtils.getWeaponName()).contains("dual_claw")){
             UUID playerId = player.getUUID();
             boolean isSwingRight = swingRight.getOrDefault(playerId, true); // 初期値は右手振り
 

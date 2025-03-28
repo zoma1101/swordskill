@@ -1,11 +1,15 @@
-package com.zoma1101.SwordSkill.client.handler;
+package com.zoma1101.swordskill.client.handler;
 
 
-import com.zoma1101.SwordSkill.SwordSkill;
-import com.zoma1101.SwordSkill.client.gui.SkillSlotDisplayOverlay;
-import com.zoma1101.SwordSkill.client.screen.Keybindings;
+import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.gui.SkillSlotDisplayOverlay;
+import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.entity.SwordSkill_Entities;
+import com.zoma1101.swordskill.entity.model.AttackEffectModel;
+import com.zoma1101.swordskill.entity.renderer.AttackEffectRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,5 +34,15 @@ public class ClientModHandler {
     @SubscribeEvent
     public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll("hud_skill_slot", SkillSlotDisplayOverlay.HUD_SKILL_SLOT);
+    }
+    //レイヤー読み込み処理
+    @SubscribeEvent
+    public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(AttackEffectModel.LAYER_LOCATION,AttackEffectModel::createBodyLayer);
+    }
+    //レンダラー読み込み処理
+    @SubscribeEvent
+    public static void registerRenderer(EntityRenderersEvent.RegisterRenderers event){
+        event.registerEntityRenderer(SwordSkill_Entities.ATTACK_EFFECT.get(), AttackEffectRenderer::new);
     }
 }
