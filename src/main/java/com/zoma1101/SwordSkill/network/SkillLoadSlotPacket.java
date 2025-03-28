@@ -9,6 +9,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.zoma1101.swordskill.server.handler.ServerEventHandler.sendSkillSlotInfo;
@@ -26,12 +27,7 @@ public class SkillLoadSlotPacket {
     }
 
     public void encode(FriendlyByteBuf buf) {
-        if (weaponName != null){
-            buf.writeUtf(weaponName);
-        }
-        else {
-            buf.writeUtf("type123");
-        }
+        buf.writeUtf(Objects.requireNonNullElse(weaponName, "type123"));
     }
 
     public static void handle(SkillLoadSlotPacket msg, Supplier<NetworkEvent.Context> ctx) {

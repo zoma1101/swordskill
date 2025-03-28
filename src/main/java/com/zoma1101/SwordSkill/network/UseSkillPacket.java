@@ -44,7 +44,7 @@ public class UseSkillPacket {
             if (skill != null) {
                 if (msg.finalTick == 0) {
                     // FinalTickが0の場合、一度だけ実行
-                    executeSkill(player, skill, 0);
+                    executeSkill(player, skill);
                 } else {
                     // スキル実行情報を保存
                     SkillExecutionManager.startSkillExecution(player, msg.skillId, msg.finalTick);
@@ -56,11 +56,11 @@ public class UseSkillPacket {
         ctx.get().setPacketHandled(true);
     }
 
-    private static void executeSkill(ServerPlayer player, SkillData skill, int tickCount) {
+    private static void executeSkill(ServerPlayer player, SkillData skill) {
         try {
             ISkill skillInstance = skill.getSkillClass().getDeclaredConstructor().newInstance();
-            skillInstance.execute(player.level(), player, tickCount,skill.getId());
-            LOGGER.info("スキル {} (ID: {}) を Tick {} で実行", skill.getName(), skill.getId(), tickCount);
+            skillInstance.execute(player.level(), player, 0,skill.getId());
+            LOGGER.info("スキル {} (ID: {}) を Tick {} で実行", skill.getName(), skill.getId(), 0);
         } catch (Exception e) {
             LOGGER.error("スキル実行中にエラーが発生しました。", e);
         }

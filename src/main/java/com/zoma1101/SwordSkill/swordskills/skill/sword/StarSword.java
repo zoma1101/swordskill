@@ -42,7 +42,7 @@ public class StarSword implements ISkill {
             SimpleSkillSound(level,player.position());
         }
         else if (FinalTick == 31) {
-            performThrust(level, player, 5, 0.75F,2f);
+            performThrust(level, player);
             SimpleSkillSound(level,player.position());
         }
 
@@ -60,14 +60,14 @@ public class StarSword implements ISkill {
 
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
-    private void performThrust(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
+    private void performThrust(Level level, ServerPlayer player) {
         Vec3 lookVec = player.getLookAngle();
-        Vec3 spawnPos = calculateRelativePosition(player, lookVec, slashIndex); // 相対座標を計算
-        double damage = BaseDamage(player) * Damage;
-        double knockbackForce = BaseKnowBack(player)*knockback;
+        Vec3 spawnPos = calculateRelativePosition(player, lookVec, 5); // 相対座標を計算
+        double damage = BaseDamage(player) * (float) 2.0;
+        double knockbackForce = BaseKnowBack(player)* (float) 0.75;
         Vector3f size = new Vector3f(0.5f, 0.5f, 5f);
         int duration = 12;
-        Vec3 Rotation = calculateRotation(slashIndex);
+        Vec3 Rotation = calculateRotation(5);
         String skill_particle = Spia_Particle_AxeGreen();
 
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);

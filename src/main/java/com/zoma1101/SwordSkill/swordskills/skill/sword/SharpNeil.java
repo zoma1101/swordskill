@@ -14,22 +14,22 @@ public class SharpNeil implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
-            performSlash(level, player, 0, 0.1F,2f);
+            performSlash(level, player, 0, 0.1F);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 7) { // 2回目の斬撃
-            performSlash(level, player, 1, 0.1F,2f);
+            performSlash(level, player, 1, 0.1F);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 14) { // 2回目の斬撃
-            performSlash(level, player, 2, 0.75F,2f);
+            performSlash(level, player, 2, 0.75F);
             SimpleSkillSound(level,player.position());
         }
 
     }
 
-    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage) {
+    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback) {
         Vec3 lookVec = player.getLookAngle();
         Vec3 spawnPos = calculateRelativePosition(player, lookVec, slashIndex); // 相対座標を計算
-        double damage = BaseDamage(player) * Damage;
+        double damage = BaseDamage(player) * (float) 2.0;
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(7.2f, 3f, 1.4f);
         int duration = 12;
