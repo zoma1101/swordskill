@@ -36,7 +36,7 @@ You can change the config to obtain the weapon type from the letters contained i
 You can create data packs and make any weapon compatible.
 Steps
 1. Create a data pack
-2. Create a weapon type json based on the [guide](https://github.com/zoma1101/swordskill/blob/1.20-with-playeranim/src/main/java/com/zoma1101/SwordSkill/swordskills/SkillData.java)
+2. Create a weapon type json based on the [guide](https://github.com/zoma1101/swordskill/blob/main/src/main/java/com/zoma1101/SwordSkill/swordskills/SkillData.java)
    Please select weapon type from the list below.
 
 `DataPackName/data/swordskill/weapon_types/youritems.json`
@@ -55,7 +55,7 @@ Steps
 ```
 
 From swordskill v1.1 onwards, if you only want to add default weapon types,
-you can easily create data packs by just modifying the "item" list [here](https://github.com/zoma1101/swordskill/tree/1.20-with-playeranim/src/main/resources/data/swordskill/weapon_types):
+you can easily create data packs by just modifying the "item" list [here](https://github.com/zoma1101/swordskill/tree/main/src/main/resources/data/swordskill/weapon_types):
 
 ```
 {
