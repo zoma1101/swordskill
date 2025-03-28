@@ -1,0 +1,105 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"storm_mirror.finish": {
+			"animation_length": 0.625,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0417": {
+							"vector": [0, 25, 0],
+							"easing": "linear"
+						},
+						"0.4583": {
+							"vector": [0, -372.5, 0],
+							"easing": "easeOutBack",
+							"easingArgs": []
+						},
+						"0.5": {
+							"vector": [0, -12.5, 0],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [166.32131, 1.54384, -111.1461],
+							"easing": "linear"
+						},
+						"0.0417": {
+							"vector": [166.32131, 1.54384, -111.1461],
+							"easing": "linear"
+						},
+						"0.4583": {
+							"vector": [322.90281, 7.35827, -70.0589],
+							"easing": "linear"
+						},
+						"0.5": {
+							"vector": [-38, 7.35827, -70.0589],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					}
+				},
+				"rightItem": {
+					"rotation": {
+						"0.125": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [-45, 0, 0],
+							"easing": "linear"
+						}
+					},
+					"position": {
+						"0.125": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		},
+		"storm_mirror.move": {
+			"loop": true,
+			"animation_length": 0.3333,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.3333": {
+							"vector": [0, -360, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"vector": [-178.54645, 14.96197, -84.41926],
+						"easing": "linear"
+					}
+				},
+				"rightItem": {
+					"rotation": {
+						"vector": [-45, 0, 0],
+						"easing": "linear"
+					},
+					"position": {
+						"vector": [0, 0, 0],
+						"easing": "linear"
+					}
+				}
+			}
+		}
+	}
+}
