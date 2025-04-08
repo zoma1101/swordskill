@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.data;
 
 import com.zoma1101.swordskill.swordskills.SkillData;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.TridentItem;
@@ -20,7 +21,7 @@ public class AutoWeaponDataSetter {
             return new WeaponData(Set.of(SkillData.WeaponType.TWO_HANDED_SWORD),"two_handed_sword");
         } else if (itemName.contains("katana") || itemName.contains("cutlass")) {
             return new WeaponData(Set.of(SkillData.WeaponType.KATANA),"katana");
-        } else if (itemName.contains("axe")) {
+        } else if (itemName.contains("axe") && !itemName.contains("pickaxe") || heldItem.getItem() instanceof AxeItem) {
             return new WeaponData(Set.of(SkillData.WeaponType.AXE),"axe");
         } else if (itemName.contains("rapier")) {
             return new WeaponData(Set.of(SkillData.WeaponType.RAPIER),"rapier");

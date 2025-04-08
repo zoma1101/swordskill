@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill.swordskills.skill.spear;
 
+import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -50,6 +51,7 @@ public class FallingStar implements ISkill {
             // hurtMarked を true に設定
             player.hurtMarked = true;
             player.invulnerableTime = 35;
+            player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE.get(), 100));
         }
 
 
