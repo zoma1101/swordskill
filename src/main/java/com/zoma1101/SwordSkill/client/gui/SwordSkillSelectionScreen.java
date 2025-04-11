@@ -24,8 +24,8 @@ import org.lwjgl.glfw.GLFW;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
 import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
-import static com.zoma1101.swordskill.swordskills.SkillSound.GodSkillSound;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 @OnlyIn(Dist.CLIENT)
@@ -53,14 +53,9 @@ public class SwordSkillSelectionScreen extends Screen {
         } else if (keyCode == GLFW.GLFW_KEY_D) {
             selectedSkillIndex = getNextDisplayableSkillIndex(selectedSkillIndex);
         }
-
-        if (keyCode == GLFW.GLFW_KEY_ENTER) {
-            System.out.println("アンロックしたスキルは"+unlockedSkills);
-        }
-
         boolean handled = super.keyPressed(keyCode, scanCode, modifiers); // super.keyPressed() を先に実行
 
-        if (unlockedSkills.contains(selectedSkillIndex)) {
+        if (unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get()) {
 
             if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_0.getKey().getValue()) {
                 saveSkillToSlot(0);
@@ -89,7 +84,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
         Button unlockButton;
         Button selectButton;
-        if (selectedSkill != null && selectedSkill.getType() == SkillData.SkillType.TRANSFORM) {
+        if (selectedSkill != null && selectedSkill.getType() == SkillData.SkillType.TRANSFORM  || !UnlockedSkill.get()) {
             // TRANSFORM スキルの場合
             int index = 0;
             for (int i = 0;!SwordSkillRegistry.SKILLS.get(selectedSkillIndex+i).getType().equals(SkillData.SkillType.TRANSFORM_FINISH); i++){
@@ -105,7 +100,7 @@ public class SwordSkillSelectionScreen extends Screen {
         }
 
         //アンロック関係
-        if (unlockedSkills.contains(selectedSkillIndex)) {
+        if (unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get()) {
             selectButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".select"), button -> openSlotSelectionScreen())
                     .bounds(width / 2 - 50, height - 40, 100, 20)
                     .build();

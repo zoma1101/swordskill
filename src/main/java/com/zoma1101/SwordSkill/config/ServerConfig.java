@@ -10,6 +10,7 @@ public class ServerConfig {
     public static final ForgeConfigSpec.DoubleValue cooldownMultiplier;
     public static final ForgeConfigSpec.BooleanValue PvP;
     public static final ForgeConfigSpec.BooleanValue AUTOWEAPON_SETTING;
+    public static final ForgeConfigSpec.BooleanValue UnlockedSkill;
     public static final ForgeConfigSpec.BooleanValue attackNeutralMobs;
 
 
@@ -19,6 +20,7 @@ public class ServerConfig {
         cooldownMultiplier = BUILDER.comment("Sword skill cool down multiplier").defineInRange("CoolDownMultiplier", 1.0, 0.01, 10.0);
         AUTOWEAPON_SETTING = BUILDER.comment("The available weapons are set automatically to some extent.").define("auto weapon setting", false);
         PvP = BUILDER.comment("Allow PVP with sword skills").define("pvp", false);
+        UnlockedSkill = BUILDER.comment("Enable Sword Skill Unlock").define("UnlockedSkill", true);
         attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", false);
         BUILDER.pop();
         SPEC = BUILDER.build();
