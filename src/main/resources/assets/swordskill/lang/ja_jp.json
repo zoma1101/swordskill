@@ -16,6 +16,8 @@
   "key.swordskill.hud_setting_key": "HUDの位置を調整する",
   "gui.swordskill.title": "ソードスキル選択",
   "gui.swordskill.select": "決定",
+  "gui.swordskill.unlock": "解放",
+  "gui.swordskill.unlock_derived": "派生スキル解放",
   "gui.swordskill.cooldown": "クールダウン: %s tick",
   "gui.swordskill.available_weapons": "使用可能武器: %s",
   "gui.swordskill.slot.0": "スキルスロット0",
@@ -207,6 +209,8 @@
   "swordskill.weapon.scythe": "大鎌",
   "swordskill.weapon.dagger": "短剣",
   "swordskill.weapon.dualsword": "二刀流",
+
+  "item.swordskill.unlock_item": "スキルオーブ",
 
   "effect.swordskill.no_fall_damage": "落下ダメージ無効状態"
 }

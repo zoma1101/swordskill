@@ -2,6 +2,7 @@ package com.zoma1101.swordskill.swordskills.skill.sword;
 
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -37,7 +38,7 @@ public class Horizontal_square implements ISkill {
         double knockbackForce = BaseKnowBack(player)*knockback;
         Vector3f size = new Vector3f(7.2f, 3f, 2.4f);
         int duration = 12;
-        Vec3 Rotation = calculateRotation(slashIndex);
+        Vec3 Rotation = calculateRotation(slashIndex,player);
         String skill_particle = NomalSkillTexture();
         Vec3 Move = isMove ? new Vec3(0,0,3) : Vec3.ZERO;
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Move);
@@ -57,12 +58,12 @@ public class Horizontal_square implements ISkill {
         return player.position().add(relativePos).add(0, player.getEyeHeight() * 0.75, 0); // プレイヤーの現在位置に相対座標を加算
     }
 
-    private Vec3 calculateRotation(int slashIndex) {
+    private Vec3 calculateRotation(int slashIndex, Player player) {
         return switch (slashIndex) {
             case 0 -> new Vec3(-6, 0, 5);
-            case 1 -> new Vec3(-6, 180, -5);
-            case 2 -> new Vec3(-6, -90, -5);
-            case 3 -> new Vec3(-6, 90, -5);
+            case 1 -> new Vec3(6-player.getXRot()*2, 180, -5);
+            case 2 -> new Vec3(-6-player.getXRot(), -90, -5+player.getXRot());
+            case 3 -> new Vec3(-6-player.getXRot(), 90, -5-player.getXRot());
             default -> new Vec3(0, 0, 0);
         };
     }

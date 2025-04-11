@@ -3,37 +3,45 @@ package com.zoma1101.swordskill.client.gui;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.SkillRequestPacket;
-import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
+import com.zoma1101.swordskill.network.*;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
+import static com.zoma1101.swordskill.swordskills.SkillSound.GodSkillSound;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 @OnlyIn(Dist.CLIENT)
 public class SwordSkillSelectionScreen extends Screen {
-
+    public Set<Integer> unlockedSkills = new HashSet<>();
     public int selectedSkillIndex = 0;
-    private Set<SkillData.WeaponType> weaponType; // 追加
+    private Set<SkillData.WeaponType> weaponType;
+
 
     public SwordSkillSelectionScreen() {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
         if (Minecraft.getInstance().player != null) {
             weaponType = WeaponTypeUtils.getWeaponType(); // 初期化
+            NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
         }
+
         NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
     }
 
@@ -47,45 +55,101 @@ public class SwordSkillSelectionScreen extends Screen {
         }
 
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
-            onClose();
-            return true;
+            System.out.println("アンロックしたスキルは"+unlockedSkills);
         }
 
         boolean handled = super.keyPressed(keyCode, scanCode, modifiers); // super.keyPressed() を先に実行
 
-        if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_0.getKey().getValue()) {
-            saveSkillToSlot(0);
-            return true;
-        } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_1.getKey().getValue()) {
-            saveSkillToSlot(1);
-            return true;
-        } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_2.getKey().getValue()) {
-            saveSkillToSlot(2);
-            return true;
-        } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_3.getKey().getValue()) {
-            saveSkillToSlot(3);
-            return true;
-        } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_4.getKey().getValue()) {
-            saveSkillToSlot(4);
-            return true;
-        }
+        if (unlockedSkills.contains(selectedSkillIndex)) {
 
+            if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_0.getKey().getValue()) {
+                saveSkillToSlot(0);
+                return true;
+            } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_1.getKey().getValue()) {
+                saveSkillToSlot(1);
+                return true;
+            } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_2.getKey().getValue()) {
+                saveSkillToSlot(2);
+                return true;
+            } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_3.getKey().getValue()) {
+                saveSkillToSlot(3);
+                return true;
+            } else if (keyCode == Keybindings.INSTANCE.SwordSkill_Use_Key_4.getKey().getValue()) {
+                saveSkillToSlot(4);
+                return true;
+            }
+        }
         return handled; // super.keyPressed() の結果を返す
     }
 
-    @Override
-    protected void init() {
-        super.init();
+    private void ViewButton() {
+        this.clearWidgets();
 
-        // 決定ボタンを追加
-        addRenderableWidget(Button.builder(Component.translatable("gui."+SwordSkill.MOD_ID+".select"), button -> openSlotSelectionScreen()).bounds(width / 2 - 50, height - 40, 100, 20).build());
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
+
+        Button unlockButton;
+        Button selectButton;
+        if (selectedSkill != null && selectedSkill.getType() == SkillData.SkillType.TRANSFORM) {
+            // TRANSFORM スキルの場合
+            int index = 0;
+            for (int i = 0;!SwordSkillRegistry.SKILLS.get(selectedSkillIndex+i).getType().equals(SkillData.SkillType.TRANSFORM_FINISH); i++){
+                index = selectedSkillIndex+i+1;
+            }
+
+            if (!unlockedSkills.contains(index)){
+                Button unlockDerivedButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock_derived"), button -> unlockDerivedSkill()) // 派生スキル解放処理
+                        .bounds(width / 2 - 50, height - 65, 100, 20)
+                        .build();
+                addRenderableWidget(unlockDerivedButton);
+            }
+        }
+
+        //アンロック関係
+        if (unlockedSkills.contains(selectedSkillIndex)) {
+            selectButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".select"), button -> openSlotSelectionScreen())
+                    .bounds(width / 2 - 50, height - 40, 100, 20)
+                    .build();
+            addRenderableWidget(selectButton);
+        } else {
+            unlockButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock"), button -> unlockSkill(selectedSkillIndex))
+                    .bounds(width / 2 - 50, height - 40, 100, 20)
+                    .build();
+            addRenderableWidget(unlockButton);
+        }
     }
 
     private void openSlotSelectionScreen() {
         Minecraft.getInstance().setScreen(new DecideSkillScreen(selectedSkillIndex));
     }
 
+    private void unlockSkill(int selectedSkill) {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            Inventory inventory = player.getInventory();
+            NonNullList<ItemStack> allItems = NonNullList.create();
+            allItems.addAll(inventory.items);
+            allItems.addAll(inventory.armor);
+            allItems.addAll(inventory.offhand);
 
+            for (ItemStack itemStack : allItems) {
+                if (itemStack.getItem() == UNLOCKITEM.get()) {
+                    // 指定のアイテムが見つかった
+                    itemStack.shrink(1);
+                    NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
+                    unlockedSkills.add(selectedSkill);
+                    return;
+                }
+            }
+        }
+    }
+
+    private void unlockDerivedSkill(){
+        int index= 0;
+        for (int i = 0;!SwordSkillRegistry.SKILLS.get(selectedSkillIndex+i).getType().equals(SkillData.SkillType.TRANSFORM_FINISH) && unlockedSkills.contains(selectedSkillIndex+i); i++){
+            index = selectedSkillIndex+i+1;
+        }
+        unlockSkill(index);
+    }
 
     private void saveSkillToSlot(int slotIndex) {
         if (minecraft != null && minecraft.player != null) {
@@ -103,10 +167,9 @@ public class SwordSkillSelectionScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics);
-
         int centerX = width / 2;
         int centerY = height / 2;
-
+        ViewButton();
         SkillData skill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
 
         if (skill != null && !skill.isHide()) {

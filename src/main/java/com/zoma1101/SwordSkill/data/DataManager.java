@@ -3,8 +3,10 @@ package com.zoma1101.swordskill.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.File;
@@ -39,10 +41,12 @@ public class DataManager {
     }
 
     private static File getPlayerFile(ServerPlayer player) {
-        ServerLevel serverLevel = player.serverLevel();
-        Path worldFolderPath = serverLevel.getServer().getWorldPath(LevelResource.ROOT);
-        File dataDir = worldFolderPath.resolve("swordskill_data").toFile(); // ワールドフォルダ内にデータフォルダを作成
+        ServerLevel level = player.serverLevel();
+        Path worldFolderPath = level.getServer().getWorldPath(LevelResource.ROOT);
+        File dataDir = worldFolderPath.resolve("swordskill_data").toFile();
         String playerUUID = player.getUUID().toString();
         return new File(dataDir, playerUUID + ".json");
     }
+
+
 }

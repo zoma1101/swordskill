@@ -38,7 +38,7 @@ public class DoubleCreep implements ISkill {
 
     private Vec3 calculateRotation(int slashIndex) {
         return switch (slashIndex) {
-            case 0 -> new Vec3(-14, 5, 8); // 1回目の斬撃
+            case 0 -> new Vec3(-14, 5, -172); // 1回目の斬撃
             case 1 -> new Vec3(6, -35, -60); // 2回目の斬撃
             default -> new Vec3(0, 0, 0);
         };

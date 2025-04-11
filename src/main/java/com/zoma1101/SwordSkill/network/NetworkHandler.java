@@ -2,6 +2,7 @@ package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.SwordSkill;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
@@ -44,6 +45,14 @@ public class NetworkHandler {
                 SkillLoadSlotPacket::encode,
                 SkillLoadSlotPacket::new,
                 SkillLoadSlotPacket::handle);
+        INSTANCE.registerMessage(id++, SkillUnlockPacket.class,
+                SkillUnlockPacket::encode,
+                SkillUnlockPacket::new,
+                SkillUnlockPacket::handle);
+        INSTANCE.registerMessage(id++, CheckSkillUnlockedPacket.class,
+                CheckSkillUnlockedPacket::encode,
+                CheckSkillUnlockedPacket::new,
+                CheckSkillUnlockedPacket::handle);
     }
 
     public static void sendToServer(Object packet) {

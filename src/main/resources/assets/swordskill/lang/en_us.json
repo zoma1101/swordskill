@@ -16,6 +16,8 @@
   "key.swordskill.hud_setting_key": "Adjust the HUD position",
   "gui.swordskill.title": "Select Skill",
   "gui.swordskill.select": "Done",
+  "gui.swordskill.unlock": "Unlock",
+  "gui.swordskill.unlock_derived": "Unlock Derivative Skill",
   "gui.swordskill.cooldown": "CoolDown: %s tick",
   "gui.swordskill.available_weapons": "Equippable weapons: %s",
   "gui.swordskill.slot.0": "SkillSlot 0",
@@ -209,6 +211,8 @@
   "swordskill.weapon.scythe": "Scythe",
   "swordskill.weapon.dagger": "Short Sword",
   "swordskill.weapon.dualsword": "Dual Swords",
+
+  "item.swordskill.unlock_item": "Skill Orb",
 
   "effect.swordskill.no_fall_damage": "Fall damage disabled"
 }
