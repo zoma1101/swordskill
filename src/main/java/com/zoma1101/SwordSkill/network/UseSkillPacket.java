@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
+import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
 import static com.zoma1101.swordskill.data.SkillDataFetcher.isSkillUnlocked;
 
 public class UseSkillPacket {
@@ -43,7 +44,7 @@ public class UseSkillPacket {
             }
 
             SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId);
-            if (skill != null && isSkillUnlocked(player, msg.skillId) || skill != null && player.gameMode.isCreative()) {
+            if (skill != null && isSkillUnlocked(player, msg.skillId) || skill != null && player.gameMode.isCreative() || skill != null && !UnlockedSkill.get()) {
                 if (msg.finalTick == 0) {
                     // FinalTickが0の場合、一度だけ実行
                     executeSkill(player, skill);

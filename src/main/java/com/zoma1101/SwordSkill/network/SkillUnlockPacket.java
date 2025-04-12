@@ -36,6 +36,7 @@ public class SkillUnlockPacket {
                 return;
             }
 
+
             JsonObject playerData = DataManager.loadPlayerData(player);
             JsonArray unlockedSkillsArray;
 
@@ -52,7 +53,7 @@ public class SkillUnlockPacket {
                     LOGGER.warn("予期しない unlockedskill のデータ形式です。新しい配列を作成します。");
                 }
             } else {
-                unlockedSkillsArray = new JsonArray(); // まだ unlockedskill が存在しない場合は新しい配列を作成
+                unlockedSkillsArray = new JsonArray();
             }
 
             // 新しいスキルIDが既に存在するか確認し、存在しない場合のみ追加

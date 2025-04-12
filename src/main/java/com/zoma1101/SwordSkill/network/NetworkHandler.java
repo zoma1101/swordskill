@@ -53,6 +53,10 @@ public class NetworkHandler {
                 CheckSkillUnlockedPacket::encode,
                 CheckSkillUnlockedPacket::new,
                 CheckSkillUnlockedPacket::handle);
+        INSTANCE.registerMessage(id++, ConsumeUnlockItemPacket.class,
+                ConsumeUnlockItemPacket::encode,
+                ConsumeUnlockItemPacket::new,
+                ConsumeUnlockItemPacket::handle);
     }
 
     public static void sendToServer(Object packet) {

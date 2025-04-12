@@ -14,8 +14,8 @@ public class ClientConfig {
 
     static {
         BUILDER.push("HUD Settings");
-        hudPosX = BUILDER.defineInRange("hudPosX", 0, 0, 1920);
-        hudPosY = BUILDER.defineInRange("hudPosY", 0, 0, 1080);
+        hudPosX = BUILDER.defineInRange("hudPosX", 0, -1920, 1920);
+        hudPosY = BUILDER.defineInRange("hudPosY", 0, -1080, 1080);
         hudScale = BUILDER.defineInRange("hudScale", 24, 1, HUD_SCALE_MAX);
         BUILDER.pop();
         SPEC = BUILDER.build();

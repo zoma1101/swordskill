@@ -93,7 +93,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
             if (!unlockedSkills.contains(index)){
                 Button unlockDerivedButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock_derived"), button -> unlockDerivedSkill()) // 派生スキル解放処理
-                        .bounds(width / 2 - 50, height - 65, 100, 20)
+                        .bounds(width / 2 - 80, height - 65, 160, 20)
                         .build();
                 addRenderableWidget(unlockDerivedButton);
             }
@@ -102,12 +102,12 @@ public class SwordSkillSelectionScreen extends Screen {
         //アンロック関係
         if (unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get()) {
             selectButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".select"), button -> openSlotSelectionScreen())
-                    .bounds(width / 2 - 50, height - 40, 100, 20)
+                    .bounds(width / 2 - 80, height - 40, 160, 20)
                     .build();
             addRenderableWidget(selectButton);
         } else {
             unlockButton = Button.builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock"), button -> unlockSkill(selectedSkillIndex))
-                    .bounds(width / 2 - 50, height - 40, 100, 20)
+                    .bounds(width / 2 - 80, height - 40, 160, 20)
                     .build();
             addRenderableWidget(unlockButton);
         }
@@ -125,12 +125,12 @@ public class SwordSkillSelectionScreen extends Screen {
             allItems.addAll(inventory.items);
             allItems.addAll(inventory.armor);
             allItems.addAll(inventory.offhand);
-
             for (ItemStack itemStack : allItems) {
                 if (itemStack.getItem() == UNLOCKITEM.get()) {
                     // 指定のアイテムが見つかった
-                    itemStack.shrink(1);
+                    NetworkHandler.INSTANCE.sendToServer(new ConsumeUnlockItemPacket());
                     NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
+                    itemStack.shrink(1);
                     unlockedSkills.add(selectedSkill);
                     return;
                 }
@@ -191,9 +191,36 @@ public class SwordSkillSelectionScreen extends Screen {
             guiGraphics.drawString(font, Component.translatable(SwordSkill.MOD_ID + ".skill." + skill.getName()).getString(), nameX, nameY, 0x00FFAA);
 
             // スキルの説明を複数行で表示
+            // スキルの説明を複数行で表示
             String descriptionKey = SwordSkill.MOD_ID + ".skill." + skill.getName() + ".description";
             String description = Component.translatable(descriptionKey).getString();
             String[] descriptionLines = description.split("\n"); // 改行で分割
+
+            // 派生スキルの説明文を生成して追加
+            HashSet<Integer> derivedSkillIds = getDerivedSkills();
+            if (!derivedSkillIds.isEmpty()) {
+                StringBuilder derivedSkillDescription = new StringBuilder(Component.translatable("gui." + SwordSkill.MOD_ID + ".skill.derived").getString() + ":\n");
+                java.util.Map<String, Integer> derivedNameToId = new java.util.HashMap<>(); // ローカライズされた名前とIDのマップ
+                for (Integer derivedSkillId : derivedSkillIds) {
+                    if (derivedSkillId >= 0 && derivedSkillId < SwordSkillRegistry.SKILLS.size()) {
+                        SkillData derivedSkill = SwordSkillRegistry.SKILLS.get(derivedSkillId);
+                        String localizedName = "- " + Component.translatable(SwordSkill.MOD_ID + ".skill." + derivedSkill.getName()).getString();
+                        derivedNameToId.put(localizedName.substring(2), derivedSkillId);
+                        derivedSkillDescription.append(localizedName).append("\n");
+                    }
+                }
+                String[] derivedDescriptionLines = derivedSkillDescription.toString().split("\n");
+                int descriptionYOffset = 0; // 派生スキルの説明文の描画開始位置を調整するためのオフセット
+                for (String derivedLine : derivedDescriptionLines) {
+                    if (!derivedLine.isEmpty()) { // 空行をスキップ
+                        int color = derivedNameToId.get(derivedLine.substring(2)) != null && unlockedSkills.contains(derivedNameToId.get(derivedLine.substring(2)))
+                                ? 0x87CEEB
+                                : 0xFFFFFF;
+                        guiGraphics.drawString(font, derivedLine, centerX - 120, centerY - 15 + (font.lineHeight + 2) * (descriptionLines.length + descriptionYOffset), color);
+                        descriptionYOffset++;
+                    }
+                }
+            }
 
             int descriptionY = centerY - 15; // 最初の行のY座標
             for (String line : descriptionLines) {
@@ -237,4 +264,16 @@ public class SwordSkillSelectionScreen extends Screen {
     private ResourceLocation getWeaponIconTexture(SkillData.WeaponType type) {
         return fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/weapon_icons/" + type.name().toLowerCase() + ".png");
     }
+
+    private HashSet<Integer> getDerivedSkills(){
+        HashSet<Integer> TransformSkillList = new HashSet<>();
+        if (SwordSkillRegistry.SKILLS.get(selectedSkillIndex).getType().equals(SkillData.SkillType.TRANSFORM)) {
+            for (int i = 0; !SwordSkillRegistry.SKILLS.get(selectedSkillIndex + i).getType().equals(SkillData.SkillType.TRANSFORM_FINISH); i++) {
+
+                TransformSkillList.add(selectedSkillIndex + i + 1);
+            }
+        }
+        return TransformSkillList;
+    }
+
 }

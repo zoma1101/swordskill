@@ -1,14 +1,13 @@
 package com.zoma1101.swordskill.client.handler;
 
+import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.SkillLoadSlotPacket;
-import com.zoma1101.swordskill.network.SkillRequestPacket;
-import com.zoma1101.swordskill.network.UseSkillPacket;
+import com.zoma1101.swordskill.network.*;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -142,6 +141,7 @@ public class ClientForgeHandler {
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
         SetWeaponType = true;
+        NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(0));
     }
 
     @SubscribeEvent
