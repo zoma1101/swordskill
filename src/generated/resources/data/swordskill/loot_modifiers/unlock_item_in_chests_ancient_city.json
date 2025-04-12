@@ -1,0 +1,18 @@
+{
+  "type": "swordskill:add_item",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/ancient_city"
+    },
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/ancient_city"
+    },
+    {
+      "chance": 0.7,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "swordskill:unlock_item"
+}

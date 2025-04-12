@@ -1,11 +1,9 @@
 package com.zoma1101.swordskill.client.handler;
 
-import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
-import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.network.*;
 import com.zoma1101.swordskill.swordskills.SkillData;

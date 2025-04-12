@@ -13,13 +13,13 @@ import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 public class SharpNeil implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) { // 1回目の斬撃
+        if (FinalTick == 2) { // 1回目の斬撃
             performSlash(level, player, 0, 0.1F);
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 7) { // 2回目の斬撃
             performSlash(level, player, 1, 0.1F);
             SimpleSkillSound(level,player.position());
-        } else if (FinalTick == 14) { // 2回目の斬撃
+        } else if (FinalTick == 10) { // 2回目の斬撃
             performSlash(level, player, 2, 0.75F);
             SimpleSkillSound(level,player.position());
         }

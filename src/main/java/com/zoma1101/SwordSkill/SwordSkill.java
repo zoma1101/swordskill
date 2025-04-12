@@ -8,6 +8,7 @@ import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
+import com.zoma1101.swordskill.loot.ModLootModifiers;
 import com.zoma1101.swordskill.network.NetworkHandler;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +39,7 @@ public class SwordSkill {
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
         MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListener);
+        ModLootModifiers.register(modEventBus);
     }
 
     private void setup(FMLCommonSetupEvent event) {

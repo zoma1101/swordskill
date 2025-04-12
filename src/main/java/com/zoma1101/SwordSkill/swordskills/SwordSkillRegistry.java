@@ -38,7 +38,7 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "vertical_arc",240, SkillData.SkillType.TRANSFORM, Vertical_arc.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 0,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "vertical_square",480, SkillData.SkillType.TRANSFORM_FINISH, Vertical_square.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), true, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "x_break", 160, SkillData.SkillType.SIMPLE, XBreak.class, List.of(ONE_HANDED_SWORD, KATANA,DUALSWORD), false, 6,DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sharp_neil",400, SkillData.SkillType.SIMPLE, SharpNeil.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 15,DefaultTransformTick));
+        registerSkill(new SkillData(getNextSkillId(), "sharp_neil",400, SkillData.SkillType.SIMPLE, SharpNeil.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 10,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "holy_cross_brade",280, SkillData.SkillType.SIMPLE, HolyCrossBrade.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 7,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "rage_spike",210, SkillData.SkillType.RUSH, RageSpike.class, List.of(ONE_HANDED_SWORD,DUALSWORD), false, 9,DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "sonic_reap",500, SkillData.SkillType.RUSH, SonicReap.class, List.of(ONE_HANDED_SWORD,DUALSWORD,DAGGER), false, 35,DefaultTransformTick));

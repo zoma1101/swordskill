@@ -2,7 +2,6 @@ package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.SwordSkill;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 

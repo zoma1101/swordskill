@@ -7,7 +7,6 @@ import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.network.NetworkHandler;
 import com.zoma1101.swordskill.network.SkillSlotInfoPacket;
-import com.zoma1101.swordskill.network.SkillUnlockPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
