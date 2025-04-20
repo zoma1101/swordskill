@@ -13,6 +13,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import static com.zoma1101.swordskill.config.ClientConfig.SwordSkillEffect_System;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 public class BlueEffectRenderer {
@@ -60,7 +61,17 @@ public class BlueEffectRenderer {
         else {cameraDirection = new Vector3f(0, -1, 0);}
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
-        VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
+        VertexConsumer builder =bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture)) ;
+
+        switch (SwordSkillEffect_System.get()){
+            case 0 -> builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
+            case 1 -> builder = bufferSource.getBuffer(RenderType.entityTranslucent(currentTexture));
+            case 2 -> builder = bufferSource.getBuffer(RenderType.entitySmoothCutout(currentTexture));
+            case 3 -> builder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(currentTexture));
+        }
+
+
+
 
         builder.vertex(matrix, -0.5f, 0f, -0.5f)
                 .color(R, G, B, 1f)
