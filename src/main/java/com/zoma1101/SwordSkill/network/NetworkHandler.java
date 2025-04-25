@@ -1,9 +1,11 @@
 package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.SwordSkill;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.Optional;
 
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
@@ -18,16 +20,11 @@ public class NetworkHandler {
 
     private static int id = 0;
 
-    public static void register(FMLCommonSetupEvent event) {
+    public static void register() {
         INSTANCE.registerMessage(id++, UseSkillPacket.class,
                 UseSkillPacket::encode,
                 UseSkillPacket::new,
                 UseSkillPacket::handle);
-        // SkillRequestPacket を登録
-        INSTANCE.registerMessage(id++, SkillRequestPacket.class,
-                SkillRequestPacket::encode,
-                SkillRequestPacket::new,
-                SkillRequestPacket::handle);
         INSTANCE.registerMessage(id++, SkillSelectionPacket.class,
                 SkillSelectionPacket::encode,
                 SkillSelectionPacket::new,
@@ -56,6 +53,22 @@ public class NetworkHandler {
                 ConsumeUnlockItemPacket::encode,
                 ConsumeUnlockItemPacket::new,
                 ConsumeUnlockItemPacket::handle);
+        INSTANCE.registerMessage(
+                id++, // 次の利用可能なID
+                SkillSyncPacket.class,
+                SkillSyncPacket::encode,
+                SkillSyncPacket::new,
+                SkillSyncPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT) // サーバーからクライアントへ
+        );
+        INSTANCE.registerMessage(
+                id++, // 次の利用可能なID
+                SkillRequestPacket.class,
+                SkillRequestPacket::encode,
+                SkillRequestPacket::new,
+                (msg, ctx) -> SkillRequestPacket.handle(ctx),
+                Optional.of(NetworkDirection.PLAY_TO_SERVER) // クライアントからサーバーへ
+        );
     }
 
     public static void sendToServer(Object packet) {

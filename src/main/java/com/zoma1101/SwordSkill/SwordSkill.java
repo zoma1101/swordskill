@@ -43,7 +43,7 @@ public class SwordSkill {
     }
 
     private void setup(FMLCommonSetupEvent event) {
-        NetworkHandler.register(event);
+        NetworkHandler.register();
     }
 
     @SubscribeEvent
