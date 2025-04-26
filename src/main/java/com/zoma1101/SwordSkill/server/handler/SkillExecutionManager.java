@@ -1,18 +1,19 @@
 package com.zoma1101.swordskill.server.handler;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 
 public class SkillExecutionManager {
     public static final Map<UUID, SkillExecutionData> skillExecutions = new HashMap<>();
@@ -36,7 +37,8 @@ public class SkillExecutionManager {
                 // スキル実行情報削除
                 skillExecutions.remove(playerId);
                 if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
-                    PlayerAnimation(0,"");
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(0,""));
+
                 }
                 LOGGER.info("スキル実行終了: プレイヤー={}, スキルID={}", player.getName().getString(), skillExecution.skillId); // ログ出力
             }

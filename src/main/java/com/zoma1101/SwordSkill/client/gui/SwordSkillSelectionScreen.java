@@ -1,8 +1,8 @@
 package com.zoma1101.swordskill.client.gui;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.screen.Keybindings;
-import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.network.*;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -38,7 +38,7 @@ public class SwordSkillSelectionScreen extends Screen {
     public SwordSkillSelectionScreen() {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
         if (Minecraft.getInstance().player != null) {
-            weaponType = WeaponTypeUtils.getWeaponType(); // 初期化
+            weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
             NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
         }
 
@@ -150,7 +150,7 @@ public class SwordSkillSelectionScreen extends Screen {
         if (minecraft != null && minecraft.player != null) {
             SkillData skill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
             if (skill != null) {
-                String playerWeaponType = WeaponTypeUtils.getWeaponName(); // 追加
+                String playerWeaponType = ClientSkillSlotHandler.getCurrentWeaponName();
                 if (playerWeaponType != null  && !playerWeaponType.equals("None")) { // 追加
                     NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponType)); // 修正
                 } // 追加

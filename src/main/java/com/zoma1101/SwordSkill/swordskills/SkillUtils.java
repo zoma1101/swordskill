@@ -70,17 +70,15 @@ public class SkillUtils {
     }
 
     public static void swingArm(ServerPlayer player, HumanoidArm arm) {
-        // EquipmentSlot を InteractionHand に変換
         InteractionHand hand = arm == HumanoidArm.LEFT ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-        // 腕を振るアニメーションを再生
         player.swing(hand);
         // クライアント側へアニメーション再生の指示を送信
         player.connection.send(new ClientboundAnimatePacket(player, arm == HumanoidArm.LEFT ? 3 : 0));
     }
 
     private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
-    private static void SwingArm(ServerPlayer player) {
-        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD) || Objects.requireNonNull(WeaponTypeUtils.getWeaponName()).contains("dual_claw")){
+    public static void SwingArm(ServerPlayer player) {
+        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD) || Objects.requireNonNull(WeaponTypeUtils.getWeaponName(player)).contains("dual_claw")){
             UUID playerId = player.getUUID();
             boolean isSwingRight = swingRight.getOrDefault(playerId, true); // 初期値は右手振り
 

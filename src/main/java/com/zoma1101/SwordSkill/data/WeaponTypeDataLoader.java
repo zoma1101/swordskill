@@ -82,8 +82,8 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
             previousJsonMap.clear();
             previousJsonMap.putAll(currentJsonMap);
             LOGGER.info("Weapon type data reloaded. Total files: {}", weaponTypeDataMap.size());
-            //WeaponTypeDetector.initialize(this);
-            // 必要に応じて Mod のロジックに更新を通知する処理を追加
+
+            WeaponTypeDetector.markDataLoaded();
         } else {
             LOGGER.info("Weapon type data not changed.");
         }

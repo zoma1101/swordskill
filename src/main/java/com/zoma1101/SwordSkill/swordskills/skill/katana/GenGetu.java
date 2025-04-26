@@ -1,14 +1,16 @@
 package com.zoma1101.swordskill.swordskills.skill.katana;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 import java.util.Random;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -20,10 +22,10 @@ public class GenGetu implements ISkill {
             Random random = new Random();
             int result = random.nextBoolean() ? 0 : 1;
             if (result==0){
-                PlayerAnimation(SkillID,"upper");
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"upper"));
             }
             else {
-                PlayerAnimation(SkillID,"under");
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"under"));
             }
             Vec3 lookVec = player.getLookAngle();
             Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2)); // 目の前2ブロック

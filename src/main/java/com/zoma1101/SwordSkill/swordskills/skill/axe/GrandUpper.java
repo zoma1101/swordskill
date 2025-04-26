@@ -1,5 +1,7 @@
 package com.zoma1101.swordskill.swordskills.skill.axe;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -8,11 +10,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -46,7 +48,7 @@ public class GrandUpper implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        PlayerAnimation(SkillID,"finish");
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.75, 0).add(lookVec.scale(2.0)); // 目の前2ブロック
                         double damage = BaseDamage(player)*0.75f;
                         Vector3f size = new Vector3f(7.2f, 3f, 7.2f);
@@ -68,7 +70,7 @@ public class GrandUpper implements ISkill {
                 }
             }
             else {
-                PlayerAnimation(SkillID,"move");
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
             }
         }
     }

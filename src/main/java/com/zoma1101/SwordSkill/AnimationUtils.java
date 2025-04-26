@@ -23,8 +23,7 @@ public class AnimationUtils {
     //X軸で-X方向に行くらしい
     //手の方向そのままに剣配置　(0,3,2) -90
 
-    public static void PlayerAnim(int SkillID, String type){
-        Player player = Minecraft.getInstance().player;
+    public static void PlayerAnim(Player player,int SkillID, String type){
         ResourceLocation animationId;
         String AnimationName = SwordSkillRegistry.SKILLS.get(SkillID).getName();
         if (type.isEmpty()) {

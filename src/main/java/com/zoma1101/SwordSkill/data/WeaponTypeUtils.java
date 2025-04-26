@@ -3,13 +3,9 @@ package com.zoma1101.swordskill.data;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.swordskills.SkillData;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.*;
 
@@ -46,8 +42,7 @@ public class WeaponTypeUtils {
                 availableWeaponTypes.addAll(offHandAvailableWeaponTypes);
                 // DUAL_SWORD を追加
                 availableWeaponTypes.add(SkillData.WeaponType.DUALSWORD);
-                // 他の武器種が両手に共通する場合も残すことを考慮し、重複を削除
-                Set<SkillData.WeaponType> combinedTypes = new HashSet<>(availableWeaponTypes);
+                Set<SkillData.WeaponType> combinedTypes = new HashSet<>(availableWeaponTypes);// 他の武器種が両手に共通する場合も残すことを考慮し、重複を削除
                 availableWeaponTypes.clear();
                 availableWeaponTypes.addAll(combinedTypes);
                 return new WeaponData(availableWeaponTypes,"dual_sword");
@@ -61,9 +56,8 @@ public class WeaponTypeUtils {
         return null;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static Set<SkillData.WeaponType> getWeaponTypes() {
-        LocalPlayer player = Minecraft.getInstance().player;
+
+    public static Set<SkillData.WeaponType> getWeaponTypes(Player player) {
         if (player == null) {
             return Collections.emptySet();
         }
@@ -71,11 +65,10 @@ public class WeaponTypeUtils {
         return getWeaponTypes(mainHandItem);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private static WeaponData getWeaponDataDetector() {
-        LocalPlayer player = Minecraft.getInstance().player;
+
+    private static WeaponData getWeaponDataDetector(Player player) {
         if (player != null) {
-        Set<SkillData.WeaponType> weaponTypes = getWeaponTypes();
+        Set<SkillData.WeaponType> weaponTypes = getWeaponTypes(player);
         if (!weaponTypes.isEmpty()) {
             WeaponData DualSwordData = DualSwordSetter(player);
             if (DualSwordData==null){
@@ -88,49 +81,25 @@ public class WeaponTypeUtils {
         }
         else if (ServerConfig.AUTOWEAPON_SETTING.get()) {
             return AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
-        } //Configでtureなら仕様をONにする。
-        }return null;
+            }
+        }
+        return null;
     }
 
     private static final Map<UUID, WeaponData> playerWeaponDataMap = new HashMap<>();
 
     public static void setWeaponType(Player player) {
-        WeaponData weaponData = getWeaponDataDetector();
-        // weaponData が null の可能性
+        WeaponData weaponData = getWeaponDataDetector(player);
         playerWeaponDataMap.put(player.getUUID(), Objects.requireNonNullElse(weaponData, None_WeaponData));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static WeaponData getWeaponData() {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) {
-            return null;
-        }
-        return playerWeaponDataMap.get(player.getUUID());
     }
 
     public static WeaponData getWeaponData(ServerPlayer player) {
         return playerWeaponDataMap.get(player.getUUID());
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public static Set<SkillData.WeaponType> getWeaponType() {
-        WeaponData weaponData = getWeaponData();
-        // weaponData が null の可能性
-        if (weaponData != null) {
-            return weaponData.weaponType();
-        }
-        return Collections.emptySet(); // null を返さないようにする
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static String getWeaponName() {
-        WeaponData weaponData = getWeaponData();
-        // weaponData が null の可能性
-        if (weaponData != null) {
-            return weaponData.weaponName();
-        }
-        return null; // null を返す可能性を残す (呼び出し元で null チェックが必要)
+    public static String getWeaponName(ServerPlayer player) {
+        WeaponData weaponData = getWeaponData(player);
+        return weaponData.weaponName();
     }
 
     public static Set<SkillData.WeaponType> getWeaponType(ServerPlayer player) {

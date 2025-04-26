@@ -1,4 +1,4 @@
-package com.zoma1101.swordskill.network;
+package com.zoma1101.swordskill.network.toClient;
 
 import com.zoma1101.swordskill.client.handler.ClientForgeHandler; // クライアント側でのみ使う
 import net.minecraft.network.FriendlyByteBuf;

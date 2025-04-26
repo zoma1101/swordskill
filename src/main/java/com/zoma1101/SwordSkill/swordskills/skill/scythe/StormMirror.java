@@ -1,12 +1,14 @@
 package com.zoma1101.swordskill.swordskills.skill.scythe;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.AxePurpleSkillTexture;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -16,13 +18,15 @@ public class StormMirror implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
-            PlayerAnimation(SkillID,"move");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
+
             Vec3 moveVec = player.getLookAngle().scale(4);
             player.setDeltaMovement(moveVec.x, moveVec.y, moveVec.z);
             player.hurtMarked = true;
         }
         else if (FinalTick == 3){
-            PlayerAnimation(SkillID,"finish");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
+
         }
         else if (FinalTick == 5) { // 1回目の斬撃
                 performSlash(level, player, 0, 0.3F);

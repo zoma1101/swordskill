@@ -2,6 +2,7 @@ package com.zoma1101.swordskill.network;
 
 import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.network.toClient.SkillSyncPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -25,7 +26,7 @@ public class SkillRequestPacket {
         // このパケット自体にデータは不要な場合が多い
     }
 
-    public static void handle(Supplier<NetworkEvent.Context> ctx) {
+    public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) {

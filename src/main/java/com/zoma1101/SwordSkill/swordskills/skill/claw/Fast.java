@@ -1,16 +1,18 @@
 package com.zoma1101.swordskill.swordskills.skill.claw;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.GreenSkillTexture;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -34,7 +36,7 @@ public class Fast implements ISkill {
         }
 
         if (!isAttacked) {
-            PlayerAnimation(SkillID,"move");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
             List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, boundingBox, entity -> SkillTargetEntity(entity,player)); // LivingEntity のみ取得
@@ -43,7 +45,7 @@ public class Fast implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        PlayerAnimation(SkillID,"finish");
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
                         performNeil(level,player);
                         Vec3 reverseLookVec = lookVec.reverse().scale(1.5);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));

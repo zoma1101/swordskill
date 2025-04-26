@@ -1,12 +1,14 @@
 package com.zoma1101.swordskill.swordskills.skill.claw;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.GreenSkillTexture;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -16,7 +18,7 @@ public class HantKiller implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1){
-            PlayerAnimation(SkillID,"");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,""));
         }
         if (FinalTick == 4) { // 1回目の斬撃
             performNeil(level,player,0);

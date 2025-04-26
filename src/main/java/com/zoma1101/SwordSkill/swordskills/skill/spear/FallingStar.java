@@ -1,6 +1,8 @@
 package com.zoma1101.swordskill.swordskills.skill.spear;
 
 import com.zoma1101.swordskill.effects.EffectRegistry;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -9,11 +11,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
@@ -39,7 +41,8 @@ public class FallingStar implements ISkill {
             player.addEffect(levitationEffect);
         }
         if (FinalTick == 10) {
-            PlayerAnimation(SkillID,"start");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"start"));
+
             isAttacked = false;
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
@@ -64,7 +67,7 @@ public class FallingStar implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        PlayerAnimation(SkillID,"finish");
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.7, 0).add(lookVec.scale(1)); // 目の前2ブロック
                         double damage = RushDamage(player)*3f;
                         double knockbackForce = BaseKnowBack(player)*0.5;

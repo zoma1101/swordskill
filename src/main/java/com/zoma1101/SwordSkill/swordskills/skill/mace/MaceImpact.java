@@ -1,14 +1,16 @@
 package com.zoma1101.swordskill.swordskills.skill.mace;
 
 import com.zoma1101.swordskill.effects.EffectRegistry;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
 import static com.zoma1101.swordskill.swordskills.SkillSound.*;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.MaceGreen_Texture;
@@ -19,7 +21,8 @@ public class MaceImpact implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (!player.onGround()){
-            PlayerAnimation(SkillID,"move");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
+
         }
 
         if (FinalTick == 1) {
@@ -42,7 +45,7 @@ public class MaceImpact implements ISkill {
                 player.setDeltaMovement(moveVec);
                 player.hurtMarked = true;
                 skillExecutions.remove(player.getUUID());
-                PlayerAnimation(SkillID,"finish");
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
             }
         }
     }

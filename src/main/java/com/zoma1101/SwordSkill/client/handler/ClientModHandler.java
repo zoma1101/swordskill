@@ -8,7 +8,6 @@ import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.entity.model.AttackEffectModel;
 import com.zoma1101.swordskill.entity.renderer.AttackEffectRenderer;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -30,7 +29,6 @@ public class ClientModHandler {
             event.register(Keybindings.INSTANCE.SwordSkill_Use_Key_4);
     }
 
-    @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll("hud_skill_slot", SkillSlotDisplayOverlay.HUD_SKILL_SLOT);

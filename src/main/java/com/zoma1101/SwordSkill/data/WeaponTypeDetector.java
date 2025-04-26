@@ -4,6 +4,7 @@ import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ public class WeaponTypeDetector {
 
     private static WeaponTypeDetector instance;
     private final WeaponTypeDataLoader weaponTypeDataLoader;
+    private static volatile boolean dataLoaded = false;
 
     private WeaponTypeDetector(WeaponTypeDataLoader weaponTypeDataLoader) {
         this.weaponTypeDataLoader = weaponTypeDataLoader;
@@ -18,11 +20,20 @@ public class WeaponTypeDetector {
 
     public static void initialize(WeaponTypeDataLoader weaponTypeDataLoader) {
         instance = new WeaponTypeDetector(weaponTypeDataLoader);
+        dataLoaded = false;
+    }
+
+    public static void markDataLoaded() {
+        dataLoaded = true;
+    }
+
+    public static boolean isReady() {
+        return instance == null || !dataLoaded;
     }
 
     public static Set<SkillData.WeaponType> detectWeaponTypes(ItemStack heldItem) {
-        if (instance == null) {
-            throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
+        if (isReady()) {
+            return Collections.emptySet();
         }
         return instance.detectWeaponTypesInternal(heldItem);
     }

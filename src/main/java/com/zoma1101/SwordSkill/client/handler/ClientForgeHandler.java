@@ -4,6 +4,7 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.network.*;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -50,14 +51,15 @@ public class ClientForgeHandler {
         if (player != null) {
             updateCooldowns();
 
-            if (SetWeaponType){
-                if (event.phase == TickEvent.Phase.END){
-                    setWeaponType(player);
-                    NetworkHandler.sendToServer(new SkillLoadSlotPacket(getWeaponName()));
-                    SetWeaponType = false;
+            if (SetWeaponType && event.phase == TickEvent.Phase.END){
+                if (WeaponTypeDetector.isReady() || Minecraft.getInstance().player == null) {
+                    return;
                 }
+                String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
+                setWeaponType(player);
+                NetworkHandler.sendToServer(new SkillLoadSlotPacket(WeaponName));
+                SetWeaponType = false;
             }
-
 
             if (Keybindings.INSTANCE.SwordSkill_Use_Key.isDown()) {
                 Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick();
@@ -105,8 +107,8 @@ public class ClientForgeHandler {
     private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
         SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
         if (SkillData != null) {
-            Set<SkillData.WeaponType> weaponType = getWeaponType();
-            String WeaponName = getWeaponName();
+            Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
+            String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
             if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) {
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
                 cooldowns.put(CoolDown_SkillID, getCoolDown(SkillData));
@@ -144,11 +146,13 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown() && getWeaponName() != null && !getWeaponName().equals("None")) {
-            Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
-        }
-         else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown() && getWeaponName() != null && !getWeaponName().equals("None")) {
-            Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
+        String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
+        if (WeaponName != null && !WeaponName.equals("None")) {
+            if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown()) {
+                Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
+            } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
+                Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
+            }
         }
     }
 

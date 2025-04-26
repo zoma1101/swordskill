@@ -1,5 +1,7 @@
 package com.zoma1101.swordskill.swordskills.skill.dual_sword;
 
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
@@ -7,14 +9,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.PacketDistributor;
 import org.joml.Vector3f;
 
 import java.util.List;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
 import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.RedSkillTexture;
+import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle_red;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class DoubleCircular implements ISkill {
@@ -38,7 +41,7 @@ public class DoubleCircular implements ISkill {
             player.invulnerableTime = 35;
         }
         else if (FinalTick == 3){
-            PlayerAnimation(SkillID,"move");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
         }
 
 
@@ -64,7 +67,7 @@ public class DoubleCircular implements ISkill {
         }
         else if (NowTick+20 <= SkillFinalTick) {
             if (FinalTick - NowTick == 1) {
-                PlayerAnimation(SkillID, "finish");
+                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
             } else if (FinalTick - NowTick == 2) {
                 performSlash(level, player, 0, -0.6f, 2f);
             } else if (FinalTick - NowTick == 7) {
@@ -77,7 +80,8 @@ public class DoubleCircular implements ISkill {
         }
         else {
             skillExecutions.remove(player.getUUID());
-            PlayerAnimation(0,"");
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(0,""));
+
         }
     }
 

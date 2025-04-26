@@ -1,5 +1,7 @@
 package com.zoma1101.swordskill;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
@@ -17,7 +19,8 @@ public class IsAnimation {
 
     public static void PlayerAnimation(int SkillID, String type){
         if (isPlayerAnimator()) {
-            PlayerAnim(SkillID,type);
+            LocalPlayer player = Minecraft.getInstance().player;
+            PlayerAnim(player,SkillID,type);
         }
     }
 
