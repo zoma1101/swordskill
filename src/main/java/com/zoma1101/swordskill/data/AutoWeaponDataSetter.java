@@ -1,0 +1,46 @@
+package com.zoma1101.swordskill.data;
+
+import com.zoma1101.swordskill.swordskills.SkillData;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.AxeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.TridentItem;
+
+
+import java.util.Objects;
+import java.util.Set;
+
+import static com.zoma1101.swordskill.data.WeaponTypeUtils.None_WeaponData;
+
+public class AutoWeaponDataSetter {
+
+    public static WeaponData AutoWeaponDataSetting(ItemStack heldItem){
+        String itemName = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(heldItem.getItem())).getPath();
+
+        if (itemName.contains("great_sword") || itemName.contains("greatsword") || itemName.contains("claymore")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.TWO_HANDED_SWORD),"two_handed_sword");
+        } else if (itemName.contains("katana") || itemName.contains("cutlass")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.KATANA),"katana");
+        } else if (itemName.contains("axe") && !itemName.contains("pickaxe") || heldItem.getItem() instanceof AxeItem) {
+            return new WeaponData(Set.of(SkillData.WeaponType.AXE),"axe");
+        } else if (itemName.contains("rapier")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.RAPIER),"rapier");
+        } else if (itemName.contains("claw")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.CLAW),"claw");
+        } else if (itemName.contains("spear") || itemName.contains("trident") || heldItem.getItem() instanceof TridentItem) {
+            return new WeaponData(Set.of(SkillData.WeaponType.SPEAR),"spear");
+        } else if (itemName.contains("mace") || itemName.contains("hammer")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.MACE),"mace");
+        }  else if (itemName.contains("scythe")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.SCYTHE),"scythe");
+        } else if (itemName.contains("dagger") || itemName.contains("short_sword")) {
+            return new WeaponData(Set.of(SkillData.WeaponType.DAGGER),"dagger");
+        } else if (itemName.contains("sword") || heldItem.getItem() instanceof SwordItem) {
+            return new WeaponData(Set.of(SkillData.WeaponType.ONE_HANDED_SWORD),"one_handed_sword");
+        }
+        return None_WeaponData;
+    }
+
+}
+
