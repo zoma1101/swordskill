@@ -1,0 +1,6 @@
+{
+  "name" : "halberd",
+  "item" : ["simplyswords:iron_halberd","simplyswords:gold_halberd","simplyswords:diamond_halberd","simplyswords:netherite_halberd","simplyswords:runic_halberd", 
+   "simplyswords:icewhisper","simplyswords:arcanethyst","simplyswords:thunderbrand"],
+  "weapontype" : ["AXE","SPEAR"]
+}

@@ -1,0 +1,7 @@
+{
+  "name" : "rapier",
+  "item" : ["simplyswords:iron_rapier","simplyswords:gold_rapier","simplyswords:diamond_rapier","simplyswords:netherite_rapier",
+"simplyswords:runic_rapier"
+  ],
+  "weapontype" : ["RAPIER"]
+}

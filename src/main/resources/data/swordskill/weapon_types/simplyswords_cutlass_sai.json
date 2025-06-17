@@ -1,0 +1,7 @@
+{
+  "name" : "dagger",
+  "item" : ["simplyswords:iron_cutlass","simplyswords:gold_cutlass","simplyswords:diamond_cutlass","simplyswords:netherite_cutlass","simplyswords:runic_cutlass",
+"simplyswords:iron_sai","simplyswords:gold_sai","simplyswords:diamond_sai","simplyswords:netherite_sai","simplyswords:runic_sai",
+"simplyswords:emberlash","simplyswords:soulstealer"],
+  "weapontype" : ["DAGGER"]
+}

@@ -1,0 +1,7 @@
+{
+  "name" : "one_handed_sword",
+  "item" : ["simplyswords:iron_longsword","simplyswords:gold_longsword","simplyswords:diamond_longsword","simplyswords:netherite_longsword","simplyswords:runic_longsword",
+"simplyswords:strombringer","simplyswords:bramblethorn","simplyswords:toxic_longsword","simplyswords:emberblade","simplyswords:shadowsting","simplyswords:dormant_relic","simplyswords:righteous_relic","simplyswords:tainted_relic","simplyswords:sunfire","simplyswords:harbinger"
+  ],
+  "weapontype" : ["ONE_HANDED_SWORD"]
+}

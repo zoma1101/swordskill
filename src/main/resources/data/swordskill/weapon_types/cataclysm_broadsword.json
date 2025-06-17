@@ -1,0 +1,6 @@
+{
+  "name" : "greatsword",
+  "item" : ["cataclysm:the_incinerator"
+  ],
+  "weapontype" : ["TWO_HANDED_SWORD"]
+}

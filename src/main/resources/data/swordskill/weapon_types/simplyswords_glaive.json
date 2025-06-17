@@ -1,0 +1,6 @@
+{
+  "name" : "glaive",
+  "item" : ["simplyswords:iron_glaive","simplyswords:gold_glaive","simplyswords:diamond_glaive","simplyswords:netherite_glaive",
+"simplyswords:runic_glaive"],
+  "weapontype" : ["SPEAR","KATANA"]
+}

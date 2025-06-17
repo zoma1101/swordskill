@@ -1,0 +1,17 @@
+{
+  "entries": [
+    "swordskill:unlock_item_in_chests_village_mason",
+    "swordskill:unlock_item_in_chests_village_weaponsmith",
+    "swordskill:unlock_item_in_chests_simple_dungeon",
+    "swordskill:unlock_item_in_chests_desert_pyramid",
+    "swordskill:unlock_item_in_chests_igloo_chest",
+    "swordskill:unlock_item_in_chests_shipwreck_treasure",
+    "swordskill:unlock_item_in_chests_village_armorer",
+    "swordskill:unlock_item_in_chests_ancient_city",
+    "swordskill:unlock_item_in_chests_ancient_city_ice_box",
+    "swordskill:unlock_item_in_chests_bastion_treasure",
+    "swordskill:unlock_item_in_chests_buried_treasure",
+    "swordskill:unlock_item_in_chests_end_city_treasure"
+  ],
+  "replace": false
+}

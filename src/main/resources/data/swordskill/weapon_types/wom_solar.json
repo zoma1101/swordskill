@@ -1,0 +1,6 @@
+{
+  "name" : "greatsword",
+  "item" : ["wom:solar"
+  ],
+  "weapontype" : ["TWO_HANDED_SWORD"]
+}

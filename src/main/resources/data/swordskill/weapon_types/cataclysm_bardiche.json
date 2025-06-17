@@ -1,0 +1,6 @@
+{
+  "name" : "bardiche",
+  "item" : ["cataclysm:coral_bardiche","cataclysm:soul_render","cataclysm:the_annihilator","cataclysm:the_immolator"
+  ],
+  "weapontype" : ["SPEAR","AXE"]
+}
