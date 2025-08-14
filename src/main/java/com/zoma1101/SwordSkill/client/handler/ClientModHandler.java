@@ -7,12 +7,16 @@ import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.entity.model.AttackEffectModel;
 import com.zoma1101.swordskill.entity.renderer.AttackEffectRenderer;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
 
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModHandler {
@@ -43,4 +47,12 @@ public class ClientModHandler {
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(SwordSkill_Entities.ATTACK_EFFECT.get(), AttackEffectRenderer::new);
     }
+
+    @SubscribeEvent
+    public static void addItemsToTabs(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.accept(UNLOCKITEM.get());
+        }
+    }
+
 }
