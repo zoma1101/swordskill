@@ -28,6 +28,10 @@
   "gui.swordskill.slot.4": "スキルスロット4",
   "gui.swordskill.select_slot": "どのスロットにスキルを保存しますか？",
 
+  "advancement.swordskill.first_weapon.title": "初めての武器",
+  "advancement.swordskill.first_weapon.desc": "ソードスキルを使用可能な武器を入手する！",
+
+
   "gui.swordskill.setting.hud.save": "保存",
   "gui.swordskill.setting.hud.scale": "HUDの大きさ: %s",
   "gui.swordskill.setting.hud.move_scale": "移動量: %s",

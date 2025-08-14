@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:adventure/root",
+  "display": {
+    "icon": {
+      "item": "minecraft:iron_sword"
+    },
+    "title": {
+      "translate": "advancement.swordskill.first_weapon.title"
+    },
+    "description": {
+      "translate": "advancement.swordskill.first_weapon.desc"
+    },
+    "frame": "task",
+    "hidden": false
+  },
+  "criteria": {
+    "get_sword": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "minecraft:swords"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [],
+  "rewards": {
+    "loot": [
+      "swordskill:advancement_loot"
+    ],
+    "experience": 20
+  }
+}

@@ -32,6 +32,9 @@
   "gui.swordskill.setting.hud.scale": "HUD Scale: %s",
   "gui.swordskill.setting.hud.move_scale": "Move Scale: %s",
 
+  "advancement.swordskill.first_weapon.title": "First Weapon",
+  "advancement.swordskill.first_weapon.desc": "Obtain a weapon capable of using sword skills!",
+
 
   "swordskill.skill.how_to_use": "How to Use",
   "swordskill.skill.slant": "Slant",

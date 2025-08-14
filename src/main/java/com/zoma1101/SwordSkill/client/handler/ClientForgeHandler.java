@@ -36,7 +36,7 @@ public class ClientForgeHandler {
     private static int addSkillIndex=0;
     private static Integer skillUsedTicks = null; // スキル使用後の経過 Tick をカウントする変数
     private static Integer limitTickMax = 12;
-    private static final Integer limitTickMin = 7;
+    private static final Integer limitTickMin = 4;
     private static boolean SetWeaponType = false;
 
     public static void setSelectedSkillIndex(int index) {

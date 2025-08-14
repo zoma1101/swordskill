@@ -18,30 +18,38 @@ public class ModGlovalLootModifiersProvider extends GlobalLootModifierProvider {
 
     @Override
     protected void start() {
-        UnlockItem_Chests("village_mason", 0.1f);
-        UnlockItem_Chests("village_weaponsmith", 0.1f);
+        // 低難易度の宝箱 (ドロップ率0.3f)
+        addSkillOrbToChest("village_mason", 0.3f);
+        addSkillOrbToChest("village_weaponsmith", 0.3f);
+        addSkillOrbToChest("spawn_bonus_chest", 0.6f); // ボーナスチェストは低め
 
-        UnlockItem_Chests("simple_dungeon", 0.3f);
-        UnlockItem_Chests("desert_pyramid", 0.3f);
-        UnlockItem_Chests("igloo_chest", 0.3f);
-        UnlockItem_Chests("shipwreck_treasure", 0.3f);
-        UnlockItem_Chests("village_armorer", 0.3f);
-        UnlockItem_Chests("shipwreck_treasure", 0.3f);
-        UnlockItem_Chests("shipwreck_treasure", 0.3f);
-        UnlockItem_Chests("simple_dungeon", 0.3f);
-        UnlockItem_Chests("simple_dungeon", 0.3f);
+        // 中難易度の宝箱 (ドロップ率0.6f)
+        addSkillOrbToChest("simple_dungeon", 0.6f);
+        addSkillOrbToChest("desert_pyramid", 0.6f);
+        addSkillOrbToChest("igloo_chest", 0.6f);
+        addSkillOrbToChest("shipwreck_treasure", 0.6f);
+        addSkillOrbToChest("village_armorer", 0.6f);
+        addSkillOrbToChest("abandoned_mineshaft", 0.5f); // 廃坑
+        addSkillOrbToChest("pillager_outpost", 0.5f);   // ピリジャーの前哨基地
+        addSkillOrbToChest("ruined_portal", 0.4f);      // 荒廃したポータル
+        addSkillOrbToChest("underwater_ruin_big", 0.5f); // 大きな水中遺跡
+        addSkillOrbToChest("underwater_ruin_small", 0.4f); // 小さな水中遺跡
+        addSkillOrbToChest("nether_bridge", 0.6f);      // ネザー要塞
 
-        UnlockItem_Chests("ancient_city", 0.7f);
-        UnlockItem_Chests("ancient_city_ice_box", 0.7f);
-        UnlockItem_Chests("bastion_treasure", 0.7f);
-        UnlockItem_Chests("buried_treasure", 0.7f);
-        UnlockItem_Chests("end_city_treasure", 0.7f);
+        // 高難易度の宝箱 (ドロップ率0.7f〜0.99f)
+        addSkillOrbToChest("ancient_city", 0.7f);
+        addSkillOrbToChest("ancient_city_ice_box", 0.7f); // 古代都市の冷気ボックス
+        addSkillOrbToChest("end_city_treasure", 0.7f);    // エンドシティの宝
+        addSkillOrbToChest("bastion_treasure", 0.7f);     // 砦の遺跡の宝庫 (高確率)
+        addSkillOrbToChest("buried_treasure", 0.7f);      // 埋蔵された宝 (高確率)
+        addSkillOrbToChest("stronghold_library", 0.7f);  // 要塞の図書館
+        addSkillOrbToChest("stronghold_crossing", 0.6f); // 要塞の交差点
+        addSkillOrbToChest("stronghold_corridor", 0.6f); // 要塞の通路
+        addSkillOrbToChest("woodland_mansion", 0.99f);    // 森の洋館
     }
 
-
-    private void UnlockItem_Chests(String location, float chance){
+    private void addSkillOrbToChest(String location, float chance){
         add("unlock_item_in_chests_"+location, new AddItemModifier( new LootItemCondition[] {
-                new LootTableIdCondition.Builder(parse("chests/"+location)).build(),
                 new LootTableIdCondition.Builder(parse("chests/"+location)).build(),
                 LootItemRandomChanceCondition.randomChance(chance).build()}, SampleItemRegistry.UNLOCKITEM.get()
         ));

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:gift",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "swordskill:unlock_item", "weight": 1 }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "item", "name": "swordskill:unlock_item", "weight": 1 }
+      ]
+    }
+  ]
+}
