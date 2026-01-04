@@ -5,7 +5,6 @@ import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDataLoader;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.EffectRegistry;
-import com.zoma1101.swordskill.effects.NoFallDamageEffect;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
