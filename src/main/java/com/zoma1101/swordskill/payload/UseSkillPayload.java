@@ -23,19 +23,16 @@ import static com.zoma1101.swordskill.data.SkillDataFetcher.isSkillUnlocked;
 public record UseSkillPayload(int skillId, int finalTick) implements CustomPacketPayload {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    // 1. ペイロードIDを定義 (MOD_IDとペイロード名でResourceLocationを作成)
     public static final Type<UseSkillPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "use_skill"));
 
-    // 2. StreamCodecを定義 (エンコード/デコードロジック)
     public static final StreamCodec<FriendlyByteBuf, UseSkillPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, // skillIdのコーデック
-            UseSkillPayload::skillId, // skillIdゲッター
-            ByteBufCodecs.INT, // finalTickのコーデック
-            UseSkillPayload::finalTick, // finalTickゲッター
-            UseSkillPayload::new // コンストラクタ参照
+            ByteBufCodecs.INT,
+            UseSkillPayload::skillId,
+            ByteBufCodecs.INT,
+            UseSkillPayload::finalTick,
+            UseSkillPayload::new
     );
 
-    // 3. CustomPacketPayloadインターフェースのメソッドを実装
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
@@ -43,21 +40,32 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
 
     public static void handle(UseSkillPayload msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            // IPayloadContextからプレイヤーを取得し、ServerPlayerか確認
             if (!(ctx.player() instanceof ServerPlayer player)) {
-                // サーバーサイドハンドラなのでServerPlayerのはずだが念のため
                 LOGGER.warn("Received UseSkillPayload from non-ServerPlayer: {}", ctx.player().getName().getString());
                 return;
             }
 
+            if (SkillExecutionManager.isSkillActive(player)) {
+                int runningSkillId = SkillExecutionManager.getRunningSkillId(player);
+                SkillData runningSkill = SwordSkillRegistry.SKILLS.get(runningSkillId);
+                SkillData requestedSkill = SwordSkillRegistry.SKILLS.get(msg.skillId());
+
+
+                boolean isCombo = runningSkill != null && requestedSkill != null &&
+                        runningSkill.getType() == SkillData.SkillType.TRANSFORM &&
+                        requestedSkill.getType() == SkillData.SkillType.TRANSFORM_FINISH;
+
+                if (!isCombo) {
+                    LOGGER.debug("Player {} tried to use skill {} while skill {} is active. Ignored.", player.getName().getString(), msg.skillId(), runningSkillId);
+                    return;
+                }
+            }
+
             SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId());
-            // スキルが有効か、プレイヤーがアンロックしているか等のチェック
             if (skill != null && (isSkillUnlocked(player, msg.skillId()) || player.gameMode.isCreative() || !UnlockedSkill.get())) {
                 if (msg.finalTick() == 0) {
-                    // FinalTickが0の場合、一度だけ実行
                     executeSkill(player, skill);
                 } else {
-                    // スキル実行情報を保存
                     SkillExecutionManager.startSkillExecution(player, msg.skillId(), msg.finalTick());
                 }
             } else if (skill == null) {
@@ -68,7 +76,6 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
         });
     }
 
-    // 実行ロジックはそのまま
     private static void executeSkill(ServerPlayer player, SkillData skill) {
         try {
             ISkill skillInstance = skill.getSkillClass().getDeclaredConstructor().newInstance();

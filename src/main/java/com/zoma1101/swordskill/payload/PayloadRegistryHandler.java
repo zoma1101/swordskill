@@ -42,6 +42,7 @@ public class PayloadRegistryHandler {
         registrar.playToClient(SkillSlotInfoPayload.TYPE, SkillSlotInfoPayload.STREAM_CODEC, SkillSlotInfoPayload::handleClient);
 
 
+
         LOGGER.info("Network payloads registration complete.");
     }
 }
