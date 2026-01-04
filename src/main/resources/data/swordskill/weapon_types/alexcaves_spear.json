@@ -1,0 +1,6 @@
+{
+  "name" : "spear",
+  "item" : ["alexcaves:limestone_spear","alexcaves:extinction_spear","alexcaves:ortholance","alexcaves:frostmint_spear"
+  ],
+  "weapontype" : ["SPEAR"]
+}

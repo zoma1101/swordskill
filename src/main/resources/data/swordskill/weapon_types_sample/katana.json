@@ -1,0 +1,5 @@
+{
+  "name" : "katana",
+  "item" : ["swordskill:sample_katana"],
+  "weapontype" : ["KATANA"]
+}

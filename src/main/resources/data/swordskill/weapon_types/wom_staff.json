@@ -1,0 +1,6 @@
+{
+  "name" : "staff",
+  "item" : ["wom:wooden_staff","wom:stone_staff","wom:iron_staff","wom:golden_staff","wom:diamond_staff","wom:netherite_staff"
+  ],
+  "weapontype" : ["SPEAR"]
+}

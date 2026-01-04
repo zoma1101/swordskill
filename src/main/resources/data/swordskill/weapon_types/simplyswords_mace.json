@@ -1,0 +1,6 @@
+{
+  "name" : "mace",
+  "item" : ["simplyswords:iron_greathammer","simplyswords:gold_greathammer","simplyswords:diamond_greathammer","simplyswords:netherite_greathammer","simplyswords:runic_greathammer",
+"simplyswords:hearthflame","simplyswords:soulkeeper","simplyswords:frostfall","simplyswords:mjolnir","simplyswords:hiveheart"],
+  "weapontype" : ["MACE"]
+}

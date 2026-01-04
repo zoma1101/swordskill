@@ -1,0 +1,122 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"savage_fulcrum": {
+			"animation_length": 0.9583,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.25": {
+							"vector": [0, -90, 0],
+							"easing": "linear"
+						},
+						"0.375": {
+							"vector": [0, -90, 0],
+							"easing": "linear"
+						},
+						"0.5833": {
+							"vector": [0, -180, 0],
+							"easing": "easeInCirc"
+						},
+						"0.75": {
+							"vector": [0, -180, 0],
+							"easing": "linear"
+						},
+						"0.9167": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"head": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.2917": {
+							"vector": [0, 67.5, 0],
+							"easing": "linear"
+						},
+						"0.6667": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0833": {
+							"vector": [39.89247, -3.21154, 93.83424],
+							"easing": "linear"
+						},
+						"0.25": {
+							"vector": [0.51057, -12.46119, 87.88022],
+							"easing": "easeInBack"
+						},
+						"0.3333": {
+							"vector": [5.74502, 85.01341, 93.71381],
+							"easing": "easeInBack",
+							"easingArgs": []
+						},
+						"0.6667": {
+							"vector": [-129.91812, 0, 176.07316],
+							"easing": "linear"
+						},
+						"0.9167": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"rightItem": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0833": {
+							"vector": [-90, 0, 0],
+							"easing": "linear"
+						},
+						"0.6667": {
+							"vector": [-90, 0, 0],
+							"easing": "linear"
+						},
+						"0.9167": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0833": {
+							"vector": [0, 3, 2],
+							"easing": "linear"
+						},
+						"0.6667": {
+							"vector": [0, 3, 2],
+							"easing": "linear"
+						},
+						"0.9167": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

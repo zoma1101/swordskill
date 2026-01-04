@@ -1,0 +1,6 @@
+{
+  "name" : "twinblade",
+  "item" : ["simplyswords:iron_twinblade","simplyswords:gold_twinblade","simplyswords:diamond_twinblade","simplyswords:netherite_twinblade","simplyswords:runic_twinblade",
+"simplyswords:storms_edge","simplyswords:stars_edge","simplyswords:magiblade"],
+  "weapontype" : ["SPEAR","ONE_HANDED_SWORD"]
+}

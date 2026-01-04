@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.zoma1101.swordskill.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "sword_skill.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "name" : "scythe",
+  "item" : ["simplyswords:iron_scythe","simplyswords:gold_scythe","simplyswords:diamond_scythe","simplyswords:netherite_scythe","simplyswords:runic_scythe","simplyswords:soulrender","simplyswords:magiscythe"],
+  "weapontype" : ["SCYTHE"]
+}
