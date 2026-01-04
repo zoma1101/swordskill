@@ -46,14 +46,35 @@ public class SkillUtils {
         if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)){
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
-                double mainHandDamage =  5; //mainHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
-                double offHandDamage =  5; //offHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
-                double totalDamageHalf = (mainHandDamage + offHandDamage) / 2;
-                double attackDamageMinusMainHand = Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue() - mainHandDamage;
-                return (totalDamageHalf + attackDamageMinusMainHand) * ServerConfig.damageMultiplier.get();
+
+            // アイテムから攻撃力を取得
+            double mainHandDamage = getDamageFromStack(mainHandItem);
+            double offHandDamage = getDamageFromStack(offHandItem);
+
+            // 両手の平均攻撃力を計算
+            double totalDamageHalf = (mainHandDamage + offHandDamage) / 2;
+
+            // プレイヤーの現在の攻撃力からメインハンド武器分を引く（素手攻撃力 + バフ分などを抽出）
+            double currentAttackDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            double attackDamageMinusMainHand = currentAttackDamage - mainHandDamage;
+
+            // (武器平均 + 基礎・バフ分) * 倍率
+            return (totalDamageHalf + attackDamageMinusMainHand) * ServerConfig.damageMultiplier.get();
         } else {
-            return Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_DAMAGE)).getValue() * ServerConfig.damageMultiplier.get();
+            return player.getAttributeValue(Attributes.ATTACK_DAMAGE) * ServerConfig.damageMultiplier.get();
         }
+    }
+
+
+    private static double getDamageFromStack(ItemStack stack) {
+        final double[] damage = {0.0};
+        // forEachModifier はアイテムのデフォルト属性とカスタム属性の両方を含んで反復します
+        stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            if (attribute.equals(Attributes.ATTACK_DAMAGE)) {
+                damage[0] += modifier.amount();
+            }
+        });
+        return damage[0];
     }
 
     public static float BaseKnowBack(ServerPlayer player){

@@ -50,12 +50,10 @@ public class SwordSkillCommands {
     }
 
     // スキル名の入力候補を提供する
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_SKILLS = (context, builder) -> {
-        return SharedSuggestionProvider.suggest(
-                SwordSkillRegistry.SKILLS.values().stream().map(SkillData::getName),
-                builder
-        );
-    };
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_SKILLS = (context, builder) -> SharedSuggestionProvider.suggest(
+            SwordSkillRegistry.SKILLS.values().stream().map(SkillData::getName),
+            builder
+    );
 
     private static int unlockSkill(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets, String skillName) {
         // 名前からスキルデータを検索
