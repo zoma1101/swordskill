@@ -21,7 +21,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
@@ -34,6 +36,7 @@ public class SwordSkillSelectionScreen extends Screen {
     public int selectedSkillIndex = 0;
     private Set<SkillData.WeaponType> weaponType;
 
+    private static final Map<SkillData.WeaponType, ResourceLocation> WEAPON_ICON_CACHE = new HashMap<>();
 
     public SwordSkillSelectionScreen() {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
@@ -119,17 +122,28 @@ public class SwordSkillSelectionScreen extends Screen {
 
     private void unlockSkill(int selectedSkill) {
         Player player = Minecraft.getInstance().player;
+
         if (player != null) {
+            // ★追加: クリエイティブモードならアイテム不要で解放
+            if (player.isCreative()) {
+                NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
+                unlockedSkills.add(selectedSkill); // クライアント側の表示を即時更新
+                return;
+            }
+
+            // --- 以下はサバイバルモード等の処理（アイテムが必要） ---
             Inventory inventory = player.getInventory();
             NonNullList<ItemStack> allItems = NonNullList.create();
             allItems.addAll(inventory.items);
             allItems.addAll(inventory.armor);
             allItems.addAll(inventory.offhand);
+
             for (ItemStack itemStack : allItems) {
                 if (itemStack.getItem() == UNLOCKITEM.get()) {
-                    // 指定のアイテムが見つかった
-                    NetworkHandler.INSTANCE.sendToServer(new ConsumeUnlockItemPacket());
+                    // パケット送信
                     NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
+
+                    // クライアント側の見た目を更新（サーバー側でも減るが、ラグ防止のため）
                     itemStack.shrink(1);
                     unlockedSkills.add(selectedSkill);
                     return;
@@ -262,7 +276,10 @@ public class SwordSkillSelectionScreen extends Screen {
 
     // 武器種ごとのアイコンテクスチャを取得するメソッド
     private ResourceLocation getWeaponIconTexture(SkillData.WeaponType type) {
-        return fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/weapon_icons/" + type.name().toLowerCase() + ".png");
+        // computeIfAbsent: マップにキー(type)があればその値を返し、なければ第2引数の関数を実行してマップに保存してから返す
+        return WEAPON_ICON_CACHE.computeIfAbsent(type, t ->
+                fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/weapon_icons/" + t.name().toLowerCase() + ".png")
+        );
     }
 
     private HashSet<Integer> getDerivedSkills(){

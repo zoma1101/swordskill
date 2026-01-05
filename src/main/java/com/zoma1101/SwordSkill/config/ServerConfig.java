@@ -21,7 +21,7 @@ public class ServerConfig {
         AUTOWEAPON_SETTING = BUILDER.comment("The available weapons are set automatically to some extent.").define("AutoWeaponSetting", false);
         PvP = BUILDER.comment("Allow PVP with sword skills").define("pvp", false);
         UnlockedSkill = BUILDER.comment("Enable Sword Skill Unlock").define("UnlockedSkill", true);
-        attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", false);
+        attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", true);
         BUILDER.pop();
         SPEC = BUILDER.build();
     }

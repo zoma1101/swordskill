@@ -4,13 +4,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket; // 追加
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor; // 追加
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList; // 追加
+import java.util.List; // 追加
 import java.util.function.Supplier;
+
+import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
 
 public class SkillUnlockPacket {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -32,46 +38,68 @@ public class SkillUnlockPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) {
-                LOGGER.warn("プレイヤーがnullです。スキル選択を中止します。");
                 return;
             }
 
+            // --- 1. アイテム消費処理 ---
+            boolean canUnlock = false;
 
-            JsonObject playerData = DataManager.loadPlayerData(player);
-            JsonArray unlockedSkillsArray;
+            if (player.isCreative()) {
+                canUnlock = true;
+            } else {
+                for (int i = 0; i < player.getInventory().getContainerSize(); ++i) {
+                    if (player.getInventory().getItem(i).is(UNLOCKITEM.get())) {
+                        player.getInventory().removeItem(i, 1);
+                        canUnlock = true;
+                        break;
+                    }
+                }
+            }
 
-            if (playerData.has("unlockedskill")) {
-                JsonElement unlockedSkillsElement = playerData.get("unlockedskill");
-                if (unlockedSkillsElement.isJsonArray()) {
-                    unlockedSkillsArray = unlockedSkillsElement.getAsJsonArray();
-                } else if (unlockedSkillsElement.isJsonPrimitive() && unlockedSkillsElement.getAsJsonPrimitive().isNumber()) {
-                    // 古い形式の単一の int を配列に変換
-                    unlockedSkillsArray = new JsonArray();
-                    unlockedSkillsArray.add(unlockedSkillsElement.getAsInt());
+            // --- 2. スキル解放処理 ---
+            if (canUnlock) {
+                JsonObject playerData = DataManager.loadPlayerData(player);
+                JsonArray unlockedSkillsArray;
+
+                if (playerData.has("unlockedskill")) {
+                    JsonElement unlockedSkillsElement = playerData.get("unlockedskill");
+                    if (unlockedSkillsElement.isJsonArray()) {
+                        unlockedSkillsArray = unlockedSkillsElement.getAsJsonArray();
+                    } else if (unlockedSkillsElement.isJsonPrimitive() && unlockedSkillsElement.getAsJsonPrimitive().isNumber()) {
+                        unlockedSkillsArray = new JsonArray();
+                        unlockedSkillsArray.add(unlockedSkillsElement.getAsInt());
+                    } else {
+                        unlockedSkillsArray = new JsonArray();
+                    }
                 } else {
-                    unlockedSkillsArray = new JsonArray(); // 予期しない形式の場合は新しい配列を作成
-                    LOGGER.warn("予期しない unlockedskill のデータ形式です。新しい配列を作成します。");
+                    unlockedSkillsArray = new JsonArray();
+                }
+
+                boolean alreadyUnlocked = false;
+                for (int i = 0; i < unlockedSkillsArray.size(); i++) {
+                    if (unlockedSkillsArray.get(i).getAsInt() == msg.unlockedskill) {
+                        alreadyUnlocked = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyUnlocked) {
+                    unlockedSkillsArray.add(msg.unlockedskill);
+                    playerData.add("unlockedskill", unlockedSkillsArray);
+                    DataManager.savePlayerData(player, playerData);
+                    LOGGER.info("Player {} unlocked skill ID: {}", player.getName().getString(), msg.unlockedskill);
+
+                    List<Integer> skillList = new ArrayList<>();
+                    for (JsonElement el : unlockedSkillsArray) {
+                        skillList.add(el.getAsInt());
+                    }
+                    int[] skillArray = skillList.stream().mapToInt(i -> i).toArray();
+
+                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new UnlockedSkillsResponsePacket(skillArray));
                 }
             } else {
-                unlockedSkillsArray = new JsonArray();
+                LOGGER.warn("Player {} tried to unlock skill {} without the required item.", player.getName().getString(), msg.unlockedskill);
             }
-
-            // 新しいスキルIDが既に存在するか確認し、存在しない場合のみ追加
-            boolean alreadyUnlocked = false;
-            for (int i = 0; i < unlockedSkillsArray.size(); i++) {
-                if (unlockedSkillsArray.get(i).getAsInt() == msg.unlockedskill) {
-                    alreadyUnlocked = true;
-                    break;
-                }
-            }
-
-            if (!alreadyUnlocked) {
-                unlockedSkillsArray.add(msg.unlockedskill);
-            }
-
-            // 配列を保存
-            playerData.add("unlockedskill", unlockedSkillsArray);
-            DataManager.savePlayerData(player, playerData);
         });
         ctx.get().setPacketHandled(true);
     }

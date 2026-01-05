@@ -12,6 +12,11 @@
   "message.swordskill.swordskill_selector_key_pressed" : "ソードスキルを選択してください",
   "entity.swordskill.attack_effect": "斬撃",
 
+  "commands.swordskill.unlock.failed.not_found": "スキルが見つかりません: %s",
+  "commands.swordskill.unlock.success": "スキル '%s' を %s 人のプレイヤーに解放しました",
+  "commands.swordskill.unlock.failed.no_update": "更新されたプレイヤーはいません（既に解放済みの可能性があります）",
+
+
   "key.swordskill.open_skill_gui": "ソードスキル選択GUIを開く",
   "key.swordskill.hud_setting_key": "HUDの位置を調整する",
   "gui.swordskill.title": "ソードスキル選択",
