@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.network;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import com.zoma1101.swordskill.data.DataManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,28 +42,16 @@ public class SkillSlotSelectionPacket {
     public static void handle(SkillSlotSelectionPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player == null) {
-                LOGGER.warn("プレイヤーがnullです。スキル選択を中止します。");
-                return;
-            }
-            JsonObject playerData = DataManager.loadPlayerData(player);
-            JsonObject weaponSkills = playerData.getAsJsonObject("weaponSkills"); // 修正
-            if (weaponSkills == null) {
-                weaponSkills = new JsonObject();
-                playerData.add("weaponSkills", weaponSkills);
-            }
-            JsonArray skillSlot = weaponSkills.getAsJsonArray(msg.weaponName); // 修正
-            if (skillSlot == null) {
-                skillSlot = new JsonArray();
-                for (int i = 0; i < 5; i++) {
-                    skillSlot.add(0); // 初期化
-                }
-                weaponSkills.add(msg.weaponName, skillSlot); // 修正
-            }
-            skillSlot.set(msg.slotIndex, new JsonPrimitive(msg.skillId));
-            DataManager.savePlayerData(player, playerData);
-            LOGGER.info("SkillSlotSelectionPacket: スキルID {} をスロット {} に保存", msg.skillId, msg.slotIndex);
-            sendSkillSlotInfo(player);
+            if (player == null) return;
+
+            // ★修正: DataManagerを使わずCapabilityを使用
+            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+                skills.setSkillSlot(msg.weaponName, msg.slotIndex, msg.skillId);
+                LOGGER.info("SkillSlotSelectionPacket: ID {} -> Slot {} ({})", msg.skillId, msg.slotIndex, msg.weaponName);
+
+                // 必要であればここでスロット情報の同期パケットを送る
+                sendSkillSlotInfo(player);
+            });
         });
         ctx.get().setPacketHandled(true);
     }

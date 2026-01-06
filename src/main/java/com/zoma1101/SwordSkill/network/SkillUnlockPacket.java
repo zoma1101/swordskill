@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.network;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket; // 追加
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,13 +38,10 @@ public class SkillUnlockPacket {
     public static void handle(SkillUnlockPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player == null) {
-                return;
-            }
+            if (player == null) return;
 
-            // --- 1. アイテム消費処理 ---
+            // --- 1. アイテム消費処理 (変更なし) ---
             boolean canUnlock = false;
-
             if (player.isCreative()) {
                 canUnlock = true;
             } else {
@@ -56,49 +54,21 @@ public class SkillUnlockPacket {
                 }
             }
 
-            // --- 2. スキル解放処理 ---
+            // --- 2. スキル解放処理 (Capabilityへ変更) ---
             if (canUnlock) {
-                JsonObject playerData = DataManager.loadPlayerData(player);
-                JsonArray unlockedSkillsArray;
+                // ★修正: DataManagerを使わずCapabilityを使用
+                player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+                    if (!skills.isSkillUnlocked(msg.unlockedskill)) {
+                        skills.unlockSkill(msg.unlockedskill);
+                        LOGGER.info("Player {} unlocked skill ID: {}", player.getName().getString(), msg.unlockedskill);
 
-                if (playerData.has("unlockedskill")) {
-                    JsonElement unlockedSkillsElement = playerData.get("unlockedskill");
-                    if (unlockedSkillsElement.isJsonArray()) {
-                        unlockedSkillsArray = unlockedSkillsElement.getAsJsonArray();
-                    } else if (unlockedSkillsElement.isJsonPrimitive() && unlockedSkillsElement.getAsJsonPrimitive().isNumber()) {
-                        unlockedSkillsArray = new JsonArray();
-                        unlockedSkillsArray.add(unlockedSkillsElement.getAsInt());
-                    } else {
-                        unlockedSkillsArray = new JsonArray();
+                        // クライアントへ同期
+                        int[] skillArray = skills.getUnlockedSkills().stream().mapToInt(i -> i).toArray();
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new UnlockedSkillsResponsePacket(skillArray));
                     }
-                } else {
-                    unlockedSkillsArray = new JsonArray();
-                }
-
-                boolean alreadyUnlocked = false;
-                for (int i = 0; i < unlockedSkillsArray.size(); i++) {
-                    if (unlockedSkillsArray.get(i).getAsInt() == msg.unlockedskill) {
-                        alreadyUnlocked = true;
-                        break;
-                    }
-                }
-
-                if (!alreadyUnlocked) {
-                    unlockedSkillsArray.add(msg.unlockedskill);
-                    playerData.add("unlockedskill", unlockedSkillsArray);
-                    DataManager.savePlayerData(player, playerData);
-                    LOGGER.info("Player {} unlocked skill ID: {}", player.getName().getString(), msg.unlockedskill);
-
-                    List<Integer> skillList = new ArrayList<>();
-                    for (JsonElement el : unlockedSkillsArray) {
-                        skillList.add(el.getAsInt());
-                    }
-                    int[] skillArray = skillList.stream().mapToInt(i -> i).toArray();
-
-                    NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new UnlockedSkillsResponsePacket(skillArray));
-                }
+                });
             } else {
-                LOGGER.warn("Player {} tried to unlock skill {} without the required item.", player.getName().getString(), msg.unlockedskill);
+                LOGGER.warn("Player {} tried to unlock skill {} without item.", player.getName().getString(), msg.unlockedskill);
             }
         });
         ctx.get().setPacketHandled(true);

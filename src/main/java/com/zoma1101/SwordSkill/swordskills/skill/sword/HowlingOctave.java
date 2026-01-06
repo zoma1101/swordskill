@@ -1,7 +1,9 @@
 package com.zoma1101.swordskill.swordskills.skill.sword;
 
+import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -41,6 +43,7 @@ public class HowlingOctave implements ISkill {
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,0.8f,0));
             player.hurtMarked = true;
+            player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE.get(), 20));
         } else if (FinalTick == 32) {
             performSlash(level, player, 7, 1.75F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());

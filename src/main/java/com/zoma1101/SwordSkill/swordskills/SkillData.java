@@ -4,7 +4,9 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.config.ServerConfig;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.HashMap; // 追加
 import java.util.List;
+import java.util.Map; // 追加
 
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
@@ -19,6 +21,9 @@ public class SkillData {
     private final boolean isHide;
     private final int final_tick;
     private final int transform_limit_tick;
+
+    // ★追加: 外部データを保存するためのマップ
+    private final Map<String, Object> additionalData = new HashMap<>();
 
     public SkillData(int id, String name,int cooldown, SkillType type, Class<? extends ISkill > skillClass, List<WeaponType> availableWeaponTypes, boolean isHide,int final_tick, int TransformLimitTick) {
         this.id = id;
@@ -49,6 +54,26 @@ public class SkillData {
     }
     public int getTransformLimitTick(){
         return transform_limit_tick;
+    }
+
+    // ★追加: 外部データへのアクセサ
+    public Map<String, Object> getAdditionalData() {
+        return additionalData;
+    }
+
+    // ★追加: 熟練度設定用のヘルパーメソッド（あると便利）
+    public void setRequiredProficiency(String weaponType, int amount) {
+        // "proficiency_req" というキーの中に、さらに "WeaponType -> Amount" のマップを作る構造
+        Map<String, Integer> reqs = (Map<String, Integer>) additionalData.computeIfAbsent("proficiency_req", k -> new HashMap<String, Integer>());
+        reqs.put(weaponType, amount);
+    }
+
+    public int getRequiredProficiency(String weaponType) {
+        if (additionalData.containsKey("proficiency_req")) {
+            Map<String, Integer> reqs = (Map<String, Integer>) additionalData.get("proficiency_req");
+            return reqs.getOrDefault(weaponType, 0);
+        }
+        return 0;
     }
 
     public enum WeaponType {

@@ -1,6 +1,6 @@
 package com.zoma1101.swordskill.network;
 
-import com.zoma1101.swordskill.data.SkillDataFetcher;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,15 +23,17 @@ public class CheckSkillUnlockedPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player != null) {
-                int[] unlockedSkills = SkillDataFetcher.getUnlockedSkills(player);
-                UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedSkills);
-                NetworkHandler.INSTANCE.sendTo(responsePacket, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-                LOGGER.debug("Sent UnlockedSkillsResponsePacket to client {}", player.getName().getString()); // デバッグログ
-            } else {
-                LOGGER.warn("Sender player was null when handling CheckSkillUnlockedPacket!");
+                // ★修正: SkillDataFetcherを使わず、Capabilityからデータを取得
+                player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+                    // Set<Integer> を int[] に変換
+                    int[] unlockedArray = skills.getUnlockedSkills().stream().mapToInt(i -> i).toArray();
+
+                    UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedArray);
+                    NetworkHandler.INSTANCE.sendTo(responsePacket, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                    LOGGER.debug("Sent UnlockedSkillsResponsePacket to client {} (Count: {})", player.getName().getString(), unlockedArray.length);
+                });
             }
         });
-        // パケットが処理されたことを示す
         ctx.get().setPacketHandled(true);
     }
 }

@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill.network;
 
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -10,6 +11,7 @@ import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
@@ -38,22 +40,26 @@ public class UseSkillPacket {
     public static void handle(UseSkillPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
-            if (player == null) {
-                LOGGER.warn("プレイヤーがnullです。スキル発動を中止します。");
-                return;
-            }
+            if (player == null) return;
 
             SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId);
-            if (skill != null && isSkillUnlocked(player, msg.skillId) || skill != null && player.gameMode.isCreative() || skill != null && !UnlockedSkill.get()) {
+            if (skill == null) return;
+
+            // ★修正: Capabilityを使って習得判定を行う
+            AtomicBoolean isUnlocked = new AtomicBoolean(false);
+            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(cap -> {
+                isUnlocked.set(cap.isSkillUnlocked(msg.skillId));
+            });
+
+            // クリエイティブ、コンフィグ設定、または習得済みなら発動
+            if (isUnlocked.get() || player.gameMode.isCreative() || !UnlockedSkill.get()) {
                 if (msg.finalTick == 0) {
-                    // FinalTickが0の場合、一度だけ実行
                     executeSkill(player, skill);
                 } else {
-                    // スキル実行情報を保存
                     SkillExecutionManager.startSkillExecution(player, msg.skillId, msg.finalTick);
                 }
             } else {
-                LOGGER.warn("スキルID {} に対応するスキルが見つかりません。", msg.skillId);
+                LOGGER.warn("Skill ID {} not unlocked or found.", msg.skillId);
             }
         });
         ctx.get().setPacketHandled(true);

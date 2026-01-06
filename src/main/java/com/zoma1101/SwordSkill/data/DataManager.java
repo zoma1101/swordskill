@@ -3,50 +3,79 @@ package com.zoma1101.swordskill.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.server.level.ServerLevel;
+import com.google.gson.JsonParser;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.LevelResource;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    public static JsonObject loadPlayerData(ServerPlayer player) {
-        File playerFile = getPlayerFile(player);
-        if (playerFile.exists()) {
-            try (FileReader reader = new FileReader(playerFile)) {
-                return GSON.fromJson(reader, JsonObject.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    // ★メモリキャッシュ: プレイヤーごとのデータを保持
+    private static final Map<UUID, JsonObject> PLAYER_DATA_CACHE = new ConcurrentHashMap<>();
+
+    // データファイルの保存先ディレクトリを取得
+    private static File getDataFile(ServerPlayer player) {
+        String uuid = player.getStringUUID();
+        File folder = FMLPaths.GAMEDIR.get().resolve("swordskill_data").toFile();
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
-        return new JsonObject();
+        return new File(folder, uuid + ".json");
     }
 
+    // データを読み込む（キャッシュ優先）
+    public static JsonObject loadPlayerData(ServerPlayer player) {
+        UUID playerId = player.getUUID();
+
+        // 1. キャッシュにあればそれを返す (高速)
+        if (PLAYER_DATA_CACHE.containsKey(playerId)) {
+            return PLAYER_DATA_CACHE.get(playerId);
+        }
+
+        // 2. キャッシュになければディスクから読み込む
+        File file = getDataFile(player);
+        JsonObject data;
+
+        if (file.exists()) {
+            try (FileReader reader = new FileReader(file)) {
+                data = JsonParser.parseReader(reader).getAsJsonObject();
+            } catch (IOException e) {
+                e.printStackTrace();
+                data = new JsonObject();
+            }
+        } else {
+            data = new JsonObject();
+        }
+
+        // 3. 読み込んだデータをキャッシュに保存
+        PLAYER_DATA_CACHE.put(playerId, data);
+        return data;
+    }
+
+    // データを保存する（キャッシュ更新 + ディスク書き込み）
     public static void savePlayerData(ServerPlayer player, JsonObject data) {
-        File playerFile = getPlayerFile(player);
-        playerFile.getParentFile().mkdirs(); // 親ディレクトリが存在しない場合は作成
-        try (FileWriter writer = new FileWriter(playerFile)) {
+        // キャッシュを更新
+        PLAYER_DATA_CACHE.put(player.getUUID(), data);
+
+        // ディスクに書き込み
+        File file = getDataFile(player);
+        try (FileWriter writer = new FileWriter(file)) {
             GSON.toJson(data, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static File getPlayerFile(ServerPlayer player) {
-        ServerLevel level = player.serverLevel();
-        Path worldFolderPath = level.getServer().getWorldPath(LevelResource.ROOT);
-        File dataDir = worldFolderPath.resolve("swordskill_data").toFile();
-        String playerUUID = player.getUUID().toString();
-        return new File(dataDir, playerUUID + ".json");
+    // ★ログアウト時にキャッシュを削除するメソッド
+    public static void clearCache(ServerPlayer player) {
+        PLAYER_DATA_CACHE.remove(player.getUUID());
     }
-
-
 }

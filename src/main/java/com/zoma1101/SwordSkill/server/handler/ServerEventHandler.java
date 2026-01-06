@@ -1,9 +1,7 @@
 package com.zoma1101.swordskill.server.handler;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
-import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider; // 追加
 import com.zoma1101.swordskill.data.WeaponData;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.network.NetworkHandler;
@@ -32,21 +30,21 @@ public class ServerEventHandler {
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
 
-            boolean changed = false;
+            // キャッシュから取得
+            ItemStack cachedMain = mainHandItems.getOrDefault(player, ItemStack.EMPTY);
+            ItemStack cachedOff = offHandItems.getOrDefault(player, ItemStack.EMPTY);
 
-            if (!mainHandItems.containsKey(player) || !ItemStack.matches(mainHandItem, mainHandItems.get(player)) || !offHandItems.containsKey(player) || !ItemStack.matches(offHandItem, offHandItems.get(player)))
-            {
-                // サーバー側の武器タイプ情報を更新 (これがサーバー側のマップを更新する)
+            // 変更検知
+            boolean mainChanged = !ItemStack.matches(mainHandItem, cachedMain);
+            boolean offChanged = !ItemStack.matches(offHandItem, cachedOff);
+
+            if (mainChanged || offChanged) {
+                // 変更があった場合のみ処理を行う
                 WeaponTypeUtils.setWeaponType(player);
-                changed = true;
-            }
 
-            // アイテム情報を更新 (変更チェックの後に行う)
-            mainHandItems.put(player, mainHandItem.copy());
-            offHandItems.put(player, offHandItem.copy());
+                mainHandItems.put(player, mainHandItem.copy());
+                offHandItems.put(player, offHandItem.copy());
 
-            // アイテムが変更された場合のみ情報を送信する
-            if (changed) {
                 sendSkillSlotInfo(player);
             }
         }
@@ -65,10 +63,17 @@ public class ServerEventHandler {
         }
     }
 
-    public static void sendSkillSlotInfo(ServerPlayer player) {
-        JsonObject playerData = DataManager.loadPlayerData(player);
-        JsonObject weaponSkills = playerData.getAsJsonObject("weaponSkills");
+    // ★修正: DataManagerのキャッシュ削除処理を削除
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // アイテム履歴のMapからも削除してメモリリーク防止
+            mainHandItems.remove(player);
+            offHandItems.remove(player);
+        }
+    }
 
+    public static void sendSkillSlotInfo(ServerPlayer player) {
         // サーバー側のWeaponDataを取得
         WeaponData serverWeaponData = WeaponTypeUtils.getWeaponData(player);
         String currentWeaponName = "None";
@@ -77,27 +82,23 @@ public class ServerEventHandler {
 
         if (serverWeaponData != null) {
             currentWeaponName = (serverWeaponData.weaponName() != null) ? serverWeaponData.weaponName() : "None";
-            currentWeaponTypes = (serverWeaponData.weaponType() != null) ? serverWeaponData.weaponType() : Collections.emptySet();}
-
-        int[] skillIds = new int[]{-1, -1, -1, -1, -1};
-
-        if (weaponSkills != null && !currentWeaponName.equals("None")) {
-            JsonArray skillSlot = weaponSkills.getAsJsonArray(currentWeaponName);
-            if (skillSlot != null) {
-                int limit = Math.min(skillSlot.size(), skillIds.length);
-                for (int i = 0; i < limit; i++) {
-                    if (skillSlot.get(i) != null && !skillSlot.get(i).isJsonNull()) {
-                        skillIds[i] = skillSlot.get(i).getAsInt();
-                    }
-                }
-            }
+            currentWeaponTypes = (serverWeaponData.weaponType() != null) ? serverWeaponData.weaponType() : Collections.emptySet();
         }
 
-        // SkillSlotInfoPacketにスキルID配列、武器名、武器タイプセットを渡して送信
-        NetworkHandler.INSTANCE.sendTo(
-                new SkillSlotInfoPacket(skillIds, currentWeaponName, currentWeaponTypes),
-                player.connection.connection,
-                NetworkDirection.PLAY_TO_CLIENT
-        );
+        String finalWeaponName = currentWeaponName;
+        Set<SkillData.WeaponType> finalWeaponTypes = currentWeaponTypes;
+
+        // ★修正: DataManagerを使わずCapabilityからスロット情報を取得して送信
+        player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+            // Capabilityから現在の武器に対応するスロット配列を取得
+            int[] skillIds = skills.getSkillSlots(finalWeaponName);
+
+            // SkillSlotInfoPacketにスキルID配列、武器名、武器タイプセットを渡して送信
+            NetworkHandler.INSTANCE.sendTo(
+                    new SkillSlotInfoPacket(skillIds, finalWeaponName, finalWeaponTypes),
+                    player.connection.connection,
+                    NetworkDirection.PLAY_TO_CLIENT
+            );
+        });
     }
 }
