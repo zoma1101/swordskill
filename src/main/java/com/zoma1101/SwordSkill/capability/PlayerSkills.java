@@ -81,9 +81,7 @@ public class PlayerSkills {
 
         // スキルスロットの保存
         CompoundTag slotsTag = new CompoundTag();
-        skillSlots.forEach((weapon, slots) -> {
-            slotsTag.putIntArray(weapon, slots);
-        });
+        skillSlots.forEach(slotsTag::putIntArray);
         nbt.put("SkillSlots", slotsTag);
 
         // ★追加: 選択スロットの保存

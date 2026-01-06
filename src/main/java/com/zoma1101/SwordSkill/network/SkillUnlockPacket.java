@@ -1,10 +1,6 @@
 package com.zoma1101.swordskill.network;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
-import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket; // 追加
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,8 +9,7 @@ import net.minecraftforge.network.PacketDistributor; // 追加
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList; // 追加
-import java.util.List; // 追加
+
 import java.util.function.Supplier;
 
 import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;

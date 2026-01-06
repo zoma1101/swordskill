@@ -3,7 +3,10 @@ package com.zoma1101.swordskill.client.gui;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.screen.Keybindings;
-import com.zoma1101.swordskill.network.*;
+import com.zoma1101.swordskill.network.CheckSkillUnlockedPacket;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
+import com.zoma1101.swordskill.network.SkillUnlockPacket;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -42,12 +45,19 @@ public class SwordSkillSelectionScreen extends Screen {
         super(Component.translatable("gui."+SwordSkill.MOD_ID+".title"));
         if (Minecraft.getInstance().player != null) {
             weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
+            // サーバーに習得済みスキルのリストを要求する
             NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
         }
-
-        NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
+        // ★削除: 古いパケット送信 (SkillRequestPacket) を削除
     }
 
+    // ★追加: パケットハンドラから呼び出して、習得スキル情報を更新するためのメソッド
+    public void updateUnlockedSkills(int[] skillIds) {
+        this.unlockedSkills.clear();
+        for (int id : skillIds) {
+            this.unlockedSkills.add(id);
+        }
+    }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -124,14 +134,14 @@ public class SwordSkillSelectionScreen extends Screen {
         Player player = Minecraft.getInstance().player;
 
         if (player != null) {
-            // ★追加: クリエイティブモードならアイテム不要で解放
+            // クリエイティブモードならアイテム不要で解放
             if (player.isCreative()) {
                 NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
                 unlockedSkills.add(selectedSkill); // クライアント側の表示を即時更新
                 return;
             }
 
-            // --- 以下はサバイバルモード等の処理（アイテムが必要） ---
+            // サバイバルモード等の処理（アイテムが必要）
             Inventory inventory = player.getInventory();
             NonNullList<ItemStack> allItems = NonNullList.create();
             allItems.addAll(inventory.items);
@@ -165,9 +175,9 @@ public class SwordSkillSelectionScreen extends Screen {
             SkillData skill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
             if (skill != null) {
                 String playerWeaponType = ClientSkillSlotHandler.getCurrentWeaponName();
-                if (playerWeaponType != null  && !playerWeaponType.equals("None")) { // 追加
-                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponType)); // 修正
-                } // 追加
+                if (playerWeaponType != null  && !playerWeaponType.equals("None")) {
+                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponType));
+                }
             }
         }
     }
@@ -204,7 +214,6 @@ public class SwordSkillSelectionScreen extends Screen {
             int nameY = centerY - 60;
             guiGraphics.drawString(font, Component.translatable(SwordSkill.MOD_ID + ".skill." + skill.getName()).getString(), nameX, nameY, 0x00FFAA);
 
-            // スキルの説明を複数行で表示
             // スキルの説明を複数行で表示
             String descriptionKey = SwordSkill.MOD_ID + ".skill." + skill.getName() + ".description";
             String description = Component.translatable(descriptionKey).getString();
@@ -276,7 +285,6 @@ public class SwordSkillSelectionScreen extends Screen {
 
     // 武器種ごとのアイコンテクスチャを取得するメソッド
     private ResourceLocation getWeaponIconTexture(SkillData.WeaponType type) {
-        // computeIfAbsent: マップにキー(type)があればその値を返し、なければ第2引数の関数を実行してマップに保存してから返す
         return WEAPON_ICON_CACHE.computeIfAbsent(type, t ->
                 fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/weapon_icons/" + t.name().toLowerCase() + ".png")
         );

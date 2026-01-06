@@ -34,7 +34,7 @@ public class ClientForgeHandler {
 
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
     private static int addSkillIndex=0;
-    private static Integer skillUsedTicks = null; // スキル使用後の経過 Tick をカウントする変数
+    private static Integer skillUsedTicks = null;
     private static Integer limitTickMax = 12;
     private static final Integer limitTickMin = 4;
     private static boolean SetWeaponType = false;
@@ -43,6 +43,18 @@ public class ClientForgeHandler {
         if (Minecraft.getInstance().player != null) {
             Minecraft.getInstance().player.getPersistentData().putInt("selectedSkillIndex", index);
         }
+    }
+
+    @SubscribeEvent
+    public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        // ログアウト時にクライアント側のキャッシュをクリア
+        ClientSkillSlotHandler.reset();
+
+        // ★追加: このハンドラーの変数もリセットする
+        cooldowns.clear();
+        addSkillIndex = 0;
+        skillUsedTicks = null;
+        SetWeaponType = false;
     }
 
     @SubscribeEvent
@@ -57,16 +69,18 @@ public class ClientForgeHandler {
                 }
                 String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
                 setWeaponType(player);
+                // ★注意: SkillLoadSlotPacket のサーバー側処理も Capability を使うように修正済みか確認してください
                 NetworkHandler.sendToServer(new SkillLoadSlotPacket(WeaponName));
                 SetWeaponType = false;
             }
 
+            // ... (キー入力処理などは変更なし) ...
             if (Keybindings.INSTANCE.SwordSkill_Use_Key.isDown()) {
                 Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick();
                 int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()];
                 UseSkill(skillId);
             }
-
+            // ... (他のキー処理省略) ...
             if (Keybindings.INSTANCE.SwordSkill_Use_Key_0.isDown()){
                 Keybindings.INSTANCE.SwordSkill_Use_Key_0.consumeClick();
                 int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[0];
@@ -95,7 +109,7 @@ public class ClientForgeHandler {
 
 
             if (skillUsedTicks != null) {
-                skillUsedTicks++; // 経過 Tick をインクリメント
+                skillUsedTicks++;
                 if (skillUsedTicks > limitTickMax){
                     addSkillIndex=0;
                     skillUsedTicks = null;
@@ -104,6 +118,7 @@ public class ClientForgeHandler {
         }
     }
 
+    // ... (ExecuteSkill, updateCooldowns, setCooldowns は変更なし) ...
     private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
         SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
         if (SkillData != null) {
@@ -135,15 +150,17 @@ public class ClientForgeHandler {
         cooldowns.put(SkillID, SetCoolDown);
     }
 
-
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
+        // ★修正: 古いパケット(SkillRequestPacket)とデバッグ用(SkillUnlockPacket(0))を削除
+        // 代わりに、現在の習得状況を確認するパケットを送る
+        NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
+
         SetWeaponType = true;
-        NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(0));
     }
 
+    // ... (onKeyInput, getCooldownRatio, UseSkill, getCoolDown は変更なし) ...
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
@@ -156,14 +173,13 @@ public class ClientForgeHandler {
         }
     }
 
-    public static float getCooldownRatio(int slotIndex) { // 変更箇所
+    public static float getCooldownRatio(int slotIndex) {
         int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[slotIndex];
         if (cooldowns.containsKey(skillId)) {
             int remainingTicks = cooldowns.get(skillId);
             SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
             if (skill != null) {
                 if (skill.getType() == TRANSFORM) {
-                    // TRANSFORMスキルの場合、TRANSFORM_FINISHスキルのクールダウンを参照
                     for (int i = skillId + 1; i < SwordSkillRegistry.SKILLS.size(); i++) {
                         SkillData nextSkill = SwordSkillRegistry.SKILLS.get(i);
                         if (nextSkill.getType() == TRANSFORM_FINISH) {
@@ -174,30 +190,30 @@ public class ClientForgeHandler {
                 return 1.0f - (float) remainingTicks / getCoolDown(skill);
             }
         }
-        return 1.0f; // クールダウンがない場合は1.0を返す
+        return 1.0f;
     }
 
     private static void UseSkill(int selectedSkillIndex){
-            if (selectedSkillIndex >= 0 && selectedSkillIndex < SwordSkillRegistry.SKILLS.size()) {
-                int currentSkillIndex=selectedSkillIndex+addSkillIndex;
-                if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
-                    ExecuteSkill(selectedSkillIndex,selectedSkillIndex);
-                    skillUsedTicks = 0; // スキル使用後に 0 で初期化
-                } else if (skillUsedTicks != null) {
-                    if ( skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM){
-                        addSkillIndex++;
-                        currentSkillIndex=selectedSkillIndex+addSkillIndex;
-                        ExecuteSkill(currentSkillIndex,selectedSkillIndex);
-                        skillUsedTicks = 0;
+        if (selectedSkillIndex >= 0 && selectedSkillIndex < SwordSkillRegistry.SKILLS.size()) {
+            int currentSkillIndex=selectedSkillIndex+addSkillIndex;
+            if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
+                ExecuteSkill(selectedSkillIndex,selectedSkillIndex);
+                skillUsedTicks = 0;
+            } else if (skillUsedTicks != null) {
+                if ( skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM){
+                    addSkillIndex++;
+                    currentSkillIndex=selectedSkillIndex+addSkillIndex;
+                    ExecuteSkill(currentSkillIndex,selectedSkillIndex);
+                    skillUsedTicks = 0;
 
-                    }
-                    else if (skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM_FINISH) {
-                        ExecuteSkill(currentSkillIndex,selectedSkillIndex);
-                        addSkillIndex=0;
-                        skillUsedTicks = null;
-                    }
+                }
+                else if (skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM_FINISH) {
+                    ExecuteSkill(currentSkillIndex,selectedSkillIndex);
+                    addSkillIndex=0;
+                    skillUsedTicks = null;
                 }
             }
+        }
     }
 
     private static int getCoolDown(SkillData SkillData){

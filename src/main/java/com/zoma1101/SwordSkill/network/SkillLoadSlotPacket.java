@@ -1,8 +1,6 @@
 package com.zoma1101.swordskill.network;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -16,14 +14,14 @@ import static com.zoma1101.swordskill.server.handler.ServerEventHandler.sendSkil
 
 public class SkillLoadSlotPacket {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final String weaponName; // 追加
+    private final String weaponName;
 
-    public SkillLoadSlotPacket(String weaponName) { // 修正
+    public SkillLoadSlotPacket(String weaponName) {
         this.weaponName = weaponName;
     }
 
     public SkillLoadSlotPacket(FriendlyByteBuf buf) {
-        this.weaponName = buf.readUtf(); // 修正
+        this.weaponName = buf.readUtf();
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -37,21 +35,13 @@ public class SkillLoadSlotPacket {
                 LOGGER.warn("プレイヤーがnullです。スキル選択を中止します。");
                 return;
             }
-            JsonObject playerData = DataManager.loadPlayerData(player);
-            JsonObject weaponSkills = playerData.getAsJsonObject("weaponSkills"); // 修正
-            if (weaponSkills == null) {
-                weaponSkills = new JsonObject();
-                playerData.add("weaponSkills", weaponSkills);
-            }
-            JsonArray skillSlot = weaponSkills.getAsJsonArray(msg.weaponName); // 修正
-            if (skillSlot == null) {
-                skillSlot = new JsonArray();
-                for (int i = 0; i < 5; i++) {
-                    skillSlot.add(0); // 初期化
-                }
-                weaponSkills.add(msg.weaponName, skillSlot); // 修正
-            }
-            sendSkillSlotInfo(player);
+
+            // ★修正: DataManager (JSON) を廃止し、Capability (NBT) を使用するように変更
+            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+                // Capabilityからデータを取得してクライアントに同期する
+                // (ServerEventHandler.sendSkillSlotInfo も Capability を使うように修正されている必要があります)
+                sendSkillSlotInfo(player);
+            });
         });
         ctx.get().setPacketHandled(true);
     }

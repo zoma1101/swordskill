@@ -1,7 +1,6 @@
 package com.zoma1101.swordskill.network;
 
-import com.google.gson.JsonObject;
-import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider; // 追加
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
@@ -30,12 +29,13 @@ public class SkillSelectionPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) {
-                LOGGER.warn("プレイヤーがnullです。スキル選択を中止します。");
                 return;
             }
-            JsonObject playerData = DataManager.loadPlayerData(player);
-            playerData.addProperty("selectedSkillIndex", msg.selectedSkillIndex);
-            DataManager.savePlayerData(player, playerData);
+
+            // ★修正: DataManagerを使わずCapabilityに保存
+            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+                skills.setSelectedSlot(msg.selectedSkillIndex);
+            });
         });
         ctx.get().setPacketHandled(true);
     }

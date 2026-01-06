@@ -2,7 +2,6 @@ package com.zoma1101.swordskill.client.gui;
 
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
-import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.network.NetworkHandler;
 import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -50,9 +49,10 @@ public class DecideSkillScreen extends Screen {
             SkillData skill = SwordSkillRegistry.SKILLS.get(SELECTSKILL);
             if (skill != null) {
                 String playerWeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
-                if (playerWeaponName != null) { // 追加
-                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponName)); // 修正
-                } // 追加
+                // 武器を持っていない場合("None")は送信しないようにチェック
+                if (playerWeaponName != null && !playerWeaponName.equals("None")) {
+                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponName));
+                }
             }
         }
     }

@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
-import static com.zoma1101.swordskill.data.SkillDataFetcher.isSkillUnlocked;
 
 public class UseSkillPacket {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -47,9 +46,7 @@ public class UseSkillPacket {
 
             // ★修正: Capabilityを使って習得判定を行う
             AtomicBoolean isUnlocked = new AtomicBoolean(false);
-            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(cap -> {
-                isUnlocked.set(cap.isSkillUnlocked(msg.skillId));
-            });
+            player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(cap -> isUnlocked.set(cap.isSkillUnlocked(msg.skillId)));
 
             // クリエイティブ、コンフィグ設定、または習得済みなら発動
             if (isUnlocked.get() || player.gameMode.isCreative() || !UnlockedSkill.get()) {

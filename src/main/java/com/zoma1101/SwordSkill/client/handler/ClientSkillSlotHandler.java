@@ -34,4 +34,10 @@ public class ClientSkillSlotHandler {
         return currentWeaponTypes;
     }
 
+    // ★追加: ログアウト時などにデータをリセットするメソッド
+    public static void reset() {
+        currentSkillIds = new int[]{-1, -1, -1, -1, -1};
+        currentWeaponName = "None";
+        currentWeaponTypes = Collections.emptySet();
+    }
 }
