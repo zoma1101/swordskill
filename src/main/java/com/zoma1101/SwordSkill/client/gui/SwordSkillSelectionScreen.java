@@ -13,12 +13,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -48,7 +45,6 @@ public class SwordSkillSelectionScreen extends Screen {
             // サーバーに習得済みスキルのリストを要求する
             NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
         }
-        // ★削除: 古いパケット送信 (SkillRequestPacket) を削除
     }
 
     // ★追加: パケットハンドラから呼び出して、習得スキル情報を更新するためのメソッド
@@ -131,35 +127,16 @@ public class SwordSkillSelectionScreen extends Screen {
     }
 
     private void unlockSkill(int selectedSkill) {
-        Player player = Minecraft.getInstance().player;
-
-        if (player != null) {
-            // クリエイティブモードならアイテム不要で解放
-            if (player.isCreative()) {
-                NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
-                unlockedSkills.add(selectedSkill); // クライアント側の表示を即時更新
-                return;
-            }
-
-            // サバイバルモード等の処理（アイテムが必要）
-            Inventory inventory = player.getInventory();
-            NonNullList<ItemStack> allItems = NonNullList.create();
-            allItems.addAll(inventory.items);
-            allItems.addAll(inventory.armor);
-            allItems.addAll(inventory.offhand);
-
-            for (ItemStack itemStack : allItems) {
-                if (itemStack.getItem() == UNLOCKITEM.get()) {
-                    // パケット送信
-                    NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
-
-                    // クライアント側の見た目を更新（サーバー側でも減るが、ラグ防止のため）
-                    itemStack.shrink(1);
-                    unlockedSkills.add(selectedSkill);
-                    return;
+        if (this.minecraft != null && this.minecraft.player != null && !this.minecraft.player.isCreative()) {
+            Inventory inventory = this.minecraft.player.getInventory();
+            for (int i = 0; i < inventory.getContainerSize(); ++i) {
+                if (inventory.getItem(i).is(UNLOCKITEM.get())) {
+                    inventory.removeItem(i, 1);
+                    break;
                 }
             }
         }
+        NetworkHandler.INSTANCE.sendToServer(new SkillUnlockPacket(selectedSkill));
     }
 
     private void unlockDerivedSkill(){

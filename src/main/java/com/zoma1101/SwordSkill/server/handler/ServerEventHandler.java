@@ -1,7 +1,7 @@
 package com.zoma1101.swordskill.server.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
-import com.zoma1101.swordskill.capability.PlayerSkillsProvider; // 追加
+import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
 import com.zoma1101.swordskill.data.WeaponData;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.network.NetworkHandler;
@@ -14,6 +14,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -22,6 +24,7 @@ public class ServerEventHandler {
 
     private static final Map<ServerPlayer, ItemStack> mainHandItems = new HashMap<>();
     private static final Map<ServerPlayer, ItemStack> offHandItems = new HashMap<>();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -57,13 +60,13 @@ public class ServerEventHandler {
             // ログイン時にもサーバー側の武器タイプを設定し、クライアントに情報を送信
             WeaponTypeUtils.setWeaponType(player);
             sendSkillSlotInfo(player);
+
             // 念のため初期アイテム状態を記録
             mainHandItems.put(player, player.getMainHandItem().copy());
             offHandItems.put(player, player.getOffhandItem().copy());
         }
     }
 
-    // ★修正: DataManagerのキャッシュ削除処理を削除
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -88,7 +91,7 @@ public class ServerEventHandler {
         String finalWeaponName = currentWeaponName;
         Set<SkillData.WeaponType> finalWeaponTypes = currentWeaponTypes;
 
-        // ★修正: DataManagerを使わずCapabilityからスロット情報を取得して送信
+        // Capabilityからスロット情報を取得して送信
         player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
             // Capabilityから現在の武器に対応するスロット配列を取得
             int[] skillIds = skills.getSkillSlots(finalWeaponName);

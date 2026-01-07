@@ -118,7 +118,6 @@ public class ClientForgeHandler {
         }
     }
 
-    // ... (ExecuteSkill, updateCooldowns, setCooldowns は変更なし) ...
     private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
         SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
         if (SkillData != null) {
@@ -153,14 +152,11 @@ public class ClientForgeHandler {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        // ★修正: 古いパケット(SkillRequestPacket)とデバッグ用(SkillUnlockPacket(0))を削除
-        // 代わりに、現在の習得状況を確認するパケットを送る
         NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
 
         SetWeaponType = true;
     }
 
-    // ... (onKeyInput, getCooldownRatio, UseSkill, getCoolDown は変更なし) ...
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();

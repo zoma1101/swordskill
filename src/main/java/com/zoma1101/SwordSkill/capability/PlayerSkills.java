@@ -17,8 +17,11 @@ public class PlayerSkills {
     // 武器種ごとのスキルスロット
     private final Map<String, int[]> skillSlots = new HashMap<>();
 
-    // ★追加: 現在選択中のスロット番号 (0~4)
+    // 現在選択中のスロット番号 (0~4)
     private int selectedSlot = 0;
+
+    // ★追加: データ移行済みフラグ
+    private boolean isMigrated = false;
 
     // --- スキル習得関連 ---
     public void unlockSkill(int skillId) {
@@ -45,9 +48,8 @@ public class PlayerSkills {
         return skillSlots.getOrDefault(weaponName, new int[5]);
     }
 
-    // --- ★追加: 選択スロット関連 ---
+    // --- 選択スロット関連 ---
     public void setSelectedSlot(int index) {
-        // 0~4の範囲に収める
         if (index < 0) index = 0;
         if (index > 4) index = 4;
         this.selectedSlot = index;
@@ -55,6 +57,15 @@ public class PlayerSkills {
 
     public int getSelectedSlot() {
         return this.selectedSlot;
+    }
+
+    // --- ★追加: 移行フラグ関連 ---
+    public boolean isMigrated() {
+        return isMigrated;
+    }
+
+    public void setMigrated(boolean migrated) {
+        this.isMigrated = migrated;
     }
 
     // --- データ管理関連 ---
@@ -65,8 +76,10 @@ public class PlayerSkills {
         this.skillSlots.clear();
         source.skillSlots.forEach((key, value) -> this.skillSlots.put(key, value.clone()));
 
-        // ★追加: 選択スロットのコピー
         this.selectedSlot = source.selectedSlot;
+
+        // ★追加: 移行フラグのコピー
+        this.isMigrated = source.isMigrated;
     }
 
     public void saveNBT(CompoundTag nbt) {
@@ -84,8 +97,11 @@ public class PlayerSkills {
         skillSlots.forEach(slotsTag::putIntArray);
         nbt.put("SkillSlots", slotsTag);
 
-        // ★追加: 選択スロットの保存
+        // 選択スロットの保存
         nbt.putInt("SelectedSlot", selectedSlot);
+
+        // ★追加: 移行フラグの保存
+        nbt.putBoolean("IsMigrated", isMigrated);
     }
 
     public void loadNBT(CompoundTag nbt) {
@@ -107,9 +123,14 @@ public class PlayerSkills {
             }
         }
 
-        // ★追加: 選択スロットの読み込み
+        // 選択スロットの読み込み
         if (nbt.contains("SelectedSlot")) {
             this.selectedSlot = nbt.getInt("SelectedSlot");
+        }
+
+        // ★追加: 移行フラグの読み込み
+        if (nbt.contains("IsMigrated")) {
+            this.isMigrated = nbt.getBoolean("IsMigrated");
         }
     }
 }
