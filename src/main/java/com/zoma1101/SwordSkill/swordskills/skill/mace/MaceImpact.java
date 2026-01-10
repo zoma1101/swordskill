@@ -21,7 +21,7 @@ public class MaceImpact implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (!player.onGround()){
-            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
+            NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"move"));
 
         }
 
@@ -45,7 +45,7 @@ public class MaceImpact implements ISkill {
                 player.setDeltaMovement(moveVec);
                 player.hurtMarked = true;
                 skillExecutions.remove(player.getUUID());
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
+                NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"finish"));
             }
         }
     }

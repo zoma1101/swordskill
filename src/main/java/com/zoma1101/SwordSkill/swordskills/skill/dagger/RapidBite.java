@@ -32,7 +32,7 @@ public class RapidBite implements ISkill { // インターフェースを実装
             player.invulnerableTime = 35;
         } else if (FinalTick >= 3) {
             if (!player.onGround()) {
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
+                NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"move"));
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
             List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, boundingBox, entity -> SkillTargetEntity(entity, player)); // LivingEntity のみ取得
@@ -40,7 +40,7 @@ public class RapidBite implements ISkill { // インターフェースを実装
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 3) {
-                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
+                        NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"finish"));
                         player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE.get(), 100));
                         Vec3 AttackRotation = player.position().subtract(entity.position()).normalize();
                         Vec3 SpawnPos = entity.position().add(AttackRotation.scale(2));
@@ -58,7 +58,7 @@ public class RapidBite implements ISkill { // インターフェースを実装
                 }
             }}
             else {
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(0,""));
+                NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));
                 skillExecutions.remove(player.getUUID());
             }
         }

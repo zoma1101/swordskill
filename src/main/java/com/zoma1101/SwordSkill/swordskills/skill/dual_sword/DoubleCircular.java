@@ -41,7 +41,7 @@ public class DoubleCircular implements ISkill {
             player.invulnerableTime = 35;
         }
         else if (FinalTick == 3){
-            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"move"));
+            NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"move"));
         }
 
 
@@ -67,7 +67,7 @@ public class DoubleCircular implements ISkill {
         }
         else if (NowTick+20 <= SkillFinalTick) {
             if (FinalTick - NowTick == 1) {
-                NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(SkillID,"finish"));
+                NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),SkillID,"finish"));
             } else if (FinalTick - NowTick == 2) {
                 performSlash(level, player, 0, -0.6f, 2f);
             } else if (FinalTick - NowTick == 7) {
@@ -80,7 +80,7 @@ public class DoubleCircular implements ISkill {
         }
         else {
             skillExecutions.remove(player.getUUID());
-            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new PlayAnimationPacket(0,""));
+            NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));
 
         }
     }
