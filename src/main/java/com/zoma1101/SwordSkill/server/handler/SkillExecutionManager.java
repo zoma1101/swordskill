@@ -64,7 +64,7 @@ public class SkillExecutionManager {
                 // スキル実行情報削除
                 skillExecutions.remove(playerId);
                 if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
-                    NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));;
+                    NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));
                 }
                 LOGGER.info("スキル実行終了: プレイヤー={}, スキルID={}", player.getName().getString(), skillExecution.skillId);
             }
