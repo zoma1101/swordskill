@@ -1,13 +1,13 @@
 package com.zoma1101.swordskill.network.toClient;
 
 import com.zoma1101.swordskill.AnimationUtils;
+import com.zoma1101.swordskill.IsAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -44,7 +44,7 @@ public class PlayAnimationPacket {
             // クライアントサイドでのみ実行
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
                 // playeranimatorが導入されているか確認
-                if (ModList.get().isLoaded("playeranimator")) {
+                if (IsAnimation.isPlayerAnimator()) {
                     var level = Minecraft.getInstance().level;
                     if (level != null) {
                         // IDからエンティティを特定

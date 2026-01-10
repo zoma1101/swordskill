@@ -12,7 +12,7 @@ import static com.zoma1101.swordskill.AnimationUtils.PlayerAnim;
 
 
 public class IsAnimation {
-    private static boolean isPlayerAnimator(){
+    public static boolean isPlayerAnimator(){
         String PLAYER_ANIMATOR_MODID = "playeranimator";
         return ModList.get().isLoaded(PLAYER_ANIMATOR_MODID);
     }
