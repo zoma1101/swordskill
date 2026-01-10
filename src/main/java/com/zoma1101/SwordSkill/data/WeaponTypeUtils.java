@@ -68,19 +68,38 @@ public class WeaponTypeUtils {
 
     private static WeaponData getWeaponDataDetector(Player player) {
         if (player != null) {
-        Set<SkillData.WeaponType> weaponTypes = getWeaponTypes(player);
-        if (!weaponTypes.isEmpty()) {
-            WeaponData DualSwordData = DualSwordSetter(player);
-            if (DualSwordData==null){
-                String weaponName = WeaponTypeDetector.getWeaponName(player.getMainHandItem());
-                return new WeaponData(weaponTypes, weaponName);
+            Set<SkillData.WeaponType> weaponTypes = getWeaponTypes(player);
+            if (!weaponTypes.isEmpty()) {
+                WeaponData DualSwordData = DualSwordSetter(player);
+                if (DualSwordData==null){
+                    String weaponName = WeaponTypeDetector.getWeaponName(player.getMainHandItem());
+                    return new WeaponData(weaponTypes, weaponName);
+                }
+                else {
+                    return DualSwordData;
+                }
             }
-            else {
-                return DualSwordData;
-            }
-        }
-        else if (ServerConfig.AUTOWEAPON_SETTING.get()) {
-            return AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
+            else if (ServerConfig.AUTOWEAPON_SETTING.get()) {
+                WeaponData mainHandData = AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
+
+                if (mainHandData != null && !mainHandData.equals(None_WeaponData)) {
+                    // オフハンドもチェック
+                    WeaponData offHandData = AutoWeaponDataSetter.AutoWeaponDataSetting(player.getOffhandItem());
+
+                    if (offHandData != null && !offHandData.equals(None_WeaponData)) {
+                        boolean mainHandOneHandedSword = mainHandData.weaponType().contains(SkillData.WeaponType.ONE_HANDED_SWORD);
+                        boolean offHandOneHandedSword = offHandData.weaponType().contains(SkillData.WeaponType.ONE_HANDED_SWORD);
+
+                        // 両手が片手剣なら二刀流とする
+                        if (mainHandOneHandedSword && offHandOneHandedSword) {
+                            Set<SkillData.WeaponType> dualTypes = new HashSet<>(mainHandData.weaponType());
+                            dualTypes.addAll(offHandData.weaponType());
+                            dualTypes.add(SkillData.WeaponType.DUALSWORD);
+                            return new WeaponData(dualTypes, "dual_sword");
+                        }
+                    }
+                    return mainHandData;
+                }
             }
         }
         return null;
