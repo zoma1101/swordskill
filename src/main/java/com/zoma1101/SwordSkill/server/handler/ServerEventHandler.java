@@ -53,6 +53,40 @@ public class ServerEventHandler {
         }
     }
 
+    // ★修正: 死亡時のデータ引き継ぎ処理
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        // 死亡によるリスポーンの場合、元のプレイヤーのCapabilityは無効化されているため復活させる必要がある
+        boolean isDeath = event.isWasDeath();
+        if (isDeath) {
+            event.getOriginal().reviveCaps();
+        }
+
+        try {
+            event.getOriginal().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(oldSkills -> {
+                event.getEntity().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(newSkills -> {
+                    // NBT経由ではなく、copyFromメソッドを使って直接データをコピーする
+                    // (PlayerSkillsクラスにcopyFromが実装されているため、これを使うのが最も確実です)
+                    newSkills.copyFrom(oldSkills);
+                });
+            });
+        } finally {
+            // 処理が終わったら、死亡時の場合は再度無効化しておく
+            if (isDeath) {
+                event.getOriginal().invalidateCaps();
+            }
+        }
+    }
+
+    // ★追加: リスポーン時の同期処理
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            // リスポーン時にクライアントへデータを同期
+            // これがないと、サーバー側ではデータが残っていてもクライアント側(GUIなど)で反映されない場合がある
+            sendSkillSlotInfo(player);
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {

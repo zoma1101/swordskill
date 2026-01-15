@@ -18,12 +18,13 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class RageSpike implements ISkill {
-    private static boolean isAttacked = false;
+    private static final String ATTACK_TAG = "swordskill.ragespike.attacked";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
         if (FinalTick == 1) {
-            isAttacked = false;
+            player.removeTag(ATTACK_TAG); // 初期化
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 3.0;
@@ -37,7 +38,9 @@ public class RageSpike implements ISkill {
             player.hurtMarked = true;
             player.invulnerableTime = 10;
         }
-        if (!isAttacked) {
+
+        // タグで判定
+        if (!player.getTags().contains(ATTACK_TAG)) {
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
             List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, boundingBox, entity -> SkillTargetEntity(entity,player)); // LivingEntity のみ取得
@@ -60,7 +63,8 @@ public class RageSpike implements ISkill {
                         Vec3 reverseLookVec = lookVec.reverse().scale(2.5);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         player.hurtMarked = true;
-                        isAttacked = true;
+
+                        player.addTag(ATTACK_TAG); // 攻撃済みフラグを立てる
                         break;
                     }
                 }
