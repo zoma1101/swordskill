@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.client.handler.ClientTickHandler.getSelectedSlot;
 import static com.zoma1101.swordskill.data.WeaponTypeUtils.*;
 import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
@@ -69,7 +68,6 @@ public class ClientForgeHandler {
                 }
                 String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
                 setWeaponType(player);
-                // ★注意: SkillLoadSlotPacket のサーバー側処理も Capability を使うように修正済みか確認してください
                 NetworkHandler.sendToServer(new SkillLoadSlotPacket(WeaponName));
                 SetWeaponType = false;
             }
@@ -127,12 +125,6 @@ public class ClientForgeHandler {
                 NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
                 cooldowns.put(CoolDown_SkillID, getCoolDown(SkillData));
                 limitTickMax = SkillData.getTransformLimitTick();
-                if (SkillData.getType().equals(RUSH)){
-                    PlayerAnimation(SkillID,"start");
-                }
-                else {
-                    PlayerAnimation(SkillID,"");
-                }
             }
         }
     }

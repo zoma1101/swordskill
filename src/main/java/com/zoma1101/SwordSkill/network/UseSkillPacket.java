@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
+import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -8,6 +9,7 @@ import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,12 +46,20 @@ public class UseSkillPacket {
             SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId);
             if (skill == null) return;
 
-            // ★修正: Capabilityを使って習得判定を行う
+
             AtomicBoolean isUnlocked = new AtomicBoolean(false);
             player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(cap -> isUnlocked.set(cap.isSkillUnlocked(msg.skillId)));
 
             // クリエイティブ、コンフィグ設定、または習得済みなら発動
             if (isUnlocked.get() || player.gameMode.isCreative() || !UnlockedSkill.get()) {
+                // ★追加: サーバーから全クライアント（本人含む）へアニメーション再生パケットを送信
+                String animationType = "";
+                if (skill.getType() == SkillData.SkillType.RUSH) {
+                    animationType = "start";
+                }
+                NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                        new PlayAnimationPacket(player.getId(), msg.skillId, animationType));
+
                 if (msg.finalTick == 0) {
                     executeSkill(player, skill);
                 } else {
