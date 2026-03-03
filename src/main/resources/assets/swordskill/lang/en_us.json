@@ -1,30 +1,28 @@
 {
-  "key.categories.swordskill" : "SwordSkillMOD",
-  "key.categories.swordskill.quick_cast" : "SS QuickCast",
-  "key.swordskill.select_ss_key" : "Open Skill Select Screen",
-  "key.swordskill.use_ss_key" : "UseSkill",
-  "key.swordskill.quick_select_ss_key" : "Quick Skill Select",
-  "key.swordskill.use_ss_key_0" : "QuickUse Skill-0",
-  "key.swordskill.use_ss_key_1" : "QuickUse Skill-1",
-  "key.swordskill.use_ss_key_2" : "QuickUse Skill-2",
-  "key.swordskill.use_ss_key_3" : "QuickUse Skill-3",
-  "key.swordskill.use_ss_key_4" : "QuickUse Skill-4",
-  "message.swordskill.swordskill_selector_key_pressed" : "Please select sword skill",
+  "key.categories.swordskill": "Sword Skill Mod",
+  "key.categories.swordskill.quick_cast": "SS QuickCast",
+  "key.swordskill.select_ss_key": "Open Skill Select Screen",
+  "key.swordskill.use_ss_key": "UseSkill",
+  "key.swordskill.quick_select_ss_key": "Quick Skill Select",
+  "key.swordskill.use_ss_key_0": "QuickUse Skill-0",
+  "key.swordskill.use_ss_key_1": "QuickUse Skill-1",
+  "key.swordskill.use_ss_key_2": "QuickUse Skill-2",
+  "key.swordskill.use_ss_key_3": "QuickUse Skill-3",
+  "key.swordskill.use_ss_key_4": "QuickUse Skill-4",
+  "message.swordskill.swordskill_selector_key_pressed": "Please select sword skill",
   "entity.swordskill.attack_effect": "Slash",
-
   "commands.swordskill.unlock.failed.not_found": "Skill not found: %s",
   "commands.swordskill.unlock.success": "Unlocked skill '%s' for %s players",
   "commands.swordskill.unlock.failed.no_update": "No players were updated (Skill might be already unlocked)",
-
-
   "key.swordskill.open_skill_gui": "Open Sword Skill Select GUI",
   "key.swordskill.hud_setting_key": "Adjust the HUD position",
-  "gui.swordskill.title": "Select Skill",
-  "gui.swordskill.select": "Done",
+  "gui.swordskill.title": "Sword Skill Selection",
+  "gui.swordskill.select": "Select",
   "gui.swordskill.unlock": "Unlock",
   "gui.swordskill.unlock_derived": "Unlock Derivative Skill",
   "gui.swordskill.skill.derived": "Derivative Skill",
   "gui.swordskill.cooldown": "CoolDown: %s tick",
+  "gui.swordskill.sp_cost": "SP Cost: %s",
   "gui.swordskill.available_weapons": "Equippable weapons: %s",
   "gui.swordskill.slot.0": "SkillSlot 0",
   "gui.swordskill.slot.1": "SkillSlot 1",
@@ -32,15 +30,11 @@
   "gui.swordskill.slot.3": "SkillSlot 3",
   "gui.swordskill.slot.4": "SkillSlot 4",
   "gui.swordskill.select_slot": "Select a slot to save the skill to?",
-
   "gui.swordskill.setting.hud.save": "Save",
   "gui.swordskill.setting.hud.scale": "HUD Scale: %s",
   "gui.swordskill.setting.hud.move_scale": "Move Scale: %s",
-
   "advancement.swordskill.first_weapon.title": "First Weapon",
   "advancement.swordskill.first_weapon.desc": "Obtain a weapon capable of using sword skills!",
-
-
   "swordskill.skill.how_to_use": "How to Use",
   "swordskill.skill.slant": "Slant",
   "swordskill.skill.horizontal": "Horizontal",
@@ -99,7 +93,7 @@
   "swordskill.skill.mothers_rosario": "Mother's Rosario",
   "swordskill.skill.shooting_star": "Shooting Star",
   "swordskill.skill.flashing_penetrator": "Flashing Penetrator",
-  "swordskill.skill.canine": " Kei Nine",
+  "swordskill.skill.canine": "Canine",
   "swordskill.skill.face_liner": "Face Liner",
   "swordskill.skill.fad_edge": "Fad Edge",
   "swordskill.skill.rapid_bite": "Rapid Bite",
@@ -125,8 +119,7 @@
   "swordskill.skill.double_creep": "Double Creep",
   "swordskill.skill.hammer_down": "Hammer Down",
   "swordskill.skill.diastrophism": "Diastrophism",
-  "swordskill.skill.mace_impact": "MaceImpact",
-
+  "swordskill.skill.mace_impact": "Mace Impact",
   "swordskill.skill.how_to_use.description": "How to use Sword Skills!!\nSwitch pages by pressing the left and right\nmovement keys and choose your favorite Sword Skill.\nThen, find Skill Orbs in chests during your adventure and click 'Unlock' \nto make that Sword Skill usable. After that, \ntry using it by setting a slot just like before the update!\nYou can also select a slot by pressing the instant use keys 0-4.\nWell then, have fun!",
   "swordskill.skill.how_to_use.description2": "Congratulations!!",
   "swordskill.skill.slant.description": "A pure downward strike.",
@@ -206,8 +199,6 @@
   "swordskill.skill.hammer_down.description": "Swing the mace down from overhead for massive damage, \ninflicting a movement speed reduction upon impact.",
   "swordskill.skill.diastrophism.description": "A simple three-hit sword skill, \ninflicting a movement speed reduction upon impact.",
   "swordskill.skill.mace_impact.description": "Leap high and amplify the impact damage \nupon landing based on the height of the fallen blocks, \ninflicting a movement speed reduction upon impact.",
-
-
   "swordskill.weapon.one_handed_sword": "One-Handed Sword",
   "swordskill.weapon.rapier": "Rapier",
   "swordskill.weapon.two_handed_sword": "Two-Handed Sword",
@@ -218,10 +209,8 @@
   "swordskill.weapon.spear": "Spear",
   "swordskill.weapon.whip": "Whip",
   "swordskill.weapon.scythe": "Scythe",
-  "swordskill.weapon.dagger": "Short Sword",
+  "swordskill.weapon.dagger": "Dagger",
   "swordskill.weapon.dualsword": "Dual Swords",
-
   "item.swordskill.unlock_item": "Skill Orb",
-
   "effect.swordskill.no_fall_damage": "Fall damage disabled"
 }
