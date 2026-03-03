@@ -17,8 +17,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -27,7 +25,7 @@ public class ServerEventHandler {
 
     private static final Map<ServerPlayer, ItemStack> mainHandItems = new HashMap<>();
     private static final Map<ServerPlayer, ItemStack> offHandItems = new HashMap<>();
-    private static final Logger LOGGER = LogManager.getLogger();
+
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -66,13 +64,11 @@ public class ServerEventHandler {
         }
 
         try {
-            event.getOriginal().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(oldSkills -> {
-                event.getEntity().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(newSkills -> {
-                    // NBT経由ではなく、copyFromメソッドを使って直接データをコピーする
-                    // (PlayerSkillsクラスにcopyFromが実装されているため、これを使うのが最も確実です)
-                    newSkills.copyFrom(oldSkills);
-                });
-            });
+            event.getOriginal().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(oldSkills -> event.getEntity().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(newSkills -> {
+                // NBT経由ではなく、copyFromメソッドを使って直接データをコピーする
+                // (PlayerSkillsクラスにcopyFromが実装されているため、これを使うのが最も確実です)
+                newSkills.copyFrom(oldSkills);
+            }));
         } finally {
             // 処理が終わったら、死亡時の場合は再度無効化しておく
             if (isDeath) {

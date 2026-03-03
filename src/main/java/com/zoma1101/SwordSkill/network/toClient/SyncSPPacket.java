@@ -23,11 +23,9 @@ public class SyncSPPacket {
     }
 
     public static void handle(SyncSPPacket msg, Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                ClientSPData.set(msg.currentSP);
-            });
-        });
+        ctx.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientSPData.set(msg.currentSP);
+        }));
         ctx.get().setPacketHandled(true);
     }
 }
