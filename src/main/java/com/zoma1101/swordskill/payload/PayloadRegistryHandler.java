@@ -8,7 +8,6 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 //PacketDistributor.sendToServer(new SkillRequestPacket());
 
 // MODイベントバス用のイベントサブスクライバーとしてマーク
@@ -28,20 +27,28 @@ public class PayloadRegistryHandler {
 
         registrar.playToServer(UseSkillPayload.TYPE, UseSkillPayload.STREAM_CODEC, UseSkillPayload::handle);
         registrar.playToServer(SkillRequestPayload.TYPE, SkillRequestPayload.STREAM_CODEC, SkillRequestPayload::handle);
-        registrar.playToServer(SkillLoadSlotPayload.TYPE, SkillLoadSlotPayload.STREAM_CODEC, SkillLoadSlotPayload::handle);
-        registrar.playToServer(SkillSelectionPayload.TYPE, SkillSelectionPayload.STREAM_CODEC, SkillSelectionPayload::handle);
-        registrar.playToServer(SkillSlotSelectionPayload.TYPE, SkillSlotSelectionPayload.STREAM_CODEC, SkillSlotSelectionPayload::handle);
-        registrar.playToServer(CheckSkillUnlockedPayload.TYPE, CheckSkillUnlockedPayload.STREAM_CODEC, CheckSkillUnlockedPayload::handle);
+        registrar.playToServer(SkillLoadSlotPayload.TYPE, SkillLoadSlotPayload.STREAM_CODEC,
+                SkillLoadSlotPayload::handle);
+        registrar.playToServer(SkillSelectionPayload.TYPE, SkillSelectionPayload.STREAM_CODEC,
+                SkillSelectionPayload::handle);
+        registrar.playToServer(SkillSlotSelectionPayload.TYPE, SkillSlotSelectionPayload.STREAM_CODEC,
+                SkillSlotSelectionPayload::handle);
+        registrar.playToServer(CheckSkillUnlockedPayload.TYPE, CheckSkillUnlockedPayload.STREAM_CODEC,
+                CheckSkillUnlockedPayload::handle);
 
-        registrar.playToServer(RequestUnlockSkillPayload.TYPE, RequestUnlockSkillPayload.STREAM_CODEC, RequestUnlockSkillPayload::handle);
+        registrar.playToServer(RequestUnlockSkillPayload.TYPE, RequestUnlockSkillPayload.STREAM_CODEC,
+                RequestUnlockSkillPayload::handle);
 
         // --- Server -> Client ペイロード登録 ---
-        registrar.playToClient(SyncSkillIndexPayload.TYPE, SyncSkillIndexPayload.STREAM_CODEC, SyncSkillIndexPayload::handleClient);
-        registrar.playToClient(SyncUnlockedSkillsPayload.TYPE, SyncUnlockedSkillsPayload.STREAM_CODEC, SyncUnlockedSkillsPayload::handleClient);
-        registrar.playToClient(PlayAnimationPayload.TYPE, PlayAnimationPayload.STREAM_CODEC, PlayAnimationPayload::handleClient);
-        registrar.playToClient(SkillSlotInfoPayload.TYPE, SkillSlotInfoPayload.STREAM_CODEC, SkillSlotInfoPayload::handleClient);
-
-
+        registrar.playToClient(SyncSkillIndexPayload.TYPE, SyncSkillIndexPayload.STREAM_CODEC,
+                SyncSkillIndexPayload::handleClient);
+        registrar.playToClient(SyncUnlockedSkillsPayload.TYPE, SyncUnlockedSkillsPayload.STREAM_CODEC,
+                SyncUnlockedSkillsPayload::handleClient);
+        registrar.playToClient(PlayAnimationPayload.TYPE, PlayAnimationPayload.STREAM_CODEC,
+                PlayAnimationPayload::handleClient);
+        registrar.playToClient(SkillSlotInfoPayload.TYPE, SkillSlotInfoPayload.STREAM_CODEC,
+                SkillSlotInfoPayload::handleClient);
+        registrar.playToClient(SyncSPPayload.TYPE, SyncSPPayload.STREAM_CODEC, SyncSPPayload::handle);
 
         LOGGER.info("Network payloads registration complete.");
     }

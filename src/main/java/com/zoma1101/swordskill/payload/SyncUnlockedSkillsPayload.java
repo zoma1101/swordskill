@@ -20,14 +20,14 @@ import java.util.List;
 public record SyncUnlockedSkillsPayload(List<Integer> unlockedSkills) implements CustomPacketPayload {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static final Type<SyncUnlockedSkillsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "sync_unlocked_skills"));
+    public static final Type<SyncUnlockedSkillsPayload> TYPE = new Type<>(
+            ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "sync_unlocked_skills"));
 
     // List<Integer> 用のコーデック
     public static final StreamCodec<FriendlyByteBuf, SyncUnlockedSkillsPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.collection(ArrayList::new, ByteBufCodecs.INT), // IntegerのList
             SyncUnlockedSkillsPayload::unlockedSkills,
-            SyncUnlockedSkillsPayload::new
-    );
+            SyncUnlockedSkillsPayload::new);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
@@ -37,11 +37,15 @@ public record SyncUnlockedSkillsPayload(List<Integer> unlockedSkills) implements
     // クライアントサイドハンドラー
     public static void handleClient(SyncUnlockedSkillsPayload msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
-            // 現在開いている画面を取得
+            // グローバルなストアを更新
+            com.zoma1101.swordskill.client.handler.ClientUnlockedSkillsHandler
+                    .updateUnlockedSkills(msg.unlockedSkills());
+
+            // 現在開いている画面があればそれも更新
             Minecraft mc = Minecraft.getInstance();
             if (mc.screen instanceof SwordSkillSelectionScreen selectScreen) {
                 selectScreen.unlockedSkills.clear();
-                selectScreen.unlockedSkills.addAll(new HashSet<>(msg.unlockedSkills())); // ListをSetに変換して追加
+                selectScreen.unlockedSkills.addAll(new HashSet<>(msg.unlockedSkills()));
                 LOGGER.debug("Updated unlocked skills on screen: {}", msg.unlockedSkills().size());
             }
         });

@@ -1,0 +1,93 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - Swordskill",
+        "order": 0
+      },
+      "projectName": "Swordskill",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Data",
+      "presentation": {
+        "group": "Mod Development - Swordskill",
+        "order": 1
+      },
+      "projectName": "Swordskill",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\dataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "GameTestServer",
+      "presentation": {
+        "group": "Mod Development - Swordskill",
+        "order": 2
+      },
+      "projectName": "Swordskill",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\gameTestServerRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - Swordskill",
+        "order": 3
+      },
+      "projectName": "Swordskill",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

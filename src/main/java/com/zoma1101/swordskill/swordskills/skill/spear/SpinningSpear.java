@@ -14,17 +14,27 @@ public class SpinningSpear implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 5) { // 1回目の斬撃
-            performSlash(level, player, 0, 0.1F,2f);
+            performSlash(level, player, 0, 0.1F,3f);
         } else if (FinalTick == 12) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75f,0.75f);
-        } else if (FinalTick == 20) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75F,0.75f);
-        } else if (FinalTick == 26) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75f,0.75f);
-        } else if (FinalTick == 28) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75F,0.75f);
-        } else if (FinalTick == 32) { // 2回目の斬撃
-            performSlash(level, player, 1, 1.75f,0.75f);
+            performSlash(level, player, 1, 1.75f,0.5f);
+        } else if (FinalTick == 15) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.5f);
+        } else if (FinalTick == 18) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75f,0.5f);
+        } else if (FinalTick == 21) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.5f);
+        }
+        else if (FinalTick == 24) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.5f);
+        }
+        else if (FinalTick == 27) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.5f);
+        }
+        else if (FinalTick == 30) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75F,0.5f);
+        }
+        else if (FinalTick == 32) { // 2回目の斬撃
+            performSlash(level, player, 1, 1.75f,0.5f);
         }
     }
 
@@ -56,7 +66,7 @@ public class SpinningSpear implements ISkill {
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, Vec3 lookVec, int slashIndex) {
-        Vec3 relativePos = slashIndex==0 ? lookVec.scale(2) : new Vec3(0, 0, 0);
+        Vec3 relativePos = slashIndex==0 ? lookVec.scale(2) : new Vec3(0, player.getEyeHeight() * 0.6, 0);
         return player.position().add(relativePos).add(0, player.getEyeHeight() * 0.65, 0);
     }
 

@@ -14,5 +14,11 @@ public class ServerModHandler {
         if (!event.has(EntityType.PLAYER, SwordSkillAttribute.COOLDOWN_ATTRIBUTE)) {
             event.add(EntityType.PLAYER, SwordSkillAttribute.COOLDOWN_ATTRIBUTE);
         }
+        if (!event.has(EntityType.PLAYER, SwordSkillAttribute.MAX_SP)) {
+            event.add(EntityType.PLAYER, SwordSkillAttribute.MAX_SP);
+        }
+        if (!event.has(EntityType.PLAYER, SwordSkillAttribute.SP_REGEN)) {
+            event.add(EntityType.PLAYER, SwordSkillAttribute.SP_REGEN);
+        }
     }
 }
