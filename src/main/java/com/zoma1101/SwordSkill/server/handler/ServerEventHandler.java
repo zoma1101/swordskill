@@ -2,8 +2,10 @@ package com.zoma1101.swordskill.server.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
+import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponData;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.network.NetworkHandler;
 import com.zoma1101.swordskill.network.SkillSlotInfoPacket;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -12,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkDirection;
 import org.apache.logging.log4j.LogManager;
@@ -84,6 +87,7 @@ public class ServerEventHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             // リスポーン時にクライアントへデータを同期
             // これがないと、サーバー側ではデータが残っていてもクライアント側(GUIなど)で反映されない場合がある
+            applySPConfig(player);
             sendSkillSlotInfo(player);
         }
     }
@@ -92,7 +96,8 @@ public class ServerEventHandler {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             // ログイン時にもサーバー側の武器タイプを設定し、クライアントに情報を送信
-            WeaponTypeUtils.setWeaponType(player);
+            // configから属性のベース値を設定
+            applySPConfig(player);
             sendSkillSlotInfo(player);
 
             // 念のため初期アイテム状態を記録
@@ -110,6 +115,17 @@ public class ServerEventHandler {
         }
     }
 
+    private static void applySPConfig(ServerPlayer player) {
+        AttributeInstance maxSpAttr = player.getAttribute(SwordSkillAttribute.MAX_SP.get());
+        if (maxSpAttr != null) {
+            maxSpAttr.setBaseValue(ServerConfig.defaultMaxSP.get());
+        }
+        AttributeInstance regenSpAttr = player.getAttribute(SwordSkillAttribute.SP_REGEN.get());
+        if (regenSpAttr != null) {
+            regenSpAttr.setBaseValue(ServerConfig.defaultSPRegen.get());
+        }
+    }
+
     public static void sendSkillSlotInfo(ServerPlayer player) {
         // サーバー側のWeaponDataを取得
         WeaponData serverWeaponData = WeaponTypeUtils.getWeaponData(player);
@@ -119,7 +135,8 @@ public class ServerEventHandler {
 
         if (serverWeaponData != null) {
             currentWeaponName = (serverWeaponData.weaponName() != null) ? serverWeaponData.weaponName() : "None";
-            currentWeaponTypes = (serverWeaponData.weaponType() != null) ? serverWeaponData.weaponType() : Collections.emptySet();
+            currentWeaponTypes = (serverWeaponData.weaponType() != null) ? serverWeaponData.weaponType()
+                    : Collections.emptySet();
         }
 
         String finalWeaponName = currentWeaponName;
@@ -134,8 +151,7 @@ public class ServerEventHandler {
             NetworkHandler.INSTANCE.sendTo(
                     new SkillSlotInfoPacket(skillIds, finalWeaponName, finalWeaponTypes),
                     player.connection.connection,
-                    NetworkDirection.PLAY_TO_CLIENT
-            );
+                    NetworkDirection.PLAY_TO_CLIENT);
         });
     }
 }

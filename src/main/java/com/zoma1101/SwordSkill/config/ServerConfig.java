@@ -12,16 +12,26 @@ public class ServerConfig {
     public static final ForgeConfigSpec.BooleanValue AUTOWEAPON_SETTING;
     public static final ForgeConfigSpec.BooleanValue UnlockedSkill;
     public static final ForgeConfigSpec.BooleanValue attackNeutralMobs;
-
+    public static final ForgeConfigSpec.DoubleValue defaultMaxSP;
+    public static final ForgeConfigSpec.DoubleValue defaultSPRegen;
 
     static {
         BUILDER.push("Damage Settings");
-        damageMultiplier = BUILDER.comment("Sword skill damage multiplier").defineInRange("damageMultiplier", 1.0, 0.1, 1000.0);
-        cooldownMultiplier = BUILDER.comment("Sword skill cool down multiplier").defineInRange("CoolDownMultiplier", 1.0, 0.01, 10.0);
-        AUTOWEAPON_SETTING = BUILDER.comment("The available weapons are set automatically to some extent.").define("AutoWeaponSetting", false);
+        damageMultiplier = BUILDER.comment("Sword skill damage multiplier").defineInRange("damageMultiplier", 1.0, 0.1,
+                1000.0);
+        cooldownMultiplier = BUILDER.comment("Sword skill cool down multiplier").defineInRange("CoolDownMultiplier",
+                1.0, 0.01, 10.0);
+        AUTOWEAPON_SETTING = BUILDER.comment("The available weapons are set automatically to some extent.")
+                .define("AutoWeaponSetting", false);
         PvP = BUILDER.comment("Allow PVP with sword skills").define("pvp", false);
         UnlockedSkill = BUILDER.comment("Enable Sword Skill Unlock").define("UnlockedSkill", true);
         attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", true);
+        BUILDER.pop();
+
+        BUILDER.push("SP Settings");
+        defaultMaxSP = BUILDER.comment("Default maximum SP value").defineInRange("defaultMaxSP", 100.0, 1.0, 10000.0);
+        defaultSPRegen = BUILDER.comment("Default SP regeneration value per second").defineInRange("defaultSPRegen",
+                1.0, 0.0, 1000.0);
         BUILDER.pop();
         SPEC = BUILDER.build();
     }

@@ -12,9 +12,17 @@ import net.minecraftforge.registries.RegistryObject;
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SwordSkillAttribute {
 
-    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, SwordSkill.MOD_ID);
-    public static final RegistryObject<Attribute> COOLDOWN_ATTRIBUTE = ATTRIBUTES.register("cool_down_cut", () ->
-            new RangedAttribute(SwordSkill.MOD_ID + ".player.cool_down_cut", 1.0D, 1.0D, 2048.0D).setSyncable(true));
+    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES,
+            SwordSkill.MOD_ID);
+    public static final RegistryObject<Attribute> COOLDOWN_ATTRIBUTE = ATTRIBUTES.register("cool_down_cut",
+            () -> new RangedAttribute(SwordSkill.MOD_ID + ".player.cool_down_cut", 1.0D, 1.0D, 2048.0D)
+                    .setSyncable(true));
+
+    public static final RegistryObject<Attribute> MAX_SP = ATTRIBUTES.register("max_sp",
+            () -> new RangedAttribute(SwordSkill.MOD_ID + ".player.max_sp", 100.0D, 0.0D, 10000.0D).setSyncable(true));
+
+    public static final RegistryObject<Attribute> SP_REGEN = ATTRIBUTES.register("sp_regen",
+            () -> new RangedAttribute(SwordSkill.MOD_ID + ".player.sp_regen", 1.0D, 0.0D, 1000.0D).setSyncable(true));
 
     public static void register(IEventBus eventBus) {
         ATTRIBUTES.register(eventBus);

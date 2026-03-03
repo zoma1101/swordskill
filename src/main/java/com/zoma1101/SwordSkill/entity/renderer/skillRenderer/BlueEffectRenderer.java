@@ -24,7 +24,8 @@ public class BlueEffectRenderer {
 
     private static final int FRAME_TIME = 2; // 各フレームの表示時間 (Tick数)
 
-    public static void renderEffect(Vec2 Minecraft_Rotation, PoseStack poseStack, MultiBufferSource bufferSource, int light, Vector3f scale, float rotation, int age, String setTexture) {
+    public static void renderEffect(Vec2 Minecraft_Rotation, PoseStack poseStack, MultiBufferSource bufferSource,
+            int light, Vector3f scale, float rotation, int age, String setTexture) {
         poseStack.pushPose(); // 変換を保存
 
         // 現在のアニメーションフレームを計算
@@ -49,29 +50,25 @@ public class BlueEffectRenderer {
         matrix.scale(scale.x, scale.y, scale.z);
 
         Vector3f cameraDirection;
-        if (rotation > -80 && rotation < 80){
-            cameraDirection = new Vector3f(0,1,0);
+        if (rotation > -80 && rotation < 80) {
+            cameraDirection = new Vector3f(0, 1, 0);
+        } else if (rotation < 110 && rotation > 70) {
+            cameraDirection = new Vector3f(1, 0, 0);
+        } else if (rotation > -110 && rotation < -70) {
+            cameraDirection = new Vector3f(-1, 0, 0);
+        } else {
+            cameraDirection = new Vector3f(0, -1, 0);
         }
-        else if (rotation < 110 && rotation > 70){
-            cameraDirection = new Vector3f(1,0,0);
-        }
-        else if (rotation > -110 && rotation < -70){
-            cameraDirection = new Vector3f(-1,0,0);
-        }
-        else {cameraDirection = new Vector3f(0, -1, 0);}
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
-        VertexConsumer builder =bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture)) ;
+        VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
 
-        switch (SwordSkillEffect_System.get()){
+        switch (SwordSkillEffect_System.get()) {
             case 0 -> builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
             case 1 -> builder = bufferSource.getBuffer(RenderType.entityTranslucent(currentTexture));
             case 2 -> builder = bufferSource.getBuffer(RenderType.entitySmoothCutout(currentTexture));
             case 3 -> builder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(currentTexture));
         }
-
-
-
 
         builder.vertex(matrix, -0.5f, 0f, -0.5f)
                 .color(R, G, B, 1f)
@@ -108,7 +105,8 @@ public class BlueEffectRenderer {
         poseStack.popPose(); // 変換を元に戻す
     }
 
-    private static void applyMinecraftRotation(Matrix4f matrix, Matrix3f normalMatrix, Vec2 Minecraft_Rotation, float rotation) {
+    private static void applyMinecraftRotation(Matrix4f matrix, Matrix3f normalMatrix, Vec2 Minecraft_Rotation,
+            float rotation) {
         // Minecraftの回転角度をラジアンに変換
         float rotationY = (float) Math.toRadians(-Minecraft_Rotation.y);
         float rotationX = (float) Math.toRadians(Minecraft_Rotation.x);

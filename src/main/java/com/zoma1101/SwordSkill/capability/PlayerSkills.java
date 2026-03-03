@@ -23,6 +23,48 @@ public class PlayerSkills {
     // ★追加: データ移行済みフラグ
     private boolean isMigrated = false;
 
+    // --- SP関連 ---
+    private double currentSP = 0;
+    private int combatTimer = 0; // 戦闘タイマー (tick)
+
+    public double getCurrentSP() {
+        return currentSP;
+    }
+
+    public void setCurrentSP(double currentSP) {
+        this.currentSP = currentSP;
+    }
+
+    public void addSP(double value, double maxSP) {
+        this.currentSP = Math.min(maxSP, this.currentSP + value);
+        if (this.currentSP < 0)
+            this.currentSP = 0;
+    }
+
+    public void recoverSPOnAttack(double percent, double maxSP) {
+        double recoverAmount = maxSP * (percent / 100.0);
+        this.addSP(recoverAmount, maxSP);
+        this.setCombatTimer(100); // 攻撃時に戦闘状態を更新 (5秒)
+    }
+
+    public int getCombatTimer() {
+        return combatTimer;
+    }
+
+    public void setCombatTimer(int ticks) {
+        this.combatTimer = ticks;
+    }
+
+    public void tickCombatTimer() {
+        if (this.combatTimer > 0) {
+            this.combatTimer--;
+        }
+    }
+
+    public boolean isInCombat() {
+        return this.combatTimer > 0;
+    }
+
     // --- スキル習得関連 ---
     public void unlockSkill(int skillId) {
         unlockedSkills.add(skillId);
@@ -50,8 +92,10 @@ public class PlayerSkills {
 
     // --- 選択スロット関連 ---
     public void setSelectedSlot(int index) {
-        if (index < 0) index = 0;
-        if (index > 4) index = 4;
+        if (index < 0)
+            index = 0;
+        if (index > 4)
+            index = 4;
         this.selectedSlot = index;
     }
 
@@ -80,6 +124,9 @@ public class PlayerSkills {
 
         // ★追加: 移行フラグのコピー
         this.isMigrated = source.isMigrated;
+
+        this.currentSP = source.currentSP;
+        this.combatTimer = source.combatTimer;
     }
 
     public void saveNBT(CompoundTag nbt) {
@@ -102,6 +149,9 @@ public class PlayerSkills {
 
         // ★追加: 移行フラグの保存
         nbt.putBoolean("IsMigrated", isMigrated);
+
+        nbt.putDouble("CurrentSP", currentSP);
+        nbt.putInt("CombatTimer", combatTimer);
     }
 
     public void loadNBT(CompoundTag nbt) {
@@ -131,6 +181,13 @@ public class PlayerSkills {
         // ★追加: 移行フラグの読み込み
         if (nbt.contains("IsMigrated")) {
             this.isMigrated = nbt.getBoolean("IsMigrated");
+        }
+
+        if (nbt.contains("CurrentSP")) {
+            this.currentSP = nbt.getDouble("CurrentSP");
+        }
+        if (nbt.contains("CombatTimer")) {
+            this.combatTimer = nbt.getInt("CombatTimer");
         }
     }
 }

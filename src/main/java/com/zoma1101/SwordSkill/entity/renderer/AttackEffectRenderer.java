@@ -2,14 +2,13 @@ package com.zoma1101.swordskill.entity.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
+import com.zoma1101.swordskill.entity.renderer.skillRenderer.BlueEffectRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-
-import static com.zoma1101.swordskill.entity.renderer.skillRenderer.BlueEffectRenderer.renderEffect;
 
 public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
@@ -19,7 +18,8 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
     }
 
     @Override
-    public void render(AttackEffectEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    public void render(AttackEffectEntity entity, float entityYaw, float partialTicks, PoseStack poseStack,
+            @NotNull MultiBufferSource bufferSource, int packedLight) {
         poseStack.pushPose();
 
         // エンティティの最新の Rotation を取得
@@ -29,14 +29,15 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
         String SkillParticle = entity.getSkillParticle();
 
-        renderEffect(entity.getRotationVector(),poseStack, bufferSource, packedLight, scale, rotationZ, entity.tickCount,SkillParticle);
+        BlueEffectRenderer.renderEffect(entity.getRotationVector(), poseStack, bufferSource, packedLight, scale,
+                rotationZ, entity.tickCount, SkillParticle);
 
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, 15728880);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(AttackEffectEntity entity) {
-        return null;
+    public @NotNull ResourceLocation getTextureLocation(@NotNull AttackEffectEntity entity) {
+        return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/white.png");
     }
 }

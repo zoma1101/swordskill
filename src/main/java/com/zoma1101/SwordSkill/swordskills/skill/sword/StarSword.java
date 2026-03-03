@@ -13,27 +13,27 @@ import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 public class StarSword implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-        if (FinalTick == 1) {
+        if (FinalTick == 5) {
             performSlash(level, player, 0, 0.1F,0.25f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 6) {
+        else if (FinalTick == 10) {
             performSlash(level, player, 1, 0.1F,0.25f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 10) {
+        else if (FinalTick == 13) {
             performSlash(level, player, 2, 0.1F,0.25f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 15) {
+        else if (FinalTick == 16) {
             performSlash(level, player, 3, 0.1F,0.25f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 21) {
+        else if (FinalTick == 20) {
             performSlash(level, player, 4, 0.1F,0.25f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 25) {
+        else if (FinalTick == 22) {
             performSlash(level, player, 0, 1.25F,1f);
             performSlash(level, player, 1, 1.25F,1f);
             performSlash(level, player, 2, 1.25F,1f);
@@ -41,8 +41,8 @@ public class StarSword implements ISkill {
             performSlash(level, player, 4, 1.25F,1f);
             SimpleSkillSound(level,player.position());
         }
-        else if (FinalTick == 31) {
-            performThrust(level, player);
+        else if (FinalTick == 26) {
+            performSlash(level, player, 5, 1.25F,3f);
             SimpleSkillSound(level,player.position());
         }
 
@@ -60,19 +60,6 @@ public class StarSword implements ISkill {
 
         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
     }
-    private void performThrust(Level level, ServerPlayer player) {
-        Vec3 lookVec = player.getLookAngle();
-        Vec3 spawnPos = calculateRelativePosition(player, lookVec, 5); // 相対座標を計算
-        double damage = BaseDamage(player) * (float) 2.0;
-        double knockbackForce = BaseKnowBack(player)* (float) 0.75;
-        Vector3f size = new Vector3f(0.5f, 0.5f, 5f);
-        int duration = 12;
-        Vec3 Rotation = calculateRotation(5);
-        String skill_particle = Spia_Particle_AxeGreen();
-
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
-    }
-
 
 
     private Vec3 calculateRelativePosition(ServerPlayer player, Vec3 lookVec, int slashIndex) {
@@ -82,7 +69,7 @@ public class StarSword implements ISkill {
             case 1,4 -> lookVec.scale(2).add(0, -player.getEyeHeight() * 0.25, 0);
             case 2 -> lookVec.scale(2).add(rightVec.scale(-0.7)).add(0, -player.getEyeHeight() * 0.25, 0);
             case 3 -> lookVec.scale(2).add(rightVec.scale(0.7)).add(0, -player.getEyeHeight() * 0.25, 0);
-            case 5 -> lookVec.scale(2.5);
+            case 5 -> lookVec.scale(2).add(0, player.getEyeHeight() * 0.75, 0);
 
             default -> new Vec3(0, 0, 0);
         };
@@ -97,7 +84,7 @@ public class StarSword implements ISkill {
             case 2 -> new Vec3(-20,0,-72);
             case 3 -> new Vec3(-20,0,72);
             case 4 -> new Vec3(-20,0,-144);
-            case 5 -> new Vec3(0, 0, 30);
+            case 5 -> new Vec3(-10, 0, 90);
             default -> new Vec3(0, 0, 0);
         };
     }

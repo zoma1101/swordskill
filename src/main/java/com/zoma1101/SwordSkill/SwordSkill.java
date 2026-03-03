@@ -11,6 +11,7 @@ import com.zoma1101.swordskill.item.SampleItemRegistry;
 import com.zoma1101.swordskill.loot.ModLootModifiers;
 import com.zoma1101.swordskill.network.NetworkHandler;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.server.handler.SPManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -21,7 +22,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
 
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
@@ -50,7 +50,9 @@ public class SwordSkill {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-                SkillExecutionManager.handleSkillExecution(event.getServer().getLevel(player.level().dimension()), player);
+                SkillExecutionManager.handleSkillExecution(event.getServer().getLevel(player.level().dimension()),
+                        player);
+                SPManager.handleSPRegen(player);
             }
         }
     }

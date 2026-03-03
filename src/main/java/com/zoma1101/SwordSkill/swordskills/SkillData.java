@@ -16,20 +16,24 @@ public class SkillData {
     private final ResourceLocation iconTexture;
     private final int cooldown; // クールダウン (tick)
     private final SkillType type; // スキルタイプ
-    private final Class<? extends ISkill > skillClass; // 実行するスキルクラス
+    private final Class<? extends ISkill> skillClass; // 実行するスキルクラス
     private final List<WeaponType> availableWeaponTypes;
     private final boolean isHide;
     private final int final_tick;
     private final int transform_limit_tick;
+    private final double spCost;
 
     // ★追加: 外部データを保存するためのマップ
     private final Map<String, Object> additionalData = new HashMap<>();
 
-    public SkillData(int id, String name,int cooldown, SkillType type, Class<? extends ISkill > skillClass, List<WeaponType> availableWeaponTypes, boolean isHide,int final_tick, int TransformLimitTick) {
+    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
+            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
+            int TransformLimitTick) {
         this.id = id;
         this.name = name;
-        this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID,"textures/gui/"+this.name+".png");
+        this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/" + this.name + ".png");
         this.cooldown = cooldown;
+        this.spCost = spCost;
         this.type = type;
         this.skillClass = skillClass;
         this.availableWeaponTypes = availableWeaponTypes;
@@ -39,20 +43,39 @@ public class SkillData {
     }
 
     // ゲッターメソッド
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public ResourceLocation getIconTexture() { return iconTexture; }
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ResourceLocation getIconTexture() {
+        return iconTexture;
+    }
+
     public int getCooldown() {
         return (int) (cooldown * ServerConfig.cooldownMultiplier.get());
     }
-    public List<WeaponType> getAvailableWeaponTypes() { return availableWeaponTypes; }
+
+    public List<WeaponType> getAvailableWeaponTypes() {
+        return availableWeaponTypes;
+    }
+
+    public double getSpCost() {
+        return spCost;
+    }
+
     public boolean isHide() {
         return isHide;
     }
-    public int getFinalTick(){
+
+    public int getFinalTick() {
         return final_tick;
     }
-    public int getTransformLimitTick(){
+
+    public int getTransformLimitTick() {
         return transform_limit_tick;
     }
 
@@ -64,7 +87,8 @@ public class SkillData {
     // ★追加: 熟練度設定用のヘルパーメソッド（あると便利）
     public void setRequiredProficiency(String weaponType, int amount) {
         // "proficiency_req" というキーの中に、さらに "WeaponType -> Amount" のマップを作る構造
-        Map<String, Integer> reqs = (Map<String, Integer>) additionalData.computeIfAbsent("proficiency_req", k -> new HashMap<String, Integer>());
+        Map<String, Integer> reqs = (Map<String, Integer>) additionalData.computeIfAbsent("proficiency_req",
+                k -> new HashMap<String, Integer>());
         reqs.put(weaponType, amount);
     }
 
@@ -81,18 +105,23 @@ public class SkillData {
         TWO_HANDED_SWORD, // 両手剣〇
         KATANA, // 刀〇
         AXE, // 斧〇
-        RAPIER, //レイピア〇
+        RAPIER, // レイピア〇
         CLAW, // 片手爪〇
         SPEAR, // 槍〇
-        MACE,//メイス〇
-        SCYTHE, //鎌〇
-        DAGGER, //短剣〇
-        DUALSWORD, //二刀流〇
-        NONE //設定しないでください
+        MACE, // メイス〇
+        SCYTHE, // 鎌〇
+        DAGGER, // 短剣〇
+        DUALSWORD, // 二刀流〇
+        NONE // 設定しないでください
     }
 
-    public SkillType getType() { return type; }
-    public Class<? extends ISkill > getSkillClass() { return skillClass; }
+    public SkillType getType() {
+        return type;
+    }
+
+    public Class<? extends ISkill> getSkillClass() {
+        return skillClass;
+    }
 
     public enum SkillType {
         SIMPLE,

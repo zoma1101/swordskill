@@ -31,12 +31,20 @@ import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientForgeHandler {
 
+    // =========================================================================
+    // 既存フィールド
+    // =========================================================================
+
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
-    private static int addSkillIndex=0;
+    private static int addSkillIndex = 0;
     private static Integer skillUsedTicks = null;
-    private static Integer limitTickMax = 12;
-    private static final Integer limitTickMin = 4;
+    private static Integer limitTickMax = 20;
+    private static final Integer limitTickMin = 2;
     private static boolean SetWeaponType = false;
+
+    // =========================================================================
+    // 既存ハンドラー
+    // =========================================================================
 
     public static void setSelectedSkillIndex(int index) {
         if (Minecraft.getInstance().player != null) {
@@ -46,10 +54,7 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        // ログアウト時にクライアント側のキャッシュをクリア
         ClientSkillSlotHandler.reset();
-
-        // ★追加: このハンドラーの変数もリセットする
         cooldowns.clear();
         addSkillIndex = 0;
         skillUsedTicks = null;
@@ -62,97 +67,70 @@ public class ClientForgeHandler {
         if (player != null) {
             updateCooldowns();
 
-            if (SetWeaponType && event.phase == TickEvent.Phase.END){
-                if (WeaponTypeDetector.isReady() || Minecraft.getInstance().player == null) {
+            if (SetWeaponType && event.phase == TickEvent.Phase.END) {
+                if (WeaponTypeDetector.isReady() || Minecraft.getInstance().player == null)
                     return;
-                }
-                String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
+                String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
                 setWeaponType(player);
-                NetworkHandler.sendToServer(new SkillLoadSlotPacket(WeaponName));
+                NetworkHandler.sendToServer(new SkillLoadSlotPacket(weaponName));
                 SetWeaponType = false;
             }
 
-            // ... (キー入力処理などは変更なし) ...
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key.isDown()) {
-                Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()]);
             }
-            // ... (他のキー処理省略) ...
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key_0.isDown()){
-                Keybindings.INSTANCE.SwordSkill_Use_Key_0.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[0];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key_0.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[0]);
             }
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key_1.isDown()){
-                Keybindings.INSTANCE.SwordSkill_Use_Key_1.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[1];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key_1.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[1]);
             }
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key_2.isDown()){
-                Keybindings.INSTANCE.SwordSkill_Use_Key_2.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[2];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key_2.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[2]);
             }
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key_3.isDown()){
-                Keybindings.INSTANCE.SwordSkill_Use_Key_3.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[3];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key_3.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[3]);
             }
-            if (Keybindings.INSTANCE.SwordSkill_Use_Key_4.isDown()){
-                Keybindings.INSTANCE.SwordSkill_Use_Key_4.consumeClick();
-                int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[4];
-                UseSkill(skillId);
+            while (Keybindings.INSTANCE.SwordSkill_Use_Key_4.consumeClick()) {
+                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[4]);
             }
-
 
             if (skillUsedTicks != null) {
                 skillUsedTicks++;
-                if (skillUsedTicks > limitTickMax){
-                    addSkillIndex=0;
+                if (skillUsedTicks > limitTickMax) {
+                    addSkillIndex = 0;
                     skillUsedTicks = null;
                 }
             }
         }
     }
 
-    private static void ExecuteSkill(int SkillID, int CoolDown_SkillID) {
-        SkillData SkillData = SwordSkillRegistry.SKILLS.get(SkillID);
-        if (SkillData != null) {
-            Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
-            String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
-            if (WeaponName != null && SkillData.getAvailableWeaponTypes().stream().anyMatch(Objects.requireNonNull(weaponType)::contains)) {
-                NetworkHandler.sendToServer(new UseSkillPacket(SkillData.getId(), SkillData.getFinalTick()));
-                cooldowns.put(CoolDown_SkillID, getCoolDown(SkillData));
-                limitTickMax = SkillData.getTransformLimitTick();
-            }
-        }
-    }
+    // =========================================================================
+    // 既存ハンドラー（続き）
+    // =========================================================================
 
     private static void updateCooldowns() {
         cooldowns.forEach((skillId, remainingTicks) -> {
-            if (remainingTicks > 0) {
+            if (remainingTicks > 0)
                 cooldowns.put(skillId, remainingTicks - 1);
-            }
         });
     }
 
-    public static void setCooldowns(int SkillID, int SetCoolDown){
-        cooldowns.put(SkillID, SetCoolDown);
+    public static void setCooldowns(int skillID, int setCoolDown) {
+        cooldowns.put(skillID, setCoolDown);
     }
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
-
         SetWeaponType = true;
     }
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        String WeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
-        if (WeaponName != null && !WeaponName.equals("None")) {
+        String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
+        if (weaponName != null && !weaponName.equals("None")) {
             if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown()) {
                 Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
             } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
@@ -181,32 +159,48 @@ public class ClientForgeHandler {
         return 1.0f;
     }
 
-    private static void UseSkill(int selectedSkillIndex){
+    private static void ExecuteSkill(int skillID, int coolDownSkillID) {
+        SkillData skillData = SwordSkillRegistry.SKILLS.get(skillID);
+        if (skillData != null) {
+            Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
+            String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
+            if (weaponName != null && skillData.getAvailableWeaponTypes().stream()
+                    .anyMatch(Objects.requireNonNull(weaponType)::contains)) {
+                NetworkHandler.sendToServer(new UseSkillPacket(skillData.getId(), skillData.getFinalTick()));
+                cooldowns.put(coolDownSkillID, getCoolDown(skillData));
+                limitTickMax = skillData.getTransformLimitTick();
+            }
+        }
+    }
+
+    private static void UseSkill(int selectedSkillIndex) {
         if (selectedSkillIndex >= 0 && selectedSkillIndex < SwordSkillRegistry.SKILLS.size()) {
-            int currentSkillIndex=selectedSkillIndex+addSkillIndex;
+            int currentSkillIndex = selectedSkillIndex + addSkillIndex;
             if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
-                ExecuteSkill(selectedSkillIndex,selectedSkillIndex);
+                ExecuteSkill(selectedSkillIndex, selectedSkillIndex);
                 skillUsedTicks = 0;
             } else if (skillUsedTicks != null) {
-                if ( skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM){
+                if (skillUsedTicks < limitTickMax && skillUsedTicks > limitTickMin
+                        && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM) {
                     addSkillIndex++;
-                    currentSkillIndex=selectedSkillIndex+addSkillIndex;
-                    ExecuteSkill(currentSkillIndex,selectedSkillIndex);
+                    currentSkillIndex = selectedSkillIndex + addSkillIndex;
+                    ExecuteSkill(currentSkillIndex, selectedSkillIndex);
                     skillUsedTicks = 0;
-
-                }
-                else if (skillUsedTicks<limitTickMax && skillUsedTicks>limitTickMin && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM_FINISH) {
-                    ExecuteSkill(currentSkillIndex,selectedSkillIndex);
-                    addSkillIndex=0;
+                } else if (skillUsedTicks < limitTickMax && skillUsedTicks > limitTickMin
+                        && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM_FINISH) {
+                    ExecuteSkill(currentSkillIndex, selectedSkillIndex);
+                    addSkillIndex = 0;
                     skillUsedTicks = null;
                 }
             }
         }
     }
 
-    private static int getCoolDown(SkillData SkillData){
+    static int getCoolDown(SkillData skillData) {
         LocalPlayer player = Minecraft.getInstance().player;
-        double cooldown = player != null ? player.getAttributeBaseValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get()) : 0;
-        return (int) (SkillData.getCooldown() * cooldown);
+        double cooldown = player != null
+                ? player.getAttributeBaseValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get())
+                : 0;
+        return (int) (skillData.getCooldown() * cooldown);
     }
 }

@@ -4,6 +4,7 @@ import com.zoma1101.swordskill.AnimationUtils;
 import com.zoma1101.swordskill.IsAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -52,6 +53,8 @@ public class PlayAnimationPacket {
                         // プレイヤーであればアニメーション再生
                         if (entity instanceof Player player) {
                             AnimationUtils.PlayerAnim(player, msg.skillId, msg.animationType);
+                            // 視点方向に腕を振る（バニラの腕振り）
+                            player.swing(InteractionHand.MAIN_HAND);
                         }
                     }
                 }
