@@ -87,7 +87,6 @@ public class SkillTexture {
 
 
 
-
     public static Set<String> Spia_ParticleType = new HashSet<>();
     public static Set<String> Axe_ParticleType = new HashSet<>();
     public static Set<String> Simple_ParticleType = new HashSet<>();

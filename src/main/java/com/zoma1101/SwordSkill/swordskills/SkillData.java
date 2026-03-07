@@ -23,12 +23,20 @@ public class SkillData {
     private final int transform_limit_tick;
     private final double spCost;
 
+    // トレイル設定
+    private final int trailColor;
+    private final ResourceLocation trailTexture;
+    private final int trailMaxLength;
+    private final float trailBaseOffset; // ★追加: 根元のオフセット
+    private final float trailTipOffset; // ★追加: 先端のオフセット
+
     // ★追加: 外部データを保存するためのマップ
     private final Map<String, Object> additionalData = new HashMap<>();
 
     public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
             Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
-            int TransformLimitTick) {
+            int TransformLimitTick, int trailColor, String trailTexture, int trailMaxLength, float trailBaseOffset,
+            float trailTipOffset) {
         this.id = id;
         this.name = name;
         this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/" + this.name + ".png");
@@ -40,6 +48,19 @@ public class SkillData {
         this.isHide = isHide;
         this.final_tick = final_tick;
         this.transform_limit_tick = TransformLimitTick;
+        this.trailColor = trailColor;
+        this.trailTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/entity/" + trailTexture + ".png");
+        this.trailMaxLength = trailMaxLength;
+        this.trailBaseOffset = trailBaseOffset;
+        this.trailTipOffset = trailTipOffset;
+    }
+
+    // デフォルト設定用コンストラクタ
+    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
+            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
+            int TransformLimitTick) {
+        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick, TransformLimitTick,
+                0xFF33AAFF, "simple_2", 30, 1.6f, 3.2f);
     }
 
     // ゲッターメソッド
@@ -77,6 +98,26 @@ public class SkillData {
 
     public int getTransformLimitTick() {
         return transform_limit_tick;
+    }
+
+    public int getTrailColor() {
+        return trailColor;
+    }
+
+    public ResourceLocation getTrailTexture() {
+        return trailTexture;
+    }
+
+    public int getTrailMaxLength() {
+        return trailMaxLength;
+    }
+
+    public float getTrailBaseOffset() {
+        return trailBaseOffset;
+    }
+
+    public float getTrailTipOffset() {
+        return trailTipOffset;
     }
 
     // ★追加: 外部データへのアクセサ

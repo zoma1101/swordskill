@@ -23,6 +23,9 @@ public class PlayerSkills {
     // ★追加: データ移行済みフラグ
     private boolean isMigrated = false;
 
+    // 剣の軌跡 (Trail) 有効フラグ
+    private boolean trailEnabled = false;
+
     // --- SP関連 ---
     private double currentSP = 0;
     private int combatTimer = 0; // 戦闘タイマー (tick)
@@ -112,6 +115,14 @@ public class PlayerSkills {
         this.isMigrated = migrated;
     }
 
+    public boolean isTrailEnabled() {
+        return trailEnabled;
+    }
+
+    public void setTrailEnabled(boolean trailEnabled) {
+        this.trailEnabled = trailEnabled;
+    }
+
     // --- データ管理関連 ---
     public void copyFrom(PlayerSkills source) {
         this.unlockedSkills.clear();
@@ -127,6 +138,7 @@ public class PlayerSkills {
 
         this.currentSP = source.currentSP;
         this.combatTimer = source.combatTimer;
+        this.trailEnabled = source.trailEnabled;
     }
 
     public void saveNBT(CompoundTag nbt) {
@@ -152,6 +164,7 @@ public class PlayerSkills {
 
         nbt.putDouble("CurrentSP", currentSP);
         nbt.putInt("CombatTimer", combatTimer);
+        nbt.putBoolean("TrailEnabled", trailEnabled);
     }
 
     public void loadNBT(CompoundTag nbt) {
@@ -188,6 +201,9 @@ public class PlayerSkills {
         }
         if (nbt.contains("CombatTimer")) {
             this.combatTimer = nbt.getInt("CombatTimer");
+        }
+        if (nbt.contains("TrailEnabled")) {
+            this.trailEnabled = nbt.getBoolean("TrailEnabled");
         }
     }
 }

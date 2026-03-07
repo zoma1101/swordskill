@@ -7,12 +7,16 @@ import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.joml.Quaternionf;
 
 import java.util.Objects;
-
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 public class AnimationUtils {
@@ -40,6 +44,36 @@ public class AnimationUtils {
                     Objects.requireNonNull(PlayerAnimationRegistry.getAnimation(animationId))));
         }
 
+    }
+
+    /**
+     * 一人称視点のPoseStackに、(Player Animatorが動かしている)三人称モデルのボーン回転を同期させる
+     */
+    public static void applyFirstPersonAnimation(AbstractClientPlayer player, PoseStack poseStack) {
+        // プレイヤーレンダラー経由で、アニメーション適用済みのモデルを取得
+        var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        var renderer = dispatcher.getRenderer(player);
+        if (renderer instanceof PlayerRenderer playerRenderer) {
+            PlayerModel<AbstractClientPlayer> model = playerRenderer.getModel();
+
+            // 利き腕に応じて、三人称モデルの腕の回転を一人称の PoseStack に適用
+            // Player Animatorは model.rightArm などの ModelPart を直接回転させている
+            net.minecraft.client.model.geom.ModelPart arm = (player
+                    .getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT)
+                            ? model.rightArm
+                            : model.leftArm;
+
+            // 回転を適用 (Minecraft標準の X -> Y -> Z 順)
+            if (arm.xRot != 0)
+                poseStack.mulPose(new Quaternionf().rotationX(arm.xRot));
+            if (arm.yRot != 0)
+                poseStack.mulPose(new Quaternionf().rotationY(arm.yRot));
+            if (arm.zRot != 0)
+                poseStack.mulPose(new Quaternionf().rotationZ(arm.zRot));
+
+            // ボーン自体の移動オフセット(1/16)を適用
+            poseStack.translate(arm.x / 16.0f, arm.y / 16.0f, arm.z / 16.0f);
+        }
     }
 
     public static class AnimationRegister {

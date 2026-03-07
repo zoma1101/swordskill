@@ -29,8 +29,9 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
         String SkillParticle = entity.getSkillParticle();
 
-        BlueEffectRenderer.renderEffect(entity.getRotationVector(), poseStack, bufferSource, packedLight, scale,
-                rotationZ, entity.tickCount, SkillParticle);
+        // BlueEffectRenderer.renderEffect(entity.getRotationVector(), poseStack,
+        // bufferSource, packedLight, scale,
+        // rotationZ, entity.tickCount, SkillParticle);
 
         poseStack.popPose();
         super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, 15728880);
