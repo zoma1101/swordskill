@@ -4,6 +4,7 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
 import com.zoma1101.swordskill.network.toClient.SkillSyncPacket;
 import com.zoma1101.swordskill.network.toClient.SyncSPPacket;
+import com.zoma1101.swordskill.network.toClient.SyncTrailActivePacket;
 import com.zoma1101.swordskill.network.toClient.SyncTrailConfigPacket;
 import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket;
 import net.minecraftforge.network.NetworkDirection;
@@ -97,6 +98,13 @@ public class NetworkHandler {
                                 SyncTrailConfigPacket::encode,
                                 SyncTrailConfigPacket::new,
                                 SyncTrailConfigPacket::handle,
+                                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+                INSTANCE.registerMessage(
+                                id++,
+                                SyncTrailActivePacket.class,
+                                SyncTrailActivePacket::encode,
+                                SyncTrailActivePacket::new,
+                                SyncTrailActivePacket::handle,
                                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         }
 

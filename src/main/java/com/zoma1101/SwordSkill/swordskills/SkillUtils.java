@@ -16,6 +16,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
+import net.minecraftforge.network.PacketDistributor;
+import com.zoma1101.swordskill.network.NetworkHandler;
+import com.zoma1101.swordskill.network.toClient.SyncTrailActivePacket;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -130,5 +134,14 @@ public class SkillUtils {
         float f4 = Mth.cos(f);
         float f5 = Mth.sin(f);
         return new Vec3(f3 * f4, -f5, f2 * f4);
+    }
+
+    /**
+     * ソードスキルのトレイル表示を能動的に切り替えます。
+     * サーバー側で呼び出すと全クライアントに同期されます。
+     */
+    public static void setTrailActive(ServerPlayer player, boolean active) {
+        NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
+                new SyncTrailActivePacket(player.getId(), active));
     }
 }

@@ -9,7 +9,7 @@ import org.joml.Quaternionf;
 public class SwordTrailRecorder {
     public static void record(Player player, PoseStack poseStack) {
         Minecraft mc = Minecraft.getInstance();
-        Camera camera = mc.getEntityRenderDispatcher().camera;
+        Camera camera = mc.gameRenderer.getMainCamera();
         SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
 
         double camX = camera.getPosition().x;

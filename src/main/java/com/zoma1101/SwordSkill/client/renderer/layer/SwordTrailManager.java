@@ -8,6 +8,9 @@ import java.util.UUID;
 public class SwordTrailManager {
     public static final Map<UUID, SwordTrailLayer.TrailSession> SESSIONS = new HashMap<>();
 
+    // キャッシュ：同じアニメーション名のJSONを毎回読み込まないようにする
+    private static final Map<String, AnimationKeyframeTrack.AnimationData> ANIM_CACHE = new HashMap<>();
+
     public static SwordTrailLayer.TrailSession getSession(UUID uuid) {
         return SESSIONS.computeIfAbsent(uuid, SwordTrailLayer.TrailSession::new);
     }
@@ -18,6 +21,13 @@ public class SwordTrailManager {
 
     public static Collection<SwordTrailLayer.TrailSession> getAll() {
         return SESSIONS.values();
+    }
+
+    /**
+     * リソースパックの再読み込み時などにキャッシュをクリアする。
+     */
+    public static void clearAnimCache() {
+        ANIM_CACHE.clear();
     }
 
     public static void updateSkillSettings(UUID playerUUID, int skillId) {
@@ -31,6 +41,37 @@ public class SwordTrailManager {
             session.trailBaseOffset = data.getTrailBaseOffset();
             session.trailTipOffset = data.getTrailTipOffset();
             session.animationName = data.getName();
+            session.animationLength = data.getFinalTick() + 30;
+            session.active = true;
+
+            // player_animation/<animationName>.json を読み込んでトラックを差し替える。
+            // キャッシュ済みであれば再読み込みしない。
+            // JSONが存在しない場合は TrailSession のデフォルトトラックをそのまま使用する。
+            AnimationKeyframeTrack.AnimationData animData = loadAnimData(data.getName());
+            if (animData != null) {
+                session.armRotTrack = animData.armRotTrack();
+                session.armPosTrack = animData.armPosTrack();
+                session.bodyRotTrack = animData.bodyRotTrack();
+                // JSONのanimation_lengthを優先したい場合は下記のコメントを外す
+                // session.animationLength = animData.animationLength;
+            }
+
+            // スキル発動時刻を記録（captureFirstPersonFromKeyframe が参照する）
+            session.animStartMs = System.currentTimeMillis();
         }
+    }
+
+    /**
+     * アニメーション名に対応する AnimationData をキャッシュ付きで取得する。
+     * player_animation/<animationName>.json が存在しない場合は null を返す。
+     */
+    private static AnimationKeyframeTrack.AnimationData loadAnimData(String animationName) {
+        // containsKey で null 番兵を管理し、存在しないJSONへの繰り返しアクセスを防ぐ
+        if (ANIM_CACHE.containsKey(animationName)) {
+            return ANIM_CACHE.get(animationName);
+        }
+        AnimationKeyframeTrack.AnimationData loaded = AnimationKeyframeTrack.AnimationData.load(animationName);
+        ANIM_CACHE.put(animationName, loaded);
+        return loaded;
     }
 }
