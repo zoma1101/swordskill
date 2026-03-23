@@ -29,6 +29,8 @@ public class SkillData {
     private final int trailMaxLength;
     private final float trailBaseOffset; // ★追加: 根元のオフセット
     private final float trailTipOffset; // ★追加: 先端のオフセット
+    private final float trailArcAngle; // ★追加: 円弧の角度
+    private final int trailPointCount; // ★追加: 分割数
 
     // ★追加: 外部データを保存するためのマップ
     private final Map<String, Object> additionalData = new HashMap<>();
@@ -36,7 +38,7 @@ public class SkillData {
     public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
             Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
             int TransformLimitTick, int trailColor, String trailTexture, int trailMaxLength, float trailBaseOffset,
-            float trailTipOffset) {
+            float trailTipOffset, float trailArcAngle, int trailPointCount) {
         this.id = id;
         this.name = name;
         this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/" + this.name + ".png");
@@ -53,6 +55,16 @@ public class SkillData {
         this.trailMaxLength = trailMaxLength;
         this.trailBaseOffset = trailBaseOffset;
         this.trailTipOffset = trailTipOffset;
+        this.trailArcAngle = trailArcAngle;
+        this.trailPointCount = trailPointCount;
+    }
+
+    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
+            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
+            int TransformLimitTick, int trailColor, String trailTexture, int trailMaxLength, float trailBaseOffset,
+            float trailTipOffset) {
+        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick, TransformLimitTick,
+                trailColor, trailTexture, trailMaxLength, trailBaseOffset, trailTipOffset, 0f, 2);
     }
 
     // デフォルト設定用コンストラクタ
@@ -118,6 +130,14 @@ public class SkillData {
 
     public float getTrailTipOffset() {
         return trailTipOffset;
+    }
+
+    public float getTrailArcAngle() {
+        return trailArcAngle;
+    }
+
+    public int getTrailPointCount() {
+        return trailPointCount;
     }
 
     // ★追加: 外部データへのアクセサ

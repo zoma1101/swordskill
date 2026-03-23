@@ -11,6 +11,21 @@ public class SwordTrailRecorder {
         Minecraft mc = Minecraft.getInstance();
         Camera camera = mc.gameRenderer.getMainCamera();
         SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
+        session.isFirstPerson = false;
+
+        double camX = camera.getPosition().x;
+        double camY = camera.getPosition().y;
+        double camZ = camera.getPosition().z;
+        Quaternionf camRot = camera.rotation();
+
+        SwordTrailLayer.capturePoint(poseStack, session, camX, camY, camZ, camRot);
+    }
+
+    public static void record(net.minecraft.world.entity.Entity entity, PoseStack poseStack) {
+        Minecraft mc = Minecraft.getInstance();
+        Camera camera = mc.gameRenderer.getMainCamera();
+        SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(entity.getUUID());
+        session.isFirstPerson = false;
 
         double camX = camera.getPosition().x;
         double camY = camera.getPosition().y;

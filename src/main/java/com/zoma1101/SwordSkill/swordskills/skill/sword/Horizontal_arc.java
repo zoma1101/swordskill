@@ -1,28 +1,18 @@
 package com.zoma1101.swordskill.swordskills.skill.sword;
 
-import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.BaseSkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
-import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture;
-import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
-
-public class Horizontal_arc implements ISkill {
+public class Horizontal_arc extends BaseSkill {
     @Override
-    public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
-            Vec3 lookVec = player.getLookAngle();
-            Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.75, 0).add(lookVec.scale(2.0)); // 目の前2ブロック
-            double damage = BaseDamage(player)*2f;
-            double knockbackForce = BaseKnowBack(player)*0.05f;
-            Vector3f size = new Vector3f(7.2f, 3f, 2.4f);
-            int duration = 12;
-            Vec3 Rotation = new Vec3(-6,0,25);
-            String skill_particle = NomalSkillTexture();
-            SimpleSkillSound(level,spawnPos);
-
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
+    public void execute(Level level, ServerPlayer player, int tickCount, int SkillID) {
+        if (tickCount == 3) {
+            spawnRelativeSlash(level, player, 2.0, 0.0, 0.0, new Vec3(-6, 0, 25), new Vector3f(7.2f, 3f, 2.4f), 2,
+                    1.0);
+            swingArm(player);
+        }
     }
 }

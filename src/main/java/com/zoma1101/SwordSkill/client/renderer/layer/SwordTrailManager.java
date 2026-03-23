@@ -40,8 +40,11 @@ public class SwordTrailManager {
             session.maxPoints = data.getTrailMaxLength();
             session.trailBaseOffset = data.getTrailBaseOffset();
             session.trailTipOffset = data.getTrailTipOffset();
+            session.arcAngle = data.getTrailArcAngle();
+            session.pointCount = data.getTrailPointCount();
             session.animationName = data.getName();
             session.animationLength = data.getFinalTick() + 30;
+            session.lastOrigin = null; // スラスト・ブースト用の原点をリセット
             session.active = true;
 
             // player_animation/<animationName>.json を読み込んでトラックを差し替える。
@@ -52,8 +55,23 @@ public class SwordTrailManager {
                 session.armRotTrack = animData.armRotTrack();
                 session.armPosTrack = animData.armPosTrack();
                 session.bodyRotTrack = animData.bodyRotTrack();
+                session.bodyPosTrack = animData.bodyPosTrack();
+                session.itemRotTrack = animData.itemRotTrack();
+                session.itemPosTrack = animData.itemPosTrack();
+                session.trailTrack = animData.trailTrack();
+                session.trailRotTrack = animData.trailRotTrack();
                 // JSONのanimation_lengthを優先したい場合は下記のコメントを外す
                 // session.animationLength = animData.animationLength;
+            } else {
+                // アニメーションデータが見つからない場合はトラックをリセット
+                session.armRotTrack = null;
+                session.armPosTrack = null;
+                session.bodyRotTrack = null;
+                session.bodyPosTrack = null;
+                session.itemRotTrack = null;
+                session.itemPosTrack = null;
+                session.trailTrack = null;
+                session.trailRotTrack = null;
             }
 
             // スキル発動時刻を記録（captureFirstPersonFromKeyframe が参照する）

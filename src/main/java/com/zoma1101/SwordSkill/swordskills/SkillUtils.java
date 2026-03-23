@@ -28,6 +28,20 @@ import java.util.UUID;
 public class SkillUtils {
     public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
             double damage, double knockback, int duration, String skill_particle, Vec3 Movement, boolean followOwner) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle,
+                java.util.Collections.emptyList(), Movement, followOwner);
+    }
+
+    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
+            double damage, double knockback, int duration, String skill_particle, java.util.List<SkillTag> tags,
+            Vec3 Movement, boolean followOwner) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle, tags,
+                0xFF33AAFF, Movement, followOwner);
+    }
+
+    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
+            double damage, double knockback, int duration, String skill_particle, java.util.List<SkillTag> tags,
+            int trailColor, Vec3 Movement, boolean followOwner) {
         if (!level.isClientSide) {
             AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
             effect.setPos(position.x, position.y, position.z); // 位置を設定
@@ -39,6 +53,8 @@ public class SkillUtils {
             effect.setKnockbackStrength(knockback); // ノックバック設定
             effect.setEffectRadius(size); // 範囲設定
             effect.setSkillParticle(skill_particle);
+            effect.setSkillTags(tags); // タグ設定
+            effect.setTrailColor(trailColor); // トレイルの色設定
             effect.setDuration(duration); // 持続時間設定
             effect.setMovement(Movement);
             effect.setFollowOwner(followOwner);

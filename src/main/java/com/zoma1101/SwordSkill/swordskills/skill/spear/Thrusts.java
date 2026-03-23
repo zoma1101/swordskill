@@ -1,6 +1,6 @@
 package com.zoma1101.swordskill.swordskills.skill.spear;
 
-import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -10,7 +10,7 @@ import static com.zoma1101.swordskill.swordskills.SkillSound.SimpleSkillSound;
 import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
-public class Thrusts implements ISkill {
+public class Thrusts extends BaseSkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
@@ -22,6 +22,12 @@ public class Thrusts implements ISkill {
         Vec3 Rotation = new Vec3(0,0,30);
         String skill_particle = Spia_Particle();
         SimpleSkillSound(level,spawnPos);
-        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
+        
+        java.util.List<SkillTag> tags = new java.util.ArrayList<>();
+        tags.add(SkillTag.TRAIL);
+        
+        SkillUtils.spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, skill_particle, 
+                tags, SwordSkillRegistry.SKILLS.get(SkillID).getTrailColor(), Vec3.ZERO, false);
+        swingArm(player);
     }
 }

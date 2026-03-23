@@ -2,7 +2,7 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"horizontal": {
-			"animation_length": 0.7083,
+			"animation_length": 0.4583,
 			"bones": {
 				"right_arm": {
 					"rotation": {
@@ -25,10 +25,6 @@
 						"0.375": {
 							"vector": [-17.9205, -15.07041, -80.27376],
 							"easing": "linear"
-						},
-						"0.6667": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
 						}
 					},
 					"position": {
@@ -46,10 +42,6 @@
 						},
 						"0.375": {
 							"vector": [1, -1, 0],
-							"easing": "linear"
-						},
-						"0.6667": {
-							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
 					}
@@ -71,21 +63,15 @@
 						"0.375": {
 							"vector": [0, -57.5, 0],
 							"easing": "linear"
-						},
-						"0.7083": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
 						}
 					}
 				},
 				"torso": {
 					"rotation": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
+						"vector": [0,0,0]
 					},
 					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
+						"vector": [0,0,0]
 					}
 				},
 				"head": {
@@ -100,10 +86,6 @@
 						},
 						"0.375": {
 							"vector": [0, 50, 0],
-							"easing": "linear"
-						},
-						"0.7083": {
-							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
 					}
@@ -121,15 +103,10 @@
 						"0.375": {
 							"vector": [8.43883, 6.34369, -38.38841],
 							"easing": "linear"
-						},
-						"0.7083": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
 						}
 					},
 					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
+						"vector": [0,0,0]
 					}
 				},
 				"right_leg": {
@@ -148,10 +125,6 @@
 						},
 						"0.375": {
 							"vector": [-6.60885, 0.9376, 16.13211],
-							"easing": "linear"
-						},
-						"0.7083": {
-							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
 					}
@@ -173,10 +146,24 @@
 						"0.375": {
 							"vector": [9.31242, 1.89828, -22.99574],
 							"easing": "linear"
+						}
+					}
+				},
+				"rightItem": {
+					"rotation": {
+						"0.125": {
+							"vector": [0, 0, 0]
 						},
-						"0.7083": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
+						"0.375": {
+							"vector": [-95, 0, 0]
+						}
+					},
+					"position": {
+						"0.125": {
+							"vector": [0, 0, 0]
+						},
+						"0.375": {
+							"vector": [0, 0, 0]
 						}
 					}
 				}
