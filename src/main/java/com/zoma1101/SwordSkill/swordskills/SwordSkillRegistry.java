@@ -35,28 +35,28 @@ public class SwordSkillRegistry {
                 registerSkill(new SkillData(getNextSkillId(), "slant", 50, 5.0, SkillData.SkillType.SIMPLE,
                                 Slant.class,
                                 List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, RAPIER, DUALSWORD), false, 0,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE , "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE , "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "horizontal", 60, 8.0, SkillData.SkillType.TRANSFORM,
                                 Horizontal.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 3,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "horizontal_arc", 120, 7.0, SkillData.SkillType.TRANSFORM,
                                 Horizontal_arc.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 8,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "horizontal_square", 240, 15.0,
                                 SkillData.SkillType.TRANSFORM_FINISH,
                                 Horizontal_square.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 20,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "vertical", 60, 8.0, SkillData.SkillType.TRANSFORM,
                                 Vertical.class,
                                 List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 0, DefaultTransformTick,
-                        SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                        SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "vertical_arc", 120, 7.0, SkillData.SkillType.TRANSFORM,
                                 Vertical_arc.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 0,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "vertical_square", 240, 15.0,
                                 SkillData.SkillType.TRANSFORM_FINISH,
                                 Vertical_square.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 10,
-                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 20, 1.6f, 3.2f));
+                                DefaultTransformTick, SkillColor.ELECTRIC_BLUE, "simple_2", 8, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "x_break", 80, 10.0, SkillData.SkillType.SIMPLE,
                                 XBreak.class,
                                 List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 12, DefaultTransformTick));
@@ -66,7 +66,7 @@ public class SwordSkillRegistry {
                                 0xFFFF3333, "simple_2", 25, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "holy_cross_brade", 140, 15.0, SkillData.SkillType.SIMPLE,
                                 HolyCrossBrade.class, List.of(ONE_HANDED_SWORD, DUALSWORD), false, 12,
-                                DefaultTransformTick,0xFFFFFF33, "simple_2", 25, 1.6f, 3.2f));
+                                DefaultTransformTick,0xFFFFFF33, "simple_2", 15, 1.6f, 3.0f));
                 registerSkill(new SkillData(getNextSkillId(), "rage_spike", 105, 10.0, SkillData.SkillType.RUSH,
                                 RageSpike.class,
                                 List.of(ONE_HANDED_SWORD, DUALSWORD), false, 9, DefaultTransformTick));
@@ -91,22 +91,27 @@ public class SwordSkillRegistry {
                 // 斧
                 registerSkill(new SkillData(getNextSkillId(), "wall_wind", 120, 7.0, SkillData.SkillType.SIMPLE,
                                 WallWind.class,
-                                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 7, DefaultTransformTick));
+                                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 7, DefaultTransformTick
+                ,0xFF00e872, "simple_2", 10, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "blood_finisher", 280, 15.0, SkillData.SkillType.SIMPLE,
                                 BloodFinisher.class, List.of(AXE), false, 16, DefaultTransformTick));
                 registerSkill(new SkillData(getNextSkillId(), "excite", 90, 10.0, SkillData.SkillType.TRANSFORM,
                                 Excite.class,
-                                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 0, DefaultTransformTick));
+                                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 0, DefaultTransformTick
+                        ,0xFF00e872, "simple_2", 10, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "excite_line", 150, 8.0, SkillData.SkillType.TRANSFORM,
                                 Excite_line.class, List.of(AXE, TWO_HANDED_SWORD, MACE), true, 0,
-                                DefaultTransformTick));
+                                DefaultTransformTick
+                        ,0xFF00e872, "simple_2", 10, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "excite_triangle", 250, 12.0,
                                 SkillData.SkillType.TRANSFORM_FINISH,
                                 Excite_triangle.class, List.of(AXE, TWO_HANDED_SWORD, MACE), true, 7,
-                                DefaultTransformTick));
+                                DefaultTransformTick
+                        ,0xFF00e872, "simple_2", 10, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "king_axe", 600, 60.0, SkillData.SkillType.SIMPLE,
                                 KingAxe.class,
-                                List.of(AXE), false, 0, DefaultTransformTick));
+                                List.of(AXE), false, 0, DefaultTransformTick
+                        ,0xFFffee49, "simple_2", 10, 2.4f, 7.2f));
                 registerSkill(new SkillData(getNextSkillId(), "lumber_jack", 250, 10.0, SkillData.SkillType.SIMPLE,
                                 LumberJack.class,
                                 List.of(AXE, MACE), false, 30, DefaultTransformTick));
@@ -118,7 +123,7 @@ public class SwordSkillRegistry {
                 // 槍
                 registerSkill(new SkillData(getNextSkillId(), "thrusts", 100, 8.0, SkillData.SkillType.SIMPLE,
                                 Thrusts.class,
-                                List.of(SPEAR), false, 0, DefaultTransformTick, 0xFFFFFF33, "simple", 12, 0.4f, 1.4f));
+                                List.of(SPEAR), false, 0, DefaultTransformTick,0xFFFFFF33, "simple_2", 15, 1.6f, 3.0f));
                 registerSkill(new SkillData(getNextSkillId(), "spinning_spear", 150, 12.0, SkillData.SkillType.SIMPLE,
                                 SpinningSpear.class, List.of(SPEAR), false, 33, DefaultTransformTick));
                 registerSkill(new SkillData(getNextSkillId(), "spark_thrust", 90, 20.0, SkillData.SkillType.SIMPLE,

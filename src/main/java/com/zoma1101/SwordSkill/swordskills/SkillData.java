@@ -72,7 +72,7 @@ public class SkillData {
             Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
             int TransformLimitTick) {
         this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick, TransformLimitTick,
-                0xFF33AAFF, "simple_2", 30, 1.6f, 3.2f);
+                0xFF33AAFF, "simple_2", 10, 1.6f, 3.2f);
     }
 
     // ゲッターメソッド
