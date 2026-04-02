@@ -124,7 +124,7 @@ public abstract class BaseSkill implements ISkill {
         int trailColor = data != null ? data.getTrailColor()
                 : com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.DEFAULT_COLOR;
         spawnFlyingSlashColor(level, position, rotation, size, player, damage, knockback, duration,
-                java.util.List.of(SkillTag.TRAIL), trailColor, movement);
+                java.util.List.of(SkillTag.TRAIL, SkillTag.SHAPE_ARC), trailColor, movement);
     }
 
     /**
@@ -136,7 +136,11 @@ public abstract class BaseSkill implements ISkill {
         SkillData data = SwordSkillRegistry.SKILLS.get(SkillID);
         int trailColor = data != null ? data.getTrailColor()
                 : com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.DEFAULT_COLOR;
-        spawnFlyingSlashColor(level, position, rotation, size, player, damage, knockback, duration, tags, trailColor,
+        
+        java.util.List<SkillTag> finalTags = new java.util.ArrayList<>(tags);
+        if (!finalTags.contains(SkillTag.SHAPE_ARC)) finalTags.add(SkillTag.SHAPE_ARC);
+        
+        spawnFlyingSlashColor(level, position, rotation, size, player, damage, knockback, duration, finalTags, trailColor,
                 movement);
     }
 
@@ -158,6 +162,9 @@ public abstract class BaseSkill implements ISkill {
         java.util.List<SkillTag> finalTags = new java.util.ArrayList<>(tags);
         if (!finalTags.contains(SkillTag.TRAIL))
             finalTags.add(SkillTag.TRAIL);
+        if (!finalTags.contains(SkillTag.SHAPE_ARC))
+            finalTags.add(SkillTag.SHAPE_ARC);
+ 
         SkillUtils.spawnAttackEffect(level, position, rotation, size, player, damage, knockback, duration,
                 getNormalSkillTexture(), finalTags, trailColor, movement, false);
     }
