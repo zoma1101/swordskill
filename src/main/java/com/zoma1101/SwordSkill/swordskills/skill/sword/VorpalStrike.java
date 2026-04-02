@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill.swordskills.skill.sword;
 
+import com.zoma1101.swordskill.swordskills.SkillTag;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -25,7 +26,7 @@ public class VorpalStrike implements ISkill {
             Vec3 Rotation = new Vec3(0,0,40);
             String skill_particle = Spia_Particle_red();
             SimpleSkillSound(level,spawnPos);
-            spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Vec3.ZERO);
+            spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle, java.util.List.of(SkillTag.RAY, SkillTag.SHAPE_THRUST, SkillTag.POWERFUL_THRUST), Vec3.ZERO, false);
         }
     }
 }

@@ -32,6 +32,7 @@ public class ClientModHandler {
         event.register(Keybindings.INSTANCE.SwordSkill_Use_Key_2);
         event.register(Keybindings.INSTANCE.SwordSkill_Use_Key_3);
         event.register(Keybindings.INSTANCE.SwordSkill_Use_Key_4);
+        event.register(Keybindings.INSTANCE.SwordSkill_Wheel_Key);
     }
 
     @SubscribeEvent

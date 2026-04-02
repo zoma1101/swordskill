@@ -38,6 +38,7 @@ public class SwordSkill {
         SampleItemRegistry.register(modEventBus);
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
+        com.zoma1101.swordskill.enchantment.ModEnchantments.register(modEventBus);
         MinecraftForge.EVENT_BUS.addListener(this::onAddReloadListener);
         ModLootModifiers.register(modEventBus);
     }

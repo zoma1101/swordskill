@@ -18,7 +18,13 @@ public enum SkillTag {
     RAY("ray"), // 放射状・貫通型の当たり判定を使用
     TRAIL("trail"), // 剣の軌跡（トレイル）を発生させる
     SHAPE_ARC("shape_arc"), // 三日月形（円弧）の形状
-    SHAPE_V("shape_v"); // V字型の形状
+    SHAPE_V("shape_v"), // V字型の形状
+    SHAPE_THRUST("shape_thrust"), // 突き用の波動形状
+    POWERFUL_THRUST("powerful_thrust"), // 強力な突き（多重波動）
+    FIRE("fire"), // 火属性
+    WATER("water"), // 水属性
+    WIND("wind"), // 風属性
+    SONIC("sonic"); // 衝撃波（魂）属性
 
     private final String id;
 

@@ -31,6 +31,12 @@ public class Keybindings {
             InputConstants.getKey(InputConstants.KEY_LCONTROL, -1),
             CATEGORY
     );
+    public final KeyMapping SwordSkill_Wheel_Key = new KeyMapping(
+            "key."+ SwordSkill.MOD_ID + ".wheel_ss_key",
+            KeyConflictContext.UNIVERSAL,
+            InputConstants.getKey(InputConstants.KEY_V, -1),
+            CATEGORY
+    );
     public final KeyMapping SwordSkill_HUD_Setting = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".hud_setting_key",
             KeyConflictContext.IN_GAME,

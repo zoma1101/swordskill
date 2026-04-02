@@ -212,5 +212,12 @@
   "swordskill.weapon.dagger": "Dagger",
   "swordskill.weapon.dualsword": "Dual Swords",
   "item.swordskill.unlock_item": "Skill Orb",
-  "effect.swordskill.no_fall_damage": "Fall damage disabled"
+  "effect.swordskill.no_fall_damage": "Fall damage disabled",
+ 
+  "enchantment.swordskill.enma_jin": "Flame Blade",
+  "enchantment.swordskill.suijin": "Water Blade",
+  "enchantment.swordskill.fujin": "Wind Blade",
+  "enchantment.swordskill.ko_jin": "Holy Blade",
+  "enchantment.swordskill.an_jin": "Shadow Blade",
+  "enchantment.swordskill.kon_jin": "Soul Blade"
 }

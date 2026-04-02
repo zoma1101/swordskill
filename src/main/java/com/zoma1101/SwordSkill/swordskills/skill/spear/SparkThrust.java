@@ -13,6 +13,10 @@ import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 public class SparkThrust implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
+        if (FinalTick == 0) {
+            setTrailActive(player, true);
+        }
+
         if (FinalTick == 6) { // 1回目の斬撃
             performSlash(level, player, 0, 0.15F,1.6f);
         } else if (FinalTick == 10) { // 2回目の斬撃
@@ -21,6 +25,7 @@ public class SparkThrust implements ISkill {
             performSlash(level, player, 2, 0.15F,1.6f);
         } else if (FinalTick == 22) { // 2回目の斬撃
             performSlash(level, player, 3, 1.5f,2.5f);
+            setTrailActive(player, false);
         }
     }
 

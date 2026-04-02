@@ -9,35 +9,26 @@ import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.joml.Quaternionf;
 
 import java.util.Objects;
-import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 public class AnimationUtils {
-
-    // rightitemはZ軸で後ろY+いくらしい
-    // Y軸でY- Z+ 方向に行くらしい
-    // X軸で-X方向に行くらしい
-    // 手の方向そのままに剣配置 (0,3,2) -90
 
     public static void PlayerAnim(Player player, int SkillID, String type) {
         ResourceLocation animationId;
         String AnimationName = SwordSkillRegistry.SKILLS.get(SkillID).getName();
-        if (type.isEmpty()) {
-            animationId = fromNamespaceAndPath(SwordSkill.MOD_ID, AnimationName);
+        if (type != null && !type.isEmpty()) {
+             animationId = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, AnimationName + "." + type);
         } else {
-            animationId = fromNamespaceAndPath(SwordSkill.MOD_ID, AnimationName + "." + type);
+             animationId = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, AnimationName);
         }
 
         ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>) PlayerAnimationAccess
                 .getPlayerAssociatedData((AbstractClientPlayer) player)
-                .get(fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
+                .get(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
 
         if (animationLayer != null && PlayerAnimationRegistry.getAnimation(animationId) != null) {
             animationLayer.setAnimation(new KeyframeAnimationPlayer(
@@ -47,40 +38,49 @@ public class AnimationUtils {
     }
 
     /**
-     * 一人称視点のPoseStackに、(Player Animatorが動かしている)三人称モデルのボーン回転を同期させる
+     * 一人称視点のPoseStackに、三人称と同じモデル変換を適用する。
+     * SwordTrailLayer.getMatrix4f を用いることで、剣先と腕の動きを完全に一致させる。
      */
-    public static void applyFirstPersonAnimation(AbstractClientPlayer player, PoseStack poseStack) {
-        // プレイヤーレンダラー経由で、アニメーション適用済みのモデルを取得
-        var dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        var renderer = dispatcher.getRenderer(player);
-        if (renderer instanceof PlayerRenderer playerRenderer) {
-            PlayerModel<AbstractClientPlayer> model = playerRenderer.getModel();
+    public static void applyFirstPersonAnimation(AbstractClientPlayer player, PoseStack poseStack, float partialTicks) {
+        // 現在のところ一人称描画のアニメーション同期は保留し、バニラの通常のアイテムスイングを利用します。
+        // （詳細は FIRST_PERSON_ANIMATION_NOTES.md を参照）
+        /*
+        if (!Minecraft.getInstance().options.getCameraType().isFirstPerson()) return;
 
-            // 利き腕に応じて、三人称モデルの腕の回転を一人称の PoseStack に適用
-            // Player Animatorは model.rightArm などの ModelPart を直接回転させている
-            net.minecraft.client.model.geom.ModelPart arm = (player
-                    .getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT)
-                            ? model.rightArm
-                            : model.leftArm;
+        com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TrailSession session = 
+                com.zoma1101.swordskill.client.renderer.layer.SwordTrailManager.getSession(player.getUUID());
 
-            // 回転を適用 (Minecraft標準の X -> Y -> Z 順)
-            if (arm.xRot != 0)
-                poseStack.mulPose(new Quaternionf().rotationX(arm.xRot));
-            if (arm.yRot != 0)
-                poseStack.mulPose(new Quaternionf().rotationY(arm.yRot));
-            if (arm.zRot != 0)
-                poseStack.mulPose(new Quaternionf().rotationZ(arm.zRot));
+        if (session != null && session.isActiveAnimation()) {
+            float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
+            if (t > session.animationLength) return;
 
-            // ボーン自体の移動オフセット(1/16)を適用
-            poseStack.translate(arm.x / 16.0f, arm.y / 16.0f, arm.z / 16.0f);
+            // アニメーションデータの取得
+            org.joml.Vector3f bodyRotDeg = session.bodyRotTrack != null ? session.bodyRotTrack.evaluate(t) : new org.joml.Vector3f();
+            org.joml.Vector3f bodyPosPx = session.bodyPosTrack != null ? session.bodyPosTrack.evaluate(t) : new org.joml.Vector3f();
+            org.joml.Vector3f armRotDeg = session.armRotTrack != null ? session.armRotTrack.evaluate(t) : new org.joml.Vector3f();
+            org.joml.Vector3f armPosPx = session.armPosTrack != null ? session.armPosTrack.evaluate(t) : new org.joml.Vector3f();
+            org.joml.Vector3f itemRotDeg = session.itemRotTrack != null ? session.itemRotTrack.evaluate(t) : new org.joml.Vector3f();
+            org.joml.Vector3f itemPosPx = session.itemPosTrack != null ? session.itemPosTrack.evaluate(t) : new org.joml.Vector3f();
+
+            // --- 座標変換の適用 ---
+            poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(armRotDeg.x));
+            poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(armRotDeg.y));
+            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(armRotDeg.z));
+
+            poseStack.translate(itemPosPx.x / 16f, itemPosPx.y / 16f, itemPosPx.z / 16f);
+
+            poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(itemRotDeg.x));
+            poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(itemRotDeg.y));
+            poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(itemRotDeg.z));
         }
+        */
     }
+
 
     public static class AnimationRegister {
         public static void AnimationSetup() {
-            // Set the player construct callback. It can be a lambda function.
             PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(
-                    fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"),
+                    ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"),
                     42,
                     AnimationRegister::registerPlayerAnimation);
         }

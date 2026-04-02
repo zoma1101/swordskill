@@ -183,14 +183,40 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
+        if (event.getAction() != org.lwjgl.glfw.GLFW.GLFW_PRESS) return;
+
         String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
         if (weaponName != null && !weaponName.equals("None")) {
             if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown()) {
                 Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
             } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
                 Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
+            } else if (Keybindings.INSTANCE.SwordSkill_Wheel_Key.isDown()) {
+                if (!(Minecraft.getInstance().screen instanceof com.zoma1101.swordskill.client.gui.SkillWheelScreen)) {
+                    Minecraft.getInstance().setScreen(new com.zoma1101.swordskill.client.gui.SkillWheelScreen());
+                }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onClientCommandRegister(net.minecraftforge.client.event.RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(
+                net.minecraft.commands.Commands.literal("testtrailtex")
+                        .then(net.minecraft.commands.Commands.argument("texture", com.mojang.brigadier.arguments.StringArgumentType.string())
+                                .executes(context -> {
+                                    String tex = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "texture");
+                                    com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = 
+                                            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("swordskill", "textures/entity/" + tex + ".png");
+                                    context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture set to: textures/entity/" + tex + ".png"));
+                                    return 1;
+                                }))
+                        .executes(context -> {
+                            com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = null;
+                            context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture reset to default."));
+                            return 1;
+                        })
+        );
     }
 
     public static float getCooldownRatio(int slotIndex) {

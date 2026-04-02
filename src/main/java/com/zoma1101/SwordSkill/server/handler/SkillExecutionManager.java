@@ -72,11 +72,11 @@ public class SkillExecutionManager {
     }
 
     // SkillExecutionData クラスの定義
-    private static class SkillExecutionData {
-        int skillId;
-        int startTick;
-        int finalTick;
-        int initialSlot; // ★追加
+    public static class SkillExecutionData {
+        public int skillId;
+        public int startTick;
+        public int finalTick;
+        public int initialSlot; // ★追加
 
         public SkillExecutionData(int skillId, int startTick, int finalTick, int initialSlot) {
             this.skillId = skillId;

@@ -225,5 +225,12 @@
 
   "item.swordskill.unlock_item": "スキルオーブ",
 
-  "effect.swordskill.no_fall_damage": "落下ダメージ無効状態"
+  "effect.swordskill.no_fall_damage": "落下ダメージ無効状態",
+ 
+  "enchantment.swordskill.enma_jin": "炎刃",
+  "enchantment.swordskill.suijin": "水刃",
+  "enchantment.swordskill.fujin": "風刃",
+  "enchantment.swordskill.ko_jin": "光刃",
+  "enchantment.swordskill.an_jin": "闇刃",
+  "enchantment.swordskill.kon_jin": "魂刃"
 }

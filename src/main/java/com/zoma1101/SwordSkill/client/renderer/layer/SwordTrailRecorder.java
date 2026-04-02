@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import org.joml.Quaternionf;
 
 public class SwordTrailRecorder {
-    public static void record(Player player, PoseStack poseStack) {
+    public static void record(Player player, PoseStack poseStack, boolean isLeft) {
         Minecraft mc = Minecraft.getInstance();
         Camera camera = mc.gameRenderer.getMainCamera();
         SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
@@ -18,10 +18,10 @@ public class SwordTrailRecorder {
         double camZ = camera.getPosition().z;
         Quaternionf camRot = camera.rotation();
 
-        SwordTrailLayer.capturePoint(poseStack, session, camX, camY, camZ, camRot);
+        SwordTrailLayer.capturePoint(poseStack, session, camX, camY, camZ, camRot, isLeft);
     }
 
-    public static void record(net.minecraft.world.entity.Entity entity, PoseStack poseStack) {
+    public static void record(net.minecraft.world.entity.Entity entity, PoseStack poseStack, boolean isLeft) {
         Minecraft mc = Minecraft.getInstance();
         Camera camera = mc.gameRenderer.getMainCamera();
         SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(entity.getUUID());
@@ -32,6 +32,6 @@ public class SwordTrailRecorder {
         double camZ = camera.getPosition().z;
         Quaternionf camRot = camera.rotation();
 
-        SwordTrailLayer.capturePoint(poseStack, session, camX, camY, camZ, camRot);
+        SwordTrailLayer.capturePoint(poseStack, session, camX, camY, camZ, camRot, isLeft);
     }
 }

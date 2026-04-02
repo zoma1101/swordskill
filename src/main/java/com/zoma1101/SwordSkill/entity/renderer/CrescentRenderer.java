@@ -37,13 +37,14 @@ public class CrescentRenderer {
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
 
-        // 発光エミッシブ → 2倍ブライト
-        r = Math.min(r * 2.0f, 1.0f);
-        g = Math.min(g * 2.0f, 1.0f);
-        b = Math.min(b * 2.0f, 1.0f);
+        // トレイルと同じ鮮やかな色味にするためオーバーフローを許可
+        r = r * 2.0f;
+        g = g * 2.0f;
+        b = b * 2.0f;
 
+        // 深度書き込みなしのRenderTypeを使用
         VertexConsumer consumer = bufferSource.getBuffer(
-                RenderType.entityTranslucentEmissive(WHITE));
+                RenderType.entityNoOutline(WHITE));
 
         Matrix4f mat = poseStack.last().pose();
 

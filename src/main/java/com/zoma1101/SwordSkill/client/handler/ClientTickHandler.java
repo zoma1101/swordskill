@@ -64,8 +64,15 @@ public class ClientTickHandler {
         }
     }
 
-    public static int getSelectedSlot() { // 追加
+    public static int getSelectedSlot() {
         return selectedSlot;
+    }
+
+    public static void setSelectedSlot(int slot) {
+        if (slot >= 0 && slot <= 4) {
+            selectedSlot = slot;
+            SetSlotSkill();
+        }
     }
 
     public static void SetSlotSkill(){

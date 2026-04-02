@@ -17,7 +17,7 @@ public class Thrusts extends BaseSkill {
         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(3)); // 目の前2ブロック
         double damage = BaseDamage(player)*3f;
         double knockbackForce = BaseKnowBack(player)*0.7;
-        Vector3f size = new Vector3f(0.35f, 0.35f, 7f);
+        Vector3f size = new Vector3f(1.5f, 1.5f, 7f);
         int duration = 12;
         Vec3 Rotation = new Vec3(0,0,30);
         String skill_particle = Spia_Particle();
@@ -25,6 +25,8 @@ public class Thrusts extends BaseSkill {
         
         java.util.List<SkillTag> tags = new java.util.ArrayList<>();
         tags.add(SkillTag.TRAIL);
+        tags.add(SkillTag.RAY);
+        tags.add(SkillTag.SHAPE_THRUST);
         
         SkillUtils.spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, skill_particle, 
                 tags, SwordSkillRegistry.SKILLS.get(SkillID).getTrailColor(), Vec3.ZERO, false);

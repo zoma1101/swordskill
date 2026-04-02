@@ -1,5 +1,8 @@
 package com.zoma1101.swordskill.client.renderer.layer;
 
+import com.zoma1101.swordskill.SwordSkill;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,8 +47,60 @@ public class SwordTrailManager {
             session.pointCount = data.getTrailPointCount();
             session.animationName = data.getName();
             session.animationLength = data.getFinalTick() + 30;
-            session.lastOrigin = null; // スラスト・ブースト用の原点をリセット
             session.active = true;
+
+            // 現在の装備状態を詳しくチェック
+            net.minecraft.client.player.LocalPlayer clientPlayer = net.minecraft.client.Minecraft.getInstance().player;
+            net.minecraft.world.entity.player.Player targetPlayer = null;
+            if (clientPlayer != null && clientPlayer.getUUID().equals(playerUUID)) {
+                targetPlayer = clientPlayer;
+            } else if (net.minecraft.client.Minecraft.getInstance().level != null) {
+                targetPlayer = net.minecraft.client.Minecraft.getInstance().level.getPlayerByUUID(playerUUID);
+            }
+
+            if (targetPlayer != null) {
+                net.minecraft.world.item.ItemStack mainStack = targetPlayer.getMainHandItem();
+                net.minecraft.world.item.ItemStack offStack = targetPlayer.getOffhandItem();
+                
+                // 属性エンチャントによるトレイル色のオーバーライド
+                int fireLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.ENMA_JIN.get());
+                int waterLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.SUI_JIN.get());
+                int windLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.FU_JIN.get());
+                int holyLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.KO_JIN.get());
+                int darkLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.AN_JIN.get());
+                int soulLevel = mainStack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.KON_JIN.get());
+
+                if (fireLevel > 0) session.color = 0xFFFE210C;
+                else if (waterLevel > 0) session.color = 0xFF0690F8;
+                else if (windLevel > 0) session.color = 0xFF27D480;
+                else if (holyLevel > 0) session.color = 0xFFFFD700;
+                else if (darkLevel > 0) session.color = 0xFF1A1A1A;
+                else if (soulLevel > 0) session.color = 0xFF27D4C6;
+
+                // 属性エンチャントがある場合はテクスチャを enchant_trail に変更
+                if (fireLevel > 0 || waterLevel > 0 || windLevel > 0 || holyLevel > 0 || darkLevel > 0 || soulLevel > 0) {
+                    session.texture = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/entity/enchant_trail.png");
+                }
+
+                java.util.Set<com.zoma1101.swordskill.swordskills.SkillData.WeaponType> mainTypes = 
+                    com.zoma1101.swordskill.data.WeaponTypeDetector.detectWeaponTypes(mainStack);
+                com.zoma1101.swordskill.data.WeaponTypeDetector.detectWeaponTypes(offStack);
+
+                // 爪武器の追加トレイルフラグ判定
+                session.isClaw = mainTypes.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.CLAW);
+
+                boolean isMainWeapon = isWeapon(mainStack);
+                boolean isOffWeapon = isWeapon(offStack);
+
+                String mainItemName = mainStack.getDescriptionId();
+                boolean hasDualItem = mainItemName.contains("dual") || mainItemName.contains("twin");
+                
+                // 二刀流判定: 厳格に現在の装備のみを基準にする
+                session.isDual = (isMainWeapon && isOffWeapon) || hasDualItem;
+            } else {
+                session.isClaw = false;
+                session.isDual = false;
+            }
 
             // player_animation/<animationName>.json を読み込んでトラックを差し替える。
             // キャッシュ済みであれば再読み込みしない。
@@ -60,8 +115,33 @@ public class SwordTrailManager {
                 session.itemPosTrack = animData.itemPosTrack();
                 session.trailTrack = animData.trailTrack();
                 session.trailRotTrack = animData.trailRotTrack();
-                // JSONのanimation_lengthを優先したい場合は下記のコメントを外す
-                // session.animationLength = animData.animationLength;
+                session.trailScaleTrack = animData.trailScaleTrack();
+
+                // 二刀流時は左手用のアニメーショントラックを設定
+                if (session.isDual) {
+                    // GeckoLibのJSONに left_arm / leftItem ボーンが含まれているか確認
+                    if (!animData.leftArmRotTrack().isEmpty() || !animData.leftItemRotTrack().isEmpty()) {
+                        session.leftArmRotTrack = animData.leftArmRotTrack();
+                        session.leftArmPosTrack = animData.leftArmPosTrack();
+                        session.leftItemRotTrack = animData.leftItemRotTrack();
+                        session.leftItemPosTrack = animData.leftItemPosTrack();
+                    } else {
+                        // 含まれていない場合は右腕用を左右反転させて代用 (fallback)
+                        AnimationKeyframeTrack.AnimationData leftData = animData.getMirrored();
+                        session.leftArmRotTrack = leftData.armRotTrack();
+                        session.leftArmPosTrack = leftData.armPosTrack();
+                        session.leftItemRotTrack = leftData.itemRotTrack();
+                        session.leftItemPosTrack = leftData.itemPosTrack();
+                    }
+                } else {
+                    session.leftArmRotTrack = null;
+                    session.leftArmPosTrack = null;
+                    session.leftItemRotTrack = null;
+                    session.leftItemPosTrack = null;
+                }
+
+                // JSONのanimation_lengthを優先（秒単位をチック単位に変換）
+                session.animationLength = animData.animationLength() * 20.0f;
             } else {
                 // アニメーションデータが見つからない場合はトラックをリセット
                 session.armRotTrack = null;
@@ -72,6 +152,12 @@ public class SwordTrailManager {
                 session.itemPosTrack = null;
                 session.trailTrack = null;
                 session.trailRotTrack = null;
+                session.trailScaleTrack = null;
+                
+                session.leftArmRotTrack = null;
+                session.leftArmPosTrack = null;
+                session.leftItemRotTrack = null;
+                session.leftItemPosTrack = null;
             }
 
             // スキル発動時刻を記録（captureFirstPersonFromKeyframe が参照する）
@@ -91,5 +177,13 @@ public class SwordTrailManager {
         AnimationKeyframeTrack.AnimationData loaded = AnimationKeyframeTrack.AnimationData.load(animationName);
         ANIM_CACHE.put(animationName, loaded);
         return loaded;
+    }
+    private static boolean isWeapon(net.minecraft.world.item.ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        java.util.Set<com.zoma1101.swordskill.swordskills.SkillData.WeaponType> types = 
+            com.zoma1101.swordskill.data.WeaponTypeDetector.detectWeaponTypes(stack);
+        return types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.ONE_HANDED_SWORD) || 
+               types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.TWO_HANDED_SWORD) || 
+               types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.CLAW);
     }
 }

@@ -21,6 +21,32 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
     public static final net.minecraft.resources.ResourceLocation DEFAULT_TEXTURE = net.minecraft.resources.ResourceLocation
             .fromNamespaceAndPath("swordskill", "textures/entity/simple_2.png");
 
+    public static net.minecraft.resources.ResourceLocation TEST_TEXTURE = null;
+
+    private static final ThreadLocal<Scratch> SCRATCH = ThreadLocal.withInitial(Scratch::new);
+
+    private static class Scratch {
+        final Vector3f v1 = new Vector3f();
+        final Vector3f v2 = new Vector3f();
+        final Vector3f v3 = new Vector3f();
+        final Vector3f v4 = new Vector3f();
+        final Vector3f v5 = new Vector3f();
+        final Vector3f v6 = new Vector3f();
+        final Vector3f v7 = new Vector3f();
+        final Vector3f v8 = new Vector3f();
+        final Vector3f v9 = new Vector3f();
+        final Vector3f v10 = new Vector3f();
+        final Vector3f v11 = new Vector3f();
+        final Vector3f v12 = new Vector3f();
+        final Vector3f res1 = new Vector3f();
+        final Vector3f res2 = new Vector3f();
+        final Vector3f res3 = new Vector3f();
+        final Vector3f res4 = new Vector3f();
+        final Vector4f v4f = new Vector4f();
+        final Matrix4f mat = new Matrix4f();
+        final org.joml.Quaternionf quat = new org.joml.Quaternionf();
+    }
+
     public SwordTrailLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
         super(parent);
     }
@@ -41,7 +67,6 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
             SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
             
-            // アニメーションの状態を常に更新（activeがtrueの間）
             updateVisibilityFromAnimation(session);
 
             if (!session.active) {
@@ -49,12 +74,10 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                 return;
             }
 
-            // 三人称視点の記録処理
-            // バニラのスイング中、またはカスタムアニメーションの再生時間内であれば記録を継続
             long elapsedMs = System.currentTimeMillis() - session.animStartMs;
             boolean animationRunning = session.animStartMs >= 0 && (elapsedMs < session.animationLength * 50L);
 
-            if (player.getAttackAnim(0) > 0 || animationRunning) {
+            if (animationRunning) {
                 net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
                 if (player.getUUID().equals(Objects.requireNonNull(mc.player).getUUID())
                         && mc.options.getCameraType().isFirstPerson()) {
@@ -66,85 +89,129 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                     return;
                 }
 
-                poseStack.pushPose();
                 PlayerModel<AbstractClientPlayer> model = this.getParentModel();
 
-                // ボディの回転・移動を適用（屈みやアニメーションによる位置ズレを解消）
+                poseStack.pushPose();
                 model.body.translateAndRotate(poseStack);
-
                 if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) {
                     model.rightArm.translateAndRotate(poseStack);
                 } else {
                     model.leftArm.translateAndRotate(poseStack);
                 }
-
-                // 三人称視点でも rightItem のアニメーション情報を適用する
-                if (session.animStartMs >= 0) {
-                    float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
-                    if (t <= session.animationLength) {
-                        org.joml.Vector3f itemRotDeg = session.itemRotTrack != null ? session.itemRotTrack.evaluate(t)
-                                : new org.joml.Vector3f();
-                        org.joml.Vector3f itemPosPx = session.itemPosTrack != null ? session.itemPosTrack.evaluate(t)
-                                : new org.joml.Vector3f();
-
-                        // 1. 腕の付け根（肩）から先端（手）の位置付近へ移動 (約12ピクセル = 0.75ブロック)
-                        poseStack.translate(0f, 0.7f, 0.0625f);
-
-                        // 2. アニメーションの位置オフセットを適用
-                        poseStack.translate(itemPosPx.x / 16f, itemPosPx.y / 16f, itemPosPx.z / 16f);
-
-                        // 3. アニメーションの回転を適用
-                        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-itemRotDeg.x - 90));
-                        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-itemRotDeg.y));
-                        poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(itemRotDeg.z));
-
-                        // 4. トレイル生成の基準点(trailBaseOffset)を考慮して座標を戻す
-                        poseStack.translate(0f, -session.trailBaseOffset, 0f);
-                    }
-                }
-
-                SwordTrailRecorder.record(player, poseStack);
+                applyItemAnimation(poseStack, session, false);
+                SwordTrailRecorder.record(player, poseStack, false);
                 poseStack.popPose();
+
+                if (session.isDual) {
+                    poseStack.pushPose();
+                    model.body.translateAndRotate(poseStack);
+                    if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) {
+                        model.leftArm.translateAndRotate(poseStack);
+                    } else {
+                        model.rightArm.translateAndRotate(poseStack);
+                    }
+                    applyItemAnimation(poseStack, session, true);
+                    SwordTrailRecorder.record(player, poseStack, true);
+                    poseStack.popPose();
+                }
             } else {
                 session.filterOldPoints();
             }
         });
     }
 
-    /**
-     * 指定されたポーズスタックの状態からトレイルのポイントを生成・キャプチャします。
-     */
+    private static void applyItemAnimation(PoseStack poseStack, TrailSession session, boolean isLeft) {
+        if (session.animStartMs >= 0) {
+            float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
+            if (t <= session.animationLength / 20.0f) {
+                AnimationKeyframeTrack rotTrack = isLeft ? session.leftItemRotTrack : session.itemRotTrack;
+                AnimationKeyframeTrack posTrack = isLeft ? session.leftItemPosTrack : session.itemPosTrack;
+                
+                Scratch s = SCRATCH.get();
+                Vector3f itemRotDeg = s.v5.set(0);
+                if (rotTrack != null) rotTrack.evaluate(t, itemRotDeg);
+                Vector3f itemPosPx = s.v6.set(0);
+                if (posTrack != null) posTrack.evaluate(t, itemPosPx);
+
+                poseStack.translate(0f, 0.7f, 0.0625f);
+                poseStack.translate(itemPosPx.x / 16f, itemPosPx.y / 16f, itemPosPx.z / 16f);
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-itemRotDeg.x - 90));
+                poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-itemRotDeg.y));
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(itemRotDeg.z));
+                poseStack.translate(0f, -session.trailBaseOffset, 0f);
+            }
+        }
+    }
+
     public static void capturePoint(PoseStack poseStack, TrailSession session, double camX, double camY, double camZ,
-            org.joml.Quaternionf camRot) {
+            org.joml.Quaternionf camRot, boolean isLeft) {
         Matrix4f matrix = poseStack.last().pose();
         int count = session.pointCount;
         Vector3f[] worldPositions = new Vector3f[count];
+        Vector3f[] positionsLeft = null;
+        Vector3f[] positionsRight = null;
+        if (session.isClaw) {
+            positionsLeft = new Vector3f[count];
+            positionsRight = new Vector3f[count];
+        }
 
+        Scratch s = SCRATCH.get();
         for (int i = 0; i < count; i++) {
-            Vector3f localPos = new Vector3f(session.getLocalPoint(i));
-            
-            // スケール適用
+            Vector3f localPos = s.v1.set(session.getLocalPoint(i));
+
+            if (session.trailScaleTrack != null && !session.trailScaleTrack.isEmpty()) {
+                // trail.rotationトラックを本来の「回転」として処理する。
+                // ただし古い作品（trailScaleTrackが無い時）は回転がスケールに化ける仕様だったので回転させない
+                if (session.trailRotTrack != null && !session.trailRotTrack.isEmpty()) {
+                    float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
+                    Vector3f trRot = session.trailRotTrack.evaluate(t, s.res1);
+                    localPos.rotateZ((float) Math.toRadians(trRot.z));
+                    localPos.rotateY((float) Math.toRadians(trRot.y));
+                    localPos.rotateX((float) Math.toRadians(trRot.x));
+                }
+            }
+
             localPos.x *= session.curWidthScaleX;
             localPos.z *= session.curWidthScaleZ;
             float totalLen = session.trailTipOffset - session.trailBaseOffset;
             float progress = (float)i / (count - 1);
             localPos.y = session.trailBaseOffset + (totalLen * progress * session.curLengthScale);
 
-            Vector4f view4 = matrix.transform(new Vector4f(localPos.x, localPos.y, localPos.z, 1.0f));
-            Vector3f view3 = new Vector3f(view4.x(), view4.y(), view4.z());
+            if (session.isClaw) {
+                Vector3f locL = s.v2.set(localPos.x + session.clawOffset, localPos.y, localPos.z);
+                Vector3f locR = s.v3.set(localPos.x - session.clawOffset, localPos.y, localPos.z);
 
-            // カメラの回転を適用して、ビュー空間から世界相対空間（カメラからの向き）へ変換
-            org.joml.Quaternionf rot = new org.joml.Quaternionf(camRot);
-            rot.transform(view3);
+                Vector4f view4L = matrix.transform(s.v4f.set(locL.x, locL.y, locL.z, 1.0f));
+                Vector3f view3L = s.v2.set(view4L.x(), view4L.y(), view4L.z());
+                s.quat.set(camRot).transform(view3L);
+                positionsLeft[i] = new Vector3f((float) (view3L.x + camX), (float) (view3L.y + camY), (float) (view3L.z + camZ));
 
-            // カメラの絶対座標を足して世界絶対座標にする
+                Vector4f view4R = matrix.transform(s.v4f.set(locR.x, locR.y, locR.z, 1.0f));
+                Vector3f view3R = s.v3.set(view4R.x(), view4R.y(), view4R.z());
+                s.quat.set(camRot).transform(view3R);
+                positionsRight[i] = new Vector3f((float) (view3R.x + camX), (float) (view3R.y + camY), (float) (view3R.z + camZ));
+            }
+
+            Vector4f view4 = matrix.transform(s.v4f.set(localPos.x, localPos.y, localPos.z, 1.0f));
+            Vector3f view3 = s.v1.set(view4.x(), view4.y(), view4.z());
+
+            s.quat.set(camRot).transform(view3);
+
             worldPositions[i] = new Vector3f((float) (view3.x + camX), (float) (view3.y + camY),
                     (float) (view3.z + camZ));
         }
 
         TrailPoint newPoint = new TrailPoint(worldPositions, new Vector3f((float) camX, (float) camY, (float) camZ),
                 new org.joml.Quaternionf(camRot));
-        session.addPoint(newPoint);
+        if (session.isClaw) {
+            newPoint.positionsLeft = positionsLeft;
+            newPoint.positionsRight = positionsRight;
+        }
+        if (isLeft) {
+            session.addLeftPoint(newPoint);
+        } else {
+            session.addPoint(newPoint);
+        }
     }
 
     public static void captureFirstPersonFromKeyframe(TrailSession session,
@@ -157,23 +224,13 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             return;
 
         float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
-        if (t > session.animationLength)
+        if (t > session.animationLength / 20.0f)
             return;
 
-        // アニメーションのキーフレームに従って visibility を更新
         updateVisibilityFromAnimation(session);
 
         if (!session.visibility)
             return;
-
-        Vector3f armRotDeg = session.armRotTrack != null ? session.armRotTrack.evaluate(t) : new Vector3f();
-        Vector3f armPosPx = session.armPosTrack != null ? session.armPosTrack.evaluate(t) : new Vector3f();
-        Vector3f bodyRotDeg = session.bodyRotTrack != null ? session.bodyRotTrack.evaluate(t) : new Vector3f();
-        Vector3f bodyPosPx = session.bodyPosTrack != null ? session.bodyPosTrack.evaluate(t) : new Vector3f();
-        Vector3f itemRotDeg = session.itemRotTrack != null ? session.itemRotTrack.evaluate(t) : new Vector3f();
-        Vector3f itemPosPx = session.itemPosTrack != null ? session.itemPosTrack.evaluate(t) : new Vector3f();
-
-        Matrix4f matrix = getMatrix4f(bodyRotDeg, bodyPosPx, armRotDeg, armPosPx, itemRotDeg, itemPosPx);
 
         float yawRad = (float) Math.toRadians(playerYaw);
         float cos = (float) Math.cos(yawRad);
@@ -186,24 +243,60 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         float cz = (float) org.joml.Math.lerp(player.zOld, player.getZ(),
                 net.minecraft.client.Minecraft.getInstance().getPartialTick());
 
+        captureFirstPersonPoint(session, player, yawRad, cos, sin, cx, cy, cz, t, false);
+        
+        if (session.isDual) {
+            captureFirstPersonPoint(session, player, yawRad, cos, sin, cx, cy, cz, t, true);
+        }
+    }
+
+    private static void captureFirstPersonPoint(TrailSession session,
+            net.minecraft.world.entity.player.Player player,
+            float yawRad, float cos, float sin, float cx, float cy, float cz,
+            float t, boolean isLeft) {
+        
+        AnimationKeyframeTrack armRotTrack = isLeft ? session.leftArmRotTrack : session.armRotTrack;
+        AnimationKeyframeTrack armPosTrack = isLeft ? session.leftArmPosTrack : session.armPosTrack;
+        AnimationKeyframeTrack itemRotTrack = isLeft ? session.leftItemRotTrack : session.itemRotTrack;
+        AnimationKeyframeTrack itemPosTrack = isLeft ? session.leftItemPosTrack : session.itemPosTrack;
+        
+        Scratch s = SCRATCH.get();
+        Vector3f armRotDeg = s.v1.set(0);
+        if (armRotTrack != null) armRotTrack.evaluate(t, armRotDeg);
+        Vector3f armPosPx = s.v2.set(0);
+        if (armPosTrack != null) armPosTrack.evaluate(t, armPosPx);
+        Vector3f bodyRotDeg = s.v3.set(0);
+        if (session.bodyRotTrack != null) session.bodyRotTrack.evaluate(t, bodyRotDeg);
+        Vector3f bodyPosPx = s.v4.set(0);
+        if (session.bodyPosTrack != null) session.bodyPosTrack.evaluate(t, bodyPosPx);
+        Vector3f itemRotDeg = s.v5.set(0);
+        if (itemRotTrack != null) itemRotTrack.evaluate(t, itemRotDeg);
+        Vector3f itemPosPx = s.v6.set(0);
+        if (itemPosTrack != null) itemPosTrack.evaluate(t, itemPosPx);
+
+        Matrix4f matrix = s.mat.identity();
+        getMatrix4f(bodyRotDeg, bodyPosPx, armRotDeg, armPosPx, itemRotDeg, itemPosPx, isLeft, matrix);
+
         int count = session.pointCount;
         Vector3f[] worldPositions = new Vector3f[count];
-
-        // --- 刺突（スラスト）強化ロジック ---
-        Vector3f currentOrigin = new Vector3f(0, 0, 0);
-        matrix.transformPosition(currentOrigin);
-
-        float thrustOffset = 0f;
-        if (session.lastOrigin != null) {
-            Vector3f velocity = new Vector3f(currentOrigin).sub(session.lastOrigin);
-            if (velocity.z < -0.01f) {
-                thrustOffset = -velocity.z * 1.5f;
-            }
+        Vector3f[] positionsLeft = null;
+        Vector3f[] positionsRight = null;
+        if (session.isClaw) {
+            positionsLeft = new Vector3f[count];
+            positionsRight = new Vector3f[count];
         }
-        session.lastOrigin = currentOrigin;
 
         for (int i = 0; i < count; i++) {
-            Vector3f local = new Vector3f(session.getLocalPoint(i));
+            Vector3f local = s.v1.set(session.getLocalPoint(i));
+
+            if (session.trailScaleTrack != null && !session.trailScaleTrack.isEmpty()) {
+                if (session.trailRotTrack != null && !session.trailRotTrack.isEmpty()) {
+                    Vector3f trRot = session.trailRotTrack.evaluate(t, s.res1);
+                    local.rotateZ((float) Math.toRadians(trRot.z));
+                    local.rotateY((float) Math.toRadians(trRot.y));
+                    local.rotateX((float) Math.toRadians(trRot.x));
+                }
+            }
 
             local.rotateX((float) Math.toRadians(-25));
 
@@ -211,24 +304,43 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             local.x = local.x * session.trailLengthScale * session.curWidthScaleX;
             local.z = local.z * session.trailLengthScale * session.curWidthScaleZ;
 
-            local.z -= thrustOffset;
+            if (session.isClaw) {
+                Vector3f locL = s.v2.set(local.x + session.clawOffset, local.y, local.z);
+                Vector3f locR = s.v3.set(local.x - session.clawOffset, local.y, local.z);
+                matrix.transformPosition(locL);
+                float wxL = cos * locL.x + sin * locL.z;
+                float wzL = sin * locL.x - cos * locL.z;
+                positionsLeft[i] = new Vector3f(cx + wxL, cy + locL.y, cz + wzL);
+
+                matrix.transformPosition(locR);
+                float wxR = cos * locR.x + sin * locR.z;
+                float wzR = sin * locR.x - cos * locR.z;
+                positionsRight[i] = new Vector3f(cx + wxR, cy + locR.y, cz + wzR);
+            }
 
             matrix.transformPosition(local);
-
             float wx = cos * local.x + sin * local.z;
             float wz = sin * local.x - cos * local.z;
-
             worldPositions[i] = new Vector3f(cx + wx, cy + local.y, cz + wz);
         }
 
         TrailPoint newPoint = new TrailPoint(worldPositions, new org.joml.Vector3f(cx, cy, cz),
                 new org.joml.Quaternionf().rotationY(-yawRad));
-        session.addPoint(newPoint);
+        if (session.isClaw) {
+            newPoint.positionsLeft = positionsLeft;
+            newPoint.positionsRight = positionsRight;
+        }
+        if (isLeft) {
+            session.addLeftPoint(newPoint);
+        } else {
+            session.addPoint(newPoint);
+        }
     }
 
-    private static @NotNull Matrix4f getMatrix4f(Vector3f bodyRotDeg, Vector3f bodyPosPx, Vector3f armRotDeg,
-            Vector3f armPosPx, Vector3f itemRotDeg, Vector3f itemPosPx) {
-        Matrix4f matrix = new Matrix4f();
+
+    public static void getMatrix4f(Vector3f bodyRotDeg, Vector3f bodyPosPx, Vector3f armRotDeg,
+            Vector3f armPosPx, Vector3f itemRotDeg, Vector3f itemPosPx, boolean isLeft, Matrix4f matrix) {
+        matrix.identity();
         // ボディ変換 (body)
         matrix.translate(0f, -0.75f, 0f); // ボディの中心
         matrix.rotateY((float) Math.toRadians(bodyRotDeg.y));
@@ -236,57 +348,97 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         matrix.rotateZ((float) Math.toRadians(bodyRotDeg.z));
         matrix.translate(bodyPosPx.x / 16f, bodyPosPx.y / 16f, bodyPosPx.z / 16f);
 
-        // 腕変換 (right_arm)
-        matrix.translate(0f, 0.625f, 0f); // 腕の付け根
+        // 腕変換 (right_arm / left_arm)
+        float shoulderX = isLeft ? 0.3125f : -0.3125f;
+        matrix.translate(shoulderX, 0.625f, 0f); // 腕の付け根
         matrix.rotateZ((float) Math.toRadians(armRotDeg.z));
         matrix.rotateY((float) Math.toRadians(armRotDeg.y));
         matrix.rotateX((float) Math.toRadians(armRotDeg.x));
         matrix.translate(armPosPx.x / 16f, armPosPx.y / 16f, armPosPx.z / 16f);
 
-        // 手のひら・アイテム変換 (rightItem)
+        // 手のひら・アイテム変換 (rightItem / leftItem)
         matrix.translate(0f, -0.5625f, 0.0625f); // 腕の先（手）
         matrix.translate(itemPosPx.x / 16f, itemPosPx.y / 16f, itemPosPx.z / 16f);
         matrix.rotateX((float) Math.toRadians(-itemRotDeg.x - 90));
         matrix.rotateY((float) Math.toRadians(-itemRotDeg.y));
         matrix.rotateZ((float) Math.toRadians(itemRotDeg.z));
-
-        return matrix;
     }
 
     public static void renderTrail(PoseStack poseStack, MultiBufferSource bufferSource, TrailSession session) {
         if (session.points.size() < 4)
             return;
 
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(session.texture));
+        // 突きモーション時は一人称視点のトレイルを非表示にする (ビーム判定を見やすくするため)
+        if (session.isFirstPerson && session.animationName != null) {
+            String anim = session.animationName.toLowerCase();
+            boolean isThrust = anim.contains("thrust") || anim.contains("strike") || 
+                               anim.contains("spike") || anim.contains("linear") || 
+                               anim.contains("sting") || anim.contains("pain") || 
+                               anim.contains("cruci") || anim.contains("splash") || 
+                               anim.contains("tier") || anim.contains("rosario") || 
+                               anim.contains("shooting") || anim.contains("penetrator");
+            if (isThrust) {
+                float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
+                boolean isSweeping = false;
+                
+                if (anim.equals("spark_thrust") && t > 1.0f) {
+                    isSweeping = true;
+                }
+                
+                if (!isSweeping) {
+                    return;
+                }
+            }
+        }
+
+        net.minecraft.resources.ResourceLocation tex = TEST_TEXTURE != null ? TEST_TEXTURE : session.texture;
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(tex));
         poseStack.pushPose();
         poseStack.last().pose().identity();
         Matrix4f worldViewMatrix = poseStack.last().pose();
 
-        for (int i = 0; i < session.points.size() - 1; i++) {
-            TrailPoint p1 = session.points.get(i);
-            TrailPoint p2 = session.points.get(i + 1);
-
-            // 新しいセグメントの開始点（OFF -> ON 切り替え）の場合は前の点とつながない
-            if (p2.isNewSegment)
-                continue;
-
-            float alphaIdx = (float) i / (session.points.size() - 1);
-            float nextAlphaIdx = (float) (i + 1) / (session.points.size() - 1);
-
-            // ポイント数（セグメント数）に応じて接続面を描画
-            for (int j = 0; j < session.pointCount - 1; j++) {
-                // 外側のオーラ（薄め）
-                drawSegmentQuad(consumer, worldViewMatrix, p1, p2, j, alphaIdx, nextAlphaIdx, session.color, 1.2f,
-                        0.4f, session.isFirstPerson);
-                // 内側の芯（濃いめ）
-                drawSegmentQuad(consumer, worldViewMatrix, p1, p2, j, alphaIdx, nextAlphaIdx, session.color, 1.0f,
-                        1.0f, session.isFirstPerson);
-            }
+        // 右手側のトレイル描画
+        renderPointList(consumer, worldViewMatrix, session, session.points);
+        
+        if (session.isDual && !session.leftPoints.isEmpty()) {
+            renderPointList(consumer, worldViewMatrix, session, session.leftPoints);
         }
+
         poseStack.popPose();
     }
 
+    private static void renderPointList(VertexConsumer consumer, Matrix4f worldViewMatrix, TrailSession session, LinkedList<TrailPoint> pointList) {
+        if (pointList.size() < 2) return;
+
+        TrailPoint p1 = null;
+        int i = 0;
+        int size = pointList.size();
+        for (TrailPoint p2 : pointList) {
+            if (p1 != null && !p2.isNewSegment) {
+                float alphaIdx = (float) i / (size - 1);
+                float nextAlphaIdx = (float) (i + 1) / (size - 1);
+
+                for (int j = 0; j < session.pointCount - 1; j++) {
+                    drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positions, p2.positions, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                    drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positions, p2.positions, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
+
+                    if (p1.positionsLeft != null && p2.positionsLeft != null) {
+                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsLeft, p2.positionsLeft, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsLeft, p2.positionsLeft, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
+                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsRight, p2.positionsRight, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsRight, p2.positionsRight, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
+                    }
+                }
+                i++;
+            } else if (p1 != null) {
+                i++; // Only increment if we skipped due to isNewSegment but had a previous point
+            }
+            p1 = p2;
+        }
+    }
+
     private static void drawSegmentQuad(VertexConsumer consumer, Matrix4f matrix, TrailPoint p1, TrailPoint p2,
+            Vector3f[] pos1Array, Vector3f[] pos2Array,
             int segmentIdx, float alpha, float nextAlpha, int colorARGB, float widthScale, float alphaScale,
             boolean isFirstPerson) {
         float a = ((colorARGB >> 24) & 0xFF) / 255.0f;
@@ -297,19 +449,19 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         float alpha1 = a * (1.0f - alpha) * alphaScale;
         float alpha2 = a * (1.0f - nextAlpha) * alphaScale;
 
-        // Base を基準に widthScale 分だけ縮小（先端方向へのLerp）
-        Vector3f base1 = p1.positions[0];
-        Vector3f pos1_v1 = new Vector3f(base1).lerp(p1.positions[segmentIdx], widthScale);
-        Vector3f pos1_v2 = new Vector3f(base1).lerp(p1.positions[segmentIdx + 1], widthScale);
+        Scratch s = SCRATCH.get();
+        Vector3f base1 = pos1Array[0];
+        Vector3f pos1_v1 = s.v1.set(base1).lerp(pos1Array[segmentIdx], widthScale);
+        Vector3f pos1_v2 = s.v2.set(base1).lerp(pos1Array[segmentIdx + 1], widthScale);
 
-        Vector3f base2 = p2.positions[0];
-        Vector3f pos2_v3 = new Vector3f(base2).lerp(p2.positions[segmentIdx + 1], widthScale);
-        Vector3f pos2_v4 = new Vector3f(base2).lerp(p2.positions[segmentIdx], widthScale);
+        Vector3f base2 = pos2Array[0];
+        Vector3f pos2_v3 = s.v3.set(base2).lerp(pos2Array[segmentIdx + 1], widthScale);
+        Vector3f pos2_v4 = s.v4.set(base2).lerp(pos2Array[segmentIdx], widthScale);
 
-        Vector3f v1 = toViewSpace(pos1_v1, p1.camPos, p1.camRot, isFirstPerson);
-        Vector3f v2 = toViewSpace(pos1_v2, p1.camPos, p1.camRot, isFirstPerson);
-        Vector3f v3 = toViewSpace(pos2_v3, p2.camPos, p2.camRot, isFirstPerson);
-        Vector3f v4 = toViewSpace(pos2_v4, p2.camPos, p2.camRot, isFirstPerson);
+        Vector3f v1 = toViewSpace(pos1_v1, p1.camPos, p1.camRot, isFirstPerson, s.res1);
+        Vector3f v2 = toViewSpace(pos1_v2, p1.camPos, p1.camRot, isFirstPerson, s.res2);
+        Vector3f v3 = toViewSpace(pos2_v3, p2.camPos, p2.camRot, isFirstPerson, s.res3);
+        Vector3f v4 = toViewSpace(pos2_v4, p2.camPos, p2.camRot, isFirstPerson, s.res4);
 
         float u1 = alpha;
         float u2 = nextAlpha;
@@ -333,9 +485,9 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
         float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
 
-        // 表示・非表示トラック (trail.pos.x)
+        Scratch s = SCRATCH.get();
         if (session.trailTrack != null && !session.trailTrack.isEmpty()) {
-            Vector3f val = session.trailTrack.evaluate(t);
+            Vector3f val = session.trailTrack.evaluate(t, s.v1);
             boolean newState = (val.x > -0.5f);
             if (!session.visibility && newState) {
                 session.pendingNewSegment = true;
@@ -345,10 +497,14 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             session.visibility = true;
         }
 
-        // 幅・長さスケールトラック (trail.rot rx, ry, rz)
-        if (session.trailRotTrack != null && !session.trailRotTrack.isEmpty()) {
-            Vector3f rotVal = session.trailRotTrack.evaluate(t);
-            // rx=横幅, ry=立幅, rz=長さ。 0の場合はデフォルト1.0
+        if (session.trailScaleTrack != null && !session.trailScaleTrack.isEmpty()) {
+            Vector3f scaleVal = session.trailScaleTrack.evaluate(t, s.v1);
+            session.curWidthScaleX = scaleVal.x != 0 ? scaleVal.x : 1.0f;
+            session.curWidthScaleZ = scaleVal.y != 0 ? scaleVal.y : 1.0f;
+            session.curLengthScale = scaleVal.z != 0 ? scaleVal.z : 1.0f;
+        } else if (session.trailRotTrack != null && !session.trailRotTrack.isEmpty()) {
+            // 後方互換性のため、scaleトラックが無い場合は昔のようにrotation値でscaleする
+            Vector3f rotVal = session.trailRotTrack.evaluate(t, s.v1);
             session.curWidthScaleX = rotVal.x != 0 ? rotVal.x : 1.0f;
             session.curWidthScaleZ = rotVal.y != 0 ? rotVal.y : 1.0f;
             session.curLengthScale = rotVal.z != 0 ? rotVal.z : 1.0f;
@@ -360,28 +516,22 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
     }
 
     private static Vector3f toViewSpace(Vector3f worldPos, Vector3f camPos, org.joml.Quaternionf camRot,
-            boolean isFirstPerson) {
-        Vector3f rel = new Vector3f(worldPos.x - camPos.x, worldPos.y - camPos.y, worldPos.z - camPos.z);
+            boolean isFirstPerson, Vector3f dest) {
+        dest.set(worldPos.x - camPos.x, worldPos.y - camPos.y, worldPos.z - camPos.z);
+        Scratch s = SCRATCH.get();
         if (isFirstPerson) {
-            // 一人称のときだけ、仮想的な視点位置をずらして投影することで
-            // トレイルの発生位置と疑似的な立体感を調整します
-            
-            // X: 左右 (プラスで右へ)
-            // Y: 上下 (プラスで上へ)
-            // Z: 奥/手前 (プラスで手前へ、マイナスで前方へ)
-            // ユーザーの要望により1ブロック分前方 (-1.0f) にオフセット
-            Vector3f viewOffset = new Vector3f(0.12f, 0.12f, 0.35f);
-
-            new org.joml.Quaternionf(camRot).transform(viewOffset);
-            rel.sub(viewOffset);
+            Vector3f viewOffset = s.v12.set(0.12f, 0.12f, 0.35f);
+            s.quat.set(camRot).transform(viewOffset);
+            dest.sub(viewOffset);
         }
-        new org.joml.Quaternionf(camRot).conjugate().transform(rel);
-        return rel;
+        s.quat.set(camRot).conjugate().transform(dest);
+        return dest;
     }
 
     public static class TrailSession {
         public final UUID entityUUID;
         public LinkedList<TrailPoint> points = new LinkedList<>();
+        public LinkedList<TrailPoint> leftPoints = new LinkedList<>();
 
         public int color = DEFAULT_COLOR;
         public net.minecraft.resources.ResourceLocation texture = DEFAULT_TEXTURE;
@@ -389,10 +539,10 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         public float trailBaseOffset = 0.6f;
         public float trailTipOffset = 1.4f;
         public float trailLengthScale = 0.55f;
-        public int pointCount = 2; // デフォルトは直線(2点)
-        public float arcAngle = 0f; // 円弧の角度
+        public int pointCount = 2;
+        public float arcAngle = 0f;
         public boolean active = true;
-        public boolean isFirstPerson = false; // 一人称用トレイル(カメラに追従)かどうか
+        public boolean isFirstPerson = false;
 
         public String animationName = "";
         public float animationLength = 0.5f;
@@ -404,24 +554,37 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         public AnimationKeyframeTrack bodyPosTrack = null;
         public AnimationKeyframeTrack itemRotTrack = null;
         public AnimationKeyframeTrack itemPosTrack = null;
+        
+        public AnimationKeyframeTrack leftArmRotTrack = null;
+        public AnimationKeyframeTrack leftArmPosTrack = null;
+        public AnimationKeyframeTrack leftItemRotTrack = null;
+        public AnimationKeyframeTrack leftItemPosTrack = null;
+        
         public AnimationKeyframeTrack trailTrack = null;
         public AnimationKeyframeTrack trailRotTrack = null;
+        public AnimationKeyframeTrack trailScaleTrack = null;
         public boolean pendingNewSegment = false;
-        public boolean visibility = true; // アニメーション内での表示スイッチ
+        public boolean visibility = true;
 
         public float curWidthScaleX = 1.0f;
         public float curWidthScaleZ = 1.0f;
         public float curLengthScale = 1.0f;
 
-        public Vector3f lastOrigin = null; // 前回のフレームの手の原点位置（ブースト計算用）
+        public boolean isClaw = false;
+        public float clawOffset = 0.25f;
+        
+        public boolean isDual = false;
 
         public TrailSession(UUID uuid) {
             this.entityUUID = uuid;
         }
 
-        /**
-         * セッションの設定に基づいて、ローカル空間での頂点座標を返します。
-         */
+        public boolean isActiveAnimation() {
+            if (!active || animStartMs < 0) return false;
+            float t = (System.currentTimeMillis() - animStartMs) / 1000.0f;
+            return t <= animationLength;
+        }
+
         public Vector3f getLocalPoint(int index) {
             if (pointCount <= 1)
                 return new Vector3f(0, trailBaseOffset, 0);
@@ -430,7 +593,6 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             float totalLength = trailTipOffset - trailBaseOffset;
 
             if (arcAngle > 0) {
-                // 円弧状に配置
                 float angleRad = (float) Math.toRadians(arcAngle);
                 float currentAngle = (progress - 0.5f) * angleRad;
                 float radius = totalLength / angleRad;
@@ -439,7 +601,6 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                         (float) Math.cos(currentAngle) * radius + trailBaseOffset - radius,
                         0);
             } else {
-                // 直線状に配置
                 return new Vector3f(0, trailBaseOffset + totalLength * progress, 0);
             }
         }
@@ -455,17 +616,30 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             filterOldPoints();
         }
 
+        public void addLeftPoint(TrailPoint newPoint) {
+            if (leftPoints.isEmpty() || leftPoints.getLast().positions[0].distance(newPoint.positions[0]) > 0.005f) {
+                leftPoints.add(newPoint);
+            }
+            filterOldPoints();
+        }
+
         public void filterOldPoints() {
             long now = System.currentTimeMillis();
             long lifeTimeMs = (long) ((maxPoints / 60.0f) * 1000.0f);
             while (!points.isEmpty() && now - points.getFirst().timestamp > lifeTimeMs) {
                 points.removeFirst();
             }
+            while (!leftPoints.isEmpty() && now - leftPoints.getFirst().timestamp > lifeTimeMs) {
+                leftPoints.removeFirst();
+            }
         }
     }
 
     public static class TrailPoint {
         public final Vector3f[] positions;
+        public Vector3f[] positionsLeft = null;
+        public Vector3f[] positionsRight = null;
+        
         public final long timestamp;
         public final Vector3f camPos;
         public final org.joml.Quaternionf camRot;

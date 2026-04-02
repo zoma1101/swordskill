@@ -43,38 +43,56 @@ public class AnimationKeyframeTrack {
     }
 
     public Vector3f evaluate(float t) {
-        if (frames.isEmpty())
-            return new Vector3f(0, 0, 0);
-        if (frames.size() == 1)
-            return new Vector3f(frames.get(0).value());
-        if (t <= frames.get(0).time())
-            return new Vector3f(frames.get(0).value());
-        if (t >= frames.get(frames.size() - 1).time())
-            return new Vector3f(frames.get(frames.size() - 1).value());
+        return evaluate(t, new Vector3f());
+    }
 
-        Keyframe prev = frames.get(0);
-        Keyframe next = frames.get(frames.size() - 1);
-        for (int i = 0; i < frames.size() - 1; i++) {
-            if (frames.get(i).time() <= t && frames.get(i + 1).time() >= t) {
-                prev = frames.get(i);
-                next = frames.get(i + 1);
+    public Vector3f evaluate(float t, Vector3f dest) {
+        if (frames.isEmpty()) {
+            return dest.set(0, 0, 0);
+        }
+        if (frames.size() == 1) {
+            return dest.set(frames.get(0).value());
+        }
+        if (t <= frames.get(0).time()) {
+            return dest.set(frames.get(0).value());
+        }
+        if (t >= frames.get(frames.size() - 1).time()) {
+            return dest.set(frames.get(frames.size() - 1).value());
+        }
+
+        // Binary Search
+        int low = 0;
+        int high = frames.size() - 2;
+        int index = 0;
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            if (frames.get(mid).time() <= t && frames.get(mid + 1).time() >= t) {
+                index = mid;
                 break;
+            } else if (frames.get(mid).time() > t) {
+                high = mid - 1;
+            } else {
+                low = mid + 1;
             }
         }
 
+        Keyframe prev = frames.get(index);
+        Keyframe next = frames.get(index + 1);
+
         float span = next.time() - prev.time();
-        if (span <= 0f)
-            return new Vector3f(prev.value());
+        if (span <= 0f) {
+            return dest.set(prev.value());
+        }
 
         float alpha = applyEasing((t - prev.time()) / span, prev.easing());
-
-        return new Vector3f(prev.value()).lerp(next.value(), alpha);
+        return dest.set(prev.value()).lerp(next.value(), alpha);
     }
 
     private static float applyEasing(float t, String easing) {
         if (easing == null)
             return t;
         return switch (easing) {
+            case "step" -> 0f; // ステップイージング：次のキーフレームまで値を維持する
             case "easeInQuad" -> t * t;
             case "easeOutQuad" -> t * (2f - t);
             case "easeInOutQuad" -> t < 0.5f ? 2f * t * t : -1f + (4f - 2f * t) * t;
@@ -97,7 +115,10 @@ public class AnimationKeyframeTrack {
     public record AnimationData(AnimationKeyframeTrack armRotTrack, AnimationKeyframeTrack armPosTrack,
             AnimationKeyframeTrack bodyRotTrack, AnimationKeyframeTrack bodyPosTrack,
             AnimationKeyframeTrack itemRotTrack, AnimationKeyframeTrack itemPosTrack,
-            AnimationKeyframeTrack trailTrack, AnimationKeyframeTrack trailRotTrack, float animationLength) {
+            AnimationKeyframeTrack leftArmRotTrack, AnimationKeyframeTrack leftArmPosTrack,
+            AnimationKeyframeTrack leftItemRotTrack, AnimationKeyframeTrack leftItemPosTrack,
+            AnimationKeyframeTrack trailTrack, AnimationKeyframeTrack trailRotTrack,
+            AnimationKeyframeTrack trailScaleTrack, float animationLength) {
 
         /**
          * このアニメーションデータを左右反転させた新しいインスタンスを生成して返す。
@@ -115,9 +136,13 @@ public class AnimationKeyframeTrack {
             AnimationKeyframeTrack mirroredItemPos = mirrorTrack(this.itemPosTrack, false, true);
             AnimationKeyframeTrack mirroredTrail = mirrorTrack(this.trailTrack, false, false);
             AnimationKeyframeTrack mirroredTrailRot = mirrorTrack(this.trailRotTrack, false, false);
+            AnimationKeyframeTrack mirroredTrailScale = mirrorTrack(this.trailScaleTrack, false, false);
 
             return new AnimationData(mirroredArmRot, mirroredArmPos, mirroredBodyRot, mirroredBodyPos,
-                    mirroredItemRot, mirroredItemPos, mirroredTrail, mirroredTrailRot, this.animationLength);
+                    mirroredItemRot, mirroredItemPos,
+                    new AnimationKeyframeTrack(), new AnimationKeyframeTrack(),
+                    new AnimationKeyframeTrack(), new AnimationKeyframeTrack(),
+                    mirroredTrail, mirroredTrailRot, mirroredTrailScale, this.animationLength);
         }
 
         /**
@@ -137,9 +162,9 @@ public class AnimationKeyframeTrack {
                     mirroredValue.x = -mirroredValue.x;
                 }
                 if (invertRot) {
-                    // Y軸のみを反転させてテスト
+                    // Y軸とZ軸を反転させてミラートラックを生成
                     mirroredValue.y = -mirroredValue.y;
-                    // mirroredValue.z = -mirroredValue.z; // Z軸は一旦コメントアウト
+                    mirroredValue.z = -mirroredValue.z;
                 }
                 mirrored.addKeyframe(kf.time(), mirroredValue, kf.easing());
             }
@@ -171,10 +196,19 @@ public class AnimationKeyframeTrack {
                     AnimationKeyframeTrack bodyPos = parseTrack(bones, "body", "position");
                     AnimationKeyframeTrack itemRot = parseTrack(bones, "rightItem", "rotation");
                     AnimationKeyframeTrack itemPos = parseTrack(bones, "rightItem", "position");
+
+                    AnimationKeyframeTrack leftArmRot = parseTrack(bones, "left_arm", "rotation");
+                    AnimationKeyframeTrack leftArmPos = parseTrack(bones, "left_arm", "position");
+                    AnimationKeyframeTrack leftItemRot = parseTrack(bones, "leftItem", "rotation");
+                    AnimationKeyframeTrack leftItemPos = parseTrack(bones, "leftItem", "position");
+
                     AnimationKeyframeTrack trailToggle = parseTrack(bones, "trail", "position");
                     AnimationKeyframeTrack trailRot = parseTrack(bones, "trail", "rotation");
+                    AnimationKeyframeTrack trailScale = parseTrack(bones, "trail", "scale");
 
-                    return new AnimationData(armRot, armPos, bodyRot, bodyPos, itemRot, itemPos, trailToggle, trailRot, animLength);
+                    return new AnimationData(armRot, armPos, bodyRot, bodyPos, itemRot, itemPos,
+                            leftArmRot, leftArmPos, leftItemRot, leftItemPos,
+                            trailToggle, trailRot, trailScale, animLength);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

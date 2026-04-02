@@ -61,10 +61,10 @@ public class BlueEffectRenderer {
         }
 
         // 頂点データ作成 (テクスチャ座標, 法線, ライト)
-        VertexConsumer builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
+        VertexConsumer builder = bufferSource.getBuffer(RenderType.entityNoOutline(currentTexture));
 
         switch (SwordSkillEffect_System.get()) {
-            case 0 -> builder = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(currentTexture));
+            case 0 -> builder = bufferSource.getBuffer(RenderType.entityNoOutline(currentTexture));
             case 1 -> builder = bufferSource.getBuffer(RenderType.entityTranslucent(currentTexture));
             case 2 -> builder = bufferSource.getBuffer(RenderType.entitySmoothCutout(currentTexture));
             case 3 -> builder = bufferSource.getBuffer(RenderType.entityCutoutNoCull(currentTexture));

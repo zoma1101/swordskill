@@ -3,7 +3,7 @@ package com.zoma1101.swordskill.swordskills;
 public class SkillColor {
     // --- プレミアムカラーパレット (発光に映える鮮やかな色) ---
     public static final int ELECTRIC_BLUE = fromRGB(0, 204, 255); // 鮮やかな電撃水色
-    public static final int NEON_RED = 0xFFFF1744; // 燃えるような赤
+    public static final int NEON_RED = 0xFFF01616; // 指定された赤 (#F01616)
     public static final int LIME_GLOW = 0xFF76FF03; // 毒々しい黄緑
     public static final int SOLAR_ORANGE = 0xFFFFAB00; // 太陽のようなオレンジ
     public static final int ETHEREAL_PURPLE = 0xFFD500F9; // 幻想的な紫
