@@ -38,6 +38,7 @@ public class ClientModHandler {
     @SubscribeEvent
     public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
         event.registerAboveAll("hud_skill_slot", SkillSlotDisplayOverlay.HUD_SKILL_SLOT);
+        event.registerAboveAll("skill_wheel", com.zoma1101.swordskill.client.gui.SkillWheelOverlay.HUD_SKILL_WHEEL);
     }
 
     // レイヤー読み込み処理

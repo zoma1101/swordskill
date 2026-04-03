@@ -55,6 +55,14 @@ public class WeaponTypeDetector {
 
     private Set<SkillData.WeaponType> detectWeaponTypesInternal(ItemStack heldItem) {
         Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
+        
+        // 常に体術（MARTIAL_ARTS）を付与。これによりどの武器でも体術スキルが使用可能になる。
+        weaponTypes.add(SkillData.WeaponType.MARTIAL_ARTS);
+ 
+        if (heldItem.isEmpty()) {
+            return weaponTypes;
+        }
+ 
         Item item = heldItem.getItem();
 
         // 1. JSONファイルから武器種を判定 (最優先)
@@ -102,6 +110,7 @@ public class WeaponTypeDetector {
     }
 
     private String getWeaponNameInternal(ItemStack heldItem) {
+        if (heldItem.isEmpty()) return "Martial Arts";
         Item item = heldItem.getItem();
 
         // 1. JSONデータ

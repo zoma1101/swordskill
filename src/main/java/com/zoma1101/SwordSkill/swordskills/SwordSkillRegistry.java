@@ -11,7 +11,9 @@ import com.zoma1101.swordskill.swordskills.skill.rapier.*;
 import com.zoma1101.swordskill.swordskills.skill.scythe.*;
 import com.zoma1101.swordskill.swordskills.skill.spear.*;
 import com.zoma1101.swordskill.swordskills.skill.sword.*;
+import com.zoma1101.swordskill.swordskills.skill.martial_arts.*;
 import com.zoma1101.swordskill.swordskills.skill.two_handed_sword.*;
+import com.zoma1101.swordskill.swordskills.SkillData.FollowBone;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +26,7 @@ public class SwordSkillRegistry {
         private static final int DefaultTransformTick = 20;
 
         private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA,
-                        AXE, RAPIER, CLAW, SPEAR, SCYTHE, DAGGER, DUALSWORD, MACE);
+                        AXE, RAPIER, CLAW, SPEAR, SCYTHE, DAGGER, DUALSWORD, MACE, MARTIAL_ARTS);
 
         static {
                 // スキル登録
@@ -334,6 +336,20 @@ public class SwordSkillRegistry {
                                 MaceImpact.class,
                                 List.of(MACE), false, 200, DefaultTransformTick,
                                 0xFF33FF99, "simple_2", 20, 2.4f, 4.8f));
+ 
+                // 体術
+                registerSkill(new SkillData(getNextSkillId(), "senda", 20, 10.0, SkillData.SkillType.SIMPLE,
+                                Senda.class, List.of(MARTIAL_ARTS), false, 15, DefaultTransformTick,
+                                0xFFFFAB00, "simple_2", 10, 1.2f, 2.4f).setFollowBone(FollowBone.RIGHT_HAND));
+                registerSkill(new SkillData(getNextSkillId(), "gaken", 40, 4.0, SkillData.SkillType.SIMPLE,
+                                Gaken.class, List.of(MARTIAL_ARTS), false, 20, DefaultTransformTick,
+                                0xFFD500F9, "simple_2", 12, 1.2f, 2.4f).setFollowBone(FollowBone.LEFT_LEG));
+                registerSkill(new SkillData(getNextSkillId(), "tackle_impact", 60, 30.0, SkillData.SkillType.RUSH,
+                                TackleImpact.class, List.of(MARTIAL_ARTS), false, 25, DefaultTransformTick,
+                                0xFFFFD700, "simple_2", 15, 1.2f, 2.4f).setFollowBone(FollowBone.BOTH_LEGS));
+                registerSkill(new SkillData(getNextSkillId(), "gengetu_martial", 40, 15.0, SkillData.SkillType.SIMPLE,
+                                GengetuMartial.class, List.of(MARTIAL_ARTS), false, 15, DefaultTransformTick,
+                                0xFF99EA22, "simple_5", 15, 1.2f, 2.9f).setFollowBone(FollowBone.BOTH_LEGS));
         }
 
         private static int getNextSkillId() {

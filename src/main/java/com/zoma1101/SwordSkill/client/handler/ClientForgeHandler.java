@@ -144,7 +144,7 @@ public class ClientForgeHandler {
                             session.filterOldPoints();
                             return;
                         }
-
+ 
                         net.minecraft.client.Camera camera = mc.gameRenderer.getMainCamera();
 
                         // 最初期のコードが持っていた「アニメーションデータから座標を出す」メソッドを呼び出す
@@ -192,8 +192,8 @@ public class ClientForgeHandler {
             } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
                 Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
             } else if (Keybindings.INSTANCE.SwordSkill_Wheel_Key.isDown()) {
-                if (!(Minecraft.getInstance().screen instanceof com.zoma1101.swordskill.client.gui.SkillWheelScreen)) {
-                    Minecraft.getInstance().setScreen(new com.zoma1101.swordskill.client.gui.SkillWheelScreen());
+                if (Minecraft.getInstance().screen == null) {
+                    com.zoma1101.swordskill.client.gui.SkillWheelOverlay.openWheel();
                 }
             }
         }

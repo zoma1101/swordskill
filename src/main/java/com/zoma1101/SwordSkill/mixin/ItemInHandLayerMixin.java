@@ -33,7 +33,9 @@ public abstract class ItemInHandLayerMixin {
             if (session != null && session.active && session.animStartMs >= 0) {
                 float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
                 if (t <= session.animationLength) {
-                    if (arm == player.getMainArm() && stack == player.getMainHandItem()) {
+                    boolean isMainArm = arm == player.getMainArm();
+
+                    if (isMainArm && stack == player.getMainHandItem()) {
                         org.joml.Vector3f itemRotDeg = session.itemRotTrack != null ? session.itemRotTrack.evaluate(t) : new org.joml.Vector3f();
                         org.joml.Vector3f itemPosPx = session.itemPosTrack != null ? session.itemPosTrack.evaluate(t) : new org.joml.Vector3f();
 

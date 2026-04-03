@@ -66,7 +66,7 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
                         float yaw = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot());
                         float roll = entity.getRotation();
  
-                        poseStack.mulPose(Axis.YP.rotationDegrees(-yaw + 180));
+                        poseStack.mulPose(Axis.YP.rotationDegrees(-yaw));
                         poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
                         poseStack.mulPose(Axis.ZP.rotationDegrees(roll)); // 突きに対しても視線軸回転を適用
 
@@ -112,8 +112,6 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
                         poseStack.popPose();
                 }
-
-                super.render(entity, entityYaw, partialTicks, poseStack, bufferSource, 15728880);
         }
 
         private static void render3DCrescent(PoseStack poseStack, MultiBufferSource bufferSource,

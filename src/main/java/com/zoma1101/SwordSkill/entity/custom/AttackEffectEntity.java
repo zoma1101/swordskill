@@ -6,8 +6,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import com.zoma1101.swordskill.server.handler.SPManager;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -139,10 +137,15 @@ public class AttackEffectEntity extends Entity {
             spawnAttributeParticles();
         }
         if (!this.level().isClientSide) {
-            if (hasTag(SkillTag.RAY) || SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
-                applyRayDamage();
-            } else {
-                applyDamageAndKnockback();
+            // 移動速度がある（飛ぶ斬撃など）場合は毎tick判定を行う
+            // 速度がない（通常の突き・叩きつけなど）場合は最初の1tick目のみ判定を行う
+            boolean isMoving = this.getDeltaMovement().lengthSqr() > 0.0001;
+            if (isMoving || this.tickCount <= 1) {
+                if (hasTag(SkillTag.RAY) || SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
+                    applyRayDamage();
+                } else {
+                    applyDamageAndKnockback();
+                }
             }
         }
         if (this.tickCount >= duration) {
@@ -197,16 +200,17 @@ public class AttackEffectEntity extends Entity {
                 expandedBoundingBox,
                 entity -> (SkillTargetEntity(entity, owner)));
 
+        float radius = getEffectRadius().x; // 横幅を判定に反映させる
         Vec3 finalRayEnd = rayEnd;
         List<LivingEntity> hitEntities = entitiesInRange.stream()
-                .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd))
+                .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd, radius))
                 .toList();
 
         for (LivingEntity entity : hitEntities) {
             if (!damagedEntityIds.contains(entity.getId())) {
                 ApplyDamage(entity);
                 if (owner != null) {
-                    Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
+                    Vec3 knockbackDir = (this.position().subtract(owner.position())).normalize().scale(knockbackStrength);
                     entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
                 }
                 damagedEntityIds.add(entity.getId());
@@ -214,8 +218,9 @@ public class AttackEffectEntity extends Entity {
         }
     }
 
-    private boolean isEntityInRay(LivingEntity entity, Vec3 rayStart, Vec3 rayEnd) {
-        AABB entityAABB = entity.getBoundingBox();
+    private boolean isEntityInRay(LivingEntity entity, Vec3 rayStart, Vec3 rayEnd, float radius) {
+        // エンティティの判定ボックスをスキルの横幅分だけ膨らませてから線分交差判定を行う
+        AABB entityAABB = entity.getBoundingBox().inflate(radius * 0.5f);
         return entityAABB.intersects(rayStart, rayEnd);
     }
 
@@ -227,6 +232,9 @@ public class AttackEffectEntity extends Entity {
 
         if (tags.contains(SkillTag.HOLY) && entity.getMobType() == MobType.UNDEAD) {
             DamagePer = 3f;
+        }
+        if (tags.contains(SkillTag.HOLY_ENCHANT) && entity.getMobType() == MobType.UNDEAD) {
+            DamagePer = 1.5f;
         }
         if (tags.contains(SkillTag.DARK) && entity.getMobType() != MobType.UNDEAD) {
             DamagePer = 2.5f;
@@ -307,10 +315,6 @@ public class AttackEffectEntity extends Entity {
             entity.invulnerableTime = 0;
         } else {
             entity.invulnerableTime = 8;
-        }
-
-        if (owner instanceof ServerPlayer serverPlayer) {
-            SPManager.onAttack(serverPlayer);
         }
     }
 
@@ -575,6 +579,10 @@ public class AttackEffectEntity extends Entity {
                 this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SCULK_SOUL, 
                     particlePos.x, particlePos.y, particlePos.z, 
                     (this.random.nextDouble() - 0.5) * 0.05, 0.02, (this.random.nextDouble() - 0.5) * 0.05);
+            }
+            if (tags.contains(SkillTag.BLOOD)) {
+                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.DAMAGE_INDICATOR, 
+                    particlePos.x, particlePos.y, particlePos.z, 0, 0.1, 0);
             }
         }
     }

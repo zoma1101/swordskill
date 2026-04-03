@@ -62,6 +62,11 @@ public class ModEnchantments {
         }
  
         @Override
+        public boolean isTreasureOnly() {
+            return true;
+        }
+ 
+        @Override
         protected boolean checkCompatibility(Enchantment other) {
             // 他の属性刃とは競合するようにする (排他仕様)
             return super.checkCompatibility(other) && !(other instanceof ElementEnchantment);

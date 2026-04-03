@@ -93,24 +93,40 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
                 poseStack.pushPose();
                 model.body.translateAndRotate(poseStack);
-                if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) {
-                    model.rightArm.translateAndRotate(poseStack);
-                } else {
-                    model.leftArm.translateAndRotate(poseStack);
+                switch (session.followBone) {
+                    case MAIN_HAND -> {
+                        if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) model.rightArm.translateAndRotate(poseStack);
+                        else model.leftArm.translateAndRotate(poseStack);
+                    }
+                    case OFF_HAND -> {
+                        if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) model.leftArm.translateAndRotate(poseStack);
+                        else model.rightArm.translateAndRotate(poseStack);
+                    }
+                    case RIGHT_HAND, RIGHT_ARM -> model.rightArm.translateAndRotate(poseStack);
+                    case LEFT_HAND, LEFT_ARM -> model.leftArm.translateAndRotate(poseStack);
+                    case RIGHT_LEG -> model.rightLeg.translateAndRotate(poseStack);
+                    case LEFT_LEG -> model.leftLeg.translateAndRotate(poseStack);
+                    case BOTH_LEGS -> model.rightLeg.translateAndRotate(poseStack);
+                    case HEAD -> model.head.translateAndRotate(poseStack);
                 }
-                applyItemAnimation(poseStack, session, false);
+                applyItemAnimation(poseStack, session, session.followBone, false);
                 SwordTrailRecorder.record(player, poseStack, false);
                 poseStack.popPose();
 
-                if (session.isDual) {
+                if (session.isDual || session.followBone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.BOTH_LEGS) {
                     poseStack.pushPose();
                     model.body.translateAndRotate(poseStack);
-                    if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) {
-                        model.leftArm.translateAndRotate(poseStack);
+                    if (session.followBone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.BOTH_LEGS) {
+                        model.leftLeg.translateAndRotate(poseStack);
+                        applyItemAnimation(poseStack, session, com.zoma1101.swordskill.swordskills.SkillData.FollowBone.LEFT_LEG, true);
                     } else {
-                        model.rightArm.translateAndRotate(poseStack);
+                        if (player.getMainArm() == net.minecraft.world.entity.HumanoidArm.RIGHT) {
+                            model.leftArm.translateAndRotate(poseStack);
+                        } else {
+                            model.rightArm.translateAndRotate(poseStack);
+                        }
+                        applyItemAnimation(poseStack, session, com.zoma1101.swordskill.swordskills.SkillData.FollowBone.OFF_HAND, true);
                     }
-                    applyItemAnimation(poseStack, session, true);
                     SwordTrailRecorder.record(player, poseStack, true);
                     poseStack.popPose();
                 }
@@ -120,12 +136,39 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         });
     }
 
-    private static void applyItemAnimation(PoseStack poseStack, TrailSession session, boolean isLeft) {
+    private static void applyItemAnimation(PoseStack poseStack, TrailSession session, com.zoma1101.swordskill.swordskills.SkillData.FollowBone bone, boolean isLeft) {
         if (session.animStartMs >= 0) {
             float t = (System.currentTimeMillis() - session.animStartMs) / 1000.0f;
             if (t <= session.animationLength / 20.0f) {
-                AnimationKeyframeTrack rotTrack = isLeft ? session.leftItemRotTrack : session.itemRotTrack;
-                AnimationKeyframeTrack posTrack = isLeft ? session.leftItemPosTrack : session.itemPosTrack;
+                AnimationKeyframeTrack rotTrack = null;
+                AnimationKeyframeTrack posTrack = null;
+
+                // ボーンの種類に応じてトラックを選択
+                switch (bone) {
+                    case MAIN_HAND, RIGHT_HAND, RIGHT_ARM -> {
+                        rotTrack = session.itemRotTrack;
+                        posTrack = session.itemPosTrack;
+                    }
+                    case OFF_HAND, LEFT_HAND, LEFT_ARM -> {
+                        rotTrack = isLeft ? session.leftItemRotTrack : session.itemRotTrack;
+                        posTrack = isLeft ? session.leftItemPosTrack : session.itemPosTrack;
+                    }
+                    case RIGHT_LEG -> {
+                        rotTrack = session.rightLegRotTrack;
+                        posTrack = session.rightLegPosTrack;
+                    }
+                    case LEFT_LEG -> {
+                        rotTrack = session.leftLegRotTrack;
+                        posTrack = session.leftLegPosTrack;
+                    }
+                    case BOTH_LEGS -> {
+                        rotTrack = isLeft ? session.leftLegRotTrack : session.rightLegRotTrack;
+                        posTrack = isLeft ? session.leftLegPosTrack : session.rightLegPosTrack;
+                    }
+                    case HEAD -> {
+                        // 頭部用のトラックがあればここで設定可能
+                    }
+                }
                 
                 Scratch s = SCRATCH.get();
                 Vector3f itemRotDeg = s.v5.set(0);
@@ -134,6 +177,16 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                 if (posTrack != null) posTrack.evaluate(t, itemPosPx);
 
                 poseStack.translate(0f, 0.7f, 0.0625f);
+
+                // ★追加: 一人称視点かつ足の場合に少し上に持ち上げて見やすくする
+                if (net.minecraft.client.Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                    if (bone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.RIGHT_LEG ||
+                        bone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.LEFT_LEG ||
+                        bone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.BOTH_LEGS) {
+                        poseStack.translate(0f, 0.5f, 0f); // 0.5fほど上にずらす
+                    }
+                }
+
                 poseStack.translate(itemPosPx.x / 16f, itemPosPx.y / 16f, itemPosPx.z / 16f);
                 poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-itemRotDeg.x - 90));
                 poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-itemRotDeg.y));
@@ -259,6 +312,8 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         AnimationKeyframeTrack armPosTrack = isLeft ? session.leftArmPosTrack : session.armPosTrack;
         AnimationKeyframeTrack itemRotTrack = isLeft ? session.leftItemRotTrack : session.itemRotTrack;
         AnimationKeyframeTrack itemPosTrack = isLeft ? session.leftItemPosTrack : session.itemPosTrack;
+        AnimationKeyframeTrack legRotTrack = isLeft ? session.leftLegRotTrack : session.rightLegRotTrack;
+        AnimationKeyframeTrack legPosTrack = isLeft ? session.leftLegPosTrack : session.rightLegPosTrack;
         
         Scratch s = SCRATCH.get();
         Vector3f armRotDeg = s.v1.set(0);
@@ -273,9 +328,23 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         if (itemRotTrack != null) itemRotTrack.evaluate(t, itemRotDeg);
         Vector3f itemPosPx = s.v6.set(0);
         if (itemPosTrack != null) itemPosTrack.evaluate(t, itemPosPx);
+        Vector3f legRotDeg = s.v7.set(0);
+        if (legRotTrack != null) legRotTrack.evaluate(t, legRotDeg);
+        Vector3f legPosPx = s.v8.set(0);
+        if (legPosTrack != null) legPosTrack.evaluate(t, legPosPx);
 
         Matrix4f matrix = s.mat.identity();
-        getMatrix4f(bodyRotDeg, bodyPosPx, armRotDeg, armPosPx, itemRotDeg, itemPosPx, isLeft, matrix);
+        
+        // 足ボーンかどうかでマトリクス計算を切り替える
+        boolean isLeg = (session.followBone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.RIGHT_LEG ||
+                         session.followBone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.LEFT_LEG ||
+                         session.followBone == com.zoma1101.swordskill.swordskills.SkillData.FollowBone.BOTH_LEGS);
+        
+        if (isLeg) {
+            getLegMatrix4f(bodyRotDeg, bodyPosPx, legRotDeg, legPosPx, isLeft, matrix);
+        } else {
+            getMatrix4f(bodyRotDeg, bodyPosPx, armRotDeg, armPosPx, itemRotDeg, itemPosPx, isLeft, matrix);
+        }
 
         int count = session.pointCount;
         Vector3f[] worldPositions = new Vector3f[count];
@@ -362,6 +431,28 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         matrix.rotateX((float) Math.toRadians(-itemRotDeg.x - 90));
         matrix.rotateY((float) Math.toRadians(-itemRotDeg.y));
         matrix.rotateZ((float) Math.toRadians(itemRotDeg.z));
+    }
+
+    public static void getLegMatrix4f(Vector3f bodyRotDeg, Vector3f bodyPosPx, Vector3f legRotDeg,
+            Vector3f legPosPx, boolean isLeft, Matrix4f matrix) {
+        matrix.identity();
+        // ボディ変換 (body)
+        matrix.translate(0f, -0.75f, 0f); // ボディの中心
+        matrix.rotateY((float) Math.toRadians(bodyRotDeg.y));
+        matrix.rotateX((float) Math.toRadians(bodyRotDeg.x));
+        matrix.rotateZ((float) Math.toRadians(bodyRotDeg.z));
+        matrix.translate(bodyPosPx.x / 16f, bodyPosPx.y / 16f, bodyPosPx.z / 16f);
+
+        // 足変換 (right_leg / left_leg)
+        float hipX = isLeft ? 0.125f : -0.125f;
+        matrix.translate(hipX, 0f, 0f); // 股関節の位置 (ボディ中心から見て腰の位置)
+        matrix.rotateZ((float) Math.toRadians(legRotDeg.z));
+        matrix.rotateY((float) Math.toRadians(legRotDeg.y));
+        matrix.rotateX((float) Math.toRadians(legRotDeg.x));
+        matrix.translate(legPosPx.x / 16f, legPosPx.y / 16f, legPosPx.z / 16f);
+
+        // 足のトレイルの基準点を足先に近づける
+        matrix.translate(0f, -0.75f, 0f);
     }
 
     public static void renderTrail(PoseStack poseStack, MultiBufferSource bufferSource, TrailSession session) {
@@ -534,6 +625,7 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         public LinkedList<TrailPoint> leftPoints = new LinkedList<>();
 
         public int color = DEFAULT_COLOR;
+        public com.zoma1101.swordskill.swordskills.SkillData.FollowBone followBone = com.zoma1101.swordskill.swordskills.SkillData.FollowBone.MAIN_HAND;
         public net.minecraft.resources.ResourceLocation texture = DEFAULT_TEXTURE;
         public int maxPoints = 25;
         public float trailBaseOffset = 0.6f;
@@ -559,6 +651,11 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         public AnimationKeyframeTrack leftArmPosTrack = null;
         public AnimationKeyframeTrack leftItemRotTrack = null;
         public AnimationKeyframeTrack leftItemPosTrack = null;
+        
+        public AnimationKeyframeTrack rightLegRotTrack = null;
+        public AnimationKeyframeTrack rightLegPosTrack = null;
+        public AnimationKeyframeTrack leftLegRotTrack = null;
+        public AnimationKeyframeTrack leftLegPosTrack = null;
         
         public AnimationKeyframeTrack trailTrack = null;
         public AnimationKeyframeTrack trailRotTrack = null;

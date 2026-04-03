@@ -28,8 +28,8 @@ public class Thrusts extends BaseSkill {
         tags.add(SkillTag.RAY);
         tags.add(SkillTag.SHAPE_THRUST);
         
-        SkillUtils.spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, skill_particle, 
-                tags, SwordSkillRegistry.SKILLS.get(SkillID).getTrailColor(), Vec3.ZERO, false);
+        spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, skill_particle, 
+                tags, SkillID, Vec3.ZERO, false);
         swingArm(player);
     }
 }

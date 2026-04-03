@@ -8,12 +8,9 @@ import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.Objects;
 
 public class AnimationUtils {
 
@@ -30,9 +27,18 @@ public class AnimationUtils {
                 .getPlayerAssociatedData((AbstractClientPlayer) player)
                 .get(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
 
-        if (animationLayer != null && PlayerAnimationRegistry.getAnimation(animationId) != null) {
-            animationLayer.setAnimation(new KeyframeAnimationPlayer(
-                    Objects.requireNonNull(PlayerAnimationRegistry.getAnimation(animationId))));
+        if (animationLayer != null) {
+            var anim = PlayerAnimationRegistry.getAnimation(animationId);
+            // 指定されたIDで見つからない場合は、接尾辞なしの基本名でリキャスト
+            if (anim == null && animationId.getPath().contains(".")) {
+                String basePath = animationId.getPath().split("\\.")[0];
+                animationId = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, basePath);
+                anim = PlayerAnimationRegistry.getAnimation(animationId);
+            }
+
+            if (anim != null) {
+                animationLayer.setAnimation(new KeyframeAnimationPlayer(anim));
+            }
         }
 
     }

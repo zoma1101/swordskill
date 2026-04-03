@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
  * ダメージ倍率、特殊効果（回復、デバフ等）、当たり判定方式などを制御します。
  */
 public enum SkillTag {
-    HOLY("holy"), // アンデッドに大ダメージ
+    HOLY("holy"), // アンデッドに大ダメージ (スキル本身)
+    HOLY_ENCHANT("holy_enchant"), // アンデッドに大ダメージ (エンチャント光刃)
     DARK("dark"), // 非アンデッドに大ダメージ
     BLOOD("blood"), // 与ダメージの一定割合を回復
     EXECUTION("exec"), // 低体力時にダメージ増加

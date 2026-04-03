@@ -46,7 +46,8 @@ public class SwordTrailManager {
             session.arcAngle = data.getTrailArcAngle();
             session.pointCount = data.getTrailPointCount();
             session.animationName = data.getName();
-            session.animationLength = data.getFinalTick() + 30;
+            session.animationLength = (data.getFinalTick() + 15) * 0.05f; // Ticks to Seconds (with small buffer)
+            session.followBone = data.getFollowBone();
             session.active = true;
 
             // 現在の装備状態を詳しくチェック
@@ -113,6 +114,10 @@ public class SwordTrailManager {
                 session.bodyPosTrack = animData.bodyPosTrack();
                 session.itemRotTrack = animData.itemRotTrack();
                 session.itemPosTrack = animData.itemPosTrack();
+                session.rightLegRotTrack = animData.rightLegRotTrack(); // ★追加
+                session.rightLegPosTrack = animData.rightLegPosTrack(); // ★追加
+                session.leftLegRotTrack = animData.leftLegRotTrack();   // ★追加
+                session.leftLegPosTrack = animData.leftLegPosTrack();   // ★追加
                 session.trailTrack = animData.trailTrack();
                 session.trailRotTrack = animData.trailRotTrack();
                 session.trailScaleTrack = animData.trailScaleTrack();

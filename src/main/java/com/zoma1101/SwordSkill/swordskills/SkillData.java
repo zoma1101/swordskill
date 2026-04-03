@@ -161,6 +161,29 @@ public class SkillData {
         return 0;
     }
 
+    // --- トレイル追跡部位の設定 ---
+    public SkillData setFollowBone(FollowBone bone) {
+        additionalData.put("follow_bone", bone);
+        return this;
+    }
+ 
+    public FollowBone getFollowBone() {
+        return (FollowBone) additionalData.getOrDefault("follow_bone", FollowBone.MAIN_HAND);
+    }
+ 
+    public enum FollowBone {
+        MAIN_HAND,
+        OFF_HAND,
+        RIGHT_HAND,
+        LEFT_HAND,
+        RIGHT_ARM,
+        LEFT_ARM,
+        RIGHT_LEG,
+        LEFT_LEG,
+        BOTH_LEGS,
+        HEAD
+    }
+ 
     public enum WeaponType {
         ONE_HANDED_SWORD, // 片手剣〇
         TWO_HANDED_SWORD, // 両手剣〇
@@ -173,6 +196,7 @@ public class SkillData {
         SCYTHE, // 鎌〇
         DAGGER, // 短剣〇
         DUALSWORD, // 二刀流〇
+        MARTIAL_ARTS, // 体術
         NONE // 設定しないでください
     }
 
