@@ -39,12 +39,6 @@ public class FlyingSlashRenderer {
         if (mc.level == null)
             return;
 
-        // デバッグ: render が呼ばれているか確認
-        if (!targets.isEmpty()) {
-            mc.gui.getChat().addMessage(net.minecraft.network.chat.Component.literal(
-                    "[FSR] render called, targets=" + targets.size()));
-        }
-
         // SwordTrailLayer.renderTrail と全く同じパターン
         // event の PoseStack を使う（直接書き換えず、pushPose/popPose で絶対に元に戻す）
         PoseStack poseStack = event.getPoseStack();

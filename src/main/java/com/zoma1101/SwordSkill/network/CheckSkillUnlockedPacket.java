@@ -34,7 +34,7 @@ public class CheckSkillUnlockedPacket {
                     // Set<Integer> を int[] に変換
                     int[] unlockedArray = skills.getUnlockedSkills().stream().mapToInt(i -> i).toArray();
 
-                    UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedArray);
+                    UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedArray, skills.isMartialArtsUnlocked());
                     NetworkHandler.INSTANCE.sendTo(responsePacket, player.connection.connection,
                             NetworkDirection.PLAY_TO_CLIENT);
 

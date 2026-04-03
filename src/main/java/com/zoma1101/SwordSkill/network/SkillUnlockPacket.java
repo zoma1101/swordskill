@@ -59,7 +59,7 @@ public class SkillUnlockPacket {
 
                         // クライアントへ同期
                         int[] skillArray = skills.getUnlockedSkills().stream().mapToInt(i -> i).toArray();
-                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new UnlockedSkillsResponsePacket(skillArray));
+                        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new UnlockedSkillsResponsePacket(skillArray, skills.isMartialArtsUnlocked()));
                     }
                 });
             } else {

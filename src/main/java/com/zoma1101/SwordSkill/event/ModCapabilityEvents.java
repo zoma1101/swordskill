@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -33,15 +32,6 @@ public class ModCapabilityEvents {
                     event.addCapability(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "player_skills"), new PlayerSkillsProvider());
                 }
             }
-        }
-
-        @SubscribeEvent
-        public static void onPlayerCloned(PlayerEvent.Clone event) {
-            event.getOriginal().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(oldStore -> {
-                event.getEntity().getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(newStore -> {
-                    newStore.copyFrom(oldStore);
-                });
-            });
         }
     }
 }

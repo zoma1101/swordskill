@@ -117,6 +117,8 @@ public class AnimationKeyframeTrack {
             AnimationKeyframeTrack itemRotTrack, AnimationKeyframeTrack itemPosTrack,
             AnimationKeyframeTrack leftArmRotTrack, AnimationKeyframeTrack leftArmPosTrack,
             AnimationKeyframeTrack leftItemRotTrack, AnimationKeyframeTrack leftItemPosTrack,
+            AnimationKeyframeTrack rightLegRotTrack, AnimationKeyframeTrack rightLegPosTrack, // ★追加
+            AnimationKeyframeTrack leftLegRotTrack, AnimationKeyframeTrack leftLegPosTrack,   // ★追加
             AnimationKeyframeTrack trailTrack, AnimationKeyframeTrack trailRotTrack,
             AnimationKeyframeTrack trailScaleTrack, float animationLength) {
 
@@ -142,6 +144,8 @@ public class AnimationKeyframeTrack {
                     mirroredItemRot, mirroredItemPos,
                     new AnimationKeyframeTrack(), new AnimationKeyframeTrack(),
                     new AnimationKeyframeTrack(), new AnimationKeyframeTrack(),
+                    new AnimationKeyframeTrack(), new AnimationKeyframeTrack(), // leg
+                    new AnimationKeyframeTrack(), new AnimationKeyframeTrack(), // leg
                     mirroredTrail, mirroredTrailRot, mirroredTrailScale, this.animationLength);
         }
 
@@ -202,12 +206,19 @@ public class AnimationKeyframeTrack {
                     AnimationKeyframeTrack leftItemRot = parseTrack(bones, "leftItem", "rotation");
                     AnimationKeyframeTrack leftItemPos = parseTrack(bones, "leftItem", "position");
 
+                    // ★足を追加
+                    AnimationKeyframeTrack rightLegRot = parseTrack(bones, "right_leg", "rotation");
+                    AnimationKeyframeTrack rightLegPos = parseTrack(bones, "right_leg", "position");
+                    AnimationKeyframeTrack leftLegRot = parseTrack(bones, "left_leg", "rotation");
+                    AnimationKeyframeTrack leftLegPos = parseTrack(bones, "left_leg", "position");
+
                     AnimationKeyframeTrack trailToggle = parseTrack(bones, "trail", "position");
                     AnimationKeyframeTrack trailRot = parseTrack(bones, "trail", "rotation");
                     AnimationKeyframeTrack trailScale = parseTrack(bones, "trail", "scale");
 
                     return new AnimationData(armRot, armPos, bodyRot, bodyPos, itemRot, itemPos,
                             leftArmRot, leftArmPos, leftItemRot, leftItemPos,
+                            rightLegRot, rightLegPos, leftLegRot, leftLegPos,
                             trailToggle, trailRot, trailScale, animLength);
                 }
             } catch (Exception e) {

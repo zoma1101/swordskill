@@ -15,6 +15,7 @@ public class SharpNeil extends BaseSkill {
         java.util.List<com.zoma1101.swordskill.swordskills.SkillTag> tags = java.util.List.of(SkillTag.BLOOD);
 
 
+        if (tickCount == 1) setTrailActive(player, true);
         if (tickCount == 4) {
             spawnRelativeSlash(level, player, 2.0, 0.0, 1.0, new Vec3(0, 5, -30), size, 2.0, 0.1, 12, tags, SkillID);
             swingArm(player);
@@ -25,5 +26,7 @@ public class SharpNeil extends BaseSkill {
             spawnRelativeSlash(level, player, 2.0, 0.0, -1.0, new Vec3(-12, 5, -30), size, 2.0, 0.75, 12, tags, SkillID);
             swingArm(player);
         }
+
+        if (tickCount >= 25) setTrailActive(player, false);
     }
 }

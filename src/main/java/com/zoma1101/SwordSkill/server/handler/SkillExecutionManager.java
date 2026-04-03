@@ -42,6 +42,10 @@ public class SkillExecutionManager {
         int initialSlot = player.getInventory().selected;
         skillExecutions.put(player.getUUID(), new SkillExecutionData(skillId, (int) player.level().getGameTime(), finalTick, initialSlot));
         LOGGER.info("スキル実行開始: プレイヤー={}, スキルID={}, 終了Tick={}", player.getName().getString(), skillId, finalTick);
+
+        // ★追加: クライアントにアニメーション再生パケットを送信
+        NetworkHandler.INSTANCE.send(net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), 
+            new com.zoma1101.swordskill.network.toClient.PlayAnimationPacket(player.getId(), skillId, ""));
     }
 
     public static void handleSkillExecution(Level level, ServerPlayer player) {

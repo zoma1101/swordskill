@@ -86,7 +86,7 @@ public class SwordSkillCommands {
 
                     // クライアントへ同期パケットを送信
                     NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                            new UnlockedSkillsResponsePacket(skillArray));
+                            new UnlockedSkillsResponsePacket(skillArray, skills.isMartialArtsUnlocked()));
 
                     successCount.incrementAndGet();
                 }

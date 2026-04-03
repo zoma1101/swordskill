@@ -21,6 +21,7 @@ public class SampleItemRegistry {
     public static final RegistryObject<Item> SAMPLE_CLAW = ITEMS.register("sample_claw", () -> new SampleWeapon(Tiers.IRON, 3, -1F, new Item.Properties()));
     public static final RegistryObject<Item> SAMPLE_MACE = ITEMS.register("sample_mace", () -> new SampleWeapon(Tiers.IRON, 5, -3.1F, new Item.Properties()));
     public static final RegistryObject<Item> UNLOCKITEM = ITEMS.register("unlock_item", () -> new SkillUnlockItem(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> MARTIAL_ARTS_SCROLL = ITEMS.register("martial_arts_scroll", () -> new MartialArtsScrollItem(new Item.Properties().rarity(Rarity.EPIC)));
 
 
     public static void register(IEventBus eventBus) {

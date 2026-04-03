@@ -24,11 +24,14 @@ public class PlayerSkills {
     private boolean isMigrated = false;
 
     // 剣の軌跡 (Trail) 有効フラグ
-    private boolean trailEnabled = false;
+    private boolean trailEnabled = true;
 
     // --- SP関連 ---
     private double currentSP = 0;
     private int combatTimer = 0; // 戦闘タイマー (tick)
+    
+    // 体術解禁フラグ
+    private boolean martialArtsUnlocked = false;
 
     public double getCurrentSP() {
         return currentSP;
@@ -139,6 +142,7 @@ public class PlayerSkills {
         this.currentSP = source.currentSP;
         this.combatTimer = source.combatTimer;
         this.trailEnabled = source.trailEnabled;
+        this.martialArtsUnlocked = source.martialArtsUnlocked;
     }
 
     public void saveNBT(CompoundTag nbt) {
@@ -165,6 +169,7 @@ public class PlayerSkills {
         nbt.putDouble("CurrentSP", currentSP);
         nbt.putInt("CombatTimer", combatTimer);
         nbt.putBoolean("TrailEnabled", trailEnabled);
+        nbt.putBoolean("MartialArtsUnlocked", martialArtsUnlocked);
     }
 
     public void loadNBT(CompoundTag nbt) {
@@ -205,5 +210,16 @@ public class PlayerSkills {
         if (nbt.contains("TrailEnabled")) {
             this.trailEnabled = nbt.getBoolean("TrailEnabled");
         }
+        if (nbt.contains("MartialArtsUnlocked")) {
+            this.martialArtsUnlocked = nbt.getBoolean("MartialArtsUnlocked");
+        }
+    }
+
+    public boolean isMartialArtsUnlocked() {
+        return martialArtsUnlocked;
+    }
+
+    public void setMartialArtsUnlocked(boolean martialArtsUnlocked) {
+        this.martialArtsUnlocked = martialArtsUnlocked;
     }
 }
