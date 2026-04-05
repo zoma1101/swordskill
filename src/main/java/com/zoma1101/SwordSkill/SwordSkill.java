@@ -7,6 +7,7 @@ import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
+import com.zoma1101.swordskill.item.ModCreativeModeTabs;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
 import com.zoma1101.swordskill.loot.ModLootModifiers;
 import com.zoma1101.swordskill.network.NetworkHandler;
@@ -36,6 +37,7 @@ public class SwordSkill {
         ctx.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
         SampleItemRegistry.register(modEventBus);
+        ModCreativeModeTabs.register(modEventBus);
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
         com.zoma1101.swordskill.enchantment.ModEnchantments.register(modEventBus);

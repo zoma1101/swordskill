@@ -580,10 +580,10 @@ public class AttackEffectEntity extends Entity {
                     particlePos.x, particlePos.y, particlePos.z, 
                     (this.random.nextDouble() - 0.5) * 0.05, 0.02, (this.random.nextDouble() - 0.5) * 0.05);
             }
-            if (tags.contains(SkillTag.BLOOD)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.DAMAGE_INDICATOR, 
-                    particlePos.x, particlePos.y, particlePos.z, 0, 0.1, 0);
-            }
+//            if (tags.contains(SkillTag.BLOOD)) {
+//                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.DAMAGE_INDICATOR, 
+//                    particlePos.x, particlePos.y, particlePos.z, 0, 0.1, 0);
+//            }
         }
     }
 
