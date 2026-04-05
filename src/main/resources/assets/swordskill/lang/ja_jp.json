@@ -80,6 +80,7 @@
   "swordskill.skill.double_circular": "ダブルサーキュラー",
   "swordskill.skill.star_burst_stream": "スターバーストストリーム",
   "swordskill.skill.the_eclipse": "ジ・イクリプス",
+
   "swordskill.skill.reaper": "リーパー",
   "swordskill.skill.sakura_mai": "桜舞",
   "swordskill.skill.zekku": "絶空",
@@ -167,6 +168,7 @@
   "swordskill.skill.double_circular.description": "突進した敵に四連撃を放つソードスキル",
   "swordskill.skill.star_burst_stream.description": "流星のような16連撃を高速で放つ二刀流の真骨頂とも言える技",
   "swordskill.skill.the_eclipse.description": "二刀流最上位２７連撃ソードスキル。二刀流の極み",
+
   "swordskill.skill.reaper.description": "炎の光跡を宿した斬撃を、目標に放つ",
   "swordskill.skill.sakura_mai.description": "桜が舞うような突進攻撃スキル",
   "swordskill.skill.zekku.description": "空気を切り裂く攻撃を放つ",
@@ -234,6 +236,17 @@
 
   "item.swordskill.unlock_item": "スキルオーブ",
   "item.swordskill.martial_arts_scroll": "体術の心得",
+  "item.swordskill.sample_katana": "サンプル・カタナ",
+  "item.swordskill.sample_great_sword": "サンプル・グレートソード",
+  "item.swordskill.sample_rapier": "サンプル・レイピア",
+  "item.swordskill.sample_dagger": "サンプル・ダガー",
+  "item.swordskill.sample_scythe": "サンプル・サイス",
+  "item.swordskill.sample_whip": "サンプル・ウィップ",
+  "item.swordskill.sample_claw": "サンプル・クロー",
+  "item.swordskill.sample_mace": "サンプル・メイス",
+  "item.swordskill.sample_sword": "サンプル・ソード",
+  "item.swordskill.sample_item": "サンプル・アイテム",
+  "creativetab.sword_skill_tab": "ソードスキル",
   "message.swordskill.martial_arts_unlocked": "体術の技を会得した！",
   "message.swordskill.martial_arts_already_unlocked": "既に体術の技は解禁されている。",
 

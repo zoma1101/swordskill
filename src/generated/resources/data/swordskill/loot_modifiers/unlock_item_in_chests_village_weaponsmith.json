@@ -6,10 +6,6 @@
       "loot_table_id": "minecraft:chests/village_weaponsmith"
     },
     {
-      "condition": "forge:loot_table_id",
-      "loot_table_id": "minecraft:chests/village_weaponsmith"
-    },
-    {
       "chance": 0.3,
       "condition": "minecraft:random_chance"
     }

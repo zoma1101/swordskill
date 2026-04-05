@@ -25,6 +25,16 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
         private static final ResourceLocation BEAM_TEXTURE = fromNamespaceAndPath(SwordSkill.MOD_ID,
                         "textures/entity/beam.png");
 
+        private static final float[] SIN_TABLE_64 = new float[65];
+        private static final float[] COS_TABLE_64 = new float[65];
+
+        static {
+                for (int i = 0; i <= 64; i++) {
+                        SIN_TABLE_64[i] = (float) Math.sin(i * Math.PI * 2 / 64);
+                        COS_TABLE_64[i] = (float) Math.cos(i * Math.PI * 2 / 64);
+                }
+        }
+
         public AttackEffectRenderer(EntityRendererProvider.Context context) {
                 super(context);
                 this.shadowRadius = 0.0F;
@@ -146,12 +156,13 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
                 float startAngle = -arcRad / 2.0f;
                 float halfThick = 0.05f;
 
-                for (int i = 0; i < segments; i++) {
-                        float t0 = startAngle + arcRad * i / segments;
-                        float t1 = startAngle + arcRad * (i + 1) / segments;
+                float sin0 = (float) Math.sin(startAngle);
+                float cos0 = (float) Math.cos(startAngle);
 
-                        float sin0 = (float) Math.sin(t0), cos0 = (float) Math.cos(t0);
-                        float sin1 = (float) Math.sin(t1), cos1 = (float) Math.cos(t1);
+                for (int i = 0; i < segments; i++) {
+                        float t1 = startAngle + arcRad * (i + 1) / segments;
+                        float sin1 = (float) Math.sin(t1);
+                        float cos1 = (float) Math.cos(t1);
 
                         float u0 = (float) i / segments;
                         float u1 = (float) (i + 1) / segments;
@@ -164,6 +175,9 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
                         drawCrescentLayer(c, mat, norm, sin0, cos0, sin1, cos1, outerRadius, innerRadius, halfThick, r_final,
                                         g_final, b_final, a,
                                         1.0f, u0, u1, light, overlay);
+                        
+                        sin0 = sin1;
+                        cos0 = cos1;
                 }
         }
 
@@ -253,11 +267,11 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
                                 float zOffset = (ring * 0.01f) + (pass * 0.001f); 
 
                                 for (int i = 0; i < segments; i++) {
-                                        float t0 = (float) (i * Math.PI * 2 / segments);
-                                        float t1 = (float) ((i + 1) * Math.PI * 2 / segments);
+                                        float sin0 = SIN_TABLE_64[i], cos0 = COS_TABLE_64[i];
+                                        float sin1 = SIN_TABLE_64[i+1], cos1 = COS_TABLE_64[i+1];
 
-                                        float x0 = (float) Math.sin(t0) * radius * ws, y0 = (float) Math.cos(t0) * radius * ws;
-                                        float x1 = (float) Math.sin(t1) * radius * ws, y1 = (float) Math.cos(t1) * radius * ws;
+                                        float x0 = sin0 * radius * ws, y0 = cos0 * radius * ws;
+                                        float x1 = sin1 * radius * ws, y1 = cos1 * radius * ws;
                                         float ix0 = x0 * 0.90f, iy0 = y0 * 0.90f;
                                         float ix1 = x1 * 0.90f, iy1 = y1 * 0.90f;
 

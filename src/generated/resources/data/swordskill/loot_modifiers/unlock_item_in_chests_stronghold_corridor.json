@@ -3,7 +3,7 @@
   "conditions": [
     {
       "condition": "forge:loot_table_id",
-      "loot_table_id": "minecraft:chests/shipwreck_treasure"
+      "loot_table_id": "minecraft:chests/stronghold_corridor"
     },
     {
       "chance": 0.6,

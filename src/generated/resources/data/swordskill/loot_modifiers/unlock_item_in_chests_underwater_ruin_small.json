@@ -3,10 +3,10 @@
   "conditions": [
     {
       "condition": "forge:loot_table_id",
-      "loot_table_id": "minecraft:chests/shipwreck_treasure"
+      "loot_table_id": "minecraft:chests/underwater_ruin_small"
     },
     {
-      "chance": 0.6,
+      "chance": 0.4,
       "condition": "minecraft:random_chance"
     }
   ],

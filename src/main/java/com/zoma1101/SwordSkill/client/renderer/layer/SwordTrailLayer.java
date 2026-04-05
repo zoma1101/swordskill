@@ -210,7 +210,8 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
         Scratch s = SCRATCH.get();
         for (int i = 0; i < count; i++) {
-            Vector3f localPos = s.v1.set(session.getLocalPoint(i));
+            session.getLocalPoint(i, s.v1);
+            Vector3f localPos = s.v1;
 
             if (session.trailScaleTrack != null && !session.trailScaleTrack.isEmpty()) {
                 // trail.rotationトラックを本来の「回転」として処理する。
@@ -356,7 +357,8 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         }
 
         for (int i = 0; i < count; i++) {
-            Vector3f local = s.v1.set(session.getLocalPoint(i));
+            session.getLocalPoint(i, s.v1);
+            Vector3f local = s.v1;
 
             if (session.trailScaleTrack != null && !session.trailScaleTrack.isEmpty()) {
                 if (session.trailRotTrack != null && !session.trailRotTrack.isEmpty()) {
@@ -483,7 +485,7 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         }
 
         net.minecraft.resources.ResourceLocation tex = TEST_TEXTURE != null ? TEST_TEXTURE : session.texture;
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucentEmissive(tex));
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityNoOutline(tex));
         poseStack.pushPose();
         poseStack.last().pose().identity();
         Matrix4f worldViewMatrix = poseStack.last().pose();
@@ -682,9 +684,11 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             return t <= animationLength;
         }
 
-        public Vector3f getLocalPoint(int index) {
-            if (pointCount <= 1)
-                return new Vector3f(0, trailBaseOffset, 0);
+        public void getLocalPoint(int index, Vector3f dest) {
+            if (pointCount <= 1) {
+                dest.set(0, trailBaseOffset, 0);
+                return;
+            }
 
             float progress = (float) index / (pointCount - 1);
             float totalLength = trailTipOffset - trailBaseOffset;
@@ -693,12 +697,12 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                 float angleRad = (float) Math.toRadians(arcAngle);
                 float currentAngle = (progress - 0.5f) * angleRad;
                 float radius = totalLength / angleRad;
-                return new Vector3f(
+                dest.set(
                         (float) Math.sin(currentAngle) * radius,
                         (float) Math.cos(currentAngle) * radius + trailBaseOffset - radius,
                         0);
             } else {
-                return new Vector3f(0, trailBaseOffset + totalLength * progress, 0);
+                dest.set(0, trailBaseOffset + totalLength * progress, 0);
             }
         }
 

@@ -3,10 +3,10 @@
   "conditions": [
     {
       "condition": "forge:loot_table_id",
-      "loot_table_id": "minecraft:chests/shipwreck_treasure"
+      "loot_table_id": "minecraft:chests/pillager_outpost"
     },
     {
-      "chance": 0.6,
+      "chance": 0.5,
       "condition": "minecraft:random_chance"
     }
   ],
