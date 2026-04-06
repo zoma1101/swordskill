@@ -6,6 +6,10 @@
       "loot_table_id": "minecraft:chests/simple_dungeon"
     },
     {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/simple_dungeon"
+    },
+    {
       "chance": 0.6,
       "condition": "minecraft:random_chance"
     }

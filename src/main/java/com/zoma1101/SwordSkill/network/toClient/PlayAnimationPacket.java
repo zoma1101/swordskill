@@ -55,10 +55,6 @@ public class PlayAnimationPacket {
                             AnimationUtils.PlayerAnim(player, msg.skillId, msg.animationType);
                             // 視点方向に腕を振る（バニラの腕振り）
                             player.swing(InteractionHand.MAIN_HAND);
-
-                            // ★追加: クライアント側のレンダラーにスキル設定を伝える
-                            com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer
-                                    .updateSkillSettings(player.getUUID(), msg.skillId);
                         }
                     }
                 }

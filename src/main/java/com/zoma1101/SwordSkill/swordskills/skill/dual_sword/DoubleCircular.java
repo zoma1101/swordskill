@@ -75,10 +75,13 @@ public class DoubleCircular implements ISkill {
             } else if (FinalTick - NowTick == 18) {
                 performSlash(level, player, 2, 0.8f, 2.5f);
                 performSlash(level, player, 3, 1f, 2.5f);
+                skillExecutions.remove(player.getUUID());
             }
         }
         else {
+            skillExecutions.remove(player.getUUID());
             NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));
+
         }
     }
 

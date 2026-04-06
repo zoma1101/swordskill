@@ -1,7 +1,7 @@
 package com.zoma1101.swordskill.swordskills.skill.sword;
 
 import com.zoma1101.swordskill.effects.EffectRegistry;
-import com.zoma1101.swordskill.swordskills.*;
+import com.zoma1101.swordskill.swordskills.ISkill;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
@@ -15,37 +15,37 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.NomalSkillTexture
 import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
-public class HowlingOctave extends BaseSkill {
+public class HowlingOctave implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 2) {
-            performSlash(level, player, 0, 0.1F, 1f, Spia_Particle(), SkillID);
-            SimpleSkillSound(level, player.position());
+            performSlash(level, player, 0, 0.1F,1f,Spia_Particle());
+            SimpleSkillSound(level,player.position());
         } else if (FinalTick == 5) {
-            performSlash(level, player, 1, 0.1F, 1f, Spia_Particle(), SkillID);
-            SimpleSkillSound(level, player.position());
+            performSlash(level, player, 1, 0.1F,1f,Spia_Particle());
+            SimpleSkillSound(level,player.position());
         } else if (FinalTick == 8) {
-            performSlash(level, player, 2, 0.1F, 1f, Spia_Particle(), SkillID);
-            SimpleSkillSound(level, player.position());
+            performSlash(level, player, 2, 0.1F,1f,Spia_Particle());
+            SimpleSkillSound(level,player.position());
         } else if (FinalTick == 11) {
-            performSlash(level, player, 3, 0.1F, 1f, Spia_Particle(), SkillID);
-            SimpleSkillSound(level, player.position());
+            performSlash(level, player, 3, 0.1F,1f,Spia_Particle());
+            SimpleSkillSound(level,player.position());
         } else if (FinalTick == 15) {
-            performSlash(level, player, 4, 0.1F, 1f, Spia_Particle(), SkillID);
-            SimpleSkillSound(level, player.position());
+            performSlash(level, player, 4, 0.1F,1f,Spia_Particle());
+            SimpleSkillSound(level,player.position());
         }
 
         else if (FinalTick == 19) {
-            performSlash(level, player, 5, 0.1F,2f,NomalSkillTexture(), SkillID);
+            performSlash(level, player, 5, 0.1F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
         } else if (FinalTick == 22) {
-            performSlash(level, player, 6, 0.25F,2f,NomalSkillTexture(), SkillID);
+            performSlash(level, player, 6, 0.25F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,0.8f,0));
             player.hurtMarked = true;
             player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE.get(), 20));
         } else if (FinalTick == 32) {
-            performSlash(level, player, 7, 1.75F,2f,NomalSkillTexture(), SkillID);
+            performSlash(level, player, 7, 1.75F,2f,NomalSkillTexture());
             SimpleSkillSound(level,player.position());
             player.setDeltaMovement(player.getDeltaMovement().add(0,-0.8f,0));
             player.hurtMarked = true;
@@ -53,7 +53,7 @@ public class HowlingOctave extends BaseSkill {
 
     }
 
-    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage, String Texture, int SkillID) {
+    private void performSlash(Level level, ServerPlayer player, int slashIndex, float knockback, float Damage, String Texture) {
         Vec3 spawnPos = calculateRelativePosition(player, slashIndex); // 相対座標を計算
         double damage = BaseDamage(player) * Damage;
         double knockbackForce = BaseKnowBack(player)*knockback;
@@ -66,13 +66,7 @@ public class HowlingOctave extends BaseSkill {
         }
         int duration = 12;
         Vec3 Rotation = calculateRotation(slashIndex);
-        
-        java.util.List<SkillTag> tags = new java.util.ArrayList<>();
-        tags.add(SkillTag.TRAIL);
-        
-        SkillUtils.spawnAttackEffect(level, spawnPos, Rotation, size, player, damage, knockbackForce, duration, Texture, 
-                tags, SwordSkillRegistry.SKILLS.get(SkillID).getTrailColor(), Vec3.ZERO, false);
-        swingArm(player);
+        spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,Texture,Vec3.ZERO);
     }
 
     private Vec3 calculateRelativePosition(ServerPlayer player, int slashIndex) {

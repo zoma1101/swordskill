@@ -3,8 +3,6 @@ package com.zoma1101.swordskill.client.handler;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailManager;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailRenderer;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
@@ -20,8 +18,6 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -109,56 +105,6 @@ public class ClientForgeHandler {
         }
     }
 
-    @SubscribeEvent
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
-            return;
-        // 描画のみ（一人称のキャプチャは onRenderHand で行う）
-        SwordTrailRenderer.render(event);
-    }
-
-    // RenderHandEvent を使い、ItemInHandRenderer と同じ数式でビュー空間の剣先座標を計算して記録する。
-    // これにより Player Animator のボーン依存を完全に排除し、一人称で確実にトレイルが動く。
-    @SubscribeEvent
-    public static void onRenderHand(net.minecraftforge.client.event.RenderHandEvent event) {
-        if (event.getHand() != net.minecraft.world.InteractionHand.MAIN_HAND)
-            return;
-
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null || !mc.options.getCameraType().isFirstPerson())
-            return;
-
-        player.getCapability(com.zoma1101.swordskill.capability.PlayerSkillsProvider.PLAYER_SKILLS)
-                .ifPresent(skills -> {
-                    if (!skills.isTrailEnabled()) {
-                        SwordTrailManager.clear(player.getUUID());
-                        return;
-                    }
-
-                    // 攻撃アニメーション中のみ記録
-                    if (player.getAttackAnim(event.getPartialTick()) > 0) {
-                        SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
-
-                        if (!session.active) {
-                            session.filterOldPoints();
-                            return;
-                        }
- 
-                        net.minecraft.client.Camera camera = mc.gameRenderer.getMainCamera();
-
-                        // 最初期のコードが持っていた「アニメーションデータから座標を出す」メソッドを呼び出す
-                        // これにより、最も動作が安定していた頃のロジックが一人称で動きます
-                        SwordTrailLayer.captureFirstPersonFromKeyframe(
-                                session,
-                                player,
-                                player.getViewYRot(event.getPartialTick()));
-                    } else {
-                        // アニメーションが終わったら古いポイントを消去
-                        SwordTrailManager.getSession(player.getUUID()).filterOldPoints();
-                    }
-                });
-    }
     // =========================================================================
     // 既存ハンドラー（続き）
     // =========================================================================
@@ -183,40 +129,14 @@ public class ClientForgeHandler {
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        if (event.getAction() != org.lwjgl.glfw.GLFW.GLFW_PRESS) return;
-
         String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
         if (weaponName != null && !weaponName.equals("None")) {
             if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown()) {
                 Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
             } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
                 Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
-            } else if (Keybindings.INSTANCE.SwordSkill_Wheel_Key.isDown()) {
-                if (Minecraft.getInstance().screen == null) {
-                    com.zoma1101.swordskill.client.gui.SkillWheelOverlay.openWheel();
-                }
             }
         }
-    }
-
-    @SubscribeEvent
-    public static void onClientCommandRegister(net.minecraftforge.client.event.RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(
-                net.minecraft.commands.Commands.literal("testtrailtex")
-                        .then(net.minecraft.commands.Commands.argument("texture", com.mojang.brigadier.arguments.StringArgumentType.string())
-                                .executes(context -> {
-                                    String tex = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "texture");
-                                    com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = 
-                                            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("swordskill", "textures/entity/" + tex + ".png");
-                                    context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture set to: textures/entity/" + tex + ".png"));
-                                    return 1;
-                                }))
-                        .executes(context -> {
-                            com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = null;
-                            context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture reset to default."));
-                            return 1;
-                        })
-        );
     }
 
     public static float getCooldownRatio(int slotIndex) {

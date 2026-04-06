@@ -6,9 +6,9 @@
   "refmap": "swordskill.refmap.json",
   "mixins": [
   ],
-  "client": [],
+  "client": [
+  ],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

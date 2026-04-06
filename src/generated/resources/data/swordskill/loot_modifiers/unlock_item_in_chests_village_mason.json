@@ -6,6 +6,10 @@
       "loot_table_id": "minecraft:chests/village_mason"
     },
     {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/village_mason"
+    },
+    {
       "chance": 0.3,
       "condition": "minecraft:random_chance"
     }

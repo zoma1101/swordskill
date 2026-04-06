@@ -80,7 +80,6 @@
   "swordskill.skill.double_circular": "ダブルサーキュラー",
   "swordskill.skill.star_burst_stream": "スターバーストストリーム",
   "swordskill.skill.the_eclipse": "ジ・イクリプス",
-
   "swordskill.skill.reaper": "リーパー",
   "swordskill.skill.sakura_mai": "桜舞",
   "swordskill.skill.zekku": "絶空",
@@ -128,10 +127,6 @@
   "swordskill.skill.hammer_down": "ハンマーダウン",
   "swordskill.skill.diastrophism": "ダイアストロフィズム",
   "swordskill.skill.mace_impact": "メイス・インパクト",
-  "swordskill.skill.senda": "閃打",
-  "swordskill.skill.gaken": "我拳",
-  "swordskill.skill.gengetu_martial": "弦月",
-  "swordskill.skill.tackle_impact": "タックルインパクト",
 
   "swordskill.skill.how_to_use.description": "ソードスキルの使い方！！\n左右移動キーを入力することでページを切り替えて、好きなソードスキルを選ぼう。\nそして冒険中のチェストで入手できるスキルオーブを持って解放をクリックすると\nそのソードスキルを使用できるようになるよ。\nその後は更新前と同じようにスロットを決めて使ってみよう！\nまた即時使用キー0～4を押すことでもスロットを決定できるよ\nでは、楽しんでね！",
 
@@ -168,7 +163,6 @@
   "swordskill.skill.double_circular.description": "突進した敵に四連撃を放つソードスキル",
   "swordskill.skill.star_burst_stream.description": "流星のような16連撃を高速で放つ二刀流の真骨頂とも言える技",
   "swordskill.skill.the_eclipse.description": "二刀流最上位２７連撃ソードスキル。二刀流の極み",
-
   "swordskill.skill.reaper.description": "炎の光跡を宿した斬撃を、目標に放つ",
   "swordskill.skill.sakura_mai.description": "桜が舞うような突進攻撃スキル",
   "swordskill.skill.zekku.description": "空気を切り裂く攻撃を放つ",
@@ -215,10 +209,6 @@
   "swordskill.skill.hammer_down.description": "メイスを頭上から振り降ろし大ダメージを与える\n打撃を与えた相手に移動速度低下を与える",
   "swordskill.skill.diastrophism.description": "シンプルな三連撃ソードスキル。\n打撃を与えた相手に移動速度低下を与える",
   "swordskill.skill.mace_impact.description": "頭上に飛び上がり、着地したときに落下したブロック分増幅させた大ダメージを与える。\n打撃を与えた相手に移動速度低下を与える",
-  "swordskill.skill.senda.description": "右拳による高速の突きを放ち、目標を射抜く体術スキル。固定ダメージを与える。",
-  "swordskill.skill.gaken.description": "高く跳躍し、空中で溜めた力を足に乗せて真下に向かって猛烈な叩きつけを放つ体術スキル。固定ダメージを与える。",
-  "swordskill.skill.gengetu_martial.description": "後方宙返りしながら敵を蹴り上げ、強力な衝撃を与える。固定ダメージを与える。",
-  "swordskill.skill.tackle_impact.description": "足技を絡めた３連撃攻撃をくりだす。",
 
   "swordskill.weapon.one_handed_sword": "片手剣",
   "swordskill.weapon.rapier": "レイピア",
@@ -232,30 +222,8 @@
   "swordskill.weapon.scythe": "大鎌",
   "swordskill.weapon.dagger": "短剣",
   "swordskill.weapon.dualsword": "二刀流",
-  "swordskill.weapon.martial_arts": "体術",
 
   "item.swordskill.unlock_item": "スキルオーブ",
-  "item.swordskill.martial_arts_scroll": "体術の心得",
-  "item.swordskill.sample_katana": "サンプル・カタナ",
-  "item.swordskill.sample_great_sword": "サンプル・グレートソード",
-  "item.swordskill.sample_rapier": "サンプル・レイピア",
-  "item.swordskill.sample_dagger": "サンプル・ダガー",
-  "item.swordskill.sample_scythe": "サンプル・サイス",
-  "item.swordskill.sample_whip": "サンプル・ウィップ",
-  "item.swordskill.sample_claw": "サンプル・クロー",
-  "item.swordskill.sample_mace": "サンプル・メイス",
-  "item.swordskill.sample_sword": "サンプル・ソード",
-  "item.swordskill.sample_item": "サンプル・アイテム",
-  "creativetab.sword_skill_tab": "ソードスキル",
-  "message.swordskill.martial_arts_unlocked": "体術の技を会得した！",
-  "message.swordskill.martial_arts_already_unlocked": "既に体術の技は解禁されている。",
 
-  "effect.swordskill.no_fall_damage": "落下ダメージ無効状態",
- 
-  "enchantment.swordskill.enma_jin": "炎刃",
-  "enchantment.swordskill.suijin": "水刃",
-  "enchantment.swordskill.fujin": "風刃",
-  "enchantment.swordskill.ko_jin": "光刃",
-  "enchantment.swordskill.an_jin": "闇刃",
-  "enchantment.swordskill.kon_jin": "魂刃"
+  "effect.swordskill.no_fall_damage": "落下ダメージ無効状態"
 }

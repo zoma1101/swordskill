@@ -57,6 +57,13 @@ public class SPManager {
                 .orElse(0.0);
     }
 
+    public static void syncSP(ServerPlayer player) {
+        player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
+            NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                    new SyncSPPacket(skills.getCurrentSP()));
+        });
+    }
+
     public static void consumeSP(ServerPlayer player, double amount) {
         player.getCapability(PlayerSkillsProvider.PLAYER_SKILLS).ifPresent(skills -> {
             AttributeInstance maxSpAttr = player.getAttribute(SwordSkillAttribute.MAX_SP.get());

@@ -26,8 +26,6 @@ public class ClientTickHandler {
     private static final Map<LocalPlayer, ItemStack> mainHandItems = new HashMap<>();
     private static final Map<LocalPlayer, ItemStack> offHandItems = new HashMap<>();
 
-    public static long renderFrameCount = 0;
-
     private static int selectedSlot = 0;
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
@@ -66,23 +64,8 @@ public class ClientTickHandler {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            renderFrameCount++;
-        }
-    }
-
-    public static int getSelectedSlot() {
+    public static int getSelectedSlot() { // 追加
         return selectedSlot;
-    }
-
-    public static void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 4) {
-            selectedSlot = slot;
-            SetSlotSkill();
-        }
     }
 
     public static void SetSlotSkill(){

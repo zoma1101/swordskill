@@ -1,7 +1,6 @@
 package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.capability.PlayerSkillsProvider;
-import com.zoma1101.swordskill.network.toClient.SyncTrailConfigPacket;
 import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,14 +15,9 @@ public class CheckSkillUnlockedPacket {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public CheckSkillUnlockedPacket() {
-    }
-
-    public CheckSkillUnlockedPacket(FriendlyByteBuf buf) {
-    }
-
-    public void encode(FriendlyByteBuf buf) {
-    }
+    public CheckSkillUnlockedPacket() {}
+    public CheckSkillUnlockedPacket(FriendlyByteBuf buf) {}
+    public void encode(FriendlyByteBuf buf) {}
 
     public static void handle(CheckSkillUnlockedPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
@@ -34,16 +28,9 @@ public class CheckSkillUnlockedPacket {
                     // Set<Integer> を int[] に変換
                     int[] unlockedArray = skills.getUnlockedSkills().stream().mapToInt(i -> i).toArray();
 
-                    UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedArray, skills.isMartialArtsUnlocked());
-                    NetworkHandler.INSTANCE.sendTo(responsePacket, player.connection.connection,
-                            NetworkDirection.PLAY_TO_CLIENT);
-
-                    // トレイル設定も同期
-                    NetworkHandler.INSTANCE.sendTo(new SyncTrailConfigPacket(skills.isTrailEnabled()),
-                            player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-
-                    LOGGER.debug("Sent UnlockedSkillsResponsePacket to client {} (Count: {})",
-                            player.getName().getString(), unlockedArray.length);
+                    UnlockedSkillsResponsePacket responsePacket = new UnlockedSkillsResponsePacket(unlockedArray);
+                    NetworkHandler.INSTANCE.sendTo(responsePacket, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+                    LOGGER.debug("Sent UnlockedSkillsResponsePacket to client {} (Count: {})", player.getName().getString(), unlockedArray.length);
                 });
             }
         });
