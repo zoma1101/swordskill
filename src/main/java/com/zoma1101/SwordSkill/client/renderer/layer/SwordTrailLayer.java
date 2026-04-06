@@ -25,6 +25,16 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
     private static final ThreadLocal<Scratch> SCRATCH = ThreadLocal.withInitial(Scratch::new);
 
+    // 低FPSモード判定用: 瞬間値ではなく平滑化FPS＋ヒステリシスを使用して切り替えタイミングのブレを抑える
+    private static float smoothedFps = 60.0f;
+    private static boolean lowFpsMode = false;
+    /** EMAの平滑化係数: 大きいほど反応が速い（0.0〜1.0） */
+    private static final float FPS_SMOOTH = 0.15f;
+    /** この平滑FPS以下になったら低FPSモードに入る */
+    private static final float LOW_FPS_ENTER = 27.0f;
+    /** この平滑FPS以上になったら通常モードに戻る（ヒステリシス） */
+    private static final float LOW_FPS_EXIT  = 33.0f;
+
     private static class Scratch {
         final Vector3f v1 = new Vector3f();
         final Vector3f v2 = new Vector3f();
@@ -88,6 +98,15 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                     session.filterOldPoints();
                     return;
                 }
+
+                // Oculus(Iris)のシャドウパスを正確に検出してスキップする
+                if (isOculusShadowPass()) {
+                    return;
+                }
+
+                // フレーム番号による記録ガードを廃止。
+                // シャドウパスが弾かれるため、複数パスが呼ばれても同じカメラ位置であれば
+                // 距離デデュプ(>0.005f)で自然に重複が間引かれます。
 
                 PlayerModel<AbstractClientPlayer> model = this.getParentModel();
 
@@ -304,6 +323,35 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         }
     }
 
+    private static java.lang.reflect.Method irisShadowPassMethod = null;
+    private static Object irisApiInstance = null;
+    private static boolean irisApiChecked = false;
+
+    /**
+     * Oculus/Iris が現在シャドウパスを描画中かどうかをリフレクションで取得する。
+     * 依存関係を追加せずに安全に他MODと連携するための実装。
+     */
+    private static boolean isOculusShadowPass() {
+        if (!irisApiChecked) {
+            irisApiChecked = true;
+            try {
+                Class<?> apiClass = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+                irisApiInstance = apiClass.getMethod("getInstance").invoke(null);
+                irisShadowPassMethod = apiClass.getMethod("isRenderingShadowPass");
+            } catch (Throwable t) {
+                // Oculus/Irisが存在しない場合はエラーを出さずに無視
+            }
+        }
+        if (irisShadowPassMethod != null && irisApiInstance != null) {
+            try {
+                return (boolean) irisShadowPassMethod.invoke(irisApiInstance);
+            } catch (Throwable t) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     private static void captureFirstPersonPoint(TrailSession session,
             net.minecraft.world.entity.player.Player player,
             float yawRad, float cos, float sin, float cx, float cy, float cz,
@@ -503,6 +551,14 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
     private static void renderPointList(VertexConsumer consumer, Matrix4f worldViewMatrix, TrailSession session, LinkedList<TrailPoint> pointList) {
         if (pointList.size() < 2) return;
 
+        // 平滑化FPS（EMA）＋ヒステリシスで低FPSモードを判定
+        // 瞬間値を使うと30付近で毎フレーム切り替わるため、閾値に幅を持たせて安定させる
+        int rawFps = net.minecraft.client.Minecraft.getInstance().getFps();
+        smoothedFps = smoothedFps * (1.0f - FPS_SMOOTH) + rawFps * FPS_SMOOTH;
+        if (!lowFpsMode && smoothedFps < LOW_FPS_ENTER) lowFpsMode = true;
+        if (lowFpsMode  && smoothedFps > LOW_FPS_EXIT)  lowFpsMode = false;
+        boolean lowFps = lowFpsMode;
+
         TrailPoint p1 = null;
         int i = 0;
         int size = pointList.size();
@@ -512,19 +568,26 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
                 float nextAlphaIdx = (float) (i + 1) / (size - 1);
 
                 for (int j = 0; j < session.pointCount - 1; j++) {
-                    drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positions, p2.positions, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                    // 低FPS時はグローパス（widthScale=1.2, alphaScale=0.4）をスキップ
+                    if (!lowFps) {
+                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positions, p2.positions, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                    }
                     drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positions, p2.positions, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
 
                     if (p1.positionsLeft != null && p2.positionsLeft != null) {
-                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsLeft, p2.positionsLeft, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        if (!lowFps) {
+                            drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsLeft, p2.positionsLeft, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        }
                         drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsLeft, p2.positionsLeft, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
-                        drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsRight, p2.positionsRight, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        if (!lowFps) {
+                            drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsRight, p2.positionsRight, j, alphaIdx, nextAlphaIdx, session.color, 1.2f, 0.4f, session.isFirstPerson);
+                        }
                         drawSegmentQuad(consumer, worldViewMatrix, p1, p2, p1.positionsRight, p2.positionsRight, j, alphaIdx, nextAlphaIdx, session.color, 1.0f, 1.0f, session.isFirstPerson);
                     }
                 }
                 i++;
             } else if (p1 != null) {
-                i++; // Only increment if we skipped due to isNewSegment but had a previous point
+                i++;
             }
             p1 = p2;
         }
@@ -580,12 +643,35 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
         Scratch s = SCRATCH.get();
         if (session.trailTrack != null && !session.trailTrack.isEmpty()) {
-            Vector3f val = session.trailTrack.evaluate(t, s.v1);
-            boolean newState = (val.x > -0.5f);
-            if (!session.visibility && newState) {
-                session.pendingNewSegment = true;
+            // FPSが低い場合、フレーム間で on→off→on の遷移が発生しても
+            // 1フレームに1回しか評価しないと中間の状態変化が検出できない。
+            // フレーム間を複数サンプリングしてセグメント分割を正確に検出する。
+            float lastT = session.lastVisibilityCheckT;
+            session.lastVisibilityCheckT = t;
+
+            final int SAMPLES = 4;
+            boolean prevState = session.visibility;
+            float interval = t - lastT;
+            if (interval > 0 && lastT >= 0) {
+                for (int k = 1; k <= SAMPLES; k++) {
+                    float sampleT = lastT + interval * k / SAMPLES;
+                    Vector3f val = session.trailTrack.evaluate(sampleT, s.v1);
+                    boolean sampleState = (val.x > -0.5f);
+                    if (!prevState && sampleState) {
+                        // このフレーム間で off→on の遷移を検出 → 新規セグメントを予約
+                        session.pendingNewSegment = true;
+                    }
+                    prevState = sampleState;
+                }
+            } else {
+                // 初回フレームはシンプルに評価
+                Vector3f val = session.trailTrack.evaluate(t, s.v1);
+                prevState = (val.x > -0.5f);
+                if (!session.visibility && prevState) {
+                    session.pendingNewSegment = true;
+                }
             }
-            session.visibility = newState;
+            session.visibility = prevState;
         } else {
             session.visibility = true;
         }
@@ -664,6 +750,10 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         public AnimationKeyframeTrack trailScaleTrack = null;
         public boolean pendingNewSegment = false;
         public boolean visibility = true;
+        /** updateVisibilityFromAnimation の前回評価時刻（秒）。フレーム間補間に使用 */
+        public float lastVisibilityCheckT = -1.0f;
+        /** Oculusなど複数パスレンダラーの重複記録防止用: 絶対描画フレーム番号 */
+        public long lastRecordedFrame = -1L;
 
         public float curWidthScaleX = 1.0f;
         public float curWidthScaleZ = 1.0f;
