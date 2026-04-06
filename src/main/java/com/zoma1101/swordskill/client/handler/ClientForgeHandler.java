@@ -200,9 +200,9 @@ public class ClientForgeHandler {
 
                 // アニメーション再生
                 if (skillData.getType().equals(RUSH)) {
-                    PlayerAnimation(skillID, "start");
+                    PlayerAnimation(Minecraft.getInstance().player.getId(), skillID, "start");
                 } else {
-                    PlayerAnimation(skillID, "");
+                    PlayerAnimation(Minecraft.getInstance().player.getId(), skillID, "");
                 }
             }
         }

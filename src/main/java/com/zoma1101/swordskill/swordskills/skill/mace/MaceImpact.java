@@ -16,11 +16,12 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.MaceGreen_Texture
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class MaceImpact implements ISkill {
-    private static float s_PosY;
+    private static final String START_Y = "SS_MaceImpact_StartY";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (!player.onGround()){
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"move"));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"move"));
         }
 
         if (FinalTick == 1) {
@@ -28,22 +29,24 @@ public class MaceImpact implements ISkill {
             player.hurtMarked = true;
         }
         else if (FinalTick == 5){
-            s_PosY = (float) player.position().y;
+            player.getPersistentData().putFloat(START_Y, (float) player.position().y);
             player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE, 160));
         }
          else if (FinalTick > 5) {
             player.setDeltaMovement(new Vec3(0, -1.5, 0));
             player.hurtMarked = true;
             if (player.onGround()) {
-                float E_PosY = (float) player.position().y;
-                performSlash(level, player, Math.abs(s_PosY - E_PosY));
+                float startY = player.getPersistentData().getFloat(START_Y);
+                float endY = (float) player.position().y;
+                performSlash(level, player, Math.abs(startY - endY));
                 StrongSkillSound(level, player.position());
                 GodSkillSound(level, player.position());
                 Vec3 moveVec = player.getLookAngle().scale(-1.5);
                 player.setDeltaMovement(moveVec);
                 player.hurtMarked = true;
                 skillExecutions.remove(player.getUUID());
-                PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
+                player.getPersistentData().remove(START_Y);
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"finish"));
             }
         }
     }

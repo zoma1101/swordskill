@@ -26,6 +26,7 @@
   "gui.swordskill.unlock_derived": "Unlock Derivative Skill",
   "gui.swordskill.skill.derived": "Derivative Skill",
   "gui.swordskill.cooldown": "CoolDown: %s tick",
+  "gui.swordskill.sp_cost": "SP Cost: %s",
   "gui.swordskill.available_weapons": "Equippable weapons: %s",
   "gui.swordskill.slot.0": "SkillSlot 0",
   "gui.swordskill.slot.1": "SkillSlot 1",

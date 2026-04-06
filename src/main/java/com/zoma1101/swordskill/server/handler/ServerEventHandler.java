@@ -58,20 +58,30 @@ public class ServerEventHandler {
             offHandItems.put(player, offHandItem.copy());
 
             // SP回復 (時間経過)
-            updateSP(player);
+            if (player.tickCount % 10 == 0) { // 10チック(0.5秒)ごとに同期
+                updateSP(player, true);
+            } else {
+                updateSP(player, false);
+            }
         }
     }
 
-    private static void updateSP(ServerPlayer player) {
+    private static void updateSP(ServerPlayer player, boolean sync) {
         double maxSP = player.getAttributeValue(SwordSkillAttribute.MAX_SP);
         double regen = player.getAttributeValue(SwordSkillAttribute.SP_REGEN);
         double currentSP = player.getPersistentData().getDouble("SS_CurrentSP");
 
         if (currentSP < maxSP) {
-            currentSP = Math.min(maxSP, currentSP + regen);
-            player.getPersistentData().putDouble("SS_CurrentSP", currentSP);
-            // 同期パケット送信
-            PacketDistributor.sendToPlayer(player, new SyncSPPayload(currentSP, maxSP));
+            // regenは1秒あたりの回復量(1.0/20.0 = 0.05/tick)
+            double newSP = Math.min(maxSP, currentSP + regen);
+            player.getPersistentData().putDouble("SS_CurrentSP", newSP);
+            
+            // 前回同期時との差分が1.0以上、または満タンになった時に同期
+            double lastSyncSP = player.getPersistentData().getDouble("SS_LastSyncSP");
+            if (sync || Math.abs(newSP - lastSyncSP) >= 1.0 || newSP >= maxSP) {
+                PacketDistributor.sendToPlayer(player, new SyncSPPayload(newSP, maxSP));
+                player.getPersistentData().putDouble("SS_LastSyncSP", newSP);
+            }
         }
     }
 
@@ -85,8 +95,10 @@ public class ServerEventHandler {
             double recovery = maxSP * 0.02;
             currentSP = Math.min(maxSP, currentSP + recovery);
             player.getPersistentData().putDouble("SS_CurrentSP", currentSP);
-            // 同期パケット送信
+            
+            // 攻撃時は変化が大きいため即時同期
             PacketDistributor.sendToPlayer(player, new SyncSPPayload(currentSP, maxSP));
+            player.getPersistentData().putDouble("SS_LastSyncSP", currentSP);
         }
     }
 
@@ -115,6 +127,8 @@ public class ServerEventHandler {
                 player.getPersistentData().putDouble("SS_CurrentSP",
                         player.getAttributeValue(SwordSkillAttribute.MAX_SP));
             }
+            // 同期用
+            player.getPersistentData().putDouble("SS_LastSyncSP", player.getPersistentData().getDouble("SS_CurrentSP"));
         }
     }
 
@@ -142,6 +156,8 @@ public class ServerEventHandler {
         if (event.getEntity() instanceof ServerPlayer player) {
             mainHandItems.remove(player);
             offHandItems.remove(player);
+            SkillExecutionManager.skillExecutions.remove(player.getUUID());
+            com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
         }
     }
 

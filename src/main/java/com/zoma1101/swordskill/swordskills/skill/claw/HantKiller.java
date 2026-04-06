@@ -17,7 +17,7 @@ public class HantKiller implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1){
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,""));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,""));
         }
         if (FinalTick == 4) { // 1回目の斬撃
             performNeil(level,player,0);

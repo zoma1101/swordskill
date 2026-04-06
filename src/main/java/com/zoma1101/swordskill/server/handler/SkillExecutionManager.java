@@ -43,7 +43,7 @@ public class SkillExecutionManager {
             } else {
                 skillExecutions.remove(playerId);
                 if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
-                    PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(0,""));
+                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), 0,""));
                 }
                 LOGGER.info("スキル実行終了: プレイヤー={}, スキルID={}", player.getName().getString(), skillExecution.skillId);
             }

@@ -15,8 +15,6 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
 
@@ -24,8 +22,8 @@ import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skill
 @EventBusSubscriber(modid = "swordskill", bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class ClientTickHandler {
 
-    private static final Map<LocalPlayer, ItemStack> mainHandItems = new HashMap<>();
-    private static final Map<LocalPlayer, ItemStack> offHandItems = new HashMap<>();
+    private static ItemStack previousMainHandItem = ItemStack.EMPTY;
+    private static ItemStack previousOffHandItem = ItemStack.EMPTY;
 
     private static int selectedSlot = 0;
     @OnlyIn(Dist.CLIENT)
@@ -64,15 +62,12 @@ public class ClientTickHandler {
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
 
-            if (mainHandItems.containsKey(player) && offHandItems.containsKey(player)) {
-                ItemStack previousMainHandItem = mainHandItems.get(player);
-                ItemStack previousOffHandItem = offHandItems.get(player);
-                if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
-                    SetSlotSkill();
-                }
+            if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
+                SetSlotSkill();
             }
-            mainHandItems.put(player, mainHandItem.copy());
-            offHandItems.put(player, offHandItem.copy());
+            
+            previousMainHandItem = mainHandItem.copy();
+            previousOffHandItem = offHandItem.copy();
         }
     }
 

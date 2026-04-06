@@ -17,7 +17,7 @@ public class StormMirror implements ISkill {
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) { // 1回目の斬撃
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"move"));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"move"));
 
             Vec3 moveVec = player.getLookAngle().scale(4);
             player.setDeltaMovement(moveVec.x, moveVec.y, moveVec.z);
@@ -25,7 +25,7 @@ public class StormMirror implements ISkill {
         }
         else if (FinalTick == 5) { // 1回目の斬撃
 
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"finish"));
                 performSlash(level, player, 0, 0.3F);
                 SimpleSkillSound(level,player.position());
             player.setDeltaMovement(Vec3.ZERO);

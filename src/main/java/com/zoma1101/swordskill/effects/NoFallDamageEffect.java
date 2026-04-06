@@ -7,7 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
+@EventBusSubscriber(modid = com.zoma1101.swordskill.SwordSkill.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class NoFallDamageEffect extends MobEffect {
 
     protected NoFallDamageEffect() {

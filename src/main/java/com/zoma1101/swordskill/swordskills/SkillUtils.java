@@ -115,6 +115,10 @@ public class SkillUtils {
         }
     }
 
+    public static void cleanup(UUID playerId) {
+        swingRight.remove(playerId);
+    }
+
     public static Boolean SkillTargetEntity(LivingEntity entity, LivingEntity owner) {
         if (entity == owner) { // entity が owner 自身の場合
             return false; // PvP ゲームルールに関係なく false を返す

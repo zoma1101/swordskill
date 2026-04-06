@@ -183,12 +183,12 @@ public class SwordSkillSelectionScreen extends Screen {
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".cooldown", skill.getCooldown()).getString(),
                     centerX - 50, centerY - 48, 0X00FF7F);
             guiGraphics.drawString(font,
-                    Component.translatable("gui." + SwordSkill.MOD_ID + ".sp_cost", skill.getSpCost()).getString(),
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".sp_cost", (int) skill.getSpCost()).getString(),
                     centerX - 50, centerY - 38, 0X00BFFF);
 
             // 使用可能な武器をアイコンで表示
             int iconX = centerX - 50;
-            int iconY = centerY - 35;
+            int iconY = centerY - 25;
             for (SkillData.WeaponType type : skill.getAvailableWeaponTypes()) {
                 ResourceLocation iconTexture = getWeaponIconTexture(type); // アイコンテクスチャを取得
                 guiGraphics.blit(iconTexture, iconX, iconY, 0, 0, 16, 16, 16, 16); // アイコンを描画
@@ -240,14 +240,14 @@ public class SwordSkillSelectionScreen extends Screen {
                                         ? 0x87CEEB
                                         : 0xFFFFFF;
                         guiGraphics.drawString(font, derivedLine, centerX - 120,
-                                centerY - 15 + (font.lineHeight + 2) * (descriptionLines.length + descriptionYOffset),
+                                centerY - 5 + (font.lineHeight + 2) * (descriptionLines.length + descriptionYOffset),
                                 color);
                         descriptionYOffset++;
                     }
                 }
             }
 
-            int descriptionY = centerY - 15; // 最初の行のY座標
+            int descriptionY = centerY - 5; // 最初の行のY座標
             for (String line : descriptionLines) {
                 guiGraphics.drawString(font, line, centerX - 120, descriptionY, 0xFFFFFF);
                 descriptionY += font.lineHeight + 2; // 次の行のY座標を調整

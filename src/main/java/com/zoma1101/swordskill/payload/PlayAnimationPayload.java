@@ -12,18 +12,20 @@ import org.jetbrains.annotations.NotNull;
 import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 // import org.jetbrains.annotations.NotNull; // id() メソッドには通常不要
 
-public record PlayAnimationPayload(int skillId, String animationType) implements CustomPacketPayload {
+public record PlayAnimationPayload(int entityId, int skillId, String animationType) implements CustomPacketPayload {
     // CustomPacketPayload.Type の代わりに ResourceLocation ID を使用
     public static final Type<PlayAnimationPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "play_animation"));
 
     // StreamCodec の型と参照を PlayAnimationPayload に合わせる
     // ByteBuf を RegistryFriendlyByteBuf に変更
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayAnimationPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,          // skillId のコーデック
-            PlayAnimationPayload::skillId, // skillId のゲッター
-            ByteBufCodecs.STRING_UTF8,  // animationType のコーデック
-            PlayAnimationPayload::animationType, // animationType のゲッター
-            PlayAnimationPayload::new      // コンストラクタ参照
+            ByteBufCodecs.VAR_INT,      // entityId
+            PlayAnimationPayload::entityId,
+            ByteBufCodecs.INT,          // skillId
+            PlayAnimationPayload::skillId,
+            ByteBufCodecs.STRING_UTF8,  // animationType
+            PlayAnimationPayload::animationType,
+            PlayAnimationPayload::new
     );
 
     @Override
@@ -32,7 +34,7 @@ public record PlayAnimationPayload(int skillId, String animationType) implements
     }
 
     public static void handleClient(PlayAnimationPayload msg, IPayloadContext ctx) {
-        ctx.enqueueWork(() -> PlayerAnimation(msg.skillId, msg.animationType));
+        ctx.enqueueWork(() -> PlayerAnimation(msg.entityId, msg.skillId, msg.animationType));
     }
 
 }

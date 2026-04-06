@@ -21,10 +21,10 @@ public class GenGetu implements ISkill {
             Random random = new Random();
             int result = random.nextBoolean() ? 0 : 1;
             if (result==0){
-                PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"upper"));
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"upper"));
             }
             else {
-                PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"under"));
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"under"));
             }
             Vec3 lookVec = player.getLookAngle();
             Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.5, 0).add(lookVec.scale(2)); // 目の前2ブロック

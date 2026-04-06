@@ -1,7 +1,6 @@
 package com.zoma1101.swordskill;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -18,10 +17,15 @@ public class IsAnimation {
         return ModList.get().isLoaded(PLAYER_ANIMATOR_MODID);
     }
 
-    public static void PlayerAnimation(int SkillID, String type){
+    public static void PlayerAnimation(int entityId, int SkillID, String type){
         if (isPlayerAnimator()) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            PlayerAnim(player,SkillID,type);
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.level != null) {
+                net.minecraft.world.entity.Entity entity = mc.level.getEntity(entityId);
+                if (entity instanceof net.minecraft.client.player.AbstractClientPlayer clientPlayer) {
+                    PlayerAnim(clientPlayer, SkillID, type);
+                }
+            }
         }
     }
 

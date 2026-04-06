@@ -6,10 +6,7 @@ import com.zoma1101.swordskill.client.handler.ClientForgeHandler;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.handler.ClientTickHandler;
 import com.zoma1101.swordskill.config.ClientConfig;
-import com.zoma1101.swordskill.data.AutoWeaponDataSetter; // 追加
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
-import com.zoma1101.swordskill.data.WeaponData;
-import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -41,25 +38,21 @@ public class Hud_Registry {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
 
-            // 1. まずJSONデータから武器種を取得
-            String weaponType = WeaponTypeDetector.getWeaponName(mc.player.getMainHandItem());
+            // ClientSkillSlotHandlerから現在の武器情報を取得 (サーバー同期済み)
+            String weaponType = ClientSkillSlotHandler.getCurrentWeaponName();
 
-            // 2. JSONになければ、自動判定 (AutoWeaponDataSetter) を試す
-            if (weaponType == null) {
-                // 必要であればここで Config のチェックを入れることも可能です
-                // if (ClientConfig.enableAutoWeapon.get()) { ... }
-
-                WeaponData autoData = AutoWeaponDataSetter.AutoWeaponDataSetting(mc.player.getMainHandItem());
-
-                // 自動判定で有効な武器が見つかった場合 (名前が null でない場合)
-                if (autoData != null && autoData.weaponName() != null) {
-                    weaponType = autoData.weaponName();
+            // スキルが一つもセットされていないかチェック
+            int[] skillIds = ClientSkillSlotHandler.getSkillSlotInfo();
+            boolean hasAnySkill = false;
+            for (int id : skillIds) {
+                if (id != -1) {
+                    hasAnySkill = true;
+                    break;
                 }
             }
 
-            // 有効な武器を持っている場合のみ描画
-            if (weaponType != null && !weaponType.equals("None")) {
-                int[] skillIds = ClientSkillSlotHandler.getSkillSlotInfo();
+            // 有効な武器を持っており、かつスキルが1つ以上セットされている場合のみ描画
+            if (weaponType != null && !weaponType.equals("None") && hasAnySkill) {
                 int selectedSlot = ClientTickHandler.getSelectedSlot();
                 int hudPosXConfig = ClientConfig.hudPosX.get();
                 int hudYConfig = ClientConfig.hudPosY.get();

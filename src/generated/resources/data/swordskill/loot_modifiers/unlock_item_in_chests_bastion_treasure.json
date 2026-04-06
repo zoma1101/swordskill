@@ -1,0 +1,18 @@
+{
+  "type": "swordskill:add_item",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/bastion_treasure"
+    },
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/bastion_treasure"
+    },
+    {
+      "chance": 0.8,
+      "condition": "minecraft:random_chance"
+    }
+  ],
+  "item": "swordskill:unlock_item"
+}

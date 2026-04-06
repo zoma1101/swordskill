@@ -20,14 +20,16 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle_red
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class DoubleCircular implements ISkill {
-    private static boolean isAttacked = false;
-    private static int NowTick = 0;
-    private static int SkillFinalTick = 0;
+    private static final String ATTACK_FLAG = "SS_DoubleCircular_IsAttacked";
+    private static final String NOW_TICK = "SS_DoubleCircular_NowTick";
+    private static final String FINAL_TICK = "SS_DoubleCircular_FinalTick";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         if (FinalTick == 1) {
-            SkillFinalTick = SwordSkillRegistry.SKILLS.get(SkillID).getFinalTick();
-            isAttacked = false;
+            int skillFinalTick = SwordSkillRegistry.SKILLS.get(SkillID).getFinalTick();
+            player.getPersistentData().putInt(FINAL_TICK, skillFinalTick);
+            player.getPersistentData().putBoolean(ATTACK_FLAG, false);
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 3.5;
@@ -40,9 +42,12 @@ public class DoubleCircular implements ISkill {
             player.invulnerableTime = 35;
         }
         else if (FinalTick == 3){
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"move"));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"move"));
         }
 
+        boolean isAttacked = player.getPersistentData().getBoolean(ATTACK_FLAG);
+        int nowTick = player.getPersistentData().getInt(NOW_TICK);
+        int skillFinalTick = player.getPersistentData().getInt(FINAL_TICK);
 
         if (!isAttacked) {
             // 周囲のエンティティを取得
@@ -53,7 +58,9 @@ public class DoubleCircular implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        NowTick = FinalTick;
+                        nowTick = FinalTick;
+                        player.getPersistentData().putInt(NOW_TICK, nowTick);
+                        player.getPersistentData().putBoolean(ATTACK_FLAG, true);
                         isAttacked = true;
                         Vec3 reverseLookVec = player.getLookAngle().scale(0.5).reverse();
                         player.setDeltaMovement(reverseLookVec);
@@ -64,24 +71,32 @@ public class DoubleCircular implements ISkill {
                 }
             }
         }
-        else if (NowTick+20 <= SkillFinalTick) {
-            if (FinalTick - NowTick == 1) {
-                PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
-            } else if (FinalTick - NowTick == 2) {
+        
+        if (isAttacked && nowTick + 20 <= skillFinalTick) {
+            if (FinalTick - nowTick == 1) {
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"finish"));
+            } else if (FinalTick - nowTick == 2) {
                 performSlash(level, player, 0, -0.6f, 2f);
-            } else if (FinalTick - NowTick == 7) {
+            } else if (FinalTick - nowTick == 7) {
                 performThrust(level, player); //slashIndex:1
-            } else if (FinalTick - NowTick == 18) {
+            } else if (FinalTick - nowTick == 18) {
                 performSlash(level, player, 2, 0.8f, 2.5f);
                 performSlash(level, player, 3, 1f, 2.5f);
                 skillExecutions.remove(player.getUUID());
+                cleanup(player);
             }
         }
-        else {
+        else if (FinalTick > 20) { // Safety exit
             skillExecutions.remove(player.getUUID());
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(0,""));
-
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), 0,""));
+            cleanup(player);
         }
+    }
+
+    private void cleanup(ServerPlayer player) {
+        player.getPersistentData().remove(ATTACK_FLAG);
+        player.getPersistentData().remove(NOW_TICK);
+        player.getPersistentData().remove(FINAL_TICK);
     }
 
     private static Vec3 limitLookVec(ServerPlayer player) {
@@ -135,7 +150,7 @@ public class DoubleCircular implements ISkill {
     private Vec3 calculateRelativePosition(ServerPlayer player, Vec3 lookVec, int slashIndex) {
         Vec3 rightVec = lookVec.cross(new Vec3(0, 1, 0)).normalize(); // 右方向ベクトル
         Vec3 upVec = rightVec.cross(lookVec).normalize(); // 上方向ベクトル
-        new Vec3(0, 0, 0);
+        
         Vec3 relativePos = switch (slashIndex) {
             case 0 -> lookVec.scale(2);
             case 1 -> lookVec.scale(3.25);

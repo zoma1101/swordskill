@@ -19,12 +19,13 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class GrandUpper implements ISkill {
-    private static boolean isAttacked = false;
+    private static final String ATTACK_FLAG = "SS_GrandUpper_IsAttacked";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
         if (FinalTick == 1) {
-            isAttacked = false;
+            player.getPersistentData().putBoolean(ATTACK_FLAG, false);
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 3.0;
@@ -38,6 +39,9 @@ public class GrandUpper implements ISkill {
             player.hurtMarked = true;
             player.invulnerableTime = 10;
         }
+
+        boolean isAttacked = player.getPersistentData().getBoolean(ATTACK_FLAG);
+
         if (!isAttacked) {
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
@@ -47,7 +51,9 @@ public class GrandUpper implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
+                        // アニメーション同期
+                        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID, "finish"));
+                        
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.75, 0).add(lookVec.scale(2.0)); // 目の前2ブロック
                         double damage = BaseDamage(player)*0.75f;
                         Vector3f size = new Vector3f(7.2f, 3f, 7.2f);
@@ -63,13 +69,15 @@ public class GrandUpper implements ISkill {
                         Vec3 reverseLookVec = lookVec.reverse().scale(2.5);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         player.hurtMarked = true;
-                        isAttacked = true;
+                        
+                        player.getPersistentData().putBoolean(ATTACK_FLAG, true);
                         break;
                     }
                 }
             }
             else {
-                PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"move"));
+                // アニメーション同期
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID, "move"));
             }
         }
     }

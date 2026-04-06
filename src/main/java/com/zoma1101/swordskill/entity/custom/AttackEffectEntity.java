@@ -193,10 +193,45 @@ public class AttackEffectEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
+        this.damage = compound.getDouble("Damage");
+        this.knockbackStrength = compound.getDouble("Knockback");
+        this.duration = compound.getInt("Duration");
+        this.tickCount = compound.getInt("TickCount");
+        if (compound.contains("SkillParticle")) {
+            this.setSkillParticle(compound.getString("SkillParticle"));
+        }
+        if (compound.contains("RotationZ")) {
+            this.setRotation(compound.getFloat("RotationZ"));
+        }
+        if (compound.contains("RadiusX")) {
+            this.entityData.set(EFFECT_RADIUS_X, compound.getFloat("RadiusX"));
+            this.entityData.set(EFFECT_RADIUS_Y, compound.getFloat("RadiusY"));
+            this.entityData.set(EFFECT_RADIUS_Z, compound.getFloat("RadiusZ"));
+        }
+        if (compound.hasUUID("OwnerUUID") && this.level() instanceof ServerLevel serverLevel) {
+            Entity ownerEntity = serverLevel.getEntity(compound.getUUID("OwnerUUID"));
+            if (ownerEntity instanceof LivingEntity) {
+                this.owner = (LivingEntity) ownerEntity;
+            }
+        }
+        this.hasAppliedDamage = compound.getBoolean("HasAppliedDamage");
     }
 
     @Override
     protected void addAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
+        compound.putDouble("Damage", this.damage);
+        compound.putDouble("Knockback", this.knockbackStrength);
+        compound.putInt("Duration", this.duration);
+        compound.putInt("TickCount", this.tickCount);
+        compound.putString("SkillParticle", this.getSkillParticle());
+        compound.putFloat("RotationZ", this.getRotation());
+        compound.putFloat("RadiusX", this.entityData.get(EFFECT_RADIUS_X));
+        compound.putFloat("RadiusY", this.entityData.get(EFFECT_RADIUS_Y));
+        compound.putFloat("RadiusZ", this.entityData.get(EFFECT_RADIUS_Z));
+        compound.putBoolean("HasAppliedDamage", this.hasAppliedDamage);
+        if (this.owner != null) {
+            compound.putUUID("OwnerUUID", this.owner.getUUID());
+        }
     }
 
     public void setDamage(double damage) {

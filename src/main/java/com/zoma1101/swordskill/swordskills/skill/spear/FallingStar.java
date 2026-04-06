@@ -20,12 +20,13 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class FallingStar implements ISkill {
-    private static boolean isAttacked = false;
+    private static final String ATTACK_FLAG = "SS_FallingStar_IsAttacked";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
         if (FinalTick == 1) {
-            isAttacked = false;
+            player.getPersistentData().putBoolean(ATTACK_FLAG, false);
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 4.0;
@@ -40,9 +41,9 @@ public class FallingStar implements ISkill {
             player.addEffect(levitationEffect);
         }
         if (FinalTick == 10) {
-            PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"start"));
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"start"));
 
-            isAttacked = false;
+            player.getPersistentData().putBoolean(ATTACK_FLAG, false);
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 4.0;
@@ -56,6 +57,7 @@ public class FallingStar implements ISkill {
             player.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE, 100));
         }
 
+        boolean isAttacked = player.getPersistentData().getBoolean(ATTACK_FLAG);
 
         if (!isAttacked) {
             // 周囲のエンティティを取得
@@ -66,7 +68,7 @@ public class FallingStar implements ISkill {
             if (!entities.isEmpty()) {
                 for (LivingEntity entity : entities) {
                     if (player.distanceTo(entity) < 1.5) {
-                        PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
+                        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID,"finish"));
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.7, 0).add(lookVec.scale(1)); // 目の前2ブロック
                         double damage = RushDamage(player)*3f;
                         double knockbackForce = BaseKnowBack(player)*0.5;
@@ -81,12 +83,11 @@ public class FallingStar implements ISkill {
                         Vec3 reverseLookVec = lookVec.reverse().scale(3);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         player.hurtMarked = true;
-                        isAttacked = true;
+                        player.getPersistentData().putBoolean(ATTACK_FLAG, true);
                         break;
                     }
                 }
             }
-
         }
     }
 }

@@ -17,12 +17,13 @@ import static com.zoma1101.swordskill.swordskills.SkillTexture.Spia_Particle;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.*;
 
 public class SorvelteCharge implements ISkill {
-    private static boolean isAttacked = false;
+    private static final String ATTACK_FLAG = "SS_SorvelteCharge_IsAttacked";
+
     @Override
     public void execute(Level level, ServerPlayer player, int FinalTick, int SkillID) {
         Vec3 lookVec = player.getLookAngle();
         if (FinalTick == 1) {
-            isAttacked = false;
+            player.getPersistentData().putBoolean(ATTACK_FLAG, false);
             // プレイヤーの向きベクトルを取得
             // 移動速度と距離を設定
             double moveSpeed = 4.0;
@@ -34,6 +35,9 @@ public class SorvelteCharge implements ISkill {
             player.hurtMarked = true;
             player.invulnerableTime = 35;
         }
+
+        boolean isAttacked = player.getPersistentData().getBoolean(ATTACK_FLAG);
+
         if (!isAttacked) {
             // 周囲のエンティティを取得
             AABB boundingBox = player.getBoundingBox().inflate(8.0);
@@ -46,7 +50,9 @@ public class SorvelteCharge implements ISkill {
                         Vec3 reverseLookVec = lookVec.reverse().scale(3);
                         player.setDeltaMovement(player.getDeltaMovement().add(reverseLookVec));
                         player.hurtMarked = true;
-                        PacketDistributor.sendToPlayer(player, new PlayAnimationPayload(SkillID,"finish"));
+                        
+                        // アニメーション同期
+                        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), SkillID, "finish"));
 
                         Vec3 spawnPos = player.position().add(0, player.getEyeHeight()*0.7, 0).add(lookVec.scale(1)); // 目の前2ブロック
                         double damage = RushDamage(player)*4f;
@@ -58,7 +64,8 @@ public class SorvelteCharge implements ISkill {
                         SimpleSkillSound(level,spawnPos);
                         Vec3 Move = new Vec3(0,0,0.1);
                         spawnAttackEffect(level, spawnPos, Rotation ,size, player, damage, knockbackForce, duration,skill_particle,Move);
-                        isAttacked = true;
+                        
+                        player.getPersistentData().putBoolean(ATTACK_FLAG, true);
                         break;
                     }
                 }
