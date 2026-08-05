@@ -1,25 +1,38 @@
-# Changelog
+# ChangeLog - Sword Skill Mod
 
-## [Unreleased]
+## [主要な更新履歴]
 
-### Added
-- Added SP (Stamina Point) cost display to the Sword Skill Selection Screen.
-- Added new server configuration options for SP management:
-    - `defaultMaxSP`: Configure the base maximum SP for players.
-    - `defaultSPRegen`: Configure the base SP regeneration rate per second.
-- Implemented enhanced SP regeneration mechanics:
-    - SP regeneration is tripled when the player is out of combat.
-    - Added a "Combat Timer" system to track combat status.
-- Added SP recovery on successful attacks (recovers a percentage of Max SP).
+### 1. トレイル・アニメーション関連 (Sword Trail & Animations)
+- **一人称視点トレイルの実現**:
+  - 一人称視点においても武器の軌跡（トレイル）を表示できるように実装し、座標系（前方-Z軸）をJava Editionの仕様に合わせて最適化しました。
+- **視点間の同期調整**:
+  - 一人称・三人称視点でのアニメーション同期を改善。PlayerAnimator/GeckoLibのモデル構造に基づいてピボットポイントを算出し、武器の回転・移動にトレイルが正確に追従するようにしました。
+- **武器描画の最適化**:
+  - スキル使用中にバニラの「腕を振る（Swing）」アニメーションが干渉しないように抑制し、一人称視点での武器の視認性と美しさを向上させました。
+- **デバッグ機能の活用**:
+  - 軸ヘルパー等を用いて座標系を安定させ、しゃがみや旋回時のトレイルのズレを解消しました。
 
-### Changed
-- Updated the Sword Skill Selection Screen layout to accommodate SP cost information.
-- Improved English translations in `en_us.json`:
-    - Updated GUI strings for better clarity (e.g., "Select Skill" -> "Sword Skill Selection").
-    - Unified weapon naming conventions (e.g., "Short Sword" -> "Dagger").
-    - Fixed several typos and formatting issues in skill descriptions.
-- Refactored `ServerEventHandler` to apply SP configuration values upon player login, respawn, and weapon change.
+### 2. システム・バランス調整 (System & Balancing)
+- **クールダウンのグローバルNerf**:
+  - ゲームバランス維持のため、全ソードスキルのベースクールダウン値を一律で1.5倍に延長しました。
+- **クリエイティブ環境の整備**:
+  - 独自のクリエイティブタブ「ソードスキル (Sword Skill)」を実装し、スキル解放アイテムやテスト用武器を整理しました。
+- **データ駆動型の武器種判定**:
+  - `WeaponTypeDataLoader` を導入し、アイテムごとの武器種判定を効率化しました。
 
-### Fixed
-- Fixed an issue where the `AttackEffectEntity` would sometimes apply damage multiple times in moving effect.
-- Synchronized SP consumption and recovery correctly between server and client.
+### 3. スキル固有の改善 (Skill Specifics)
+- **シャープネイル (SharpNeil)**:
+  - 視覚的な快適さのため、攻撃時の赤いダメージインジケーター（ハート型パーティクル）を削除しました。吸収（回復）機能は引き続き利用可能です。
+- **多種多様な武器種への対応**:
+  - 刀、両手剣、短剣、槍、斧、爪、メイス、ウィップ、体術に至るまで、各武器種に最適化されたトレイルとアニメーションを順次実装中。
+
+### 4. 翻訳・インターフェース (UI & Localization)
+- **多言語対応**:
+  - 日本語・英語の翻訳ファイルを網羅し、GUI・アイテム名・スキルの説明文が正確に表示されるように整備しました。
+### 5. 依存関係と設定 (Dependencies & Configuration)
+- **PlayerAnimatorの必須化**:
+  - アニメーションの描画を安定させるため、`mods.toml` にて `PlayerAnimator` を必須 (mandatory) の依存関係に設定しました。
+- **初期キー設定の変更**:
+  - 他の操作との干渉を避けるため、「即時ソードスキル発動 0～4 (QuickCast)」の初期キー設定を `None` (未設定) に変更しました。
+
+

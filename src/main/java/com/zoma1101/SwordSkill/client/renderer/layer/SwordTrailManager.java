@@ -98,6 +98,9 @@ public class SwordTrailManager {
                 
                 // 二刀流判定: 厳格に現在の装備のみを基準にする
                 session.isDual = (isMainWeapon && isOffWeapon) || hasDualItem;
+
+                // アイテムモデルデータの取得とトレイルオフセットの動的調整
+                updateTrailOffsetFromItemModel(session, mainStack, offStack);
             } else {
                 session.isClaw = false;
                 session.isDual = false;
@@ -190,5 +193,100 @@ public class SwordTrailManager {
         return types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.ONE_HANDED_SWORD) || 
                types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.TWO_HANDED_SWORD) || 
                types.contains(com.zoma1101.swordskill.swordskills.SkillData.WeaponType.CLAW);
+    }
+
+    /**
+     * アイテムの model.json から親モデル情報を読み込み、
+     * トレイルのベースオフセット・先端オフセットを動的に調整する。
+     */
+    private static void updateTrailOffsetFromItemModel(SwordTrailLayer.TrailSession session, 
+                                                        net.minecraft.world.item.ItemStack mainStack, 
+                                                        net.minecraft.world.item.ItemStack offStack) {
+        // メインハンド（右手）のアイテムモデルデータを取得
+        com.zoma1101.swordskill.data.ItemModelDataHelper.ItemModelData mainModelData = 
+            com.zoma1101.swordskill.data.ItemModelDataHelper.getItemModelData(mainStack);
+        
+        // トレイルのオフセット位置を計算（右手用）
+        org.joml.Vector3f mainOffset = com.zoma1101.swordskill.data.TrailOffsetCalculator
+            .calculateTrailOffset(mainStack, mainModelData, false);
+        
+        // オフセット情報をセッションに保存
+        session.mainHandTrailOffset = mainOffset;
+        
+        // 持ち方に応じてトレイル基準点を調整
+        if (mainModelData != null) {
+            com.zoma1101.swordskill.data.ItemModelDataHelper.HoldingStyle style = mainModelData.getHoldingStyle();
+            applyHoldingStyleToSession(session, style, false);
+        }
+        
+        // 二刀流の場合、左手のアイテムモデルデータも取得
+        if (session.isDual) {
+            com.zoma1101.swordskill.data.ItemModelDataHelper.ItemModelData offModelData = 
+                com.zoma1101.swordskill.data.ItemModelDataHelper.getItemModelData(offStack);
+            
+            org.joml.Vector3f offOffset = com.zoma1101.swordskill.data.TrailOffsetCalculator
+                .calculateTrailOffset(offStack, offModelData, true);
+            
+            session.offHandTrailOffset = offOffset;
+            
+            if (offModelData != null) {
+                com.zoma1101.swordskill.data.ItemModelDataHelper.HoldingStyle style = offModelData.getHoldingStyle();
+                applyHoldingStyleToSession(session, style, true);
+            }
+        }
+    }
+
+    /**
+     * 持ち方のスタイルに応じてセッションのトレイル設定を調整する。
+     */
+    private static void applyHoldingStyleToSession(SwordTrailLayer.TrailSession session, 
+                                                    com.zoma1101.swordskill.data.ItemModelDataHelper.HoldingStyle style,
+                                                    boolean isLeftHand) {
+        switch (style) {
+            case HANDHELD:
+                // 標準的な一手武器（剣など）：デフォルト
+                if (!isLeftHand) {
+                    // 右手のデフォルト値はそのまま
+                }
+                break;
+                
+            case HANDHELD_ROD:
+                // 棒状武器（釣竿など）：より長いオフセット
+                if (!isLeftHand) {
+                    session.trailTipOffset = 1.6f;
+                    session.trailBaseOffset = 0.4f;
+                }
+                break;
+                
+            case BOW:
+            case CROSSBOW:
+                // 弓・クロスボウ：より短いオフセット（握り位置中心）
+                if (!isLeftHand) {
+                    session.trailTipOffset = 1.0f;
+                    session.trailBaseOffset = 0.5f;
+                }
+                break;
+                
+            case TRIDENT:
+                // トライデント：槍に近い長いオフセット
+                if (!isLeftHand) {
+                    session.trailTipOffset = 1.7f;
+                    session.trailBaseOffset = 0.3f;
+                }
+                break;
+                
+            case SHIELD:
+                // 盾：通常トレイル対象ではないが、念のため短い設定
+                if (!isLeftHand) {
+                    session.trailTipOffset = 0.8f;
+                    session.trailBaseOffset = 0.5f;
+                }
+                break;
+                
+            case UNKNOWN:
+            default:
+                // 不明な親モデル：デフォルト値を保持
+                break;
+        }
     }
 }

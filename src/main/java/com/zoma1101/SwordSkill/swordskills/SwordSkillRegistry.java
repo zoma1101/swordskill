@@ -137,7 +137,7 @@ public class SwordSkillRegistry {
                                 SpinningSpear.class, List.of(SPEAR), false, 33, DefaultTransformTick,
                                 SkillColor.ELECTRIC_BLUE, "simple_2", 15, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "spark_thrust", 135, 20.0, SkillData.SkillType.SIMPLE,
-                                SparkThrust.class, List.of(RAPIER, SPEAR), false, 22, DefaultTransformTick,
+                                SparkThrust.class, List.of(RAPIER, SPEAR), false, 26, DefaultTransformTick,
                                 SkillColor.ELECTRIC_BLUE, "simple_2", 15, 1.6f, 3.2f));
                 registerSkill(new SkillData(getNextSkillId(), "sorvelte_charge", 300, 30.0, SkillData.SkillType.RUSH,
                                 SorvelteCharge.class, List.of(SPEAR), false, 14, DefaultTransformTick,

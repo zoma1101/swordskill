@@ -764,6 +764,10 @@ public class SwordTrailLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         
         public boolean isDual = false;
 
+        // ★追加: アイテムモデルから計算されたトレイルオフセット
+        public org.joml.Vector3f mainHandTrailOffset = new org.joml.Vector3f();
+        public org.joml.Vector3f offHandTrailOffset = new org.joml.Vector3f();
+
         public TrailSession(UUID uuid) {
             this.entityUUID = uuid;
         }
