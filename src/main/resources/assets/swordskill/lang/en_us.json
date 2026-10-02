@@ -33,6 +33,9 @@
   "gui.swordskill.slot.2": "SkillSlot 2",
   "gui.swordskill.slot.3": "SkillSlot 3",
   "gui.swordskill.slot.4": "SkillSlot 4",
+  "gui.swordskill.slot_assignment": "Slot %s: %s",
+  "gui.swordskill.slot_empty": "Empty",
+  "gui.swordskill.theme_toggle": "Toggle light/dark mode",
   "gui.swordskill.select_slot": "Select a slot to save the skill to?",
 
   "gui.swordskill.setting.hud.save": "Save",

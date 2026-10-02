@@ -33,6 +33,9 @@
   "gui.swordskill.slot.2": "スキルスロット2",
   "gui.swordskill.slot.3": "スキルスロット3",
   "gui.swordskill.slot.4": "スキルスロット4",
+  "gui.swordskill.slot_assignment": "スロット%s：%s",
+  "gui.swordskill.slot_empty": "未設定",
+  "gui.swordskill.theme_toggle": "ライト／ブラックモード切替",
   "gui.swordskill.select_slot": "どのスロットにスキルを保存しますか？",
 
   "gui.swordskill.setting.hud.save": "保存",

@@ -12,11 +12,11 @@
       "projectName": "Swordskill",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\clientRunProgramArgs.txt"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\clientRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -34,11 +34,11 @@
       "projectName": "Swordskill",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\dataRunProgramArgs.txt"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\dataRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -56,11 +56,11 @@
       "projectName": "Swordskill",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\gameTestServerRunProgramArgs.txt"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\gameTestServerRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\gameTestServerRunVmArgs.txt",
-        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
@@ -78,11 +78,11 @@
       "projectName": "Swordskill",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\serverRunProgramArgs.txt"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\serverRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@D:\\MOD\\Mods\\Swordskill\\build\\moddev\\serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\Swordskill\\bin\\main"
+        "@D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dswordskill%%D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
