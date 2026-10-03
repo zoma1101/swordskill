@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": 15,
+  "name": "vorpal_strike",
+  "replace_builtin": true,
+  "animation": "vorpal_strike",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "DUALSWORD"
+  ],
+  "cooldown": 250,
+  "sp_cost": 30.0,
+  "duration_ticks": 16,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 5,
+      "offset": [
+        0.0,
+        0.81,
+        10.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        40.0
+      ],
+      "size": [
+        1.0,
+        1.0,
+        20.0
+      ],
+      "damage_multiplier": 5.5,
+      "damage_type": "RUSH",
+      "knockback": 1.25,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_red",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 5,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

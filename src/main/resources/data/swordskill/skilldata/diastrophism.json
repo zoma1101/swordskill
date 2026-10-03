@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": 83,
+  "name": "diastrophism",
+  "replace_builtin": true,
+  "animation": "diastrophism",
+  "type": "SIMPLE",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 240,
+  "sp_cost": 30.0,
+  "duration_ticks": 18,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 5,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -10.0,
+        5.0,
+        135.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple",
+      "sound": ""
+    },
+    {
+      "tick": 11,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        6.0,
+        -5.0,
+        45.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple",
+      "sound": ""
+    },
+    {
+      "tick": 18,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -15.0,
+        -5.0,
+        174.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 5,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 11,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 18,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ]
+}

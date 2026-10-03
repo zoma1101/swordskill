@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "id": 84,
+  "name": "mace_impact",
+  "replace_builtin": true,
+  "animation": "mace_impact",
+  "type": "RUSH",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 450,
+  "sp_cost": 60.0,
+  "duration_ticks": 200,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [],
+  "rush_start_ticks": 16,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish"
+}

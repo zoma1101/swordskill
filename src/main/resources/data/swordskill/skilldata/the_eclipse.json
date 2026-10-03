@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": 37,
+  "name": "the_eclipse",
+  "replace_builtin": true,
+  "animation": "the_eclipse",
+  "type": "SIMPLE",
+  "weapons": [
+    "DUALSWORD"
+  ],
+  "cooldown": 750,
+  "sp_cost": 70.0,
+  "duration_ticks": 115,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 11,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 16,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 23,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 26,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 30,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 33,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 42,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 48,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 54,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 59,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 66,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 73,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 83,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 89,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 97,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 106,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 115,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

@@ -1,0 +1,1930 @@
+[
+  {
+    "name": "how_to_use",
+    "legacy_id": 0,
+    "class": "HowToUse",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\HowToUse.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\how_to_use.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。"
+    ]
+  },
+  {
+    "name": "slant",
+    "legacy_id": 1,
+    "class": "Slant",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Slant.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\slant.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "horizontal",
+    "legacy_id": 2,
+    "class": "Horizontal",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Horizontal.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\horizontal.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "horizontal_arc",
+    "legacy_id": 3,
+    "class": "Horizontal_arc",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Horizontal_arc.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\horizontal_arc.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "horizontal_square",
+    "legacy_id": 4,
+    "class": "Horizontal_square",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Horizontal_square.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\horizontal_square.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      3,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 3のperformSlash呼び出しを変換できません: unsupported numeric expression: 6-((((player)))).getXRot()*2",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported numeric expression: 6-((((player)))).getXRot()*2",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported numeric expression: -6-((((player)))).getXRot()",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported numeric expression: -6-((((player)))).getXRot()",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "vertical",
+    "legacy_id": 5,
+    "class": "Vertical",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Vertical.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\vertical.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "vertical_arc",
+    "legacy_id": 6,
+    "class": "Vertical_arc",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Vertical_arc.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\vertical_arc.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "vertical_square",
+    "legacy_id": 7,
+    "class": "Vertical_square",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\Vertical_square.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\vertical_square.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      3,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "tick 3のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (3))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (2))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (3))",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "x_break",
+    "legacy_id": 8,
+    "class": "XBreak",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\XBreak.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\x_break.json",
+    "status": "draft_created",
+    "duration_ticks": 6,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "sharp_neil",
+    "legacy_id": 9,
+    "class": "SharpNeil",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\SharpNeil.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\sharp_neil.json",
+    "status": "draft_created",
+    "duration_ticks": 15,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      9,
+      15
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 3のperformSlash呼び出しを変換できません: unsupported numeric expression: (float) 2.0",
+      "tick 9のperformSlash呼び出しを変換できません: unsupported numeric expression: (float) 2.0",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported numeric expression: (float) 2.0",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "holy_cross_brade",
+    "legacy_id": 10,
+    "class": "HolyCrossBrade",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\HolyCrossBrade.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\holy_cross_brade.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      6
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "rage_spike",
+    "legacy_id": 11,
+    "class": "RageSpike",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\RageSpike.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\rage_spike.json",
+    "status": "draft_created",
+    "duration_ticks": 15,
+    "rush_start_ticks": 15,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "sonic_reap",
+    "legacy_id": 12,
+    "class": "SonicReap",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\SonicReap.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\sonic_reap.json",
+    "status": "draft_created",
+    "duration_ticks": 35,
+    "rush_start_ticks": 5,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "savage_fulcrum",
+    "legacy_id": 13,
+    "class": "SavageFulcrum",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\SavageFulcrum.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\savage_fulcrum.json",
+    "status": "draft_created",
+    "duration_ticks": 20,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      5,
+      11
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 5のperformThrust呼び出しを変換できません: unsupported numeric expression: (float) 1.5",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (2))",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "howling_octave",
+    "legacy_id": 14,
+    "class": "HowlingOctave",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\HowlingOctave.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\howling_octave.json",
+    "status": "draft_created",
+    "duration_ticks": 32,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      5,
+      8,
+      11,
+      15,
+      19,
+      22,
+      32
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (0))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (1))",
+      "tick 8のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (2))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (3))",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (4))",
+      "tick 19のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (5))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (6))",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (7))",
+      "単純なJava効果音呼び出しを8件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "vorpal_strike",
+    "legacy_id": 15,
+    "class": "VorpalStrike",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\VorpalStrike.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\vorpal_strike.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "star_sword",
+    "legacy_id": 16,
+    "class": "StarSword",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\StarSword.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\star_sword.json",
+    "status": "draft_created",
+    "duration_ticks": 32,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      10,
+      13,
+      16,
+      20,
+      22,
+      26
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "tick 13のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (2))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (3))",
+      "tick 20のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (4))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (2))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (3))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (4))",
+      "tick 26のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (5))",
+      "単純なJava効果音呼び出しを7件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "world_nova",
+    "legacy_id": 17,
+    "class": "WorldNova",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\sword\\WorldNova.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\world_nova.json",
+    "status": "draft_created",
+    "duration_ticks": 25,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      5,
+      8,
+      13,
+      18,
+      19,
+      22,
+      25
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (0))",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (1))",
+      "tick 8のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (2))",
+      "tick 13のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (3))",
+      "tick 18のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (4))",
+      "tick 19のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (5))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (6))",
+      "tick 25のperformThrust呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), 7)",
+      "単純なJava効果音呼び出しを8件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "wall_wind",
+    "legacy_id": 18,
+    "class": "WallWind",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\WallWind.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\wall_wind.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      6
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "blood_finisher",
+    "legacy_id": 19,
+    "class": "BloodFinisher",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\BloodFinisher.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\blood_finisher.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      8,
+      15
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((0)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 8のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((2)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "excite",
+    "legacy_id": 20,
+    "class": "Excite",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\Excite.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\excite.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 0のspawnAttackEffectをskilldataへ変換できません: unsupported damage expression: BaseDamage(player)"
+    ]
+  },
+  {
+    "name": "excite_line",
+    "legacy_id": 21,
+    "class": "Excite_line",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\Excite_line.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\excite_line.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 0のspawnAttackEffectをskilldataへ変換できません: unsupported damage expression: BaseDamage(player)"
+    ]
+  },
+  {
+    "name": "excite_triangle",
+    "legacy_id": 22,
+    "class": "Excite_triangle",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\Excite_triangle.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\excite_triangle.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      6
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (0))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (1))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (((((player)))).getLookAngle()), (2))",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "king_axe",
+    "legacy_id": 23,
+    "class": "KingAxe",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\KingAxe.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\king_axe.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "lumber_jack",
+    "legacy_id": 24,
+    "class": "LumberJack",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\LumberJack.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\lumber_jack.json",
+    "status": "draft_created",
+    "duration_ticks": 30,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      11,
+      17,
+      24,
+      29
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((0)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 17のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((2)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 24のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 29のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((2)){\n            case 0,1 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "単純なJava効果音呼び出しを5件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "grand_upper",
+    "legacy_id": 25,
+    "class": "GrandUpper",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\GrandUpper.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\grand_upper.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": 5,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "ryuuko_souhaku",
+    "legacy_id": 26,
+    "class": "RyuukoSouhaku",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\axe\\RyuukoSouhaku.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\ryuuko_souhaku.json",
+    "status": "draft_created",
+    "duration_ticks": 31,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      11,
+      18,
+      23,
+      31
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((0)){\n            case 0,1,4 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0,1,4 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 18のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((2)){\n            case 0,1,4 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 23のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((3)){\n            case 0,1,4 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "tick 31のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((4)){\n            case 0,1,4 -> new Vector3f(7.2f, 3f, 7.2f)",
+      "単純なJava効果音呼び出しを5件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "thrusts",
+    "legacy_id": 27,
+    "class": "Thrusts",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\Thrusts.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\thrusts.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "spinning_spear",
+    "legacy_id": 28,
+    "class": "SpinningSpear",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\SpinningSpear.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\spinning_spear.json",
+    "status": "draft_created",
+    "duration_ticks": 33,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      12,
+      15,
+      18,
+      21,
+      24,
+      27,
+      30,
+      32
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((0)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 12のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 18のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 21のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 24のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 27のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 30のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0 -> new Vector3f(0.75f, 0.75f, 7f)"
+    ]
+  },
+  {
+    "name": "spark_thrust",
+    "legacy_id": 29,
+    "class": "SparkThrust",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\SparkThrust.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\spark_thrust.json",
+    "status": "draft_created",
+    "duration_ticks": 22,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      6,
+      10,
+      15,
+      22
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((0)){\n            case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f)",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((1)){\n            case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f)",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((2)){\n            case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f)",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported Vector3f expression: switch ((3)){\n            case 0,1,2 -> new Vector3f(0.5f, 0.5f, 7f)"
+    ]
+  },
+  {
+    "name": "sorvelte_charge",
+    "legacy_id": 30,
+    "class": "SorvelteCharge",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\SorvelteCharge.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\sorvelte_charge.json",
+    "status": "draft_created",
+    "duration_ticks": 15,
+    "rush_start_ticks": 15,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "longlonglong",
+    "legacy_id": 31,
+    "class": "LongLongLong",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\LongLongLong.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\longlonglong.json",
+    "status": "draft_created",
+    "duration_ticks": 14,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      10
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "falling_star",
+    "legacy_id": 32,
+    "class": "FallingStar",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\spear\\FallingStar.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\falling_star.json",
+    "status": "draft_created",
+    "duration_ticks": 30,
+    "rush_start_ticks": 15,
+    "detected_final_ticks": [
+      1,
+      10
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "end_revolver",
+    "legacy_id": 33,
+    "class": "EndRevolver",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dual_sword\\EndRevolver.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\end_revolver.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 3のspawnAttackEffectをskilldataへ変換できません: unsupported attack position expression: player.position().add(0, player.getEyeHeight()*0.5, 0)",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "ascade_refraction",
+    "legacy_id": 34,
+    "class": "AscadeRefraction",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dual_sword\\AscadeRefraction.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\ascade_refraction.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      4,
+      7,
+      9
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(0))",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(1))",
+      "tick 7のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(2))",
+      "tick 9のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(3))",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "double_circular",
+    "legacy_id": 35,
+    "class": "DoubleCircular",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dual_sword\\DoubleCircular.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\double_circular.json",
+    "status": "draft_created",
+    "duration_ticks": 55,
+    "rush_start_ticks": 5,
+    "detected_final_ticks": [
+      1,
+      3
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "star_burst_stream",
+    "legacy_id": 36,
+    "class": "StarBurstStream",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dual_sword\\StarBurstStream.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\star_burst_stream.json",
+    "status": "draft_created",
+    "duration_ticks": 70,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      10,
+      14,
+      16,
+      22,
+      24,
+      32,
+      40,
+      45,
+      50,
+      60,
+      68
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (0))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (1))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (2))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (3))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (4))",
+      "tick 24のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (5))",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (6))",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (7))",
+      "tick 40のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (8))",
+      "tick 40のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (9))",
+      "tick 45のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (10))",
+      "tick 45のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (11))",
+      "tick 50のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (12))",
+      "tick 50のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (13))",
+      "tick 60のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (14))",
+      "tick 68のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))), (15))",
+      "単純なJava効果音呼び出しを12件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "the_eclipse",
+    "legacy_id": 37,
+    "class": "TheEclipse",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dual_sword\\TheEclipse.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\the_eclipse.json",
+    "status": "draft_created",
+    "duration_ticks": 115,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      6,
+      11,
+      16,
+      23,
+      26,
+      30,
+      33,
+      42,
+      48,
+      54,
+      59,
+      66,
+      73,
+      83,
+      89,
+      97,
+      106,
+      115
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 23のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 26のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 30のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 33のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((AxeBlueSkillTexture()))",
+      "tick 42のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 42のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 48のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((Spia_Particle()))",
+      "tick 54のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 59のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 66のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 66のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 73のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 73のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 83のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 83のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 89のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 89のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 97のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 97のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((NomalSkillTexture()))",
+      "tick 106のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((Spia_Particle()))",
+      "tick 115のperformSlash呼び出しを変換できません: unsupported Vector3f expression: setSize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを18件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "reaper",
+    "legacy_id": 38,
+    "class": "Reaper",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\Reaper.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\reaper.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "sakura_mai",
+    "legacy_id": 39,
+    "class": "SakuraMai",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\SakuraMai.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\sakura_mai.json",
+    "status": "draft_created",
+    "duration_ticks": 20,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      7,
+      14,
+      18
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを4件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "zekku",
+    "legacy_id": 40,
+    "class": "Zekkuu",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\Zekkuu.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\zekku.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      2
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "tumuzi_guruma",
+    "legacy_id": 41,
+    "class": "TumuziGuruma",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\TumuziGuruma.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\tumuzi_guruma.json",
+    "status": "draft_created",
+    "duration_ticks": 15,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      4,
+      9,
+      13
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0)",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported numeric expression: 10-((((player)))).getXRot()*2",
+      "tick 9のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0)",
+      "tick 13のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0)",
+      "tick 13のperformSlash呼び出しを変換できません: unsupported numeric expression: 10-((((player)))).getXRot()*2",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "gengetu",
+    "legacy_id": 42,
+    "class": "GenGetu",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\GenGetu.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\gengetu.json",
+    "status": "draft_created",
+    "duration_ticks": 20,
+    "rush_start_ticks": 10,
+    "detected_final_ticks": [
+      8
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。",
+      "tick 8にランダム分岐があります。抽出イベントは1つの分岐値を使用するため、legacy_fallback=trueで元のJava挙動を維持します。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。",
+      "開始用 .start アニメーションがないため、既存アニメーションの最長時間からrush_start_ticksを推定しました。必要に応じて手動調整してください。"
+    ]
+  },
+  {
+    "name": "hiougi",
+    "legacy_id": 43,
+    "class": "Hiougi",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\katana\\Hiougi.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\hiougi.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      6,
+      10,
+      16
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0).add((((((player)))).getLookAngle()).scale(((0) == 2 ? 3.5f : 2f)))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0).add((((((player)))).getLookAngle()).scale(((1) == 2 ? 3.5f : 2f)))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0).add((((((player)))).getLookAngle()).scale(((2) == 2 ? 3.5f : 2f)))",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "cascade",
+    "legacy_id": 44,
+    "class": "CasCade",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\two_handed_sword\\CasCade.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\cascade.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "aban_rash",
+    "legacy_id": 45,
+    "class": "AbanRash",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\two_handed_sword\\AbanRash.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\aban_rash.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      7
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "cyclone",
+    "legacy_id": 46,
+    "class": "Cyclone",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\two_handed_sword\\Cyclone.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\cyclone.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      4
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 1のperformSlash呼び出しを変換できません: unsupported numeric expression: (float) 0.1",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported numeric expression: 10-((((player)))).getXRot()*2",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "stan_hazard",
+    "legacy_id": 47,
+    "class": "StanHazard",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\two_handed_sword\\StanHazard.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\stan_hazard.json",
+    "status": "draft_created",
+    "duration_ticks": 32,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      6,
+      12,
+      16,
+      26,
+      31
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを5件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを5件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "slash_blade",
+    "legacy_id": 48,
+    "class": "SlashBlade",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\two_handed_sword\\SlashBlade.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\slash_blade.json",
+    "status": "draft_created",
+    "duration_ticks": 22,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを1件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "linear",
+    "legacy_id": 49,
+    "class": "Linear",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\Linear.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\linear.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "parallel_sting",
+    "legacy_id": 50,
+    "class": "ParallelSting",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\ParallelSting.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\parallel_sting.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      10
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "quadraple_pain",
+    "legacy_id": 51,
+    "class": "QuadraplePain",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\QuadraplePain.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\quadraple_pain.json",
+    "status": "draft_created",
+    "duration_ticks": 14,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      7,
+      11,
+      14
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 7のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "cruci_fiction",
+    "legacy_id": 52,
+    "class": "Crucifiction",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\Crucifiction.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\cruci_fiction.json",
+    "status": "draft_created",
+    "duration_ticks": 29,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      10,
+      14,
+      19,
+      24,
+      29
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 19のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 24のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 29のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを6件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "star_splash",
+    "legacy_id": 53,
+    "class": "StarSplash",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\StarSplash.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\star_splash.json",
+    "status": "draft_created",
+    "duration_ticks": 31,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      2,
+      6,
+      9,
+      12,
+      16,
+      20,
+      25,
+      31
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 2のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 9のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 12のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 20のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 25のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 31のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを8件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "stary_tier",
+    "legacy_id": 54,
+    "class": "StaryTier",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\StaryTier.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\stary_tier.json",
+    "status": "draft_created",
+    "duration_ticks": 21,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      7,
+      11,
+      14,
+      21
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()))",
+      "tick 7のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()))",
+      "tick 21のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()))",
+      "単純なJava効果音呼び出しを5件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "mothers_rosario",
+    "legacy_id": 55,
+    "class": "MothersRosario",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\MothersRosario.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\mothers_rosario.json",
+    "status": "draft_created",
+    "duration_ticks": 37,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      7,
+      10,
+      12,
+      16,
+      19,
+      22,
+      25,
+      28,
+      32,
+      37
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(0))",
+      "tick 7のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(1))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(2))",
+      "tick 12のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(3))",
+      "tick 16のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(4))",
+      "tick 19のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(5))",
+      "tick 22のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(6))",
+      "tick 25のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(7))",
+      "tick 28のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(8))",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(9))",
+      "tick 37のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle_Purple()),(10))",
+      "単純なJava効果音呼び出しを11件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "shooting_star",
+    "legacy_id": 56,
+    "class": "ShootingStar",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\ShootingStar.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\shooting_star.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      3
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "flashing_penetrator",
+    "legacy_id": 57,
+    "class": "FlashingPenetrator",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\rapier\\FlashingPenetrator.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\flashing_penetrator.json",
+    "status": "draft_created",
+    "duration_ticks": 6,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      6
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported numeric expression: -(MinecraftRot).y-(((player))).getXRot()"
+    ]
+  },
+  {
+    "name": "canine",
+    "legacy_id": 58,
+    "class": "Canine",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\Canine.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\canine.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "face_liner",
+    "legacy_id": 59,
+    "class": "FaceLiner",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\FaceLiner.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\face_liner.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      6,
+      10,
+      14
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 3のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((Spia_Particle()))",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "fad_edge",
+    "legacy_id": 60,
+    "class": "FadEdge",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\FadEdge.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\fad_edge.json",
+    "status": "draft_created",
+    "duration_ticks": 17,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      8,
+      10,
+      14,
+      17
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 8のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 14のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "tick 17のperformSlash呼び出しを変換できません: unsupported Vector3f expression: Setsize((NomalSkillTexture()))",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "rapid_bite",
+    "legacy_id": 61,
+    "class": "RapidBite",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\RapidBite.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\rapid_bite.json",
+    "status": "draft_created",
+    "duration_ticks": 200,
+    "rush_start_ticks": 11,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。",
+      "攻撃イベントの実行tickを特定できません。"
+    ]
+  },
+  {
+    "name": "octagon_edge",
+    "legacy_id": 62,
+    "class": "OctagonEdge",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\OctagonEdge.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\octagon_edge.json",
+    "status": "draft_created",
+    "duration_ticks": 18,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      6,
+      10,
+      14,
+      18
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを5件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを5件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "kodati",
+    "legacy_id": 63,
+    "class": "Kodati",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\dagger\\Kodati.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\kodati.json",
+    "status": "draft_created",
+    "duration_ticks": 11,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      6,
+      11
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを3件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "barrick",
+    "legacy_id": 64,
+    "class": "Barrick",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\Barrick.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\barrick.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "reaper_of_life",
+    "legacy_id": 65,
+    "class": "ReaperOfLife",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\ReaperOfLife.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\reaper_of_life.json",
+    "status": "draft_created",
+    "duration_ticks": 12,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      11
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "reaper_of_death",
+    "legacy_id": 66,
+    "class": "ReaperOfDeath",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\ReaperOfDeath.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\reaper_of_death.json",
+    "status": "draft_created",
+    "duration_ticks": 12,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      11
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "shadow_scythe",
+    "legacy_id": 67,
+    "class": "ShadowScythe",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\ShadowScythe.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\shadow_scythe.json",
+    "status": "draft_created",
+    "duration_ticks": 7,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      7
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "requiem",
+    "legacy_id": 68,
+    "class": "Requiem",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\Requiem.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\requiem.json",
+    "status": "draft_created",
+    "duration_ticks": 26,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      11,
+      18,
+      26
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(0))",
+      "tick 11のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(1))",
+      "tick 18のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(2))",
+      "tick 26のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(3))",
+      "tick 26のperformSlash呼び出しを変換できません: unsupported numeric expression: 6-((((player)))).getXRot()*2",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "storm",
+    "legacy_id": 69,
+    "class": "Storm",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\Storm.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\storm.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      4,
+      6
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "tick 4のperformSlash呼び出しを変換できません: unsupported numeric expression: (float) 0.1",
+      "tick 6のperformSlash呼び出しを変換できません: unsupported numeric expression: 10-((((player)))).getXRot()*2",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "storm_mirror",
+    "legacy_id": 70,
+    "class": "StormMirror",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\StormMirror.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\storm_mirror.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      5,
+      7
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。",
+      "tick 5のperformSlash呼び出しを変換できません: unsupported attack position expression: (((player))).position().add(0, (((player))).getEyeHeight() * 0.75, 0)",
+      "tick 7のperformSlash呼び出しを変換できません: unsupported numeric expression: -10-((((player)))).getXRot()*2",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "judgment",
+    "legacy_id": 71,
+    "class": "Judgment",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\scythe\\Judgment.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\judgment.json",
+    "status": "draft_created",
+    "duration_ticks": 38,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      10,
+      15,
+      18,
+      23,
+      25,
+      32,
+      34,
+      38
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "tick 3のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(0))",
+      "tick 10のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(1))",
+      "tick 15のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(2))",
+      "tick 18のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(1))",
+      "tick 23のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(3))",
+      "tick 25のperformSlash呼び出しを変換できません: unsupported numeric expression: 6-((((player)))).getXRot()*2",
+      "tick 32のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(3))",
+      "tick 34のperformSlash呼び出しを変換できません: unsupported numeric expression: 6-((((player)))).getXRot()*2",
+      "tick 38のperformSlash呼び出しを変換できません: unsupported attack position expression: calculateRelativePosition((((player))),(((((player)))).getLookAngle()),(5))",
+      "単純なJava効果音呼び出しを9件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "talon",
+    "legacy_id": 72,
+    "class": "Talon",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\Talon.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\talon.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。"
+    ]
+  },
+  {
+    "name": "hant",
+    "legacy_id": 73,
+    "class": "Hant",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\Hant.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\hant.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。"
+    ]
+  },
+  {
+    "name": "hant_killer",
+    "legacy_id": 74,
+    "class": "HantKiller",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\HantKiller.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\hant_killer.json",
+    "status": "draft_created",
+    "duration_ticks": 16,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      4,
+      8,
+      13,
+      16
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "tiger_claw",
+    "legacy_id": 75,
+    "class": "TigerClaw",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\TigerClaw.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\tiger_claw.json",
+    "status": "draft_created",
+    "duration_ticks": 14,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      4,
+      10,
+      13
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。"
+    ]
+  },
+  {
+    "name": "dragon_claw",
+    "legacy_id": 76,
+    "class": "DragonClaw",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\DragonClaw.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\dragon_claw.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      1,
+      7,
+      9
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。"
+    ]
+  },
+  {
+    "name": "beast_claw",
+    "legacy_id": 77,
+    "class": "BeastClaw",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\BeastClaw.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\beast_claw.json",
+    "status": "draft_created",
+    "duration_ticks": 9,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      4,
+      7,
+      9
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "単純なJava効果音呼び出しを4件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "golden_claw",
+    "legacy_id": 78,
+    "class": "GoldClaw",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\GoldClaw.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\golden_claw.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。"
+    ]
+  },
+  {
+    "name": "fast",
+    "legacy_id": 79,
+    "class": "Fast",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\claw\\Fast.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\fast.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": 10,
+    "detected_final_ticks": [
+      1
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  },
+  {
+    "name": "grand",
+    "legacy_id": 80,
+    "class": "Grand",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\mace\\Grand.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\grand.json",
+    "status": "draft_created",
+    "duration_ticks": 5,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。"
+    ]
+  },
+  {
+    "name": "double_creep",
+    "legacy_id": 81,
+    "class": "DoubleCreep",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\mace\\DoubleCreep.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\double_creep.json",
+    "status": "draft_created",
+    "duration_ticks": 10,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      3,
+      10
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを2件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "hammer_down",
+    "legacy_id": 82,
+    "class": "HammerDown",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\mace\\HammerDown.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\hammer_down.json",
+    "status": "draft_created",
+    "duration_ticks": 8,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      7
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "JavaのspawnAttackEffect呼び出しを1件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを2件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "diastrophism",
+    "legacy_id": 83,
+    "class": "Diastrophism",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\mace\\Diastrophism.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\diastrophism.json",
+    "status": "draft_created",
+    "duration_ticks": 18,
+    "rush_start_ticks": null,
+    "detected_final_ticks": [
+      5,
+      11,
+      18
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "JavaのspawnAttackEffect呼び出しを3件projectilesへ変換しました。生成後に見た目と当たり範囲を確認してください。",
+      "単純なJava効果音呼び出しを3件 soundsイベントへ変換しました。その他の効果音再生方法は手動で移植してください。"
+    ]
+  },
+  {
+    "name": "mace_impact",
+    "legacy_id": 84,
+    "class": "MaceImpact",
+    "source": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\src\\main\\java\\com\\zoma1101\\swordskill\\swordskills\\skill\\mace\\MaceImpact.java",
+    "output": "D:\\MOD\\Mods\\NeoForge[1.21.1]\\Swordskill\\build\\skilldata_migration\\mace_impact.json",
+    "status": "draft_created",
+    "duration_ticks": 200,
+    "rush_start_ticks": 16,
+    "detected_final_ticks": [
+      1,
+      5
+    ],
+    "warnings": [
+      "単純なspawnAttackEffectと既知の効果音呼び出し以外のJava固有処理は自動変換されません。SimpleSkillSound/StrongSkillSound/GodSkillSound以外の音も手動移植が必要です。",
+      "旧形式の攻撃エフェクト生成(spawnAttackEffect)を検出しました。自動抽出したprojectilesとlegacy_fallbackの設定を確認してください。",
+      "プレイヤー移動処理(setDeltaMovement)を検出しました。motionsへの手動変換が必要です。",
+      "状態効果の処理を検出しました。skilldataのeffectsへ手動変換してください。",
+      "独自アニメーション切替を検出しました。skilldataのアニメーション設定へ手動移植してください。"
+    ]
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": 67,
+  "name": "shadow_scythe",
+  "replace_builtin": true,
+  "animation": "shadow_scythe",
+  "type": "SIMPLE",
+  "weapons": [
+    "SCYTHE"
+  ],
+  "cooldown": 160,
+  "sp_cost": 25.0,
+  "duration_ticks": 7,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 3,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -5.0,
+        0.0,
+        135.0
+      ],
+      "size": [
+        8.0,
+        3.0,
+        4.0
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/purple",
+      "sound": ""
+    },
+    {
+      "tick": 7,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -5.0,
+        0.0,
+        -15.0
+      ],
+      "size": [
+        8.0,
+        3.0,
+        4.0
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/purple",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 7,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

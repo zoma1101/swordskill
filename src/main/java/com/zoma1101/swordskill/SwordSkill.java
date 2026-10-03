@@ -4,12 +4,15 @@ import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDataLoader;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
+import com.zoma1101.swordskill.data.SkillDataLoader;
 import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
 import com.zoma1101.swordskill.loot.ModLootModifiers;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -19,6 +22,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 
@@ -26,7 +30,7 @@ import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
     public static final String MOD_ID = "swordskill";
-    public static final String PROTOCOL_VERSION = "1";
+    public static final String PROTOCOL_VERSION = "2";
 
     public SwordSkill(IEventBus modEventBus, ModContainer container) {
         SwordSkill_Entities.register(modEventBus);
@@ -46,6 +50,14 @@ public class SwordSkill {
 
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
+        if (SkillDataLoader.consumeSyncPending()) {
+            var payloads = SyncDataSkillsPayload.createBatch(SwordSkillRegistry.getDataDrivenDefinitions());
+            for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
+                for (SyncDataSkillsPayload payload : payloads) {
+                    PacketDistributor.sendToPlayer(player, payload);
+                }
+            }
+        }
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             SkillExecutionManager.handleSkillExecution(event.getServer().getLevel(player.level().dimension()), player);
         }
@@ -55,5 +67,6 @@ public class SwordSkill {
         WeaponTypeDataLoader dataLoader = new WeaponTypeDataLoader();
         event.addListener(dataLoader);
         WeaponTypeDetector.initialize(dataLoader);
+        event.addListener(new SkillDataLoader());
     }
 }

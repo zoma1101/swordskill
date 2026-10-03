@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": 41,
+  "name": "tumuzi_guruma",
+  "replace_builtin": true,
+  "animation": "tumuzi_guruma",
+  "type": "SIMPLE",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 250,
+  "sp_cost": 20.0,
+  "duration_ticks": 15,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 9,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 13,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

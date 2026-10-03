@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": 10,
+  "name": "holy_cross_brade",
+  "replace_builtin": true,
+  "animation": "holy_cross_brade",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "DUALSWORD"
+  ],
+  "cooldown": 140,
+  "sp_cost": 15.0,
+  "duration_ticks": 7,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 1,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        90.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/holy",
+      "sound": ""
+    },
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -20.0,
+        5.0,
+        175.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/holy",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

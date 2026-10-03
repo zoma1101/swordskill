@@ -267,6 +267,13 @@ public class AttackEffectEntity extends Entity {
         setDeltaMovement(velocity.add(upVelocity).add(rightVelocity).scale(0.8f));
     }
 
+    public void setTravelDistance(double travelDistance) {
+        Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
+        double ticks = Math.max(1, duration);
+        double totalTravelFactor = (1.0 - Math.pow(0.99, ticks)) / 0.01;
+        setDeltaMovement(direction.scale(travelDistance / totalTravelFactor));
+    }
+
     public void setSkillParticle(String skillParticle) {
         this.entityData.set(SKILL_PARTICLE, skillParticle);
     }

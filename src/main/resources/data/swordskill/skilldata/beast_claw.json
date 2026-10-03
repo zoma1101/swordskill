@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": 77,
+  "name": "beast_claw",
+  "replace_builtin": true,
+  "animation": "beast_claw",
+  "type": "SIMPLE",
+  "weapons": [
+    "CLAW"
+  ],
+  "cooldown": 200,
+  "sp_cost": 20.0,
+  "duration_ticks": 9,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 7,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 9,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

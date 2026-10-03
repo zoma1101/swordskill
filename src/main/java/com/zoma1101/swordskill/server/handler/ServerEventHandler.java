@@ -7,11 +7,15 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.data.SkillDataLoader;
 import com.zoma1101.swordskill.data.WeaponData;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.payload.SkillSlotInfoPayload;
 import com.zoma1101.swordskill.payload.SyncSPPayload;
+import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
 import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -108,6 +112,10 @@ public class ServerEventHandler {
             mainHandItems.remove(player);
             offHandItems.remove(player);
             WeaponTypeUtils.setWeaponType(player); // ログイン時に武器タイプを設定
+            for (SyncDataSkillsPayload payload : SyncDataSkillsPayload.createBatch(
+                    SwordSkillRegistry.getDataDrivenDefinitions())) {
+                PacketDistributor.sendToPlayer(player, payload);
+            }
             sendSkillSlotInfo(player); // ログイン時にスキル情報を送信
             syncUnlockedSkills(player); // ログイン時にアンロック情報を送信
 
@@ -157,6 +165,7 @@ public class ServerEventHandler {
             mainHandItems.remove(player);
             offHandItems.remove(player);
             SkillExecutionManager.skillExecutions.remove(player.getUUID());
+            DataDrivenSkill.clearPlayerState(player.getUUID());
             com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
         }
     }

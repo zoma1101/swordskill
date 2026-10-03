@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "id": 82,
+  "name": "hammer_down",
+  "replace_builtin": true,
+  "animation": "hammer_down",
+  "type": "SIMPLE",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 325,
+  "sp_cost": 40.0,
+  "duration_ticks": 8,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 7,
+      "offset": [
+        0.0,
+        1.215,
+        1.5
+      ],
+      "rotation": [
+        0.0,
+        20.0,
+        85.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 4.0,
+      "damage_type": "BASE",
+      "knockback": 1.05,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 7,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 7,
+      "sound": "minecraft:item.totem.use",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ]
+}

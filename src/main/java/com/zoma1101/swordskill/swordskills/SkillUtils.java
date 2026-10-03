@@ -23,6 +23,20 @@ import java.util.UUID;
 
 public class SkillUtils {
     public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner, double damage, double knockback, int duration, String skill_particle,Vec3 Movement) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle,
+                Movement, false, 0);
+    }
+
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                Vec3.ZERO, true, travelDistance);
+    }
+
+    private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance) {
         if (!level.isClientSide) {
             AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
             effect.setPos(position.x, position.y, position.z); // 位置を設定
@@ -33,9 +47,13 @@ public class SkillUtils {
             effect.setDamage(damage); // ダメージ設定
             effect.setKnockbackStrength(knockback); // ノックバック設定
             effect.setEffectRadius(size); // 範囲設定
-            effect.setSkillParticle(skill_particle);
-            effect.setDuration(duration); // 持続時間設定
-            effect.setMovement(Movement);
+            effect.setSkillParticle(skillParticle);
+            effect.setDuration(duration);
+            if (flyingSlash) {
+                effect.setTravelDistance(travelDistance);
+            } else {
+                effect.setMovement(movement);
+            }
             level.addFreshEntity(effect); // エンティティを追加
             SwingArm((ServerPlayer) owner);
         }

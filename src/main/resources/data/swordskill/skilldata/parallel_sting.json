@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": 50,
+  "name": "parallel_sting",
+  "replace_builtin": true,
+  "animation": "parallel_sting",
+  "type": "SIMPLE",
+  "weapons": [
+    "RAPIER"
+  ],
+  "cooldown": 120,
+  "sp_cost": 10.0,
+  "duration_ticks": 10,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 10,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

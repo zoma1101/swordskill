@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": 19,
+  "name": "blood_finisher",
+  "replace_builtin": true,
+  "animation": "blood_finisher",
+  "type": "SIMPLE",
+  "weapons": [
+    "AXE"
+  ],
+  "cooldown": 280,
+  "sp_cost": 15.0,
+  "duration_ticks": 16,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 2,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 8,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 15,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": 80,
+  "name": "grand",
+  "replace_builtin": true,
+  "animation": "grand",
+  "type": "SIMPLE",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 75,
+  "sp_cost": 10.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 0,
+      "offset": [
+        0.0,
+        1.215,
+        2.0
+      ],
+      "rotation": [
+        -20.0,
+        0.0,
+        175.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 1.2,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": []
+}

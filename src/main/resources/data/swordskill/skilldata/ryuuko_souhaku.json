@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": 26,
+  "name": "ryuuko_souhaku",
+  "replace_builtin": true,
+  "animation": "ryuuko_souhaku",
+  "type": "SIMPLE",
+  "weapons": [
+    "AXE"
+  ],
+  "cooldown": 900,
+  "sp_cost": 70.0,
+  "duration_ticks": 31,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 5,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 11,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 18,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 23,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 31,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ]
+}

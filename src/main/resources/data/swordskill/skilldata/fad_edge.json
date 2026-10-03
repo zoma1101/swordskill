@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": 60,
+  "name": "fad_edge",
+  "replace_builtin": true,
+  "animation": "fad_edge",
+  "type": "SIMPLE",
+  "weapons": [
+    "DAGGER"
+  ],
+  "cooldown": 150,
+  "sp_cost": 18.0,
+  "duration_ticks": 17,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 8,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 14,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 17,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": 22,
+  "name": "excite_triangle",
+  "replace_builtin": true,
+  "animation": "excite_triangle",
+  "type": "TRANSFORM_FINISH",
+  "weapons": [
+    "AXE",
+    "TWO_HANDED_SWORD",
+    "MACE"
+  ],
+  "cooldown": 250,
+  "sp_cost": 12.0,
+  "duration_ticks": 7,
+  "transform_limit_ticks": 20,
+  "hidden": true,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ]
+}

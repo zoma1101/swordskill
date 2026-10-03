@@ -2,6 +2,7 @@ package com.zoma1101.swordskill.server.handler;
 
 import com.zoma1101.swordskill.payload.PlayAnimationPayload;
 import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
@@ -19,9 +20,21 @@ public class SkillExecutionManager {
     public static final Map<UUID, SkillExecutionData> skillExecutions = new HashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void startSkillExecution(ServerPlayer player, int skillId, int finalTick) {
+    public static void startSkillExecution(ServerPlayer player, int skillId, int finalTick, float chargeMultiplier) {
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+        DataDrivenSkill.setChargeMultiplier(player.getUUID(), chargeMultiplier);
         // 現在のホットバースロットを保存してインスタンス生成
-        skillExecutions.put(player.getUUID(), new SkillExecutionData(skillId, (int) player.level().getGameTime(), finalTick, player.getInventory().selected));
+        SkillExecutionData execution = new SkillExecutionData(
+                skillId, (int) player.level().getGameTime(), finalTick, player.getInventory().selected);
+        SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+        if (skill != null && skill.getDataDefinition() != null
+                && skill.getType() == SkillData.SkillType.RUSH) {
+            execution.rushPhase = "start";
+            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                    new PlayAnimationPayload(player.getId(), skillId,
+                            animationForPhase(skill, execution.rushPhase)));
+        }
+        skillExecutions.put(player.getUUID(), execution);
         LOGGER.info("スキル実行開始: プレイヤー={}, スキルID={}, 終了Tick={}", player.getName().getString(), skillId, finalTick);
     }
 
@@ -39,9 +52,18 @@ public class SkillExecutionManager {
 
             int currentTick = (int) level.getGameTime();
             if (currentTick - skillExecution.startTick <= skillExecution.finalTick) {
-                executeSkill(level, player, skillExecution.skillId, currentTick - skillExecution.startTick);
+                int elapsedTicks = currentTick - skillExecution.startTick;
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillExecution.skillId);
+                if (skill != null && skill.getDataDefinition() != null
+                        && skill.getType() == SkillData.SkillType.RUSH
+                        && elapsedTicks >= skill.getDataDefinition().rushStartTicks()
+                        && "start".equals(skillExecution.rushPhase)) {
+                    setRushPhase(player, skillExecution, "move");
+                }
+                executeSkill(level, player, skillExecution.skillId, elapsedTicks);
             } else {
                 skillExecutions.remove(playerId);
+                DataDrivenSkill.clearPlayerState(playerId);
                 if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
                     PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), 0,""));
                 }
@@ -61,11 +83,45 @@ public class SkillExecutionManager {
         return data != null ? data.skillId : -1;
     }
 
+    public static void finishRush(ServerPlayer player) {
+        SkillExecutionData execution = skillExecutions.get(player.getUUID());
+        if (execution == null) {
+            return;
+        }
+        SkillData skill = SwordSkillRegistry.SKILLS.get(execution.skillId);
+        if (skill == null || skill.getDataDefinition() == null
+                || skill.getType() != SkillData.SkillType.RUSH
+                || "finish".equals(execution.rushPhase)) {
+            return;
+        }
+        setRushPhase(player, execution, "finish");
+        skillExecutions.remove(player.getUUID());
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+    }
+
+    private static void setRushPhase(ServerPlayer player, SkillExecutionData execution, String phase) {
+        execution.rushPhase = phase;
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new PlayAnimationPayload(player.getId(), execution.skillId,
+                        animationForPhase(SwordSkillRegistry.SKILLS.get(execution.skillId), phase)));
+    }
+
+    private static String animationForPhase(SkillData skill, String phase) {
+        var definition = skill.getDataDefinition();
+        return switch (phase) {
+            case "start" -> definition.rushStartAnimation();
+            case "move" -> definition.rushMoveAnimation();
+            case "finish" -> definition.rushFinishAnimation();
+            default -> phase;
+        };
+    }
+
     private static class SkillExecutionData {
         int skillId;
         int startTick;
         int finalTick;
         int initialSlot;
+        String rushPhase;
 
         public SkillExecutionData(int skillId, int startTick, int finalTick, int initialSlot) {
             this.skillId = skillId;

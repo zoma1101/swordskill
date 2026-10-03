@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": 39,
+  "name": "sakura_mai",
+  "replace_builtin": true,
+  "animation": "sakura_mai",
+  "type": "SIMPLE",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 175,
+  "sp_cost": 20.0,
+  "duration_ticks": 20,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 4,
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        135.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_pink",
+      "sound": ""
+    },
+    {
+      "tick": 7,
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        45.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_pink",
+      "sound": ""
+    },
+    {
+      "tick": 14,
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        135.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_pink",
+      "sound": ""
+    },
+    {
+      "tick": 18,
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        45.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 1.2,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_pink",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 7,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 14,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 18,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

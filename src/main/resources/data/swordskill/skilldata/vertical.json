@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 5,
+  "name": "vertical",
+  "replace_builtin": true,
+  "animation": "vertical",
+  "type": "TRANSFORM",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA",
+    "DUALSWORD"
+  ],
+  "cooldown": 60,
+  "sp_cost": 8.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 0,
+      "offset": [
+        0.0,
+        1.215,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        20.0,
+        95.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.75,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": []
+}

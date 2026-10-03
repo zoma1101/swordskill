@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": 48,
+  "name": "slash_blade",
+  "replace_builtin": true,
+  "animation": "slash_blade",
+  "type": "SIMPLE",
+  "weapons": [
+    "TWO_HANDED_SWORD"
+  ],
+  "cooldown": 150,
+  "sp_cost": 20.0,
+  "duration_ticks": 22,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 2,
+      "offset": [
+        0.0,
+        0.81,
+        0.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        20.0
+      ],
+      "size": [
+        8.0,
+        2.0,
+        8.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 2,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

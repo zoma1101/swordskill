@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": 47,
+  "name": "stan_hazard",
+  "replace_builtin": true,
+  "animation": "stan_hazard",
+  "type": "SIMPLE",
+  "weapons": [
+    "TWO_HANDED_SWORD"
+  ],
+  "cooldown": 250,
+  "sp_cost": 25.0,
+  "duration_ticks": 32,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -11.0,
+        0.0,
+        45.0
+      ],
+      "size": [
+        6.4,
+        3.0,
+        6.4
+      ],
+      "damage_multiplier": 1.8,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    },
+    {
+      "tick": 12,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -7.0,
+        0.0,
+        150.0
+      ],
+      "size": [
+        6.4,
+        3.0,
+        6.4
+      ],
+      "damage_multiplier": 1.2,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    },
+    {
+      "tick": 16,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        -30.0
+      ],
+      "size": [
+        0.75,
+        0.75,
+        4.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_softred",
+      "sound": ""
+    },
+    {
+      "tick": 26,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -7.0,
+        20.0,
+        90.0
+      ],
+      "size": [
+        6.4,
+        3.0,
+        6.4
+      ],
+      "damage_multiplier": 3.0,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    },
+    {
+      "tick": 31,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -7.0,
+        0.0,
+        10.0
+      ],
+      "size": [
+        6.4,
+        3.0,
+        6.4
+      ],
+      "damage_multiplier": 1.2,
+      "damage_type": "BASE",
+      "knockback": 0.85,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 12,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 16,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 26,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 31,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

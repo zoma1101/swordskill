@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": 78,
+  "name": "golden_claw",
+  "replace_builtin": true,
+  "animation": "golden_claw",
+  "type": "SIMPLE",
+  "weapons": [
+    "CLAW"
+  ],
+  "cooldown": 225,
+  "sp_cost": 30.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": []
+}

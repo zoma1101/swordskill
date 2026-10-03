@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": 33,
+  "name": "end_revolver",
+  "replace_builtin": true,
+  "animation": "end_revolver",
+  "type": "SIMPLE",
+  "weapons": [
+    "DUALSWORD"
+  ],
+  "cooldown": 100,
+  "sp_cost": 10.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

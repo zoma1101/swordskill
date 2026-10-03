@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "id": 8,
+  "name": "x_break",
+  "replace_builtin": true,
+  "animation": "x_break",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA",
+    "DUALSWORD"
+  ],
+  "cooldown": 80,
+  "sp_cost": 10.0,
+  "duration_ticks": 6,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 1,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        135.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 5,
+      "offset": [
+        0.0,
+        0.0,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        45.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 5,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

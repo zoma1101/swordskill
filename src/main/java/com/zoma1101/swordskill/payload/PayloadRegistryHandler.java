@@ -48,6 +48,8 @@ public class PayloadRegistryHandler {
                 PlayAnimationPayload::handleClient);
         registrar.playToClient(SkillSlotInfoPayload.TYPE, SkillSlotInfoPayload.STREAM_CODEC,
                 SkillSlotInfoPayload::handleClient);
+        registrar.playToClient(SyncDataSkillsPayload.TYPE, SyncDataSkillsPayload.STREAM_CODEC,
+                SyncDataSkillsPayload::handleClient);
         registrar.playToClient(SyncSPPayload.TYPE, SyncSPPayload.STREAM_CODEC, SyncSPPayload::handle);
 
         LOGGER.info("Network payloads registration complete.");

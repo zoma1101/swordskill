@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": 38,
+  "name": "reaper",
+  "replace_builtin": true,
+  "animation": "reaper",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA",
+    "DAGGER"
+  ],
+  "cooldown": 100,
+  "sp_cost": 6.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 3,
+      "offset": [
+        0.0,
+        0.81,
+        2.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        40.0
+      ],
+      "size": [
+        0.75,
+        0.75,
+        5.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "RUSH",
+      "knockback": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

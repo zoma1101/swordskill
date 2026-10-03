@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "id": 62,
+  "name": "octagon_edge",
+  "replace_builtin": true,
+  "animation": "octagon_edge",
+  "type": "SIMPLE",
+  "weapons": [
+    "DAGGER"
+  ],
+  "cooldown": 160,
+  "sp_cost": 20.0,
+  "duration_ticks": 18,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 3,
+      "offset": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        45.0
+      ],
+      "size": [
+        0.2,
+        0.2,
+        4.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "rotation": [
+        6.0,
+        -5.0,
+        135.0
+      ],
+      "size": [
+        0.2,
+        0.2,
+        4.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 10,
+      "offset": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        5.0
+      ],
+      "size": [
+        0.2,
+        0.2,
+        4.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 14,
+      "offset": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "rotation": [
+        0.0,
+        5.0,
+        79.0
+      ],
+      "size": [
+        0.2,
+        0.2,
+        4.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 18,
+      "offset": [
+        0.0,
+        0.0,
+        1.5
+      ],
+      "rotation": [
+        0.0,
+        5.0,
+        -30.0
+      ],
+      "size": [
+        0.2,
+        0.2,
+        4.0
+      ],
+      "damage_multiplier": 3.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 10,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 14,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 18,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

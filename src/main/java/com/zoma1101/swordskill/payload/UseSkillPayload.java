@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.payload;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,7 +23,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
 import static com.zoma1101.swordskill.data.SkillDataFetcher.isSkillUnlocked;
 
-public record UseSkillPayload(int skillId, int finalTick) implements CustomPacketPayload {
+public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) implements CustomPacketPayload {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static final Type<UseSkillPayload> TYPE = new Type<>(
@@ -36,6 +37,8 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
             UseSkillPayload::skillId,
             ByteBufCodecs.INT,
             UseSkillPayload::finalTick,
+            ByteBufCodecs.VAR_INT,
+            UseSkillPayload::chargeTicks,
             UseSkillPayload::new);
 
     @Override
@@ -47,6 +50,11 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
         ctx.enqueueWork(() -> {
             if (!(ctx.player() instanceof ServerPlayer player)) {
                 LOGGER.warn("Received UseSkillPayload from non-ServerPlayer: {}", ctx.player().getName().getString());
+                return;
+            }
+            if (msg.chargeTicks() < 0 || msg.chargeTicks() > DataDrivenSkill.MAX_CHARGE_TICKS) {
+                LOGGER.warn("Player {} sent invalid skill charge duration {}.",
+                        player.getName().getString(), msg.chargeTicks());
                 return;
             }
 
@@ -87,9 +95,10 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
                 }
 
                 if (msg.finalTick() == 0) {
-                    executeSkill(player, skill);
+                    executeSkill(player, skill, msg.chargeTicks());
                 } else {
-                    SkillExecutionManager.startSkillExecution(player, msg.skillId(), msg.finalTick());
+                    SkillExecutionManager.startSkillExecution(player, msg.skillId(), msg.finalTick(),
+                            DataDrivenSkill.chargeMultiplier(msg.chargeTicks()));
                 }
             } else if (skill == null) {
                 LOGGER.warn("Skill with ID {} not found for player {}.", msg.skillId(), player.getName().getString());
@@ -100,7 +109,9 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
         });
     }
 
-    private static void executeSkill(ServerPlayer player, SkillData skill) {
+    private static void executeSkill(ServerPlayer player, SkillData skill, int chargeTicks) {
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+        DataDrivenSkill.setChargeMultiplier(player.getUUID(), DataDrivenSkill.chargeMultiplier(chargeTicks));
         try {
             ISkill skillInstance = skill.getSkillClass().getDeclaredConstructor().newInstance();
             skillInstance.execute(player.level(), player, 0, skill.getId());
@@ -109,6 +120,8 @@ public record UseSkillPayload(int skillId, int finalTick) implements CustomPacke
         } catch (Exception e) {
             LOGGER.error("Error executing skill {} (ID: {}) for player {}", skill.getName(), skill.getId(),
                     player.getName().getString(), e);
+        } finally {
+            DataDrivenSkill.clearPlayerState(player.getUUID());
         }
     }
 }

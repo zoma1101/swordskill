@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": 56,
+  "name": "shooting_star",
+  "replace_builtin": true,
+  "animation": "shooting_star",
+  "type": "SIMPLE",
+  "weapons": [
+    "RAPIER"
+  ],
+  "cooldown": 150,
+  "sp_cost": 35.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 3,
+      "offset": [
+        0.0,
+        0.0,
+        5.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        20.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        11.0
+      ],
+      "damage_multiplier": 4.5,
+      "damage_type": "RUSH",
+      "knockback": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": []
+}

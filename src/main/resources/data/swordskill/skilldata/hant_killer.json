@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": 74,
+  "name": "hant_killer",
+  "replace_builtin": true,
+  "animation": "hant_killer",
+  "type": "TRANSFORM_FINISH",
+  "weapons": [
+    "CLAW"
+  ],
+  "cooldown": 200,
+  "sp_cost": 12.0,
+  "duration_ticks": 16,
+  "transform_limit_ticks": 20,
+  "hidden": true,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 8,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 13,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 16,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

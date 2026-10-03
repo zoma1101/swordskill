@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": 1,
+  "name": "slant",
+  "replace_builtin": true,
+  "animation": "slant",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "TWO_HANDED_SWORD",
+    "KATANA",
+    "RAPIER",
+    "DUALSWORD"
+  ],
+  "cooldown": 50,
+  "sp_cost": 5.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 0,
+      "offset": [
+        0.0,
+        1.215,
+        2.0
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        135.0
+      ],
+      "size": [
+        6.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": []
+}

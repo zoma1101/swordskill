@@ -22,6 +22,7 @@ public class SkillData {
     private final int final_tick;
     private final int transform_limit_tick;
     private final double spCost;
+    private final DataSkillDefinition dataDefinition;
 
     // ★追加: 外部データを保存するためのマップ
     private final Map<String, Object> additionalData = new HashMap<>();
@@ -29,6 +30,13 @@ public class SkillData {
     public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
             Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
             int TransformLimitTick) {
+        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick,
+                TransformLimitTick, null);
+    }
+
+    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
+            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
+            int TransformLimitTick, DataSkillDefinition dataDefinition) {
         this.id = id;
         this.name = name;
         this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/" + this.name + ".png");
@@ -40,6 +48,7 @@ public class SkillData {
         this.isHide = isHide;
         this.final_tick = final_tick;
         this.transform_limit_tick = TransformLimitTick;
+        this.dataDefinition = dataDefinition;
     }
 
     // ゲッターメソッド
@@ -124,6 +133,10 @@ public class SkillData {
 
     public Class<? extends ISkill> getSkillClass() {
         return skillClass;
+    }
+
+    public DataSkillDefinition getDataDefinition() {
+        return dataDefinition;
     }
 
     public enum SkillType {

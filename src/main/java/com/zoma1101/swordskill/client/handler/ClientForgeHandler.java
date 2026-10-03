@@ -1,12 +1,14 @@
 package com.zoma1101.swordskill.client.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.AnimationUtils;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.payload.RequestUnlockSkillPayload;
 import com.zoma1101.swordskill.payload.SkillLoadSlotPayload;
 import com.zoma1101.swordskill.payload.SkillRequestPayload;
@@ -15,6 +17,14 @@ import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,6 +55,7 @@ public class ClientForgeHandler {
     private static Integer limitTickMax = 20;
     private static final Integer limitTickMin = 0; // 0に短縮して反応を改善
     private static boolean SetWeaponType = false;
+    private static SkillCharge activeSkillCharge;
 
     @SubscribeEvent
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
@@ -53,6 +64,7 @@ public class ClientForgeHandler {
         cooldowns.clear();
         addSkillIndex = 0;
         skillUsedTicks = null;
+        clearSkillCharge(Minecraft.getInstance().player);
         SetWeaponType = false;
     }
 
@@ -80,25 +92,7 @@ public class ClientForgeHandler {
             }
         }
 
-        // --- スキル使用キーの判定 ---
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()]);
-        }
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key_0.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[0]);
-        }
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key_1.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[1]);
-        }
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key_2.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[2]);
-        }
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key_3.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[3]);
-        }
-        while (Keybindings.INSTANCE.SwordSkill_Use_Key_4.consumeClick()) {
-            UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[4]);
-        }
+        handleSkillUseInputs(player);
 
         // コンボ受付時間のカウント
         if (skillUsedTicks != null) {
@@ -181,7 +175,7 @@ public class ClientForgeHandler {
         return 1.0f;
     }
 
-    private static void ExecuteSkill(int skillID, int coolDownSkillID) {
+    private static void ExecuteSkill(int skillID, int coolDownSkillID, int chargeTicks) {
         SkillData skillData = SwordSkillRegistry.SKILLS.get(skillID);
         if (skillData != null) {
             Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
@@ -190,7 +184,9 @@ public class ClientForgeHandler {
                     .anyMatch(Objects.requireNonNull(weaponType)::contains)) {
 
                 // サーバーへ送信
-                PacketDistributor.sendToServer(new UseSkillPayload(skillData.getId(), skillData.getFinalTick()));
+                int appliedChargeTicks = skillData.getDataDefinition() == null ? 0 : chargeTicks;
+                PacketDistributor.sendToServer(
+                        new UseSkillPayload(skillData.getId(), skillData.getFinalTick(), appliedChargeTicks));
 
                 // クールダウン設定（スロットに対して設定）
                 cooldowns.put(coolDownSkillID, getCoolDown(skillData));
@@ -208,7 +204,7 @@ public class ClientForgeHandler {
         }
     }
 
-    private static void UseSkill(int selectedSkillIndex) {
+    private static void UseSkill(int selectedSkillIndex, int chargeTicks) {
         if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size())
             return;
 
@@ -217,7 +213,7 @@ public class ClientForgeHandler {
 
         // 1. クールダウン中でないなら、コンボを開始
         if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
-            ExecuteSkill(selectedSkillIndex, selectedSkillIndex);
+            ExecuteSkill(selectedSkillIndex, selectedSkillIndex, chargeTicks);
             addSkillIndex = 0;
             skillUsedTicks = 0;
         }
@@ -232,14 +228,134 @@ public class ClientForgeHandler {
 
                 if (nextSkillId < SwordSkillRegistry.SKILLS.size() && isNextUnlocked) {
                     addSkillIndex++;
-                    ExecuteSkill(nextSkillId, selectedSkillIndex);
+                    ExecuteSkill(nextSkillId, selectedSkillIndex, chargeTicks);
                     skillUsedTicks = 0;
                 }
+
             } else if (currentSkill != null && currentSkill.getType() == TRANSFORM_FINISH) {
                 // フィニッシュ発動後の再入力はリセット
                 addSkillIndex = 0;
                 skillUsedTicks = null;
             }
+        }
+    }
+
+    private static void handleSkillUseInputs(LocalPlayer player) {
+        Keybindings bindings = Keybindings.INSTANCE;
+        SkillUseKey[] keys = {
+                new SkillUseKey(bindings.SwordSkill_Use_Key, -1),
+                new SkillUseKey(bindings.SwordSkill_Use_Key_0, 0),
+                new SkillUseKey(bindings.SwordSkill_Use_Key_1, 1),
+                new SkillUseKey(bindings.SwordSkill_Use_Key_2, 2),
+                new SkillUseKey(bindings.SwordSkill_Use_Key_3, 3),
+                new SkillUseKey(bindings.SwordSkill_Use_Key_4, 4)
+        };
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen != null || !player.isAlive()) {
+            clearSkillCharge(player);
+            for (SkillUseKey key : keys) {
+                while (key.mapping().consumeClick()) {
+                }
+            }
+            return;
+        }
+
+        for (SkillUseKey key : keys) {
+            while (key.mapping().consumeClick()) {
+                if (activeSkillCharge != null) {
+                    continue;
+                }
+                int skillIndex = key.slot() < 0
+                        ? ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()]
+                        : ClientSkillSlotHandler.getSkillSlotInfo()[key.slot()];
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillIndex);
+                if (skill != null && skill.getDataDefinition() != null) {
+                    String animationType = skill.getType() == RUSH ? "start" : "";
+                    AnimationUtils.PlayerChargeAnim(player, skillIndex, animationType);
+                    ItemStack weapon = player.getMainHandItem();
+                    Boolean originalGlint = weapon.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
+                    if (!weapon.isEmpty()) {
+                        weapon.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+                    }
+                    SkillChargeSound sound = new SkillChargeSound(player);
+                    Minecraft.getInstance().getSoundManager().play(sound);
+                    activeSkillCharge = new SkillCharge(key.mapping(), skillIndex, player.tickCount, sound,
+                            weapon, originalGlint);
+                } else {
+                    UseSkill(skillIndex, 0);
+                }
+            }
+        }
+
+        if (activeSkillCharge != null && !activeSkillCharge.mapping().isDown()) {
+            SkillCharge charge = activeSkillCharge;
+            int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_TICKS,
+                    player.tickCount - charge.startTick()));
+            clearSkillCharge(player);
+            UseSkill(charge.skillIndex(), chargeTicks);
+        }
+    }
+
+    private static void clearSkillCharge(LocalPlayer player) {
+        if (activeSkillCharge == null) {
+            return;
+        }
+        activeSkillCharge.sound().stopPlaying();
+        ItemStack weapon = activeSkillCharge.weapon();
+        if (!weapon.isEmpty()) {
+            if (activeSkillCharge.originalGlint() == null) {
+                weapon.remove(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
+            } else {
+                weapon.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, activeSkillCharge.originalGlint());
+            }
+        }
+        if (player != null) {
+            AnimationUtils.StopPlayerAnimation(player);
+        }
+        activeSkillCharge = null;
+    }
+
+    private record SkillUseKey(KeyMapping mapping, int slot) {
+    }
+
+    private record SkillCharge(KeyMapping mapping, int skillIndex, int startTick, SkillChargeSound sound,
+            ItemStack weapon, Boolean originalGlint) {
+    }
+
+    private static class SkillChargeSound extends AbstractTickableSoundInstance {
+        private final LocalPlayer player;
+        private final int startTick;
+
+        private SkillChargeSound(LocalPlayer player) {
+            super(SoundEvents.BEACON_AMBIENT, SoundSource.PLAYERS, RandomSource.create());
+            this.player = player;
+            this.startTick = player.tickCount;
+            this.looping = true;
+            this.attenuation = SoundInstance.Attenuation.LINEAR;
+            this.volume = 0.35F;
+            updatePosition();
+        }
+
+        @Override
+        public void tick() {
+            if (player.isRemoved() || !player.isAlive()) {
+                stop();
+                return;
+            }
+            updatePosition();
+            float progress = Math.min(1.0F,
+                    (float) (player.tickCount - startTick) / DataDrivenSkill.MAX_CHARGE_TICKS);
+            this.pitch = 0.75F + progress * 0.5F;
+        }
+
+        private void updatePosition() {
+            this.x = player.getX();
+            this.y = player.getY();
+            this.z = player.getZ();
+        }
+
+        private void stopPlaying() {
+            stop();
         }
     }
 

@@ -16,6 +16,7 @@ import com.zoma1101.swordskill.swordskills.skill.two_handed_sword.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 
 import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.AXE;
 import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.CLAW;
@@ -31,7 +32,9 @@ import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.TWO_HANDE
 
 public class SwordSkillRegistry {
     public static final Map<Integer, SkillData> SKILLS = new HashMap<>();
+    private static final Map<Integer, SkillData> BASE_SKILLS;
     private static int nextSkillId = 0; // 自動ID生成用
+    public static final int BASE_SKILL_COUNT;
     private static final int DefaultTransformTick = 20;
 
     private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA,
@@ -288,6 +291,8 @@ public class SwordSkillRegistry {
         registerSkill(new SkillData(getNextSkillId(), "mace_impact", 450, 60.0, SkillData.SkillType.RUSH,
                 MaceImpact.class,
                 List.of(MACE), false, 200, DefaultTransformTick));
+        BASE_SKILL_COUNT = nextSkillId;
+        BASE_SKILLS = Map.copyOf(SKILLS);
     }
 
     private static int getNextSkillId() {
@@ -296,5 +301,86 @@ public class SwordSkillRegistry {
 
     private static void registerSkill(SkillData skillData) {
         SKILLS.put(skillData.getId(), skillData);
+    }
+
+    public static synchronized void replaceDataDrivenSkills(Collection<DataSkillDefinition> definitions) {
+        SKILLS.clear();
+        SKILLS.putAll(BASE_SKILLS);
+        List<DataSkillDefinition> definitionsInResourceOrder = List.copyOf(definitions);
+        java.util.Set<Integer> usedIds = new java.util.HashSet<>();
+        for (DataSkillDefinition definition : definitionsInResourceOrder) {
+            if (definition.id() < 0) {
+                throw new IllegalArgumentException("Invalid data skill ID: " + definition.id());
+            }
+            if (definition.id() == 0 && !definition.replaceBuiltin()) continue;
+            if (definition.replaceBuiltin()) {
+                if (definition.id() >= BASE_SKILL_COUNT || !BASE_SKILLS.containsKey(definition.id())) {
+                    throw new IllegalArgumentException("Cannot replace built-in skill ID: " + definition.id());
+                }
+            } else if (definition.id() < BASE_SKILL_COUNT) {
+                throw new IllegalArgumentException("Data skill IDs below " + BASE_SKILL_COUNT
+                        + " require replace_builtin=true; found " + definition.id());
+            }
+            if (!usedIds.add(definition.id())) {
+                throw new IllegalArgumentException("Duplicate data skill ID: " + definition.id());
+            }
+        }
+
+        List<DataSkillDefinition> assignedDefinitions = new java.util.ArrayList<>(definitionsInResourceOrder.size());
+        int nextAvailableId = BASE_SKILL_COUNT;
+        for (DataSkillDefinition definition : definitionsInResourceOrder) {
+            int assignedId = definition.id();
+            if (assignedId == 0 && !definition.replaceBuiltin()) {
+                while (usedIds.contains(nextAvailableId)) nextAvailableId++;
+                assignedId = nextAvailableId++;
+                usedIds.add(assignedId);
+            }
+            assignedDefinitions.add(new DataSkillDefinition(assignedId, definition.name(), definition.cooldown(),
+                    definition.spCost(), definition.type(), definition.weapons(), definition.hidden(),
+                    definition.durationTicks(), definition.transformLimitTicks(), definition.animation(),
+                    definition.color(), definition.motion(), definition.motions(), definition.hitboxes(),
+                    definition.projectiles(), definition.sounds(), definition.legacyFallback(),
+                    definition.replaceBuiltin(), definition.rushStartTicks(), definition.rushStartAnimation(),
+                    definition.rushMoveAnimation(), definition.rushFinishAnimation()));
+        }
+
+        List<DataSkillDefinition> orderedDefinitions = assignedDefinitions.stream()
+                .sorted(java.util.Comparator.comparingInt(DataSkillDefinition::id))
+                .toList();
+        List<DataSkillDefinition> addedDefinitions = orderedDefinitions.stream()
+                .filter(definition -> !definition.replaceBuiltin())
+                .toList();
+        for (DataSkillDefinition definition : orderedDefinitions) {
+            if (definition.replaceBuiltin()) {
+                SKILLS.put(definition.id(), createDataSkill(definition));
+            }
+        }
+        for (int index = 0; index < addedDefinitions.size(); index++) {
+            DataSkillDefinition definition = addedDefinitions.get(index);
+            int expectedId = BASE_SKILL_COUNT + index;
+            if (definition.id() != expectedId) {
+                throw new IllegalArgumentException("Data skill IDs must be contiguous starting at "
+                        + BASE_SKILL_COUNT + "; expected " + expectedId + " but found " + definition.id());
+            }
+            SKILLS.put(definition.id(), createDataSkill(definition));
+        }
+    }
+
+    private static SkillData createDataSkill(DataSkillDefinition definition) {
+        return new SkillData(definition.id(), definition.name(), definition.cooldown(), definition.spCost(),
+                definition.type(), DataDrivenSkill.class, definition.weapons(), definition.hidden(),
+                definition.durationTicks(), definition.transformLimitTicks(), definition);
+    }
+
+    public static SkillData getBaseSkill(int id) {
+        return BASE_SKILLS.get(id);
+    }
+
+    public static synchronized List<DataSkillDefinition> getDataDrivenDefinitions() {
+        return SKILLS.values().stream()
+                .filter(skill -> skill.getDataDefinition() != null)
+                .sorted(java.util.Comparator.comparingInt(SkillData::getId))
+                .map(SkillData::getDataDefinition)
+                .toList();
     }
 }

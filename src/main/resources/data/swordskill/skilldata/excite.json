@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": 20,
+  "name": "excite",
+  "replace_builtin": true,
+  "animation": "excite",
+  "type": "TRANSFORM",
+  "weapons": [
+    "AXE",
+    "TWO_HANDED_SWORD",
+    "MACE"
+  ],
+  "cooldown": 90,
+  "sp_cost": 10.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": []
+}

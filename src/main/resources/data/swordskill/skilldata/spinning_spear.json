@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": 28,
+  "name": "spinning_spear",
+  "replace_builtin": true,
+  "animation": "spinning_spear",
+  "type": "SIMPLE",
+  "weapons": [
+    "SPEAR"
+  ],
+  "cooldown": 150,
+  "sp_cost": 12.0,
+  "duration_ticks": 33,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": []
+}

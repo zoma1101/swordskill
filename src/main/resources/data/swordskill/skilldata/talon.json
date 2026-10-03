@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": 72,
+  "name": "talon",
+  "replace_builtin": true,
+  "animation": "talon",
+  "type": "SIMPLE",
+  "weapons": [
+    "CLAW"
+  ],
+  "cooldown": 70,
+  "sp_cost": 4.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": []
+}

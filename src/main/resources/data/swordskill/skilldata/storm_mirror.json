@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": 70,
+  "name": "storm_mirror",
+  "replace_builtin": true,
+  "animation": "storm_mirror",
+  "type": "TRANSFORM_FINISH",
+  "weapons": [
+    "SCYTHE"
+  ],
+  "cooldown": 170,
+  "sp_cost": 10.0,
+  "duration_ticks": 10,
+  "transform_limit_ticks": 20,
+  "hidden": true,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 5,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    },
+    {
+      "tick": 7,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}

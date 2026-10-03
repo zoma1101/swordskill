@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "id": 45,
+  "name": "aban_rash",
+  "replace_builtin": true,
+  "animation": "aban_rash",
+  "type": "SIMPLE",
+  "weapons": [
+    "TWO_HANDED_SWORD"
+  ],
+  "cooldown": 120,
+  "sp_cost": 15.0,
+  "duration_ticks": 7,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 1,
+      "offset": [
+        0.0,
+        0.81,
+        0.5
+      ],
+      "rotation": [
+        15.0,
+        10.0,
+        90.0
+      ],
+      "size": [
+        8.0,
+        2.0,
+        8.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "RUSH",
+      "knockback": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_red",
+      "sound": ""
+    }
+  ],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.47
+    }
+  ]
+}
