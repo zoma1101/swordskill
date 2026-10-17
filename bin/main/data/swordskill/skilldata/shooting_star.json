@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 56,
+  "name": "shooting_star",
+  "replace_builtin": true,
+  "animation": "shooting_star",
+  "type": "SIMPLE",
+  "weapons": [
+    "RAPIER"
+  ],
+  "cooldown": 150,
+  "sp_cost": 35.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 3,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        0.81,
+        0.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        11.0
+      ],
+      "damage_multiplier": 4.5,
+      "damage_type": "RUSH",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

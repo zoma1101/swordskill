@@ -35,6 +35,8 @@ public class PayloadRegistryHandler {
                 SkillSlotSelectionPayload::handle);
         registrar.playToServer(CheckSkillUnlockedPayload.TYPE, CheckSkillUnlockedPayload.STREAM_CODEC,
                 CheckSkillUnlockedPayload::handle);
+        registrar.playToServer(RequestSkillLevelsPayload.TYPE, RequestSkillLevelsPayload.STREAM_CODEC,
+                RequestSkillLevelsPayload::handle);
 
         registrar.playToServer(RequestUnlockSkillPayload.TYPE, RequestUnlockSkillPayload.STREAM_CODEC,
                 RequestUnlockSkillPayload::handle);
@@ -50,7 +52,12 @@ public class PayloadRegistryHandler {
                 SkillSlotInfoPayload::handleClient);
         registrar.playToClient(SyncDataSkillsPayload.TYPE, SyncDataSkillsPayload.STREAM_CODEC,
                 SyncDataSkillsPayload::handleClient);
+        registrar.playToClient(SyncSkillLevelsPayload.TYPE, SyncSkillLevelsPayload.STREAM_CODEC,
+                SyncSkillLevelsPayload::handleClient);
         registrar.playToClient(SyncSPPayload.TYPE, SyncSPPayload.STREAM_CODEC, SyncSPPayload::handle);
+        registrar.playToClient(HitstopPayload.TYPE, HitstopPayload.STREAM_CODEC, HitstopPayload::handleClient);
+        registrar.playToClient(SkillShockwavePayload.TYPE, SkillShockwavePayload.STREAM_CODEC,
+                SkillShockwavePayload::handleClient);
 
         LOGGER.info("Network payloads registration complete.");
     }

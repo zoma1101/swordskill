@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "id": 12,
+  "name": "sonic_reap",
+  "replace_builtin": true,
+  "animation": "sonic_reap",
+  "type": "RUSH",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "DUALSWORD",
+    "DAGGER"
+  ],
+  "cooldown": 250,
+  "sp_cost": 20.0,
+  "duration_ticks": 35,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 3.5,
+      "strafe": 0.0,
+      "vertical": 0.5
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 1,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "RUSH",
+      "knockback": 1.0,
+      "knockback_multiplier": 1.0,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": true
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish"
+}

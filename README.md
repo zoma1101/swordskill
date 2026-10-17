@@ -16,6 +16,24 @@ configのbackupが生成されるため何度の調整することは推奨し�
 You can adjust the position by pressing the HUD setting key in the settings and using WASD.
 Since a backup of the configuration is generated, it is not recommended to adjust it repeatedly.
 
+## Skill Level (スキルレベル)
+スキルごとに 1〜10 のレベルを持ち、レベルに応じてダメージ倍率が上昇します（Lv1 = ×1.00、Lv10 = ×3.00 の線形成長）。
+Each skill has its own level (1–10). The damage multiplier grows linearly from ×1.00 at Lv1 to ×3.00 at Lv10.
+
+- レベルはプレイヤーごと・スキルごとに `world/swordskill_data/<uuid>.json` の `skilllevels` に保存されます。
+- レベル倍率は武器攻撃力を含む基礎ダメージにのみ掛かります（SPコストやクールダウンは変化しません）。
+- 倍率カーブは config の `skillLevelMax` / `skillLevelMinMultiplier` / `skillLevelMaxMultiplier` で変更できます。
+
+コマンド (要 OP 権限レベル2):
+```
+/swordskill level get <targets>
+/swordskill level set <targets> <skill_name> <level>
+/swordskill level add <targets> <skill_name> <amount>
+```
+例: `/swordskill level set @s double_circular 10`
+
+選択画面 (SwordSkillSelectionScreen) では、現在のスキルレベル・倍率と、段（ヒット）ごとの攻撃倍率（`1段目 200%→300%` の形式）を確認できます。
+
 ## Supports weapon types from other mods
 ConfigでアイテムIDに含まれる文字から武器種を獲得する仕組みに変更できます。
 You can change the config to obtain the weapon type from the letters contained in the item ID.

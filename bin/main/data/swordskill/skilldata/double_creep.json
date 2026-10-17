@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": 81,
+  "name": "double_creep",
+  "replace_builtin": true,
+  "animation": "double_creep",
+  "type": "SIMPLE",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 100,
+  "sp_cost": 20.0,
+  "duration_ticks": 10,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#33FF66",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 3,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 10,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

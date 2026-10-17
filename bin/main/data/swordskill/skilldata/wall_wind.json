@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": 18,
+  "name": "wall_wind",
+  "replace_builtin": true,
+  "animation": "wall_wind",
+  "type": "SIMPLE",
+  "weapons": [
+    "AXE",
+    "TWO_HANDED_SWORD",
+    "MACE"
+  ],
+  "cooldown": 120,
+  "sp_cost": 7.0,
+  "duration_ticks": 7,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#33FF66",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 2,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 6,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 2.75,
+      "knockback_multiplier": 2.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

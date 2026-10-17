@@ -13,35 +13,126 @@
   "duration_ticks": 26,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
-  "motions": [],
-  "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": true,
-  "sounds": [
+  "color": "#B06BFF",
+  "motions": [
+    {
+      "tick": 18,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 0.8
+    }
+  ],
+  "hitboxes": [
     {
       "tick": 5,
+      "offset": [
+        0.0,
+        0.972,
+        2.3
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        145.0
+      ],
+      "size": [
+        8.0,
+        2.5,
+        4.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/purple",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     },
     {
       "tick": 11,
+      "offset": [
+        0.0,
+        0.972,
+        2.3
+      ],
+      "rotation": [
+        -14.0,
+        -5.0,
+        -145.0
+      ],
+      "size": [
+        8.0,
+        2.5,
+        4.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/purple",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     },
     {
       "tick": 18,
+      "offset": [
+        0.0,
+        0.972,
+        2.3
+      ],
+      "rotation": [
+        6.0,
+        -5.0,
+        -90.0
+      ],
+      "size": [
+        8.0,
+        2.5,
+        4.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/purple",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     },
     {
       "tick": 26,
+      "offset": [
+        0.0,
+        0.972,
+        0.0
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        8.0,
+        2.0,
+        8.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_purple",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     }
-  ]
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": []
 }

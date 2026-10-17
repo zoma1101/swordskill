@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": 13,
+  "replace_builtin": true,
+  "legacy_fallback": false,
+  "name": "savage_fulcrum",
+  "animation": "savage_fulcrum",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "DUALSWORD"
+  ],
+  "cooldown": 100,
+  "sp_cost": 15,
+  "duration_ticks": 20,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 4,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0.405,
+        0
+      ],
+      "size": [
+        7.2,
+        3,
+        1.4
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 7,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0.405,
+        0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        5
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 9,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0.405,
+        0
+      ],
+      "size": [
+        7.2,
+        3,
+        1.4
+      ],
+      "damage_multiplier": 3,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "sounds": [
+    {
+      "tick": 4,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1,
+      "pitch": 1
+    }
+  ]
+}

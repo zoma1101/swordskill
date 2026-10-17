@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "name": "how_to_use",
+  "replace_builtin": true,
+  "animation": "how_to_use",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "TWO_HANDED_SWORD",
+    "KATANA",
+    "AXE",
+    "RAPIER",
+    "CLAW",
+    "SPEAR",
+    "SCYTHE",
+    "DAGGER",
+    "DUALSWORD",
+    "MACE"
+  ],
+  "cooldown": 100,
+  "sp_cost": 0.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

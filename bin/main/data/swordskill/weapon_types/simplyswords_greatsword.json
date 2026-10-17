@@ -1,0 +1,6 @@
+{
+  "name" : "greatsword",
+  "item" : ["simplyswords:iron_claymore","simplyswords:gold_claymore","simplyswords:diamond_claymore","simplyswords:netherite_claymore","simplyswords:runic_claymore",
+"simplyswords:brimstone_claymore","simplyswords:watcher_claymore","simplyswords:twisted_blade","simplyswords:slumbering_lichblade","simplyswords:waking_lichblade","simplyswords:awakened_lichblade","simplyswords:waxweaver","simplyswords:caelestis","simplyswords:decaying_relic"],
+  "weapontype" : ["TWO_HANDED_SWORD"]
+}

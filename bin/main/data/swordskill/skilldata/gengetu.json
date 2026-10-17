@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 42,
+  "name": "gengetu",
+  "replace_builtin": true,
+  "animation": "gengetu",
+  "type": "SIMPLE",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 200,
+  "sp_cost": 30.0,
+  "duration_ticks": 20,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF3344",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 8,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        0.81,
+        0.0
+      ],
+      "size": [
+        7.2,
+        2.0,
+        2.4
+      ],
+      "damage_multiplier": 3.5,
+      "damage_type": "RUSH",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

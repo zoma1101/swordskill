@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": 30,
+  "name": "sorvelte_charge",
+  "replace_builtin": true,
+  "animation": "sorvelte_charge",
+  "type": "RUSH",
+  "weapons": [
+    "SPEAR"
+  ],
+  "cooldown": 200,
+  "sp_cost": 30.0,
+  "duration_ticks": 15,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 4.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 15,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish"
+}

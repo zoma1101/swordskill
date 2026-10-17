@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 64,
+  "name": "barrick",
+  "replace_builtin": true,
+  "animation": "barrick",
+  "type": "SIMPLE",
+  "weapons": [
+    "SCYTHE"
+  ],
+  "cooldown": 80,
+  "sp_cost": 8.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF3344",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        9.0,
+        3.0,
+        3.0
+      ],
+      "damage_multiplier": 1.75,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "knockback_multiplier": 0.05,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

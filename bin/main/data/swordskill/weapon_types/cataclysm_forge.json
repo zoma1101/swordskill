@@ -1,0 +1,6 @@
+{
+  "name" : "forge",
+  "item" : ["cataclysm:void_forge","cataclysm:infernal_forge"
+  ],
+  "weapontype" : ["MACE"]
+}

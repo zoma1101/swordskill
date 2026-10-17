@@ -1,0 +1,6 @@
+{
+  "name" : "axe",
+  "item" : ["simplyswords:iron_greataxe","simplyswords:gold_greataxe","simplyswords:diamond_greataxe","simplyswords:netherite_greataxe",
+"simplyswords:runic_greataxe","simplyswords:livyatan","simplyswords:molten_edge","simplyswords:soulpyre"],
+  "weapontype" : ["AXE"]
+}

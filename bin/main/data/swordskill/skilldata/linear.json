@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": 49,
+  "name": "linear",
+  "replace_builtin": true,
+  "animation": "linear",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "RAPIER"
+  ],
+  "cooldown": 80,
+  "sp_cost": 6.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        0.3,
+        0.3,
+        4.0
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

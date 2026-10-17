@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "id": 59,
+  "name": "face_liner",
+  "replace_builtin": true,
+  "animation": "face_liner",
+  "type": "SIMPLE",
+  "weapons": [
+    "DAGGER"
+  ],
+  "cooldown": 100,
+  "sp_cost": 10.0,
+  "duration_ticks": 16,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 3,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        0.25,
+        0.25,
+        3.5
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 6,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        0.25,
+        0.25,
+        3.5
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 10,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        0.25,
+        0.25,
+        3.5
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 14,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        0.25,
+        0.25,
+        3.5
+      ],
+      "damage_multiplier": 3.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

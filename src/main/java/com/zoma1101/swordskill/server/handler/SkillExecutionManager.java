@@ -27,12 +27,16 @@ public class SkillExecutionManager {
         SkillExecutionData execution = new SkillExecutionData(
                 skillId, (int) player.level().getGameTime(), finalTick, player.getInventory().selected);
         SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
-        if (skill != null && skill.getDataDefinition() != null
-                && skill.getType() == SkillData.SkillType.RUSH) {
-            execution.rushPhase = "start";
-            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
-                    new PlayAnimationPayload(player.getId(), skillId,
-                            animationForPhase(skill, execution.rushPhase)));
+        if (skill != null) {
+            if (skill.getType() == SkillData.SkillType.RUSH && skill.getDataDefinition() != null) {
+                execution.rushPhase = "start";
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                        new PlayAnimationPayload(player.getId(), skillId,
+                                animationForPhase(skill, execution.rushPhase)));
+            } else {
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                        new PlayAnimationPayload(player.getId(), skillId, ""));
+            }
         }
         skillExecutions.put(player.getUUID(), execution);
         LOGGER.info("スキル実行開始: プレイヤー={}, スキルID={}, 終了Tick={}", player.getName().getString(), skillId, finalTick);
@@ -64,8 +68,9 @@ public class SkillExecutionManager {
             } else {
                 skillExecutions.remove(playerId);
                 DataDrivenSkill.clearPlayerState(playerId);
-                if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
-                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new PlayAnimationPayload(player.getId(), 0,""));
+                if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH) {
+                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                            new PlayAnimationPayload(player.getId(), 0, ""));
                 }
                 LOGGER.info("スキル実行終了: プレイヤー={}, スキルID={}", player.getName().getString(), skillExecution.skillId);
             }
@@ -90,12 +95,32 @@ public class SkillExecutionManager {
         }
         SkillData skill = SwordSkillRegistry.SKILLS.get(execution.skillId);
         if (skill == null || skill.getDataDefinition() == null
-                || skill.getType() != SkillData.SkillType.RUSH
-                || "finish".equals(execution.rushPhase)) {
+                || skill.getType() != SkillData.SkillType.RUSH) {
             return;
         }
-        setRushPhase(player, execution, "finish");
+        if (!"finish".equals(execution.rushPhase)) {
+            setRushPhase(player, execution, "finish");
+        }
         skillExecutions.remove(player.getUUID());
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+    }
+
+    public static void changeRushPhase(ServerPlayer player, String phase) {
+        SkillExecutionData execution = skillExecutions.get(player.getUUID());
+        SkillData skill = execution == null ? null : SwordSkillRegistry.SKILLS.get(execution.skillId);
+        if (execution == null || skill == null || skill.getType() != SkillData.SkillType.RUSH
+                || phase.equals(execution.rushPhase)) {
+            return;
+        }
+        setRushPhase(player, execution, phase);
+    }
+
+    public static void cancelRush(ServerPlayer player) {
+        SkillExecutionData execution = skillExecutions.remove(player.getUUID());
+        if (execution == null)
+            return;
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new PlayAnimationPayload(player.getId(), 0, ""));
         DataDrivenSkill.clearPlayerState(player.getUUID());
     }
 

@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": 35,
+  "name": "double_circular",
+  "replace_builtin": true,
+  "animation": "double_circular",
+  "type": "RUSH",
+  "weapons": [
+    "DUALSWORD"
+  ],
+  "cooldown": 150,
+  "sp_cost": 30.0,
+  "duration_ticks": 55,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF3344",
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 3.5,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 2,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        2.43,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": -0.6,
+      "knockback_multiplier": -0.6,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "trigger": "CONTACT"
+    },
+    {
+      "tick": 7,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        2.43,
+        0.0
+      ],
+      "size": [
+        0.25,
+        0.25,
+        6.0
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": -0.8,
+      "knockback_multiplier": -0.8,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "trigger": "CONTACT"
+    },
+    {
+      "tick": 18,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        2.43,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "knockback_multiplier": 0.8,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "trigger": "CONTACT"
+    },
+    {
+      "tick": 18,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        2.43,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 1.0,
+      "knockback_multiplier": 1.0,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "trigger": "CONTACT"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 3,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "rush_combo": {
+    "start_motion": {
+      "forward": 3.5,
+      "vertical": 0.25,
+      "pitch_limit_degrees": 15
+    },
+    "use_charge_multiplier": false,
+    "invulnerability_ticks": 35,
+    "contact_search_radius": 8.0,
+    "contact_radius": 1.5,
+    "contact_motion": {
+      "forward": -0.5
+    },
+    "latest_contact_tick": 20,
+    "no_contact_timeout_tick": 21,
+    "contact_animation_offset": 1,
+    "finish_contact_offset": 18
+  }
+}

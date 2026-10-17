@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "id": 24,
+  "name": "lumber_jack",
+  "replace_builtin": true,
+  "animation": "lumber_jack",
+  "type": "SIMPLE",
+  "weapons": [
+    "AXE",
+    "MACE"
+  ],
+  "cooldown": 250,
+  "sp_cost": 10.0,
+  "duration_ticks": 30,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#33FF66",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 2,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 11,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 17,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        9.0,
+        2.0,
+        9.0
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 2.75,
+      "knockback_multiplier": 2.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 24,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 2.75,
+      "knockback_multiplier": 2.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    },
+    {
+      "tick": 29,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "size": [
+        9.0,
+        2.0,
+        9.0
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 2.75,
+      "knockback_multiplier": 2.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

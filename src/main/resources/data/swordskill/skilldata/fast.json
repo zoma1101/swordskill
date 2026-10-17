@@ -15,12 +15,54 @@
   "hidden": false,
   "color": "#54D8FF",
   "motions": [],
-  "hitboxes": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "trigger": "CONTACT",
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "size": [
+        5.0,
+        3.0,
+        12.0
+      ],
+      "damage_multiplier": 3.6,
+      "damage_type": "RUSH",
+      "knockback": 0.0,
+      "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
   "projectiles": [],
-  "legacy_fallback": true,
+  "legacy_fallback": false,
   "sounds": [],
-  "rush_start_ticks": 10,
+  "rush_start_ticks": 1,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
-  "rush_finish_animation": "finish"
+  "rush_finish_animation": "finish",
+  "rush_combo": {
+    "start_motion": {
+      "forward": 5.0,
+      "strafe": 0.0,
+      "vertical": -2.0,
+      "pitch_limit_degrees": 0
+    },
+    "use_charge_multiplier": false,
+    "invulnerability_ticks": 10,
+    "contact_search_radius": 8.0,
+    "contact_radius": 1.5,
+    "contact_motion": {
+      "forward": -1.5
+    },
+    "latest_contact_tick": 8,
+    "no_contact_timeout_tick": 10,
+    "contact_animation_offset": 1,
+    "finish_contact_offset": 2
+  }
 }

@@ -14,6 +14,12 @@ public class ServerConfig {
     public static final ModConfigSpec.BooleanValue AUTOWEAPON_SETTING;
     public static final ModConfigSpec.BooleanValue UnlockedSkill;
     public static final ModConfigSpec.BooleanValue attackNeutralMobs;
+    public static final ModConfigSpec.IntValue hitstopTicks;
+    public static final ModConfigSpec.DoubleValue hitstopShakeStrength;
+    public static final ModConfigSpec.DoubleValue hitstopFovPunch;
+    public static final ModConfigSpec.IntValue skillLevelMax;
+    public static final ModConfigSpec.DoubleValue skillLevelMinMultiplier;
+    public static final ModConfigSpec.DoubleValue skillLevelMaxMultiplier;
 
     static {
         BUILDER.push("Damage Settings");
@@ -26,6 +32,31 @@ public class ServerConfig {
         PvP = BUILDER.comment("Allow PVP with sword skills").define("pvp", false);
         UnlockedSkill = BUILDER.comment("Enable Sword Skill Unlock").define("UnlockedSkill", true);
         attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", true);
+        BUILDER.pop();
+
+        BUILDER.push("Hitstop Settings");
+        hitstopTicks = BUILDER.comment(
+                "Default hit-stop duration (ticks) applied when a sword skill hit lands. 0 disables hit-stop. "
+                        + "A skill can override this with the hitstop_ticks field in its skilldata.")
+                .defineInRange("hitstopTicks", 3, 0, 40);
+        hitstopShakeStrength = BUILDER.comment("Camera shake strength during hit-stop. 0 disables the screen shake.")
+                .defineInRange("hitstopShakeStrength", 1.0, 0.0, 4.0);
+        hitstopFovPunch = BUILDER.comment(
+                "FOV punch (short zoom-in) strength shown to the attacker during hit-stop. 0 disables the zoom.")
+                .defineInRange("hitstopFovPunch", 1.0, 0.0, 4.0);
+        BUILDER.pop();
+
+        BUILDER.push("Skill Level Settings");
+        skillLevelMax = BUILDER.comment(
+                "Maximum sword-skill level. Levels run from 1 to this value (per skill, per player).")
+                .defineInRange("skillLevelMax", 10, 1, 100);
+        skillLevelMinMultiplier = BUILDER.comment(
+                "Damage multiplier applied to a level-1 skill. The multiplier grows linearly up to "
+                        + "skillLevelMaxMultiplier at the maximum level.")
+                .defineInRange("skillLevelMinMultiplier", 1.0, 0.01, 100.0);
+        skillLevelMaxMultiplier = BUILDER.comment(
+                "Damage multiplier applied to a skill at the maximum level.")
+                .defineInRange("skillLevelMaxMultiplier", 3.0, 0.01, 100.0);
         BUILDER.pop();
 
         BUILDER.push("SP Settings");

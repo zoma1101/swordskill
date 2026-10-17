@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": 61,
+  "name": "rapid_bite",
+  "replace_builtin": true,
+  "animation": "rapid_bite",
+  "type": "RUSH",
+  "weapons": [
+    "DAGGER"
+  ],
+  "cooldown": 150,
+  "sp_cost": 20.0,
+  "duration_ticks": 200,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#33FF66",
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 1.5,
+      "strafe": 0.0,
+      "vertical": 1.5
+    }
+  ],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 1,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "rush_combo": {
+    "start_motion": {
+      "forward": 1.5,
+      "strafe": 0.0,
+      "vertical": 1.5
+    },
+    "pitch_limit_degrees": 45.0,
+    "search_radius": 8.0,
+    "contact_radius": 3.0,
+    "latest_contact_tick": 30,
+    "no_contact_timeout_tick": 30,
+    "contact_motion_forward": 1.25,
+    "invulnerability_ticks": 35,
+    "contact_animation_offset": 0,
+    "finish_contact_offset": 1,
+    "use_charge_multiplier": false
+  }
+}

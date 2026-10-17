@@ -40,8 +40,10 @@ public class AnimationUtils {
         if (player instanceof AbstractClientPlayer clientPlayer) {
             if (skill != null && skill.getDataDefinition() != null) {
                 WeaponTrailHandler.setSkillColor(clientPlayer.getId(), skill.getDataDefinition().color());
+                WeaponTrailHandler.setTrailLength(clientPlayer.getId(), skill.getDataDefinition().trailLength());
             } else {
                 WeaponTrailHandler.setSkillColor(clientPlayer.getId(), "#54D8FF");
+                WeaponTrailHandler.clearTrailLength(clientPlayer.getId());
             }
         }
         ResourceLocation animationId;
@@ -94,6 +96,7 @@ public class AnimationUtils {
 
     public static void StopPlayerAnimation(Player player) {
         if (player instanceof AbstractClientPlayer clientPlayer) {
+            WeaponTrailHandler.clearTrailLength(clientPlayer.getId());
             IAnimation playerAnimation = PlayerAnimationAccess.getPlayerAssociatedData(clientPlayer)
                     .get(fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
             if (playerAnimation instanceof SwordSkillAnimationLayer animationLayer) {
@@ -136,6 +139,7 @@ public class AnimationUtils {
         animationPlayer.setFirstPersonConfiguration(FIRST_PERSON_CONFIGURATION);
         if (skill.getDataDefinition() != null) {
             WeaponTrailHandler.setSkillColor(clientPlayer.getId(), skill.getDataDefinition().color());
+            WeaponTrailHandler.setTrailLength(clientPlayer.getId(), skill.getDataDefinition().trailLength());
         }
         return animationPlayer;
     }

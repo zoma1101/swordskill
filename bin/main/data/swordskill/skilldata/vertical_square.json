@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "id": 7,
+  "replace_builtin": true,
+  "legacy_fallback": true,
+  "name": "vertical_square",
+  "animation": "vertical_square",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "TRANSFORM_FINISH",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA",
+    "DUALSWORD"
+  ],
+  "cooldown": 240,
+  "sp_cost": 15,
+  "duration_ticks": 11,
+  "transform_limit_ticks": 20,
+  "hidden": true,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "sounds": [
+    {
+      "tick": 3,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1,
+      "pitch": 1.47
+    },
+    {
+      "tick": 8,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1,
+      "pitch": 1.47
+    },
+    {
+      "tick": 11,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1,
+      "pitch": 1.47
+    }
+  ]
+}

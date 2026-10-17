@@ -13,35 +13,162 @@
   "duration_ticks": 9,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
-  "motions": [],
-  "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": true,
-  "sounds": [
+  "color": "#FF6B6B",
+  "motions": [
+    {
+      "tick": 9,
+      "forward": 0.75,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
     {
       "tick": 3,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        40.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": [
+        {
+          "type": "undead_bonus",
+          "multiplier": 1.25
+        },
+        {
+          "type": "lifesteal",
+          "multiplier": 0.25
+        }
+      ]
     },
     {
       "tick": 4,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        140.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": [
+        {
+          "type": "undead_bonus",
+          "multiplier": 1.25
+        },
+        {
+          "type": "lifesteal",
+          "multiplier": 0.25
+        }
+      ]
     },
     {
       "tick": 7,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        5.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": [
+        {
+          "type": "undead_bonus",
+          "multiplier": 1.25
+        },
+        {
+          "type": "lifesteal",
+          "multiplier": 0.25
+        }
+      ]
     },
     {
       "tick": 9,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        175.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": [
+        {
+          "type": "undead_bonus",
+          "multiplier": 1.25
+        },
+        {
+          "type": "lifesteal",
+          "multiplier": 0.25
+        }
+      ]
     }
-  ]
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": []
 }

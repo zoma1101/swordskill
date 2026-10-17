@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 27,
+  "name": "thrusts",
+  "replace_builtin": true,
+  "animation": "thrusts",
+  "type": "SIMPLE",
+  "weapons": [
+    "SPEAR"
+  ],
+  "cooldown": 100,
+  "sp_cost": 8.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        0.81,
+        0.0
+      ],
+      "size": [
+        0.35,
+        0.35,
+        7.0
+      ],
+      "damage_multiplier": 3.0,
+      "damage_type": "BASE",
+      "knockback": 0.7,
+      "knockback_multiplier": 0.7,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

@@ -20,7 +20,7 @@
   ],
   "cooldown": 100,
   "sp_cost": 0.0,
-  "duration_ticks": 5,
+  "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#54D8FF",

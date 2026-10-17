@@ -16,6 +16,8 @@
   "commands.swordskill.unlock.failed.not_found": "Skill not found: %s",
   "commands.swordskill.unlock.success": "Unlocked skill '%s' for %s players",
   "commands.swordskill.unlock.failed.no_update": "No players were updated (maybe already unlocked)",
+  "commands.swordskill.level.get": "%s skill levels: %s",
+  "commands.swordskill.level.set": "Set %s's %s to Lv.%s (damage multiplier x%s)",
 
 
   "key.swordskill.open_skill_gui": "Open Sword Skill Select GUI",
@@ -27,6 +29,11 @@
   "gui.swordskill.skill.derived": "Derivative Skill",
   "gui.swordskill.cooldown": "CoolDown: %s tick",
   "gui.swordskill.sp_cost": "SP Cost: %s",
+  "gui.swordskill.skill_level": "Skill Level: Lv.%s / %s  Multiplier x%s",
+  "gui.swordskill.skill_level_short": "Lv.%s/%s x%s",
+  "gui.swordskill.power_prefix": "Attack: ",
+  "gui.swordskill.power_hit": "Hit %s %s",
+  "gui.swordskill.power_hit_leveled": "Hit %s %s->%s",
   "gui.swordskill.available_weapons": "Equippable weapons: %s",
   "gui.swordskill.slot.0": "SkillSlot 0",
   "gui.swordskill.slot.1": "SkillSlot 1",

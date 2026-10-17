@@ -16,6 +16,8 @@
   "commands.swordskill.unlock.failed.not_found": "スキルが見つかりません: %s",
   "commands.swordskill.unlock.success": "スキル '%s' を %s 人のプレイヤーに解放しました",
   "commands.swordskill.unlock.failed.no_update": "更新されたプレイヤーはいません（既に解放済みの可能性があります）",
+  "commands.swordskill.level.get": "%s のスキルレベル: %s",
+  "commands.swordskill.level.set": "%s の %s を Lv.%s に設定しました (攻撃倍率 ×%s)",
 
 
   "key.swordskill.open_skill_gui": "ソードスキル選択GUIを開く",
@@ -27,6 +29,11 @@
   "gui.swordskill.skill.derived": "派生スキル",
   "gui.swordskill.cooldown": "クールダウン: %s tick",
   "gui.swordskill.sp_cost": "SPコスト: %s",
+  "gui.swordskill.skill_level": "スキルレベル: Lv.%s / %s　倍率 ×%s",
+  "gui.swordskill.skill_level_short": "Lv.%s/%s ×%s",
+  "gui.swordskill.power_prefix": "攻撃倍率: ",
+  "gui.swordskill.power_hit": "%s段目 %s",
+  "gui.swordskill.power_hit_leveled": "%s段目 %s→%s",
   "gui.swordskill.available_weapons": "使用可能武器: %s",
   "gui.swordskill.slot.0": "スキルスロット0",
   "gui.swordskill.slot.1": "スキルスロット1",

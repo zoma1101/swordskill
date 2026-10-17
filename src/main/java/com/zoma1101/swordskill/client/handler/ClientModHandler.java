@@ -2,15 +2,18 @@ package com.zoma1101.swordskill.client.handler;
 
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.particle.SkillSparkParticle;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.entity.model.AttackEffectModel;
 import com.zoma1101.swordskill.entity.renderer.AttackEffectRenderer;
+import com.zoma1101.swordskill.particle.SkillParticles;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 
 @EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -37,5 +40,12 @@ public class ClientModHandler {
     @SubscribeEvent
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(SwordSkill_Entities.ATTACK_EFFECT.get(), AttackEffectRenderer::new);
+    }
+
+    //スキルエフェクト用の光る粒子
+    @SubscribeEvent
+    public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
+        event.registerSprite(SkillParticles.SKILL_SPARK.get(), (options, level, x, y, z, vx, vy, vz) ->
+                new SkillSparkParticle(level, x, y, z, vx, vy, vz, options));
     }
 }

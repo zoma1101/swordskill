@@ -10,19 +10,18 @@
   ],
   "cooldown": 75,
   "sp_cost": 10.0,
-  "duration_ticks": 5,
+  "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#54D8FF",
   "motions": [],
-  "hitboxes": [],
-  "projectiles": [
+  "hitboxes": [
     {
-      "tick": 0,
+      "tick": 1,
       "offset": [
         0.0,
         1.215,
-        2.0
+        0.0
       ],
       "rotation": [
         -20.0,
@@ -37,12 +36,21 @@
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 1.2,
+      "knockback_multiplier": 1.2,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "mace_particle/blue",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.strong",
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ]
     }
   ],
+  "projectiles": [],
   "legacy_fallback": false,
   "sounds": []
 }

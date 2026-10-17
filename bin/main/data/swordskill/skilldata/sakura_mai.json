@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": 39,
+  "name": "sakura_mai",
+  "replace_builtin": true,
+  "animation": "sakura_mai",
+  "type": "SIMPLE",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 175,
+  "sp_cost": 20.0,
+  "duration_ticks": 20,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF66CC",
+  "motions": [
+    {
+      "tick": 3,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 6,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 9,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 12,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 15,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 18,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 4,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "knockback_multiplier": 0.8,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 7,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "knockback_multiplier": 0.8,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 14,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.8,
+      "knockback_multiplier": 0.8,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 18,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 1.2,
+      "knockback_multiplier": 1.2,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

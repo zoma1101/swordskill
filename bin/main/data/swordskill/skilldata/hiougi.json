@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "id": 43,
+  "name": "hiougi",
+  "replace_builtin": true,
+  "animation": "hiougi",
+  "type": "SIMPLE",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 300,
+  "sp_cost": 50.0,
+  "duration_ticks": 16,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF3344",
+  "motions": [
+    {
+      "tick": 6,
+      "forward": 0.3,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 10,
+      "forward": 0.3,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 16,
+      "forward": 1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 6,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.2,
+        2.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.2,
+      "knockback_multiplier": 0.2,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 10,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.2,
+        2.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.2,
+      "knockback_multiplier": 0.2,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 16,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.2,
+        3.5
+      ],
+      "size": [
+        0.75,
+        0.75,
+        4.0
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.knockback"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 6,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    },
+    {
+      "tick": 10,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    },
+    {
+      "tick": 16,
+      "sound": "minecraft:entity.player.attack.knockback",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

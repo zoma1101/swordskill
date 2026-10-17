@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": 44,
+  "name": "cascade",
+  "replace_builtin": true,
+  "animation": "cascade",
+  "type": "SIMPLE",
+  "weapons": [
+    "TWO_HANDED_SWORD"
+  ],
+  "cooldown": 80,
+  "sp_cost": 8.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FF3344",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 2,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        0.81,
+        0.0
+      ],
+      "size": [
+        8.0,
+        2.0,
+        8.0
+      ],
+      "damage_multiplier": 2.3,
+      "damage_type": "BASE",
+      "knockback": 0.95,
+      "knockback_multiplier": 0.95,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

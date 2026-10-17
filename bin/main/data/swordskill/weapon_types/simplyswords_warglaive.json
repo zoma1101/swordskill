@@ -1,0 +1,7 @@
+{
+  "name" : "warglaive",
+  "item" : ["simplyswords:iron_warglaive","simplyswords:gold_warglaive","simplyswords:diamond_warglaive","simplyswords:netherite_warglaive",
+"simplyswords:runic_warglaive","simplyswords:watching_warglaive"
+  ],
+  "weapontype" : ["SCYTHE","KATANA"]
+}

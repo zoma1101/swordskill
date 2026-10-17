@@ -51,6 +51,7 @@ public class ClientForgeHandler {
 
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
     private static int addSkillIndex = 0;
+    private static Integer transformChainBaseId = null;
     private static Integer skillUsedTicks = null;
     private static Integer limitTickMax = 20;
     private static final Integer limitTickMin = 0; // 0に短縮して反応を改善
@@ -61,8 +62,10 @@ public class ClientForgeHandler {
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientSkillSlotHandler.reset();
         ClientUnlockedSkillsHandler.reset(); // アンロック情報もリセット
+        ClientSkillLevelHandler.reset(); // スキルレベルもリセット
         cooldowns.clear();
         addSkillIndex = 0;
+        transformChainBaseId = null;
         skillUsedTicks = null;
         clearSkillCharge(Minecraft.getInstance().player);
         SetWeaponType = false;
@@ -99,6 +102,7 @@ public class ClientForgeHandler {
             skillUsedTicks++;
             if (skillUsedTicks > limitTickMax) {
                 addSkillIndex = 0;
+                transformChainBaseId = null;
                 skillUsedTicks = null;
             }
         }
@@ -120,6 +124,7 @@ public class ClientForgeHandler {
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         PacketDistributor.sendToServer(new SkillRequestPayload());
         PacketDistributor.sendToServer(new RequestUnlockSkillPayload(0)); // アンロック情報の要求
+        PacketDistributor.sendToServer(new com.zoma1101.swordskill.payload.RequestSkillLevelsPayload());
         SetWeaponType = true;
     }
 
@@ -208,13 +213,15 @@ public class ClientForgeHandler {
         if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size())
             return;
 
-        int currentSkillId = selectedSkillIndex + addSkillIndex;
+        int currentSkillId = (transformChainBaseId == null ? selectedSkillIndex : transformChainBaseId)
+                + addSkillIndex;
         SkillData currentSkill = SwordSkillRegistry.SKILLS.get(currentSkillId);
 
         // 1. クールダウン中でないなら、コンボを開始
         if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
             ExecuteSkill(selectedSkillIndex, selectedSkillIndex, chargeTicks);
             addSkillIndex = 0;
+            transformChainBaseId = null;
             skillUsedTicks = 0;
         }
         // 2. クールダウン中に同じキーが押された場合、派生をチェック
@@ -235,9 +242,89 @@ public class ClientForgeHandler {
             } else if (currentSkill != null && currentSkill.getType() == TRANSFORM_FINISH) {
                 // フィニッシュ発動後の再入力はリセット
                 addSkillIndex = 0;
+                transformChainBaseId = null;
                 skillUsedTicks = null;
             }
         }
+    }
+
+    private static SkillData getChargeTransformVariant(int selectedSkillId, int chargeTicks, boolean crouching) {
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillId);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null) return null;
+        String name = selectedSkill.getName();
+        String sourceAxis;
+        if (name.equals("horizontal") || name.startsWith("horizontal_")) {
+            sourceAxis = "horizontal";
+        } else if (name.equals("vertical") || name.startsWith("vertical_")) {
+            sourceAxis = "vertical";
+        } else {
+            return null;
+        }
+
+        String targetAxis = crouching
+                ? (sourceAxis.equals("horizontal") ? "vertical" : "horizontal")
+                : sourceAxis;
+        int stage = chargeTicks < 14 ? 0 : chargeTicks < 27 ? 1 : 2;
+        String targetName = targetAxis + (stage == 0 ? "" : stage == 1 ? "_arc" : "_square");
+        SkillData target = findSkillByName(targetName);
+        if (target == null || target.getDataDefinition() == null) return null;
+
+        // If the charge tier is locked, use the highest unlocked tier instead.
+        boolean canUseLockedSkills = ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get();
+        while (target != null && stage >= 0
+                && !canUseLockedSkills && !ClientUnlockedSkillsHandler.isUnlocked(target.getId())) {
+            if (stage == 0) return null;
+            stage--;
+            targetName = targetAxis + (stage == 0 ? "" : stage == 1 ? "_arc" : "_square");
+            target = findSkillByName(targetName);
+        }
+        return target;
+    }
+
+    private static void UseChargedTransformSkill(int selectedSkillId, int chargeTicks, boolean crouching) {
+        SkillData targetSkill = getChargeTransformVariant(selectedSkillId, chargeTicks, crouching);
+        if (targetSkill == null) {
+            UseSkill(selectedSkillId, chargeTicks);
+            return;
+        }
+
+        int baseSkillId = targetSkill.getName().startsWith("vertical")
+                ? findSkillIdByName("vertical") : findSkillIdByName("horizontal");
+        if (baseSkillId < 0) {
+            UseSkill(selectedSkillId, chargeTicks);
+            return;
+        }
+
+        boolean cooldownReady = cooldowns.getOrDefault(selectedSkillId, 0) <= 0;
+        int activeChainId = transformChainBaseId == null ? selectedSkillId : transformChainBaseId;
+        SkillData activeChainSkill = SwordSkillRegistry.SKILLS.get(activeChainId + addSkillIndex);
+        boolean comboWindowOpen = skillUsedTicks != null && skillUsedTicks < limitTickMax
+                && skillUsedTicks >= limitTickMin && activeChainSkill != null
+                && (activeChainSkill.getType() == TRANSFORM || activeChainSkill.getType() == TRANSFORM_FINISH);
+        if (!cooldownReady && !comboWindowOpen) return;
+
+        ExecuteSkill(targetSkill.getId(), selectedSkillId, chargeTicks);
+        String targetName = targetSkill.getName();
+        if (targetName.endsWith("_square")) {
+            addSkillIndex = 0;
+            transformChainBaseId = null;
+            skillUsedTicks = null;
+        } else {
+            addSkillIndex = targetName.endsWith("_arc") ? 1 : 0;
+            transformChainBaseId = baseSkillId;
+            skillUsedTicks = 0;
+        }
+    }
+
+    private static int findSkillIdByName(String name) {
+        SkillData skill = findSkillByName(name);
+        return skill == null ? -1 : skill.getId();
+    }
+
+    private static SkillData findSkillByName(String name) {
+        return SwordSkillRegistry.SKILLS.values().stream()
+                .filter(skill -> skill.getName().equals(name))
+                .findFirst().orElse(null);
     }
 
     private static void handleSkillUseInputs(LocalPlayer player) {
@@ -292,7 +379,7 @@ public class ClientForgeHandler {
             int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_TICKS,
                     player.tickCount - charge.startTick()));
             clearSkillCharge(player);
-            UseSkill(charge.skillIndex(), chargeTicks);
+            UseChargedTransformSkill(charge.skillIndex(), chargeTicks, player.isCrouching());
         }
     }
 

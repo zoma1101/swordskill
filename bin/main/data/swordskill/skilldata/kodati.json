@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": 63,
+  "name": "kodati",
+  "replace_builtin": true,
+  "animation": "kodati",
+  "type": "SIMPLE",
+  "weapons": [
+    "DAGGER"
+  ],
+  "cooldown": 200,
+  "sp_cost": 15.0,
+  "duration_ticks": 11,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
+    {
+      "tick": 3,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -3.0,
+        0.0,
+        45.0
+      ],
+      "size": [
+        4.5,
+        3.0,
+        2.0
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "movement": [
+        0.0,
+        0.0,
+        25.0
+      ]
+    },
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        3.0,
+        0.0,
+        135.0
+      ],
+      "size": [
+        4.5,
+        3.0,
+        2.0
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": 0.25,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "movement": [
+        0.0,
+        0.0,
+        25.0
+      ]
+    },
+    {
+      "tick": 11,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -3.0,
+        0.0,
+        5.0
+      ],
+      "size": [
+        4.5,
+        3.0,
+        2.0
+      ],
+      "damage_multiplier": 0.8,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "movement": [
+        0.0,
+        0.0,
+        25.0
+      ]
+    }
+  ],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

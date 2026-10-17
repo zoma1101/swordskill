@@ -1,0 +1,5 @@
+{
+  "name" : "claw",
+  "item" : ["swordskill:sample_claw"],
+  "weapontype" : ["CLAW"]
+}

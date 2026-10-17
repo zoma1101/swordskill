@@ -13,16 +13,22 @@
   "duration_ticks": 18,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
-  "motions": [],
-  "hitboxes": [],
-  "projectiles": [
+  "color": "#B06BFF",
+  "motions": [
+    {
+      "tick": 18,
+      "forward": -1.5,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
     {
       "tick": 5,
       "offset": [
         0.0,
-        0.0,
-        2.0
+        1.215,
+        0.0
       ],
       "rotation": [
         -10.0,
@@ -37,17 +43,25 @@
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
       "knockback": 0.1,
+      "knockback_multiplier": 0.1,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "mace_particle/purple",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.strong",
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ]
     },
     {
       "tick": 11,
       "offset": [
         0.0,
-        0.0,
-        2.0
+        1.215,
+        0.0
       ],
       "rotation": [
         6.0,
@@ -62,17 +76,25 @@
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
       "knockback": 0.75,
+      "knockback_multiplier": 0.75,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "mace_particle/purple",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.strong",
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ]
     },
     {
       "tick": 18,
       "offset": [
         0.0,
-        0.0,
-        2.0
+        1.215,
+        0.0
       ],
       "rotation": [
         -15.0,
@@ -87,31 +109,21 @@
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
       "knockback": 0.75,
+      "knockback_multiplier": 0.75,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "mace_particle/purple",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.strong",
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ]
     }
   ],
-  "legacy_fallback": true,
-  "sounds": [
-    {
-      "tick": 5,
-      "sound": "minecraft:entity.player.attack.strong",
-      "volume": 1.0,
-      "pitch": 0.6
-    },
-    {
-      "tick": 11,
-      "sound": "minecraft:entity.player.attack.strong",
-      "volume": 1.0,
-      "pitch": 0.6
-    },
-    {
-      "tick": 18,
-      "sound": "minecraft:entity.player.attack.strong",
-      "volume": 1.0,
-      "pitch": 0.6
-    }
-  ]
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": []
 }

@@ -10,6 +10,7 @@ import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
 import com.zoma1101.swordskill.loot.ModLootModifiers;
+import com.zoma1101.swordskill.particle.SkillParticles;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -41,6 +42,7 @@ public class SwordSkill {
         SampleItemRegistry.register(modEventBus);
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
+        SkillParticles.register(modEventBus);
         EVENT_BUS.addListener(this::onAddReloadListener);
         ModLootModifiers.register(modEventBus);
     }

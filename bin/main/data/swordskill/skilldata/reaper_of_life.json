@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": 65,
+  "name": "reaper_of_life",
+  "replace_builtin": true,
+  "animation": "reaper_of_life",
+  "type": "SIMPLE",
+  "weapons": [
+    "SCYTHE"
+  ],
+  "cooldown": 10,
+  "sp_cost": 15.0,
+  "duration_ticks": 12,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#FFDD33",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 5,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        8.0,
+        3.0,
+        4.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 11,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        8.0,
+        3.0,
+        4.0
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "name" : "iceandfire:one_handed_sword",
+  "item" : ["iceandfire:silver_sword", "iceandfire:copper_sword", "iceandfire:hippogryph_sword",
+    "iceandfire:myrmex_desert_sword", "iceandfire:myrmex_desert_sword_venom", "iceandfire:myrmex_jungle_sword",
+    "iceandfire:myrmex_jungle_sword_venom", "iceandfire:dread_sword", "iceandfire:dread_knight_sword", "iceandfire:ghost_sword"
+  ],
+  "weapontype" : ["ONE_HANDED_SWORD"]
+}

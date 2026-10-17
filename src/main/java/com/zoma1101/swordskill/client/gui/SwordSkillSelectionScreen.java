@@ -1,9 +1,11 @@
 package com.zoma1101.swordskill.client.gui;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.client.handler.ClientSkillLevelHandler;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.payload.*;
+import com.zoma1101.swordskill.swordskills.DataSkillDefinition;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -56,6 +58,7 @@ public class SwordSkillSelectionScreen extends Screen {
         }
 
         PacketDistributor.sendToServer(new SkillRequestPayload());
+        PacketDistributor.sendToServer(new RequestSkillLevelsPayload());
     }
 
     @Override
@@ -284,15 +287,36 @@ public class SwordSkillSelectionScreen extends Screen {
             drawSmallCenteredString(guiGraphics, skillName, centerX,
                     cardTop + (compact ? 54 : 79), primaryTextColor);
 
+            // === スキルレベルと現在の攻撃倍率 ===
+            int skillLevel = ClientSkillLevelHandler.getLevel(skill.getId());
+            int maxSkillLevel = ClientSkillLevelHandler.getMaxLevel();
+            double skillLevelMultiplier = ClientSkillLevelHandler.getMultiplier(skill.getId());
+            int levelAccent = blackTheme ? 0xFF5ADFFF : 0xFFD07A00;
+            if (compact) {
+                Component compactLevel = Component.translatable("gui." + SwordSkill.MOD_ID + ".skill_level_short",
+                        skillLevel, maxSkillLevel, formatMultiplier(skillLevelMultiplier));
+                int levelX = cardLeft + cardWidth - 14 - Math.round(font.width(compactLevel) * UI_TEXT_SCALE);
+                drawSmallString(guiGraphics, compactLevel, levelX, cardTop + 67, levelAccent);
+            } else {
+                Component levelText = Component.translatable("gui." + SwordSkill.MOD_ID + ".skill_level",
+                        skillLevel, maxSkillLevel, formatMultiplier(skillLevelMultiplier));
+                drawSmallString(guiGraphics, levelText, cardLeft + 14, cardTop + 91, levelAccent);
+                int barX = cardLeft + 14 + Math.round(font.width(levelText) * UI_TEXT_SCALE) + 8;
+                int barWidth = cardLeft + cardWidth - 14 - barX;
+                if (barWidth > 24) {
+                    drawLevelBar(guiGraphics, barX, cardTop + 94, barWidth, skillLevel, maxSkillLevel);
+                }
+            }
+
             drawSmallString(guiGraphics,
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".cooldown", skill.getCooldown()),
-                    cardLeft + 14, cardTop + (compact ? 67 : 94), secondaryTextColor);
+                    cardLeft + 14, cardTop + (compact ? 67 : 103), secondaryTextColor);
             drawSmallString(guiGraphics,
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".sp_cost", (int) skill.getSpCost()),
-                    centerX + 8, cardTop + (compact ? 67 : 94), secondaryTextColor);
+                    centerX + 8, cardTop + (compact ? 67 : 103), secondaryTextColor);
 
             int iconX = cardLeft + 14;
-            int weaponIconY = cardTop + (compact ? 82 : 113);
+            int weaponIconY = cardTop + (compact ? 82 : 116);
             for (SkillData.WeaponType type : skill.getAvailableWeaponTypes()) {
                 if (iconX + 16 > cardLeft + cardWidth - 12) {
                     break;
@@ -311,6 +335,16 @@ public class SwordSkillSelectionScreen extends Screen {
             int descriptionWidth = Math.max(1, cardWidth - 28);
             List<FormattedCharSequence> contentLines = new ArrayList<>();
             List<Integer> contentColors = new ArrayList<>();
+
+            // === 攻撃倍率（JSONの値を参照し、スキルレベル適用後の値も併記） ===
+            Component powerLine = buildPowerLine(skill, skillLevelMultiplier);
+            if (powerLine != null) {
+                for (FormattedCharSequence line : font.split(powerLine, descriptionWidth)) {
+                    contentLines.add(line);
+                    contentColors.add(levelAccent);
+                }
+            }
+
             for (String paragraph : description.split("\n")) {
                 for (FormattedCharSequence line : font.split(Component.literal(paragraph), descriptionWidth)) {
                     contentLines.add(line);
@@ -342,7 +376,7 @@ public class SwordSkillSelectionScreen extends Screen {
                 }
             }
 
-            int descriptionTop = cardTop + (compact ? 103 : 135);
+            int descriptionTop = cardTop + (compact ? 103 : 139);
             guiGraphics.fill(cardLeft + 12, descriptionTop - 8, cardLeft + cardWidth - 12, descriptionTop - 7,
                     blackTheme ? 0x55777777 : 0x55707070);
             boolean showSlotButtons = unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get();
@@ -391,6 +425,76 @@ public class SwordSkillSelectionScreen extends Screen {
         if (hoveredWeapon != null) {
             guiGraphics.renderTooltip(font, hoveredWeapon, mouseX, mouseY);
         }
+    }
+
+    /** レベルを10分割したセグメントバーを描く。 */
+    private void drawLevelBar(GuiGraphics guiGraphics, int x, int y, int width, int level, int maxLevel) {
+        int segments = Math.max(1, Math.min(maxLevel, 20));
+        int gap = 2;
+        int segmentWidth = Math.max(1, (width - gap * (segments - 1)) / segments);
+        int filledColor = blackTheme ? 0xFF5ADFFF : 0xFFD07A00;
+        int emptyColor = blackTheme ? 0x44FFFFFF : 0x33000000;
+        for (int index = 0; index < segments; index++) {
+            int left = x + index * (segmentWidth + gap);
+            guiGraphics.fill(left, y, left + segmentWidth, y + 4, index < level ? filledColor : emptyColor);
+        }
+    }
+
+    /**
+     * ヒットボックス／飛び道具の倍率を発生順に並べた1行を組み立てる。
+     * レベル倍率が1倍でないときは「基礎%→レベル適用後%」の形で併記する。
+     */
+    private Component buildPowerLine(SkillData skill, double levelMultiplier) {
+        DataSkillDefinition definition = skill.getDataDefinition();
+        if (definition == null) {
+            return null;
+        }
+        List<PowerEntry> entries = new ArrayList<>();
+        for (DataSkillDefinition.Hitbox hitbox : definition.hitboxes()) {
+            if (hitbox.hitboxEnabled()) {
+                entries.add(new PowerEntry(hitbox.tick(), hitbox.damageMultiplier()));
+            }
+        }
+        for (DataSkillDefinition.ProjectileEvent projectile : definition.projectiles()) {
+            entries.add(new PowerEntry(projectile.tick(), projectile.damageMultiplier()));
+        }
+        if (entries.isEmpty()) {
+            return null;
+        }
+        entries.sort(java.util.Comparator.comparingInt(PowerEntry::tick));
+        boolean leveled = Math.abs(levelMultiplier - 1.0D) > 0.001D;
+        net.minecraft.network.chat.MutableComponent result = Component
+                .translatable("gui." + SwordSkill.MOD_ID + ".power_prefix");
+        for (int index = 0; index < entries.size(); index++) {
+            if (index > 0) {
+                result.append(Component.literal("  "));
+            }
+            double baseMultiplier = entries.get(index).multiplier();
+            if (leveled) {
+                result.append(Component.translatable("gui." + SwordSkill.MOD_ID + ".power_hit_leveled",
+                        index + 1, formatPercent(baseMultiplier),
+                        formatPercent(baseMultiplier * levelMultiplier)));
+            } else {
+                result.append(Component.translatable("gui." + SwordSkill.MOD_ID + ".power_hit",
+                        index + 1, formatPercent(baseMultiplier)));
+            }
+        }
+        return result;
+    }
+
+    private static String formatMultiplier(double multiplier) {
+        return String.format(java.util.Locale.ROOT, "%.2f", multiplier);
+    }
+
+    private static String formatPercent(double multiplier) {
+        double percent = multiplier * 100.0D;
+        if (Math.abs(percent - Math.round(percent)) < 0.05D) {
+            return Math.round(percent) + "%";
+        }
+        return String.format(java.util.Locale.ROOT, "%.1f%%", percent);
+    }
+
+    private record PowerEntry(int tick, double multiplier) {
     }
 
     private void drawSmallString(GuiGraphics guiGraphics, Component text, int x, int y, int color) {

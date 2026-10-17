@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "id": 1,
+  "name": "slant",
+  "replace_builtin": true,
+  "animation": "slant",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "TWO_HANDED_SWORD",
+    "KATANA",
+    "RAPIER",
+    "DUALSWORD"
+  ],
+  "cooldown": 50,
+  "sp_cost": 5.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        6.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

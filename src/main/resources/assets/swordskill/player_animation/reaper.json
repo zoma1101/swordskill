@@ -82,16 +82,6 @@
 						}
 					}
 				},
-				"torso": {
-					"rotation": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
-					},
-					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
-					}
-				},
 				"head": {
 					"rotation": {
 						"0.0": {
@@ -134,10 +124,6 @@
 							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
-					},
-					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
 					}
 				},
 				"rightItem": {
@@ -184,14 +170,9 @@
 							"vector": [0, 0, 0],
 							"easing": "linear"
 						}
-					},
-					"scale": {
-						"vector": [0,0,0],
-						"easing": "linear"
 					}
 				}
 			}
 		}
-	},
-	"geckolib_format_version": 2
+	}
 }

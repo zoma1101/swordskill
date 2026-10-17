@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": 3,
+  "name": "horizontal_arc",
+  "replace_builtin": true,
+  "animation": "horizontal_arc",
+  "type": "TRANSFORM",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA",
+    "DUALSWORD"
+  ],
+  "cooldown": 120,
+  "sp_cost": 7.0,
+  "duration_ticks": 5,
+  "transform_limit_ticks": 20,
+  "hidden": true,
+  "color": "#54D8FF",
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 0,
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        2.4
+      ],
+      "damage_multiplier": 2.0,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "knockback_multiplier": 0.05,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ]
+}

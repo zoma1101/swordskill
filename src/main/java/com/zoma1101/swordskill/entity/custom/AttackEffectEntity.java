@@ -29,6 +29,10 @@ public class AttackEffectEntity extends Entity {
 
     private static final EntityDataAccessor<Float> ROTATION_Z = SynchedEntityData.defineId(AttackEffectEntity.class,
             EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RENDER_PITCH = SynchedEntityData.defineId(AttackEffectEntity.class,
+            EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> FLYING_SLASH = SynchedEntityData.defineId(
+            AttackEffectEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_X = SynchedEntityData
             .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_Y = SynchedEntityData
@@ -51,6 +55,8 @@ public class AttackEffectEntity extends Entity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(ROTATION_Z, 0.0f);
+        builder.define(RENDER_PITCH, 0.0f);
+        builder.define(FLYING_SLASH, false);
         builder.define(EFFECT_RADIUS_X, 2f);
         builder.define(EFFECT_RADIUS_Y, 2f);
         builder.define(EFFECT_RADIUS_Z, 2f);
@@ -203,6 +209,9 @@ public class AttackEffectEntity extends Entity {
         if (compound.contains("RotationZ")) {
             this.setRotation(compound.getFloat("RotationZ"));
         }
+        if (compound.contains("FlyingSlash")) {
+            this.setFlyingSlash(compound.getBoolean("FlyingSlash"));
+        }
         if (compound.contains("RadiusX")) {
             this.entityData.set(EFFECT_RADIUS_X, compound.getFloat("RadiusX"));
             this.entityData.set(EFFECT_RADIUS_Y, compound.getFloat("RadiusY"));
@@ -225,6 +234,7 @@ public class AttackEffectEntity extends Entity {
         compound.putInt("TickCount", this.tickCount);
         compound.putString("SkillParticle", this.getSkillParticle());
         compound.putFloat("RotationZ", this.getRotation());
+        compound.putBoolean("FlyingSlash", this.isFlyingSlash());
         compound.putFloat("RadiusX", this.entityData.get(EFFECT_RADIUS_X));
         compound.putFloat("RadiusY", this.entityData.get(EFFECT_RADIUS_Y));
         compound.putFloat("RadiusZ", this.entityData.get(EFFECT_RADIUS_Z));
@@ -282,12 +292,28 @@ public class AttackEffectEntity extends Entity {
         this.entityData.set(ROTATION_Z, rotationZ);
     }
 
+    public void setRenderPitch(float renderPitch) {
+        this.entityData.set(RENDER_PITCH, renderPitch);
+    }
+
+    public void setFlyingSlash(boolean flyingSlash) {
+        this.entityData.set(FLYING_SLASH, flyingSlash);
+    }
+
     public void setOwner(LivingEntity owner) {
         this.owner = owner;
     }
 
     public float getRotation() {
         return this.entityData.get(ROTATION_Z);
+    }
+
+    public float getRenderPitch() {
+        return this.entityData.get(RENDER_PITCH);
+    }
+
+    public boolean isFlyingSlash() {
+        return this.entityData.get(FLYING_SLASH);
     }
 
     public Vector3f getEffectRadius() {

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
@@ -11,6 +12,7 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
 import com.zoma1101.swordskill.payload.SyncUnlockedSkillsPayload;
+import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.commands.CommandSourceStack;
@@ -27,6 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = SwordSkill.MOD_ID)
@@ -47,6 +50,111 @@ public class SwordSkillCommands {
                         )
                 )
         );
+
+        dispatcher.register(Commands.literal("swordskill")
+                .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("level")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> levelGet(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(skillNameArgument()
+                                                .then(Commands.argument("level", IntegerArgumentType.integer(1, 100))
+                                                        .executes(context -> levelSet(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "skill_name"),
+                                                                IntegerArgumentType.getInteger(context, "level")))))))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(skillNameArgument()
+                                                .then(Commands.argument("amount", IntegerArgumentType.integer(-100, 100))
+                                                        .executes(context -> levelAdd(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "skill_name"),
+                                                                IntegerArgumentType.getInteger(context, "amount"))))))))
+        );
+    }
+
+    private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack, String> skillNameArgument() {
+        return Commands.argument("skill_name", StringArgumentType.string()).suggests(SUGGEST_SKILLS);
+    }
+
+    private static int levelGet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        int maxLevel = SkillLevelManager.maxLevel();
+        for (ServerPlayer player : targets) {
+            Map<Integer, Integer> levels = SkillLevelManager.getStoredLevels(player);
+            StringBuilder builder = new StringBuilder();
+            levels.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        SkillData skill = SwordSkillRegistry.SKILLS.get(entry.getKey());
+                        if (skill == null) {
+                            return;
+                        }
+                        if (builder.length() > 0) {
+                            builder.append(", ");
+                        }
+                        builder.append(skill.getName()).append(" Lv.").append(entry.getValue())
+                                .append('/').append(maxLevel);
+                    });
+            String summary = builder.length() == 0 ? "-" : builder.toString();
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.level.get",
+                    player.getName().getString(), summary), false);
+        }
+        return targets.size();
+    }
+
+    private static int levelSet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String skillName, int level) {
+        SkillData targetSkill = findSkill(skillName);
+        if (targetSkill == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.unlock.failed.not_found", skillName));
+            return 0;
+        }
+        int applied = 0;
+        for (ServerPlayer player : targets) {
+            int result = SkillLevelManager.setLevel(player, targetSkill.getId(), level);
+            PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));
+            applied++;
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.level.set",
+                    player.getName().getString(), skillName, result,
+                    formatMultiplier(SkillLevelManager.multiplierForLevel(result))), true);
+        }
+        return applied;
+    }
+
+    private static int levelAdd(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String skillName, int amount) {
+        SkillData targetSkill = findSkill(skillName);
+        if (targetSkill == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.unlock.failed.not_found", skillName));
+            return 0;
+        }
+        int applied = 0;
+        for (ServerPlayer player : targets) {
+            int result = SkillLevelManager.addLevel(player, targetSkill.getId(), amount);
+            PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));
+            applied++;
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.level.set",
+                    player.getName().getString(), skillName, result,
+                    formatMultiplier(SkillLevelManager.multiplierForLevel(result))), true);
+        }
+        return applied;
+    }
+
+    private static SkillData findSkill(String skillName) {
+        return SwordSkillRegistry.SKILLS.values().stream()
+                .filter(skill -> skill.getName().equals(skillName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static String formatMultiplier(double multiplier) {
+        return String.format(java.util.Locale.ROOT, "%.2f", multiplier);
     }
 
     // スキル名の入力候補を提供する

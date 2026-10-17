@@ -1,0 +1,6 @@
+{
+  "name" : "katana",
+  "item" : ["simplyswords:iron_katana","simplyswords:gold_katana","simplyswords:diamond_katana","simplyswords:netherite_katana",
+"simplyswords:runic_katana","simplyswords:whisperwind"],
+  "weapontype" : ["KATANA"]
+}

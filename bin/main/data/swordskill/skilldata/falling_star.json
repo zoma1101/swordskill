@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": 32,
+  "name": "falling_star",
+  "replace_builtin": true,
+  "animation": "falling_star",
+  "type": "RUSH",
+  "weapons": [
+    "SPEAR"
+  ],
+  "cooldown": 250,
+  "sp_cost": 40.0,
+  "duration_ticks": 30,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 4.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": true,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 15,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish"
+}

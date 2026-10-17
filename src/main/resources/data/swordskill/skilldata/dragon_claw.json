@@ -13,10 +13,213 @@
   "duration_ticks": 10,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
-  "motions": [],
-  "hitboxes": [],
+  "color": "#77DD77",
+  "motions": [
+    {
+      "tick": 7,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 2.0
+    },
+    {
+      "tick": 9,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 1,
+      "offset": [
+        0.0,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        12.0,
+        95.0,
+        -170.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "knockback_multiplier": 0.05,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        1.1,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        -70.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        0.5,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        -70.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        -0.1,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -12.0,
+        5.0,
+        -70.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        0.1,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        6.0,
+        5.0,
+        -110.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        -0.5,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -6.0,
+        5.0,
+        -110.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "",
+      "effects": []
+    },
+    {
+      "tick": 7,
+      "offset": [
+        -1.1,
+        1.215,
+        0.0
+      ],
+      "rotation": [
+        -12.0,
+        5.0,
+        -110.0
+      ],
+      "size": [
+        4.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/green",
+      "sound": "",
+      "effects": []
+    }
+  ],
   "projectiles": [],
-  "legacy_fallback": true,
+  "legacy_fallback": false,
   "sounds": []
 }

@@ -16,8 +16,117 @@
   "hidden": false,
   "color": "#54D8FF",
   "motions": [],
-  "hitboxes": [],
+  "hitboxes": [
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        3.5
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        7.0
+      ],
+      "damage_multiplier": 1.6,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 10,
+      "offset": [
+        0.6077686218342562,
+        1.0530000000000002,
+        3.446827135542728
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        7.0
+      ],
+      "damage_multiplier": 1.6,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 15,
+      "offset": [
+        -0.6077686218342562,
+        1.0530000000000002,
+        3.446827135542728
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        7.0
+      ],
+      "damage_multiplier": 1.6,
+      "damage_type": "BASE",
+      "knockback": 0.15,
+      "knockback_multiplier": 0.15,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    },
+    {
+      "tick": 22,
+      "offset": [
+        0.0,
+        1.0530000000000002,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        7.2
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "BASE",
+      "knockback": 1.5,
+      "knockback_multiplier": 1.5,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
+    }
+  ],
   "projectiles": [],
-  "legacy_fallback": true,
+  "legacy_fallback": false,
   "sounds": []
 }

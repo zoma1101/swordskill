@@ -341,7 +341,8 @@ public class SwordSkillRegistry {
                     definition.color(), definition.motion(), definition.motions(), definition.hitboxes(),
                     definition.projectiles(), definition.sounds(), definition.legacyFallback(),
                     definition.replaceBuiltin(), definition.rushStartTicks(), definition.rushStartAnimation(),
-                    definition.rushMoveAnimation(), definition.rushFinishAnimation()));
+                    definition.rushMoveAnimation(), definition.rushFinishAnimation(), definition.rushCombo(),
+                    definition.trailLength(), definition.shockwaveTicks(), definition.hitstopTicks()));
         }
 
         List<DataSkillDefinition> orderedDefinitions = assignedDefinitions.stream()

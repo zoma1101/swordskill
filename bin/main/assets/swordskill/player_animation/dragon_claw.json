@@ -1,0 +1,112 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"dragon_claw": {
+			"animation_length": 0.6667,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0417": {
+							"vector": [20, 0, 0],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.2917": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.4167": {
+							"vector": [12.5, 0, 0],
+							"easing": "linear"
+						},
+						"0.5833": {
+							"vector": [-15, 0, 0],
+							"easing": "linear"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [0, -2, 0],
+							"easing": "linear"
+						},
+						"0.2917": {
+							"vector": [0, -2.89778, -0.77646],
+							"easing": "linear"
+						},
+						"0.5833": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						}
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0417": {
+							"vector": [129.66061, -0.0057, 260.02971],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [289.66061, -0.0057, 260.02971],
+							"easing": "linear"
+						},
+						"0.2917": {
+							"vector": [319.90452, 63.90778, 306.87981],
+							"easing": "linear"
+						},
+						"0.4167": {
+							"vector": [319.90452, 63.90778, 306.87981],
+							"easing": "linear"
+						},
+						"0.5417": {
+							"vector": [424.99801, -37.24598, 95.79362],
+							"easing": "linear"
+						}
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0],
+							"easing": "linear"
+						},
+						"0.0417": {
+							"vector": [135.28293, 1.77227, -256.78587],
+							"easing": "linear"
+						},
+						"0.2083": {
+							"vector": [282.78293, 1.77227, -256.78587],
+							"easing": "linear"
+						},
+						"0.2917": {
+							"vector": [317.91509, -72.66323, -303.77525],
+							"easing": "linear"
+						},
+						"0.4167": {
+							"vector": [317.91509, -72.66323, -303.77525],
+							"easing": "linear"
+						},
+						"0.5417": {
+							"vector": [433.35152, 39.47407, -87.95166],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		}
+	}
+}

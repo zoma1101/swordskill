@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": 84,
+  "name": "mace_impact",
+  "replace_builtin": true,
+  "animation": "mace_impact",
+  "type": "RUSH",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 450,
+  "sp_cost": 60.0,
+  "duration_ticks": 200,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#33FF66",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [
+    {
+      "tick": 1,
+      "sound": "minecraft:entity.player.attack.sweep",
+      "volume": 1.0,
+      "pitch": 1.0
+    }
+  ],
+  "rush_start_ticks": 16,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish"
+}

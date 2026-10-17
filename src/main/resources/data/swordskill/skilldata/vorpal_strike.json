@@ -14,16 +14,22 @@
   "duration_ticks": 16,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
-  "motions": [],
-  "hitboxes": [],
-  "projectiles": [
+  "color": "#FF6B6B",
+  "motions": [
+    {
+      "tick": 5,
+      "forward": 2.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    }
+  ],
+  "hitboxes": [
     {
       "tick": 5,
       "offset": [
         0.0,
         0.81,
-        10.0
+        0.0
       ],
       "rotation": [
         0.0,
@@ -38,19 +44,17 @@
       "damage_multiplier": 5.5,
       "damage_type": "RUSH",
       "knockback": 1.25,
+      "knockback_multiplier": 1.25,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "spear_particle/simple_red",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
     }
   ],
-  "legacy_fallback": true,
-  "sounds": [
-    {
-      "tick": 5,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
-    }
-  ]
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": [],
+  "trail_length": 4.5,
+  "shockwave_ticks": 10
 }

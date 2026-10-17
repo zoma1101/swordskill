@@ -15,14 +15,13 @@
   "hidden": false,
   "color": "#54D8FF",
   "motions": [],
-  "hitboxes": [],
-  "projectiles": [
+  "hitboxes": [
     {
       "tick": 7,
       "offset": [
         0.0,
         1.215,
-        1.5
+        0.0
       ],
       "rotation": [
         0.0,
@@ -37,20 +36,23 @@
       "damage_multiplier": 4.0,
       "damage_type": "BASE",
       "knockback": 1.05,
+      "knockback_multiplier": 1.05,
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "mace_particle/blue",
-      "sound": ""
+      "sound": "minecraft:entity.player.attack.strong",
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ]
     }
   ],
+  "projectiles": [],
   "legacy_fallback": false,
   "sounds": [
-    {
-      "tick": 7,
-      "sound": "minecraft:entity.player.attack.strong",
-      "volume": 1.0,
-      "pitch": 0.6
-    },
     {
       "tick": 7,
       "sound": "minecraft:item.totem.use",

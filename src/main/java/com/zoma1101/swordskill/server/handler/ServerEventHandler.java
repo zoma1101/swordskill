@@ -13,6 +13,7 @@ import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.payload.SkillSlotInfoPayload;
 import com.zoma1101.swordskill.payload.SyncSPPayload;
 import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
+import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -118,6 +119,8 @@ public class ServerEventHandler {
             }
             sendSkillSlotInfo(player); // ログイン時にスキル情報を送信
             syncUnlockedSkills(player); // ログイン時にアンロック情報を送信
+            SkillLevelManager.loadPlayer(player);
+            PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));
 
             // 属性設定をコンフィグから適用
             AttributeInstance maxSpAttr = player.getAttribute(SwordSkillAttribute.MAX_SP);
@@ -167,6 +170,7 @@ public class ServerEventHandler {
             SkillExecutionManager.skillExecutions.remove(player.getUUID());
             DataDrivenSkill.clearPlayerState(player.getUUID());
             com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
+            com.zoma1101.swordskill.skilllevel.SkillLevelManager.unloadPlayer(player.getUUID());
         }
     }
 
