@@ -16,27 +16,90 @@
   "hidden": false,
   "color": "#54D8FF",
   "motions": [],
-  "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": true,
-  "sounds": [
+  "hitboxes": [
     {
       "tick": 1,
+      "offset": [
+        0.0,
+        1.215,
+        2.0
+      ],
+      "rotation": [
+        -15.0,
+        0.0,
+        9.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 1.0,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     },
     {
       "tick": 5,
+      "offset": [
+        0.0,
+        0.405,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "size": [
+        0.5,
+        0.5,
+        5.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     },
     {
       "tick": 11,
+      "offset": [
+        0.0,
+        1.215,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        15.0,
+        -90.0
+      ],
+      "size": [
+        7.2,
+        3.0,
+        1.4
+      ],
+      "damage_multiplier": 3.0,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
       "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.47
+      "effects": []
     }
-  ]
+  ],
+  "projectiles": [],
+  "legacy_fallback": false,
+  "sounds": []
 }
