@@ -13,6 +13,10 @@ import com.zoma1101.swordskill.loot.ModLootModifiers;
 import com.zoma1101.swordskill.particle.SkillParticles;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
+import com.zoma1101.swordskill.payload.SyncSmithingDefsPayload;
+import com.zoma1101.swordskill.smithing.SmithingDataLoader;
+import com.zoma1101.swordskill.smithing.SmithingDefinitions;
+import com.zoma1101.swordskill.smithing.SmithingRegistry;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -31,7 +35,7 @@ import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
     public static final String MOD_ID = "swordskill";
-    public static final String PROTOCOL_VERSION = "2";
+    public static final String PROTOCOL_VERSION = "8";
 
     public SwordSkill(IEventBus modEventBus, ModContainer container) {
         SwordSkill_Entities.register(modEventBus);
@@ -40,6 +44,7 @@ public class SwordSkill {
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
         SampleItemRegistry.register(modEventBus);
+        SmithingRegistry.register(modEventBus);
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
         SkillParticles.register(modEventBus);
@@ -60,6 +65,11 @@ public class SwordSkill {
                 }
             }
         }
+        if (SmithingDefinitions.consumeSyncPending()) {
+            for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
+                SyncSmithingDefsPayload.sendTo(player);
+            }
+        }
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             SkillExecutionManager.handleSkillExecution(event.getServer().getLevel(player.level().dimension()), player);
         }
@@ -70,5 +80,8 @@ public class SwordSkill {
         event.addListener(dataLoader);
         WeaponTypeDetector.initialize(dataLoader);
         event.addListener(new SkillDataLoader());
+        event.addListener(new SmithingDataLoader.Materials());
+        event.addListener(new SmithingDataLoader.Parts());
+        event.addListener(new SmithingDataLoader.Recipes());
     }
 }

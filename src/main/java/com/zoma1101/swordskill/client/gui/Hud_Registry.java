@@ -3,14 +3,18 @@ package com.zoma1101.swordskill.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.handler.ClientForgeHandler;
+import com.zoma1101.swordskill.client.handler.ClientSkillLevelHandler;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.handler.ClientTickHandler;
+import com.zoma1101.swordskill.client.handler.SkillHitEffectHandler;
 import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -115,8 +119,45 @@ public class Hud_Registry {
                     guiGraphics.blit(spBarLocation, barX, barY, filledWidth, barHeight, 0, 5, filledWidth, 5,
                             totalWidth, 10);
                 }
+
+                // --- 選択中スキルのレベルとダメージ倍率 ---
+                if (ClientConfig.hudShowSkillLevel.get() && selectedSlot >= 0 && selectedSlot < skillIds.length) {
+                    int selectedSkillId = skillIds[selectedSlot];
+                    SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillId);
+                    if (selectedSkill != null) {
+                        int level = ClientSkillLevelHandler.getLevel(selectedSkillId);
+                        double multiplier = ClientSkillLevelHandler.getMultiplier(selectedSkillId);
+                        Component label = Component.translatable("gui." + SwordSkill.MOD_ID + ".hud_level",
+                                level, String.format(java.util.Locale.ROOT, "%.2f", multiplier));
+                        int textWidth = mc.font.width(label);
+                        int textX = hudX + totalWidth - textWidth;
+                        int textY = barY + barHeight + 2;
+                        int textColor = level > 1 ? 0xFF5ADFFF : 0xFFDDDDDD;
+                        guiGraphics.drawString(mc.font, label, textX, textY, textColor, true);
+                    }
+                }
             }
 
+            RenderSystem.disableBlend();
+        });
+
+        final ResourceLocation HIT_FLASH_LAYER = ResourceLocation
+                .fromNamespaceAndPath(SwordSkill.MOD_ID, "hit_flash");
+
+        // スキル命中時の一瞬の画面フラッシュ
+        event.registerAboveAll(HIT_FLASH_LAYER, (guiGraphics, partialTick) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.options.hideGui) {
+                return;
+            }
+            float intensity = SkillHitEffectHandler.getFlashIntensity();
+            if (intensity <= 0.001F) {
+                return;
+            }
+            int alpha = Mth.clamp((int) (intensity * 255.0F), 0, 255);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), (alpha << 24) | 0xFFFFFF);
             RenderSystem.disableBlend();
         });
     }

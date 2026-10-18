@@ -6,7 +6,10 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
+import com.zoma1101.swordskill.particle.SkillSparkParticleOptions;
+import com.zoma1101.swordskill.particle.SparkStreakParticleOptions;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.core.util.Vec3f;
@@ -69,6 +72,9 @@ public final class WeaponTrailHandler {
     private static final Map<Integer, Integer> SKILL_COLORS = new HashMap<>();
     private static final Map<Integer, Double> TRAIL_LENGTHS = new HashMap<>();
     private static final double DEFAULT_TRAIL_LENGTH = 1.5D;
+    // 刃から火花を散らす間隔（ナノ秒）。sparkDensity で割って密度を上げる。
+    private static final long BLADE_SPARK_INTERVAL_NANOS = 80_000_000L;
+    private static final Map<Integer, Long> NEXT_BLADE_SPARK_NANOS = new HashMap<>();
     private static ClientLevel observedLevel;
 
     private WeaponTrailHandler() {
@@ -191,6 +197,9 @@ public final class WeaponTrailHandler {
             TrailSample last = samples.peekLast();
             if (last == null || last.base.distanceToSqr(base) + last.tip.distanceToSqr(tip) > 0.0000025) {
                 samples.addLast(new TrailSample(base, tip, now));
+                if (variant == 0 && last != null) {
+                    emitBladeSparks(player, base, tip, tip.subtract(last.tip), now, last.createdAtNanos());
+                }
             }
             pruneSamples(samples, now);
             while (samples.size() > MAX_TRAIL_SAMPLES) {
@@ -201,6 +210,83 @@ public final class WeaponTrailHandler {
 
     private static boolean isClawWeapon(ItemStack heldItem) {
         return WeaponTypeDetector.detectWeaponTypes(heldItem).contains(SkillData.WeaponType.CLAW);
+    }
+
+    /**
+     * 振っている武器の刃に沿って、トレイルと同色の火花を散らす。
+     * 火花の速さは刃先の移動速度（ブロック/秒）から求めるので、振り抜くほど速く流れる。
+     */
+    private static void emitBladeSparks(Player player, Vec3 base, Vec3 tip, Vec3 motion, long now,
+            long previousNanos) {
+        boolean coloured = ClientConfig.trailSparks.get();
+        boolean streaks = ClientConfig.sparkStreaks.get();
+        if (!coloured && !streaks) {
+            return;
+        }
+        double density = ClientConfig.sparkDensity.get();
+        if (density <= 0.0D) {
+            return;
+        }
+        long next = NEXT_BLADE_SPARK_NANOS.getOrDefault(player.getId(), 0L);
+        if (now < next) {
+            return;
+        }
+        NEXT_BLADE_SPARK_NANOS.put(player.getId(), now + (long) (BLADE_SPARK_INTERVAL_NANOS / density));
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) {
+            return;
+        }
+        Vec3 blade = tip.subtract(base);
+        if (blade.lengthSqr() < 1.0E-6D) {
+            return;
+        }
+        RandomSource random = level.random;
+        Vec3 flow = motion.lengthSqr() > 1.0E-9D ? motion.normalize() : blade.normalize();
+        // 刃先の速さをブロック/秒で求めて、1tickあたりの火花の速さへ変換する
+        double elapsedSeconds = Math.max((now - previousNanos) / 1.0E9D, 1.0E-4D);
+        double tipSpeed = motion.length() / elapsedSeconds;
+        float sparkSpeed = (float) Mth.clamp(0.55D + tipSpeed * 0.08D, 0.55D, 1.60D);
+        int color = saturateColor(SKILL_COLORS.getOrDefault(player.getId(), 0x54D8FF));
+
+        if (coloured) {
+            int count = Mth.clamp(1 + (random.nextFloat() < density ? 1 : 0), 1, 3);
+            for (int index = 0; index < count; index++) {
+                double along = 0.35D + random.nextDouble() * 0.65D;
+                Vec3 position = base.lerp(tip, along);
+                Vec3 normal = randomPerpendicular(blade, random);
+                Vec3 velocity = flow.scale(sparkSpeed * (0.7D + random.nextDouble() * 0.6D))
+                        .add(normal.scale(0.10D + random.nextDouble() * 0.30D))
+                        .add(0.0D, 0.03D + random.nextDouble() * 0.10D, 0.0D);
+                float scale = 0.55F + random.nextFloat() * 0.5F;
+                level.addParticle(new SkillSparkParticleOptions(color, scale),
+                        position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
+            }
+        }
+
+        if (streaks && random.nextFloat() < 0.45F * (float) density) {
+            double along = 0.55D + random.nextDouble() * 0.45D;
+            Vec3 position = base.lerp(tip, along);
+            Vec3 normal = randomPerpendicular(blade, random);
+            Vec3 velocity = flow.scale(sparkSpeed * (0.9D + random.nextDouble() * 0.8D))
+                    .add(normal.scale(0.16D + random.nextDouble() * 0.34D))
+                    .add(0.0D, 0.03D + random.nextDouble() * 0.08D, 0.0D);
+            level.addParticle(new SparkStreakParticleOptions(color, 0.8F + random.nextFloat() * 0.5F),
+                    position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
+        }
+    }
+
+    /** 刃軸に直交するランダムな単位ベクトル。火花を刃から外側へ散らすのに使う。 */
+    private static Vec3 randomPerpendicular(Vec3 axis, RandomSource random) {
+        Vec3 unit = axis.normalize();
+        Vec3 reference = Math.abs(unit.y) > 0.95D ? new Vec3(1.0D, 0.0D, 0.0D) : new Vec3(0.0D, 1.0D, 0.0D);
+        Vec3 side = unit.cross(reference);
+        if (side.lengthSqr() < 1.0E-6D) {
+            side = unit.cross(new Vec3(0.0D, 0.0D, 1.0D));
+        }
+        Vec3 perpendicular = side.normalize();
+        Vec3 other = unit.cross(perpendicular).normalize();
+        double angle = random.nextDouble() * Math.PI * 2.0D;
+        return perpendicular.scale(Math.cos(angle)).add(other.scale(Math.sin(angle)));
     }
 
     /** 刃軸に直交する水平方向のベクトル。爪トレイルを左右に並べる際のオフセット軸に使う。 */
@@ -463,7 +549,7 @@ public final class WeaponTrailHandler {
         return t * t * (3.0F - 2.0F * t);
     }
 
-    private static int saturateColor(int color) {
+    public static int saturateColor(int color) {
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
         int blue = color & 0xFF;
@@ -514,6 +600,7 @@ public final class WeaponTrailHandler {
             PENDING_DIRECTIONS.clear();
             SKILL_COLORS.clear();
             TRAIL_LENGTHS.clear();
+            NEXT_BLADE_SPARK_NANOS.clear();
             observedLevel = currentLevel;
         }
     }

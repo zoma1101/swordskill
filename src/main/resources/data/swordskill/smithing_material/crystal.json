@@ -1,0 +1,12 @@
+{
+  "tier": 5,
+  "power": 1.35,
+  "weight": 6.0,
+  "color_main": "#FF7BE0",
+  "color_sub": "#7A2050",
+  "items": [
+    "minecraft:amethyst_shard"
+  ],
+  "tags": [],
+  "special": true
+}

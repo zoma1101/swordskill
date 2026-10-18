@@ -1,0 +1,12 @@
+{
+  "kind": "BLADE",
+  "weapons": [
+    "CLAW"
+  ],
+  "texture": "blade_claw",
+  "power": 0.8,
+  "weight": 0.7,
+  "attack_speed": -2.4,
+  "color_slot": "MAIN",
+  "tier": 1
+}

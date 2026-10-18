@@ -1,0 +1,12 @@
+{
+  "kind": "BLADE",
+  "weapons": [
+    "RAPIER"
+  ],
+  "texture": "blade_rapier",
+  "power": 0.9,
+  "weight": 0.8,
+  "attack_speed": -2.0,
+  "color_slot": "MAIN",
+  "tier": 1
+}

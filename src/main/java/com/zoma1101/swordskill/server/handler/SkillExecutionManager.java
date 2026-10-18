@@ -55,8 +55,17 @@ public class SkillExecutionManager {
             // -----------------------------
 
             int currentTick = (int) level.getGameTime();
-            if (currentTick - skillExecution.startTick <= skillExecution.finalTick) {
+            // 重量ペナルティ: STR 不足時はソードスキルの進行が遅くなる
+            double skillSpeed = com.zoma1101.swordskill.smithing.SmithingEquipmentHandler
+                    .skillSpeedMultiplier(player);
+            int effectiveFinalTick = skillSpeed < 1.0D
+                    ? (int) Math.ceil(skillExecution.finalTick / skillSpeed)
+                    : skillExecution.finalTick;
+            if (currentTick - skillExecution.startTick <= effectiveFinalTick) {
                 int elapsedTicks = currentTick - skillExecution.startTick;
+                if (skillSpeed < 1.0D) {
+                    elapsedTicks = (int) Math.floor(elapsedTicks * skillSpeed);
+                }
                 SkillData skill = SwordSkillRegistry.SKILLS.get(skillExecution.skillId);
                 if (skill != null && skill.getDataDefinition() != null
                         && skill.getType() == SkillData.SkillType.RUSH

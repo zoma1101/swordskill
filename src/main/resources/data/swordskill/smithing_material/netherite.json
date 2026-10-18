@@ -1,0 +1,12 @@
+{
+  "tier": 4,
+  "power": 2.2,
+  "weight": 18.0,
+  "color_main": "#57504F",
+  "color_sub": "#221F22",
+  "items": [
+    "minecraft:netherite_ingot"
+  ],
+  "tags": [],
+  "special": false
+}

@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.payload;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
 import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,6 +30,8 @@ public record RequestSkillLevelsPayload() implements CustomPacketPayload {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
                 PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));
+                // 熟練度も一緒に送り直して、選択画面を開いた時点で最新にする
+                ProficiencyManager.syncToClient(player);
             }
         });
     }

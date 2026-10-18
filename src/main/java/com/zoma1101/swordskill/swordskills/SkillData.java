@@ -94,6 +94,24 @@ public class SkillData {
         return additionalData;
     }
 
+    /** 熟練度のカテゴリ。JSON 未指定のときは先頭の武器種を使う。 */
+    public WeaponType getProficiencyCategory() {
+        if (dataDefinition != null && dataDefinition.proficiencyCategory() != null) {
+            return dataDefinition.proficiencyCategory();
+        }
+        return availableWeaponTypes.isEmpty() ? WeaponType.NONE : availableWeaponTypes.get(0);
+    }
+
+    /** 解放に必要な熟練度（0 なら熟練度不要）。 */
+    public int getUnlockProficiency() {
+        return dataDefinition == null ? 0 : dataDefinition.unlockProficiency();
+    }
+
+    /** スロットにセットできるスキルか（説明用エントリなどは false）。 */
+    public boolean isAssignable() {
+        return dataDefinition == null || dataDefinition.assignable();
+    }
+
     // ★追加: 熟練度設定用のヘルパーメソッド
     @SuppressWarnings("unchecked")
     public void setRequiredProficiency(String weaponType, int amount) {

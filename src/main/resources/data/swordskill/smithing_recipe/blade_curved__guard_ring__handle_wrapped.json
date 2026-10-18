@@ -1,0 +1,18 @@
+{
+  "blade": "swordskill:blade_curved",
+  "handle": "swordskill:handle_wrapped",
+  "weapon": "KATANA",
+  "count": 5,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 1
+    },
+    {
+      "item": "minecraft:leather",
+      "count": 1
+    }
+  ],
+  "guard": "swordskill:guard_ring"
+}

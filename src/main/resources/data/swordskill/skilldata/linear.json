@@ -14,6 +14,7 @@
   "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "unlock_proficiency": 50,
   "color": "#54D8FF",
   "motions": [],
   "hitboxes": [

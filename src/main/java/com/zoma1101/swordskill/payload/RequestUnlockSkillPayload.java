@@ -7,7 +7,11 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
 import com.zoma1101.swordskill.item.SampleItemRegistry;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -45,6 +49,27 @@ public record RequestUnlockSkillPayload(int skillId) implements CustomPacketPayl
         ctx.enqueueWork(() -> {
             if (!(ctx.player() instanceof ServerPlayer player)) {
                 return;
+            }
+
+            // 0. 熟練度による解放条件（クリエイティブは免除）
+            SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+            if (skill == null || !skill.isAssignable()) {
+                LOGGER.warn("Player {} tried to unlock invalid skill {}", player.getName().getString(), skillId);
+                return;
+            }
+            int requiredProficiency = ProficiencyManager.unlockRequirementOf(skill);
+            SkillData.WeaponType category = ProficiencyManager.categoryOf(skill);
+            if (!player.isCreative() && requiredProficiency > 0) {
+                int currentProficiency = ProficiencyManager.getProficiency(player, category);
+                if (currentProficiency < requiredProficiency) {
+                    LOGGER.warn("Player {} tried to unlock skill {} but proficiency {} is below {}",
+                            player.getName().getString(), skillId, currentProficiency, requiredProficiency);
+                    player.displayClientMessage(Component.translatable(
+                            "message." + SwordSkill.MOD_ID + ".unlock.required_proficiency",
+                            Component.translatable(SwordSkill.MOD_ID + ".weapon." + category.name().toLowerCase()),
+                            requiredProficiency, currentProficiency), false);
+                    return;
+                }
             }
 
             boolean canUnlock = false;

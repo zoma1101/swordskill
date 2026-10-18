@@ -1,7 +1,9 @@
 package com.zoma1101.swordskill.client.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.particle.SkillSparkParticleOptions;
+import com.zoma1101.swordskill.particle.SparkStreakParticleOptions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
@@ -26,8 +28,9 @@ import java.util.List;
 public final class ShockwaveHandler {
     private static final int DEFAULT_COLOR = 0x54D8FF;
     private static final double WAVE_TRAVEL_SPEED = 1.7D;
-    private static final int RING_SPARKS_PER_TICK = 5;
-    private static final int BURST_SPARKS_PER_TICK = 12;
+    private static final int RING_SPARKS_PER_TICK = 3;
+    private static final int BURST_SPARKS_PER_TICK = 7;
+    private static final int STREAK_SPARKS_PER_TICK = 3;
     private static final float BURST_PROGRESS = 0.35F;
 
     private static final List<ShockwaveEffect> EFFECTS = new ArrayList<>();
@@ -99,8 +102,8 @@ public final class ShockwaveHandler {
             Vec3 radial = side.scale(Math.cos(angle)).add(up.scale(Math.sin(angle)));
             Vec3 position = origin.add(axis.scale(distance + (random.nextDouble() - 0.5D) * 0.55D))
                     .add(radial.scale(radius + (random.nextDouble() - 0.5D) * 0.35D));
-            Vec3 velocity = radial.scale(0.12D + random.nextDouble() * 0.10D)
-                    .add(axis.scale(0.02D + random.nextDouble() * 0.05D));
+            Vec3 velocity = radial.scale(0.30D + random.nextDouble() * 0.28D)
+                    .add(axis.scale(0.04D + random.nextDouble() * 0.10D));
             addSpark(level, position, velocity, effect.color, 0.8F + random.nextFloat() * 0.5F);
         }
 
@@ -111,15 +114,31 @@ public final class ShockwaveHandler {
                 Vec3 radial = side.scale(Math.cos(angle)).add(up.scale(Math.sin(angle)));
                 Vec3 position = origin.add(axis.scale(0.45D + random.nextDouble() * 0.55D))
                         .add(radial.scale(0.20D + random.nextDouble() * 0.40D));
-                Vec3 velocity = radial.scale(0.18D + random.nextDouble() * 0.16D)
-                        .add(axis.scale(0.10D + random.nextDouble() * 0.10D));
+                Vec3 velocity = radial.scale(0.48D + random.nextDouble() * 0.45D)
+                        .add(axis.scale(0.22D + random.nextDouble() * 0.20D));
                 addSpark(level, position, velocity, effect.color, 1.0F + random.nextFloat() * 0.6F);
+            }
+            if (ClientConfig.sparkStreaks.get()) {
+                for (int spark = 0; spark < STREAK_SPARKS_PER_TICK; spark++) {
+                    double angle = random.nextDouble() * Math.PI * 2.0D;
+                    Vec3 radial = side.scale(Math.cos(angle)).add(up.scale(Math.sin(angle)));
+                    Vec3 position = origin.add(axis.scale(0.45D + random.nextDouble() * 0.55D))
+                            .add(radial.scale(0.18D + random.nextDouble() * 0.40D));
+                    Vec3 velocity = radial.scale(0.70D + random.nextDouble() * 0.70D)
+                            .add(axis.scale(0.25D + random.nextDouble() * 0.35D));
+                    addStreak(level, position, velocity, effect.color, 0.9F + random.nextFloat() * 0.6F);
+                }
             }
         }
     }
 
     private static void addSpark(ClientLevel level, Vec3 position, Vec3 velocity, int color, float scale) {
         level.addParticle(new SkillSparkParticleOptions(color, scale),
+                position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
+    }
+
+    private static void addStreak(ClientLevel level, Vec3 position, Vec3 velocity, int color, float scale) {
+        level.addParticle(new SparkStreakParticleOptions(color, scale),
                 position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
     }
 

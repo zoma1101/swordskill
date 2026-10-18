@@ -158,6 +158,27 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 || hitstopTicks < -1 || hitstopTicks > 40) {
             throw new JsonParseException("trail_length/shockwave_ticks/hitstop_ticks is outside the supported range");
         }
+
+        // --- 熟練度 -----------------------------------------------------
+        SkillData.WeaponType proficiencyCategory = null;
+        if (json.has("proficiency_category")) {
+            String categoryName = GsonHelper.getAsString(json, "proficiency_category").trim();
+            try {
+                SkillData.WeaponType category = SkillData.WeaponType.valueOf(categoryName);
+                if (category == SkillData.WeaponType.NONE) {
+                    throw new JsonParseException("NONE is not a valid proficiency category");
+                }
+                proficiencyCategory = category;
+            } catch (IllegalArgumentException exception) {
+                throw new JsonParseException("Unknown proficiency category: " + categoryName, exception);
+            }
+        }
+        int unlockProficiency = GsonHelper.getAsInt(json, "unlock_proficiency", 0);
+        if (unlockProficiency < 0 || unlockProficiency > 1000000) {
+            throw new JsonParseException("unlock_proficiency is outside the supported range");
+        }
+        boolean assignable = GsonHelper.getAsBoolean(json, "assignable", true);
+
         return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
@@ -167,7 +188,8 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsString(json, "rush_start_animation", "start"),
                 GsonHelper.getAsString(json, "rush_move_animation", "move"),
                 GsonHelper.getAsString(json, "rush_finish_animation", "finish"), rushCombo,
-                trailLength, shockwaveTicks, hitstopTicks);
+                trailLength, shockwaveTicks, hitstopTicks,
+                proficiencyCategory, unlockProficiency, assignable);
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,

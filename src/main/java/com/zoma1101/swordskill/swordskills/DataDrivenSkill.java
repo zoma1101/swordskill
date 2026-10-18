@@ -74,6 +74,10 @@ public final class DataDrivenSkill implements ISkill {
             if (baseSkill == null) {
                 throw new IllegalStateException("No built-in skill is available for legacy fallback: " + skillId);
             }
+            // ビルトイン側がプレースホルダ（説明枠など）の場合は再帰するので何もしない
+            if (baseSkill.getSkillClass() == DataDrivenSkill.class) {
+                return;
+            }
             try {
                 baseSkill.getSkillClass().getDeclaredConstructor().newInstance()
                         .execute(level, player, tick, skillId);
@@ -176,7 +180,7 @@ public final class DataDrivenSkill implements ISkill {
                 }
                 if (hitbox.hitboxEnabled()) {
                     if (applyHitbox(level, player, hitbox,
-                            rushCombo == null || rushCombo.useChargeMultiplier(), hitstopTicks)
+                            rushCombo == null || rushCombo.useChargeMultiplier(), hitstopTicks, definition.color())
                             && hitbox.repeatWhileRushing()
                             && definition.type() == SkillData.SkillType.RUSH) {
                         SkillExecutionManager.finishRush(player);
@@ -197,7 +201,7 @@ public final class DataDrivenSkill implements ISkill {
             if (((projectile.trigger().equals("TICK") && projectile.tick() == tick)
                     || (contactTriggered && triggerTick == tick) || projectileInitialTick)
                     && firedProjectiles.add(projectileIndex)) {
-                spawnProjectile(level, player, projectile);
+                spawnProjectile(level, player, projectile, parseColor(definition.color()));
                 triggerShockwave(player, shockwaveTicks, definition.color());
             }
         }
@@ -233,7 +237,7 @@ public final class DataDrivenSkill implements ISkill {
     }
 
     private static void spawnProjectile(Level level, ServerPlayer player,
-            DataSkillDefinition.ProjectileEvent projectile) {
+            DataSkillDefinition.ProjectileEvent projectile, int skillColor) {
         Vec3 forward = player.getLookAngle().normalize();
         Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(forward).normalize();
@@ -266,13 +270,14 @@ public final class DataDrivenSkill implements ISkill {
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback,
                     projectile.durationTicks(), projectile.particle(), projectile.travelDistance(),
-                    projectile.renderPitch());
+                    projectile.renderPitch(), skillColor);
         } else {
             SkillUtils.spawnFlyingSlash(level, spawnPosition,
                     new Vec3(pitch, rotation[1], roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback, projectile.durationTicks(),
-                    projectile.particle(), projectile.travelDistance(), movement, projectile.renderPitch());
+                    projectile.particle(), projectile.travelDistance(), movement, projectile.renderPitch(),
+                    skillColor);
         }
     }
 
@@ -294,7 +299,7 @@ public final class DataDrivenSkill implements ISkill {
     }
 
     private static boolean applyHitbox(Level level, ServerPlayer player, DataSkillDefinition.Hitbox hitbox,
-            boolean useChargeMultiplier, int hitstopTicks) {
+            boolean useChargeMultiplier, int hitstopTicks, String color) {
         Vec3 forward = player.getLookAngle().normalize();
         Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(forward).normalize();
@@ -317,13 +322,29 @@ public final class DataDrivenSkill implements ISkill {
                     || Math.abs(relative.dot(forward)) > size[2] * 0.5 + targetRadius) {
                 continue;
             }
-            hit |= applyHit(player, target, hitbox, useChargeMultiplier, hitstopTicks);
+            hit |= applyHit(player, target, hitbox, useChargeMultiplier, hitstopTicks, color);
         }
         return hit;
     }
 
+    /** ヒットボックスの形から攻撃の傾向を推定する（武器記憶用）。 */
+    private static com.zoma1101.swordskill.smithing.WeaponMemoryCategory memoryCategory(
+            DataSkillDefinition.Hitbox hitbox) {
+        double[] size = hitbox.size();
+        double right = size[0];
+        double up = size[1];
+        double forward = size[2];
+        if (forward >= right * 1.5D && forward >= up * 1.5D) {
+            return com.zoma1101.swordskill.smithing.WeaponMemoryCategory.THRUST;
+        }
+        if (right >= forward * 1.5D && right >= up * 1.5D) {
+            return com.zoma1101.swordskill.smithing.WeaponMemoryCategory.SWEEP;
+        }
+        return com.zoma1101.swordskill.smithing.WeaponMemoryCategory.NORMAL;
+    }
+
     private static boolean applyHit(ServerPlayer player, LivingEntity target, DataSkillDefinition.Hitbox hitbox,
-            boolean useChargeMultiplier, int hitstopTicks) {
+            boolean useChargeMultiplier, int hitstopTicks, String color) {
         float damageMultiplier = (float) hitbox.damageMultiplier();
         for (DataSkillDefinition.Effect effect : hitbox.effects()) {
             if (effect.type().equals("undead_bonus") && target.getType().is(EntityTypeTags.UNDEAD)) {
@@ -340,7 +361,17 @@ public final class DataDrivenSkill implements ISkill {
         float damage = (float) (baseDamage * damageMultiplier
                 * (useChargeMultiplier ? getChargeMultiplier(player.getUUID()) : 1.0F));
         target.invulnerableTime = 0;
-        if (!target.hurt(player.damageSources().playerAttack(player), damage)) {
+        // 武器記憶: ヒットボックスの形から突き / 凪払いを判定して通知する
+        com.zoma1101.swordskill.smithing.SmithingCombat.pushContext(
+                memoryCategory(hitbox),
+                com.zoma1101.swordskill.smithing.SmithingCombat.runningSkillCooldown(player));
+        boolean hurt;
+        try {
+            hurt = target.hurt(player.damageSources().playerAttack(player), damage);
+        } finally {
+            com.zoma1101.swordskill.smithing.SmithingCombat.clearContext();
+        }
+        if (!hurt) {
             return false;
         }
 
@@ -361,8 +392,42 @@ public final class DataDrivenSkill implements ISkill {
         for (DataSkillDefinition.Effect effect : hitbox.effects()) {
             applyEffect(player, target, effect, damage);
         }
+        sendHitEffect(player, target, color, damageMultiplier);
         HitstopManager.apply(player, target, hitstopTicks, knockback);
         return true;
+    }
+
+    /**
+     * 命中位置に火花バースト・光輪・斬痕・フラッシュを出すための通知を、対象を追跡している
+     * クライアントと本人へ送る。位置は対象の攻撃者側の面、方向は攻撃者→対象の単位ベクトル。
+     */
+    public static void sendHitEffect(ServerPlayer player, LivingEntity target, String color, double power) {
+        sendHitEffect(player, target, parseColor(color), power);
+    }
+
+    /** 色を整数で受け取る版。飛び道具（{@code AttackEffectEntity}）から呼ぶ。 */
+    public static void sendHitEffect(ServerPlayer player, LivingEntity target, int color, double power) {
+        Vec3 center = target.getBoundingBox().getCenter();
+        Vec3 direction = center.subtract(player.position());
+        direction = direction.lengthSqr() < 1.0E-6D ? player.getLookAngle().normalize() : direction.normalize();
+        double radius = Math.max(target.getBbWidth(), target.getBbHeight()) * 0.5D;
+        Vec3 surface = center.subtract(direction.scale(radius + 0.05D));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(target,
+                new com.zoma1101.swordskill.payload.SkillHitEffectPayload(player.getId(), target.getId(),
+                        color & 0xFFFFFF, (float) power, surface, direction));
+    }
+
+    /** "#RRGGBB" 形式のスキル色を整数へ変換する。失敗時は既定の青。 */
+    public static int parseColor(String color) {
+        if (color == null || color.isEmpty()) {
+            return 0x54D8FF;
+        }
+        String hex = color.startsWith("#") ? color.substring(1) : color;
+        try {
+            return Integer.parseInt(hex, 16) & 0xFFFFFF;
+        } catch (NumberFormatException exception) {
+            return 0x54D8FF;
+        }
     }
 
     private static void triggerShockwave(ServerPlayer player, int shockwaveTicks, String color) {

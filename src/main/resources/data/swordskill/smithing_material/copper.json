@@ -1,0 +1,12 @@
+{
+  "tier": 1,
+  "power": 0.7,
+  "weight": 11.0,
+  "color_main": "#E07A4E",
+  "color_sub": "#8C4020",
+  "items": [
+    "minecraft:copper_ingot"
+  ],
+  "tags": [],
+  "special": false
+}

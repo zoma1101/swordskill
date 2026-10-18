@@ -18,15 +18,16 @@
     "DUALSWORD",
     "MACE"
   ],
-  "cooldown": 100,
+  "cooldown": 0,
   "sp_cost": 0.0,
   "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "assignable": false,
   "color": "#54D8FF",
   "motions": [],
   "hitboxes": [],
   "projectiles": [],
-  "legacy_fallback": true,
+  "legacy_fallback": false,
   "sounds": []
 }

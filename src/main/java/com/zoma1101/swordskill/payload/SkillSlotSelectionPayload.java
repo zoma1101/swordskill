@@ -5,6 +5,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
+import com.zoma1101.swordskill.data.WeaponData;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,6 +19,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 import static com.zoma1101.swordskill.server.handler.ServerEventHandler.sendSkillSlotInfo;
 
@@ -52,6 +58,35 @@ public record SkillSlotSelectionPayload(int skillId, int slotIndex, String weapo
             }
 
             try {
+                // 不正防止: 「今持っている武器」と一致し、その武器種で使用できるスキル以外は受け付けない
+                WeaponData weaponData = WeaponTypeUtils.getWeaponData(player);
+                String serverWeaponName = (weaponData != null && weaponData.weaponName() != null)
+                        ? weaponData.weaponName()
+                        : "None";
+                Set<SkillData.WeaponType> serverWeaponTypes = (weaponData != null && weaponData.weaponType() != null)
+                        ? weaponData.weaponType()
+                        : Set.of();
+
+                SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId());
+                if (skill == null) {
+                    LOGGER.warn("Rejected unknown skill {} from player {}", msg.skillId(),
+                            player.getName().getString());
+                    return;
+                }
+                if (!serverWeaponName.equals(msg.weaponName())) {
+                    LOGGER.warn("Rejected skill slot request with weapon mismatch (sent: {}, server: {}) from player {}",
+                            msg.weaponName(), serverWeaponName, player.getName().getString());
+                    return;
+                }
+                boolean compatible = skill.isAssignable() && !serverWeaponTypes.isEmpty()
+                        && skill.getAvailableWeaponTypes().stream().anyMatch(serverWeaponTypes::contains);
+                if (!compatible) {
+                    LOGGER.warn("Rejected skill {} (types: {}) for weapon '{}' (types: {}) from player {}",
+                            msg.skillId(), skill.getAvailableWeaponTypes(), serverWeaponName, serverWeaponTypes,
+                            player.getName().getString());
+                    return;
+                }
+
                 JsonObject playerData = DataManager.loadPlayerData(player);
                 JsonObject weaponSkills = playerData.getAsJsonObject("weaponSkills");
                 // weaponSkills オブジェクトが存在しない場合は新規作成

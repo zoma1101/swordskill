@@ -1,0 +1,14 @@
+{
+  "blade": "swordskill:blade_great",
+  "handle": "swordskill:handle_straight",
+  "weapon": "TWO_HANDED_SWORD",
+  "count": 6,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 1
+    }
+  ],
+  "guard": "swordskill:guard_ring"
+}

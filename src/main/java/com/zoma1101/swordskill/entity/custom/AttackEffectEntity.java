@@ -1,6 +1,8 @@
 package com.zoma1101.swordskill.entity.custom;
 
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.SkillUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -46,7 +48,13 @@ public class AttackEffectEntity extends Entity {
     private double knockbackStrength = 0.5; // ノックバック強さ
     private int duration = 15; // 生存時間 (tick)
     private LivingEntity owner;
+    private int skillColor = 0x54D8FF; // 命中演出に使うトレイル色（サーバー側のみで保持）
     private final List<Integer> hitEntities = new ArrayList<>();
+
+    /** 命中演出の色を設定する。クライアントへは同期不要（演出はサーバーから通知する）。 */
+    public void setSkillColor(int color) {
+        this.skillColor = color & 0xFFFFFF;
+    }
 
     public AttackEffectEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
@@ -182,7 +190,21 @@ public class AttackEffectEntity extends Entity {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
         }
 
-        entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            com.zoma1101.swordskill.smithing.SmithingCombat.pushContext(
+                    com.zoma1101.swordskill.smithing.WeaponMemoryCategory.FLYING,
+                    com.zoma1101.swordskill.smithing.SmithingCombat.runningSkillCooldown(serverPlayer));
+        }
+        try {
+            entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
+        } finally {
+            com.zoma1101.swordskill.smithing.SmithingCombat.clearContext();
+        }
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+                && this.level() instanceof ServerLevel) {
+            double power = damage * DamagePer / Math.max(1.0D, SkillUtils.BaseDamage(serverPlayer));
+            DataDrivenSkill.sendHitEffect(serverPlayer, entity, this.skillColor, power);
+        }
         if (getDeltaMovement() == Vec3.ZERO) {
             entity.invulnerableTime = 0;
         } else {

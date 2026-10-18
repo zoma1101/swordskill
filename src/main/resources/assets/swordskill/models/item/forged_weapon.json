@@ -1,0 +1,834 @@
+{
+  "parent": "swordskill:item/forged/base",
+  "textures": {
+    "blade": "swordskill:item/forged_part/blade_straight",
+    "guard": "swordskill:item/forged_part/guard_plain",
+    "handle": "swordskill:item/forged_part/handle_wrapped"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        7.5
+      ],
+      "to": [
+        16,
+        16,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#blade",
+          "tintindex": 0
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#blade",
+          "tintindex": 0
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        7.5
+      ],
+      "to": [
+        16,
+        16,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#guard",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#guard",
+          "tintindex": 1
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        7.5
+      ],
+      "to": [
+        16,
+        16,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#handle",
+          "tintindex": 1
+        },
+        "south": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#handle",
+          "tintindex": 1
+        }
+      }
+    }
+  ],
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "swordskill:item/forged/blade_axe__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "swordskill:item/forged/blade_axe__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "swordskill:item/forged/blade_axe__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 5
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 6
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 7
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 8
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 9
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 10
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 11
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 12
+      },
+      "model": "swordskill:item/forged/blade_axe__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 13
+      },
+      "model": "swordskill:item/forged/blade_claw__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 14
+      },
+      "model": "swordskill:item/forged/blade_claw__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 15
+      },
+      "model": "swordskill:item/forged/blade_claw__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 16
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 17
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 18
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 19
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 20
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 21
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 22
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 23
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 24
+      },
+      "model": "swordskill:item/forged/blade_claw__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 25
+      },
+      "model": "swordskill:item/forged/blade_curved__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 26
+      },
+      "model": "swordskill:item/forged/blade_curved__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 27
+      },
+      "model": "swordskill:item/forged/blade_curved__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 28
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 29
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 30
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 31
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 32
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 33
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 34
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 35
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 36
+      },
+      "model": "swordskill:item/forged/blade_curved__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 37
+      },
+      "model": "swordskill:item/forged/blade_dagger__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 38
+      },
+      "model": "swordskill:item/forged/blade_dagger__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 39
+      },
+      "model": "swordskill:item/forged/blade_dagger__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 40
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 41
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 42
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 43
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 44
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 45
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 46
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 47
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 48
+      },
+      "model": "swordskill:item/forged/blade_dagger__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 49
+      },
+      "model": "swordskill:item/forged/blade_great__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 50
+      },
+      "model": "swordskill:item/forged/blade_great__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 51
+      },
+      "model": "swordskill:item/forged/blade_great__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 52
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 53
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 54
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 55
+      },
+      "model": "swordskill:item/forged/blade_great__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 56
+      },
+      "model": "swordskill:item/forged/blade_great__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 57
+      },
+      "model": "swordskill:item/forged/blade_great__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 58
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 59
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 60
+      },
+      "model": "swordskill:item/forged/blade_great__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 61
+      },
+      "model": "swordskill:item/forged/blade_mace__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 62
+      },
+      "model": "swordskill:item/forged/blade_mace__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 63
+      },
+      "model": "swordskill:item/forged/blade_mace__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 64
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 65
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 66
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 67
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 68
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 69
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 70
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 71
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 72
+      },
+      "model": "swordskill:item/forged/blade_mace__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 73
+      },
+      "model": "swordskill:item/forged/blade_rapier__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 74
+      },
+      "model": "swordskill:item/forged/blade_rapier__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 75
+      },
+      "model": "swordskill:item/forged/blade_rapier__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 76
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 77
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 78
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 79
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 80
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 81
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 82
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 83
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 84
+      },
+      "model": "swordskill:item/forged/blade_rapier__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 85
+      },
+      "model": "swordskill:item/forged/blade_scythe__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 86
+      },
+      "model": "swordskill:item/forged/blade_scythe__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 87
+      },
+      "model": "swordskill:item/forged/blade_scythe__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 88
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 89
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 90
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 91
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 92
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 93
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 94
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 95
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 96
+      },
+      "model": "swordskill:item/forged/blade_scythe__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 97
+      },
+      "model": "swordskill:item/forged/blade_spear__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 98
+      },
+      "model": "swordskill:item/forged/blade_spear__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 99
+      },
+      "model": "swordskill:item/forged/blade_spear__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 100
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 101
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 102
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 103
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 104
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 105
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 106
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 107
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 108
+      },
+      "model": "swordskill:item/forged/blade_spear__guard_ring__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 109
+      },
+      "model": "swordskill:item/forged/blade_straight__none__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 110
+      },
+      "model": "swordskill:item/forged/blade_straight__none__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 111
+      },
+      "model": "swordskill:item/forged/blade_straight__none__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 112
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ornate__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 113
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ornate__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 114
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ornate__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 115
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_plain__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 116
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_plain__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 117
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_plain__handle_wrapped"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 118
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ring__handle_long"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 119
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ring__handle_straight"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 120
+      },
+      "model": "swordskill:item/forged/blade_straight__guard_ring__handle_wrapped"
+    }
+  ]
+}

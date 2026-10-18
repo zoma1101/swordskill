@@ -39,6 +39,12 @@ public class Keybindings {
             InputConstants.getKey(InputConstants.KEY_MINUS, -1),
             CATEGORY
     );
+    public final KeyMapping SwordSkill_Status_Key = new KeyMapping(
+            "key."+ SwordSkill.MOD_ID + ".status_key",
+            IN_GAME,
+            InputConstants.getKey(InputConstants.KEY_K, -1),
+            CATEGORY
+    );
 
     public final KeyMapping SwordSkill_Use_Key_0 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_0",

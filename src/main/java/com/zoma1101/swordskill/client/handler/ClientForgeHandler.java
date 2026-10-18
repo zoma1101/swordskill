@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.client.handler;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.AnimationUtils;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
+import com.zoma1101.swordskill.client.gui.StatusScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.config.ServerConfig;
@@ -63,6 +64,8 @@ public class ClientForgeHandler {
         ClientSkillSlotHandler.reset();
         ClientUnlockedSkillsHandler.reset(); // アンロック情報もリセット
         ClientSkillLevelHandler.reset(); // スキルレベルもリセット
+        ClientProficiencyHandler.reset(); // 熟練度もリセット
+        ClientPlayerLevelHandler.reset(); // プレイヤーレベルもリセット
         cooldowns.clear();
         addSkillIndex = 0;
         transformChainBaseId = null;
@@ -157,6 +160,8 @@ public class ClientForgeHandler {
             mc.setScreen(new SwordSkillSelectionScreen());
         } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isActiveAndMatches(inputKey)) {
             mc.setScreen(new HudPositionSettingScreen());
+        } else if (Keybindings.INSTANCE.SwordSkill_Status_Key.isActiveAndMatches(inputKey)) {
+            mc.setScreen(new StatusScreen());
         }
     }
 

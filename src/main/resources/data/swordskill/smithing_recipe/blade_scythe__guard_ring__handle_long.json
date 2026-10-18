@@ -1,0 +1,14 @@
+{
+  "blade": "swordskill:blade_scythe",
+  "handle": "swordskill:handle_long",
+  "weapon": "SCYTHE",
+  "count": 6,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    }
+  ],
+  "guard": "swordskill:guard_ring"
+}

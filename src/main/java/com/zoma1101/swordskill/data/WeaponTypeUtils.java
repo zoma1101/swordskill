@@ -23,8 +23,35 @@ public class WeaponTypeUtils {
         if (mainHandItem.isEmpty()) {
             return new HashSet<>();
         }
+        // 鍛造武器はスタックごとに武器種が決まる
+        com.zoma1101.swordskill.smithing.ForgedWeaponData forged =
+                com.zoma1101.swordskill.smithing.ForgedWeaponData.get(mainHandItem);
+        if (forged != null) {
+            Set<SkillData.WeaponType> forgedTypes = new HashSet<>();
+            if (forged.weaponType() != SkillData.WeaponType.NONE) {
+                forgedTypes.add(forged.weaponType());
+            }
+            return forgedTypes;
+        }
         // detectWeaponTypesがSetを返すと仮定して、変更可能な新しいSetを作成
         return new HashSet<>(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
+    }
+
+    /** 武器名（プレイヤーデータの weaponSkills のキー）。鍛造武器は武器種から既存の武器名を引く。 */
+    public static String getWeaponName(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return null;
+        }
+        com.zoma1101.swordskill.smithing.ForgedWeaponData forged =
+                com.zoma1101.swordskill.smithing.ForgedWeaponData.get(stack);
+        if (forged != null) {
+            String shared = WeaponTypeDetector.findWeaponName(forged.weaponType());
+            if (shared != null) {
+                return shared;
+            }
+            return "forged_" + forged.weaponType().name().toLowerCase(java.util.Locale.ROOT);
+        }
+        return WeaponTypeDetector.getWeaponName(stack);
     }
 
 
@@ -73,7 +100,7 @@ public class WeaponTypeUtils {
                 return dualSwordData;
             }
             // 通常武器
-            String weaponName = WeaponTypeDetector.getWeaponName(player.getMainHandItem());
+            String weaponName = getWeaponName(player.getMainHandItem());
             return new WeaponData(weaponTypes, weaponName);
         }
         // 自動判定フォールバック

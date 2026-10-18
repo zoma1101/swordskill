@@ -23,6 +23,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class SkillUtils {
+    /** スキル色が未指定のときに使う既定のトレイル色。 */
+    private static final int DEFAULT_SKILL_COLOR = 0x54D8FF;
+
     public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
             double damage, double knockback, int duration, String skill_particle, Vec3 Movement) {
         spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle,
@@ -67,6 +70,29 @@ public class SkillUtils {
     private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, DEFAULT_SKILL_COLOR);
+    }
+
+    /** トレイル色と同じ色で飛び道具を出す版。色は命中演出に使う。 */
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                null, true, travelDistance, renderPitch, skillColor);
+    }
+
+    /** トレイル色と同じ色で飛び道具（移動ベクトル指定）を出す版。 */
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, true, travelDistance, renderPitch, skillColor);
+    }
+
+    private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor) {
         if (!level.isClientSide) {
             AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
             effect.setPos(position.x, position.y, position.z); // 位置を設定
@@ -80,6 +106,7 @@ public class SkillUtils {
             effect.setKnockbackStrength(knockback); // ノックバック設定
             effect.setEffectRadius(size); // 範囲設定
             effect.setSkillParticle(skillParticle);
+            effect.setSkillColor(skillColor);
             effect.setDuration(duration);
             if (flyingSlash) {
                 if (movement != null) {
@@ -115,6 +142,7 @@ public class SkillUtils {
                     rightEffect.setKnockbackStrength(knockback);
                     rightEffect.setEffectRadius(size);
                     rightEffect.setSkillParticle(skillParticle);
+                    rightEffect.setSkillColor(skillColor);
                     rightEffect.setDuration(duration);
                     if (flyingSlash) {
                         if (movement != null)
@@ -140,6 +168,7 @@ public class SkillUtils {
                     leftEffect.setKnockbackStrength(knockback);
                     leftEffect.setEffectRadius(size);
                     leftEffect.setSkillParticle(skillParticle);
+                    leftEffect.setSkillColor(skillColor);
                     leftEffect.setDuration(duration);
                     if (flyingSlash) {
                         if (movement != null)
@@ -156,6 +185,8 @@ public class SkillUtils {
 
     public static double BaseDamage(ServerPlayer player) {
         double levelMultiplier = SkillLevelManager.damageMultiplier(player);
+        // STR を独自式に組み込む（バニラの攻撃力属性には触れない）
+        double statMultiplier = com.zoma1101.swordskill.playerlevel.CombatStats.strAttackMultiplier(player);
         if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)) {
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
@@ -171,12 +202,12 @@ public class SkillUtils {
             double currentAttackDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
             double attackDamageMinusMainHand = currentAttackDamage - mainHandDamage;
 
-            // (武器平均 + 基礎・バフ分) * 倍率 * スキルレベル倍率
+            // (武器平均 + 基礎・バフ分) * 倍率 * スキルレベル倍率 * STR
             return (totalDamageHalf + attackDamageMinusMainHand) * ServerConfig.damageMultiplier.get()
-                    * levelMultiplier;
+                    * levelMultiplier * statMultiplier;
         } else {
             return player.getAttributeValue(Attributes.ATTACK_DAMAGE) * ServerConfig.damageMultiplier.get()
-                    * levelMultiplier;
+                    * levelMultiplier * statMultiplier;
         }
     }
 

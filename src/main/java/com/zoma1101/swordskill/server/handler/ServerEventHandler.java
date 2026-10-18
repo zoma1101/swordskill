@@ -13,6 +13,8 @@ import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.payload.SkillSlotInfoPayload;
 import com.zoma1101.swordskill.payload.SyncSPPayload;
 import com.zoma1101.swordskill.payload.SyncDataSkillsPayload;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
+import com.zoma1101.swordskill.playerlevel.PlayerLevelManager;
 import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
@@ -65,6 +67,7 @@ public class ServerEventHandler {
             // SP回復 (時間経過)
             if (player.tickCount % 10 == 0) { // 10チック(0.5秒)ごとに同期
                 updateSP(player, true);
+                com.zoma1101.swordskill.smithing.SmithingEquipmentHandler.update(player);
             } else {
                 updateSP(player, false);
             }
@@ -92,6 +95,38 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+        // 鍛造武器: 武器記憶（傾向補正・クリティカル）とレベル差補正（与ダメージ）
+        if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
+            net.minecraft.world.item.ItemStack weapon = attacker.getMainHandItem();
+            boolean forged = com.zoma1101.swordskill.smithing.SmithingCombat.isForgedWeapon(weapon);
+            com.zoma1101.swordskill.smithing.WeaponMemoryCategory category =
+                    com.zoma1101.swordskill.smithing.WeaponMemoryCategory.NORMAL;
+            boolean critical = false;
+            if (forged) {
+                category = com.zoma1101.swordskill.smithing.SmithingCombat.currentCategory();
+                critical = com.zoma1101.swordskill.smithing.SmithingCombat.rollCritical(attacker, weapon);
+                double memoryMultiplier = com.zoma1101.swordskill.smithing.SmithingCombat
+                        .offenseMultiplier(weapon, category, critical);
+                if (memoryMultiplier != 1.0D) {
+                    event.setAmount((float) Math.max(0.0D, event.getAmount() * memoryMultiplier));
+                }
+            }
+
+            // レベル差補正: レベルを持つ敵に対してだけ作用する
+            double levelFactor = com.zoma1101.swordskill.playerlevel.CombatStats.levelDiffAttackFactor(
+                    PlayerLevelManager.getLevel(attacker),
+                    com.zoma1101.swordskill.playerlevel.EnemyLevel.get(event.getEntity()));
+            if (levelFactor != 1.0D) {
+                event.setAmount((float) Math.max(0.0D, event.getAmount() * levelFactor));
+            }
+
+            if (forged) {
+                com.zoma1101.swordskill.smithing.SmithingCombat.recordDealt(weapon, category,
+                        event.getAmount(), critical,
+                        com.zoma1101.swordskill.smithing.SmithingCombat.resolveCooldown(attacker));
+            }
+        }
+
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
             double maxSP = player.getAttributeValue(SwordSkillAttribute.MAX_SP);
             double currentSP = player.getPersistentData().getDouble("SS_CurrentSP");
@@ -105,6 +140,17 @@ public class ServerEventHandler {
             PacketDistributor.sendToPlayer(player, new SyncSPPayload(currentSP, maxSP));
             player.getPersistentData().putDouble("SS_LastSyncSP", currentSP);
         }
+
+        // 鍛造武器を握っている間に受けたダメージを武器記憶に記録する
+        if (event.getEntity() instanceof ServerPlayer victim) {
+            boolean selfInflicted = event.getSource().getEntity() == victim;
+            if (!selfInflicted) {
+                net.minecraft.world.item.ItemStack weapon = victim.getMainHandItem();
+                if (com.zoma1101.swordskill.smithing.SmithingCombat.isForgedWeapon(weapon)) {
+                    com.zoma1101.swordskill.smithing.SmithingCombat.recordTaken(weapon, event.getAmount());
+                }
+            }
+        }
     }
 
     @SubscribeEvent
@@ -117,10 +163,17 @@ public class ServerEventHandler {
                     SwordSkillRegistry.getDataDrivenDefinitions())) {
                 PacketDistributor.sendToPlayer(player, payload);
             }
+            // 鍛冶定義（素材・部品・レシピ）も配る
+            com.zoma1101.swordskill.payload.SyncSmithingDefsPayload.sendTo(player);
             sendSkillSlotInfo(player); // ログイン時にスキル情報を送信
             syncUnlockedSkills(player); // ログイン時にアンロック情報を送信
             SkillLevelManager.loadPlayer(player);
             PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));
+            ProficiencyManager.loadPlayer(player);
+            ProficiencyManager.syncToClient(player);
+            PlayerLevelManager.loadPlayer(player);
+            // プレイヤーレベルの報酬 (最大HP/SP) を SP 初期化より前に反映する
+            PlayerLevelManager.applyRewards(player);
 
             // 属性設定をコンフィグから適用
             AttributeInstance maxSpAttr = player.getAttribute(SwordSkillAttribute.MAX_SP);
@@ -140,6 +193,9 @@ public class ServerEventHandler {
             }
             // 同期用
             player.getPersistentData().putDouble("SS_LastSyncSP", player.getPersistentData().getDouble("SS_CurrentSP"));
+
+            // クライアントへプレイヤーレベルを送る
+            PlayerLevelManager.syncToClient(player);
         }
     }
 
@@ -159,6 +215,10 @@ public class ServerEventHandler {
 
             // 全回復
             player.getPersistentData().putDouble("SS_CurrentSP", player.getAttributeValue(SwordSkillAttribute.MAX_SP));
+
+            // プレイヤーレベルの報酬 (最大HP/SP) を再適用する
+            PlayerLevelManager.applyRewards(player);
+            PlayerLevelManager.syncToClient(player);
         }
     }
 
@@ -171,6 +231,22 @@ public class ServerEventHandler {
             DataDrivenSkill.clearPlayerState(player.getUUID());
             com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
             com.zoma1101.swordskill.skilllevel.SkillLevelManager.unloadPlayer(player.getUUID());
+            ProficiencyManager.unloadPlayer(player.getUUID());
+            PlayerLevelManager.unloadPlayer(player.getUUID());
+        }
+    }
+
+    /** スキルでモンスターを撃破したときに熟練度を加算する。 */
+    @SubscribeEvent
+    public static void onLivingDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        if (event.getSource().getEntity() instanceof ServerPlayer player
+                && event.getEntity() != player) {
+            ProficiencyManager.awardForKill(player, event.getEntity());
+            PlayerLevelManager.awardForKill(player, event.getEntity());
+            net.minecraft.world.item.ItemStack weapon = player.getMainHandItem();
+            if (com.zoma1101.swordskill.smithing.SmithingCombat.isForgedWeapon(weapon)) {
+                com.zoma1101.swordskill.smithing.SmithingCombat.recordKill(weapon);
+            }
         }
     }
 
@@ -214,6 +290,9 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
+        // 鍛造武器の STR 要件チェック（装備不可なら弾く）
+        com.zoma1101.swordskill.smithing.SmithingEquipmentHandler.onEquipmentChange(event);
+
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }

@@ -30,7 +30,10 @@ public record DataSkillDefinition(
         RushCombo rushCombo,
         double trailLength,
         int shockwaveTicks,
-        int hitstopTicks) {
+        int hitstopTicks,
+        SkillData.WeaponType proficiencyCategory,
+        int unlockProficiency,
+        boolean assignable) {
     public DataSkillDefinition {
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
@@ -48,6 +51,8 @@ public record DataSkillDefinition(
         trailLength = !Double.isFinite(trailLength) || trailLength <= 0.0 ? 1.5 : trailLength;
         shockwaveTicks = Math.max(0, shockwaveTicks);
         hitstopTicks = Math.max(-1, hitstopTicks);
+        // null なら「先頭の武器種」が熟練度カテゴリとして使われる
+        unlockProficiency = Math.max(0, unlockProficiency);
     }
 
     public record Motion(double forward, double strafe, double vertical) {

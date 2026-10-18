@@ -59,6 +59,50 @@ public class WeaponTypeDetector {
         return instance.getWeaponNameInternal(heldItem);
     }
 
+    /**
+     * 武器種に対応する武器名（weapon_types の name）を返す。
+     *
+     * <p>鍛造武器はアイテムが 1 種類なので、武器種から既存の武器名を引いて
+     * スキルスロットを共有するために使う。</p>
+     */
+    public static String findWeaponName(SkillData.WeaponType weaponType) {
+        if (isReady() || weaponType == null || weaponType == SkillData.WeaponType.NONE) {
+            return null;
+        }
+        return instance.findWeaponNameInternal(weaponType);
+    }
+
+    private String findWeaponNameInternal(SkillData.WeaponType weaponType) {
+        String best = null;
+        for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
+            if (!data.weaponTypes().contains(weaponType)) {
+                continue;
+            }
+            String name = data.name();
+            if (name == null || name.isBlank()) {
+                continue;
+            }
+            // HashMap の順序に依存しないよう、常に同じ名前を選ぶ
+            if (best == null || preferName(name, best)) {
+                best = name;
+            }
+        }
+        return best;
+    }
+
+    /** MOD 名付きでない素の名前を優先し、次に短いもの、最後は辞書順で決める。 */
+    private static boolean preferName(String candidate, String current) {
+        boolean candidatePlain = !candidate.contains(":");
+        boolean currentPlain = !current.contains(":");
+        if (candidatePlain != currentPlain) {
+            return candidatePlain;
+        }
+        if (candidate.length() != current.length()) {
+            return candidate.length() < current.length();
+        }
+        return candidate.compareTo(current) < 0;
+    }
+
     private String getWeaponNameInternal(ItemStack heldItem) {
         Item item = heldItem.getItem();
         for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {

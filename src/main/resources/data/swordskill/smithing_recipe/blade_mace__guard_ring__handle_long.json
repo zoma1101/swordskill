@@ -1,0 +1,14 @@
+{
+  "blade": "swordskill:blade_mace",
+  "handle": "swordskill:handle_long",
+  "weapon": "MACE",
+  "count": 6,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    }
+  ],
+  "guard": "swordskill:guard_ring"
+}

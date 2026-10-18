@@ -1,0 +1,17 @@
+{
+  "blade": "swordskill:blade_dagger",
+  "handle": "swordskill:handle_wrapped",
+  "weapon": "DAGGER",
+  "count": 3,
+  "tier": 0,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 1
+    },
+    {
+      "item": "minecraft:leather",
+      "count": 1
+    }
+  ]
+}

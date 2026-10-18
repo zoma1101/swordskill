@@ -15,6 +15,10 @@ public final class SkillParticles {
     public static final DeferredHolder<ParticleType<?>, ParticleType<SkillSparkParticleOptions>> SKILL_SPARK =
             PARTICLE_TYPES.register("skill_spark", SkillSparkParticleType::new);
 
+    /** 速度方向に伸びる火花。色はスキルのトレイル色。 */
+    public static final DeferredHolder<ParticleType<?>, ParticleType<SparkStreakParticleOptions>> SPARK_STREAK =
+            PARTICLE_TYPES.register("spark_streak", SparkStreakParticleType::new);
+
     private SkillParticles() {
     }
 

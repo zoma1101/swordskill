@@ -1,0 +1,14 @@
+{
+  "blade": "swordskill:blade_claw",
+  "handle": "swordskill:handle_straight",
+  "weapon": "CLAW",
+  "count": 4,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 1
+    }
+  ],
+  "guard": "swordskill:guard_ring"
+}

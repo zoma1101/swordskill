@@ -217,6 +217,16 @@ def validate(path: Path, problems: list[str]) -> dict:
     hitstop = data.get("hitstop_ticks", -1)
     if not isinstance(hitstop, int) or not (-1 <= hitstop <= 40):
         fail(name, "hitstop_ticks", f"範囲外 (-1..40): {hitstop}", problems)
+    proficiency_category = data.get("proficiency_category")
+    if proficiency_category is not None and proficiency_category not in VALID_WEAPONS:
+        fail(name, "proficiency_category", f"不明な武器種: {proficiency_category}", problems)
+    unlock_proficiency = data.get("unlock_proficiency", 0)
+    if not isinstance(unlock_proficiency, int) or isinstance(unlock_proficiency, bool) \
+            or not (0 <= unlock_proficiency <= 1000000):
+        fail(name, "unlock_proficiency", f"範囲外 (0..1000000): {unlock_proficiency}", problems)
+    assignable = data.get("assignable", True)
+    if not isinstance(assignable, bool):
+        fail(name, "assignable", f"真偽値が必要: {assignable}", problems)
     return data
 
 

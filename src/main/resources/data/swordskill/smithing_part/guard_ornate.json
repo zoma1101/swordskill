@@ -1,0 +1,10 @@
+{
+  "kind": "GUARD",
+  "weapons": [],
+  "texture": "guard_ornate",
+  "power": 1.05,
+  "weight": 0.25,
+  "attack_speed": -2.4,
+  "color_slot": "SUB",
+  "tier": 3
+}

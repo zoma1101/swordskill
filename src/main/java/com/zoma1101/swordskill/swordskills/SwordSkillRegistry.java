@@ -1,6 +1,5 @@
 package com.zoma1101.swordskill.swordskills;
 
-import com.zoma1101.swordskill.swordskills.skill.HowToUse;
 import com.zoma1101.swordskill.swordskills.skill.axe.*;
 import com.zoma1101.swordskill.swordskills.skill.claw.*;
 import com.zoma1101.swordskill.swordskills.skill.dagger.*;
@@ -42,9 +41,10 @@ public class SwordSkillRegistry {
 
     static {
         // スキル登録
-        // 片手剣
+        // ID 0 は「説明（ガイド）」枠。データドリブン定義 (skilldata/how_to_use.json) が必ず上書きするため、
+        // ビルトイン側は何もしないプレースホルダとして登録して ID の並びを保つ。
         registerSkill(new SkillData(getNextSkillId(), "how_to_use", 100, 0.0, SkillData.SkillType.SIMPLE,
-                HowToUse.class,
+                DataDrivenSkill.class,
                 AllWeapons, false, 0, DefaultTransformTick));
         registerSkill(new SkillData(getNextSkillId(), "slant", 50, 5.0, SkillData.SkillType.SIMPLE,
                 Slant.class,
@@ -342,7 +342,8 @@ public class SwordSkillRegistry {
                     definition.projectiles(), definition.sounds(), definition.legacyFallback(),
                     definition.replaceBuiltin(), definition.rushStartTicks(), definition.rushStartAnimation(),
                     definition.rushMoveAnimation(), definition.rushFinishAnimation(), definition.rushCombo(),
-                    definition.trailLength(), definition.shockwaveTicks(), definition.hitstopTicks()));
+                    definition.trailLength(), definition.shockwaveTicks(), definition.hitstopTicks(),
+                    definition.proficiencyCategory(), definition.unlockProficiency(), definition.assignable()));
         }
 
         List<DataSkillDefinition> orderedDefinitions = assignedDefinitions.stream()

@@ -1,0 +1,12 @@
+{
+  "kind": "BLADE",
+  "weapons": [
+    "DAGGER"
+  ],
+  "texture": "blade_dagger",
+  "power": 0.75,
+  "weight": 0.6,
+  "attack_speed": -1.8,
+  "color_slot": "MAIN",
+  "tier": 1
+}

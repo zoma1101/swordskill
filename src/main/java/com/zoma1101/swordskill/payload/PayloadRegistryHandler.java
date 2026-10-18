@@ -40,6 +40,16 @@ public class PayloadRegistryHandler {
 
         registrar.playToServer(RequestUnlockSkillPayload.TYPE, RequestUnlockSkillPayload.STREAM_CODEC,
                 RequestUnlockSkillPayload::handle);
+        registrar.playToServer(RequestSkillLevelUpPayload.TYPE, RequestSkillLevelUpPayload.STREAM_CODEC,
+                RequestSkillLevelUpPayload::handle);
+        registrar.playToServer(AllocateStatPayload.TYPE, AllocateStatPayload.STREAM_CODEC,
+                AllocateStatPayload::handle);
+        registrar.playToServer(RequestPlayerLevelPayload.TYPE, RequestPlayerLevelPayload.STREAM_CODEC,
+                RequestPlayerLevelPayload::handle);
+        registrar.playToServer(SetSmithingModePayload.TYPE, SetSmithingModePayload.STREAM_CODEC,
+                SetSmithingModePayload::handle);
+        registrar.playToServer(SelectSmithingRecipePayload.TYPE, SelectSmithingRecipePayload.STREAM_CODEC,
+                SelectSmithingRecipePayload::handle);
 
         // --- Server -> Client ペイロード登録 ---
         registrar.playToClient(SyncSkillIndexPayload.TYPE, SyncSkillIndexPayload.STREAM_CODEC,
@@ -54,10 +64,18 @@ public class PayloadRegistryHandler {
                 SyncDataSkillsPayload::handleClient);
         registrar.playToClient(SyncSkillLevelsPayload.TYPE, SyncSkillLevelsPayload.STREAM_CODEC,
                 SyncSkillLevelsPayload::handleClient);
+        registrar.playToClient(SyncProficiencyPayload.TYPE, SyncProficiencyPayload.STREAM_CODEC,
+                SyncProficiencyPayload::handleClient);
+        registrar.playToClient(SyncPlayerLevelPayload.TYPE, SyncPlayerLevelPayload.STREAM_CODEC,
+                SyncPlayerLevelPayload::handleClient);
         registrar.playToClient(SyncSPPayload.TYPE, SyncSPPayload.STREAM_CODEC, SyncSPPayload::handle);
         registrar.playToClient(HitstopPayload.TYPE, HitstopPayload.STREAM_CODEC, HitstopPayload::handleClient);
         registrar.playToClient(SkillShockwavePayload.TYPE, SkillShockwavePayload.STREAM_CODEC,
                 SkillShockwavePayload::handleClient);
+        registrar.playToClient(SkillHitEffectPayload.TYPE, SkillHitEffectPayload.STREAM_CODEC,
+                SkillHitEffectPayload::handleClient);
+        registrar.playToClient(SyncSmithingDefsPayload.TYPE, SyncSmithingDefsPayload.STREAM_CODEC,
+                SyncSmithingDefsPayload::handleClient);
 
         LOGGER.info("Network payloads registration complete.");
     }

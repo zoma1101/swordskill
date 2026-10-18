@@ -1,0 +1,18 @@
+{
+  "blade": "swordskill:blade_straight",
+  "handle": "swordskill:handle_wrapped",
+  "weapon": "ONE_HANDED_SWORD",
+  "count": 5,
+  "tier": 2,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 1
+    },
+    {
+      "item": "minecraft:leather",
+      "count": 1
+    }
+  ],
+  "guard": "swordskill:guard_ornate"
+}

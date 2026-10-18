@@ -1,0 +1,13 @@
+{
+  "blade": "swordskill:blade_claw",
+  "handle": "swordskill:handle_long",
+  "weapon": "CLAW",
+  "count": 3,
+  "tier": 1,
+  "materials": [
+    {
+      "tag": "minecraft:planks",
+      "count": 2
+    }
+  ]
+}

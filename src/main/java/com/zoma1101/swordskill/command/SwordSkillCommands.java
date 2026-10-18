@@ -12,6 +12,10 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
 import com.zoma1101.swordskill.payload.SyncUnlockedSkillsPayload;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
+import com.zoma1101.swordskill.playerlevel.PlayerLevelManager;
+import com.zoma1101.swordskill.playerlevel.EnemyLevel;
+import com.zoma1101.swordskill.playerlevel.StatType;
 import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -20,6 +24,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -53,6 +58,31 @@ public class SwordSkillCommands {
 
         dispatcher.register(Commands.literal("swordskill")
                 .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("proficiency")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> proficiencyGet(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(categoryArgument()
+                                                .then(Commands.argument("amount",
+                                                        IntegerArgumentType.integer(0, 1000000))
+                                                        .executes(context -> proficiencySet(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "category"),
+                                                                IntegerArgumentType.getInteger(context,
+                                                                        "amount")))))))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(categoryArgument()
+                                                .then(Commands.argument("amount",
+                                                        IntegerArgumentType.integer(-1000000, 1000000))
+                                                        .executes(context -> proficiencyAdd(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "category"),
+                                                                IntegerArgumentType.getInteger(context,
+                                                                        "amount"))))))))
                 .then(Commands.literal("level")
                         .then(Commands.literal("get")
                                 .then(Commands.argument("targets", EntityArgument.players())
@@ -74,11 +104,349 @@ public class SwordSkillCommands {
                                                                 EntityArgument.getPlayers(context, "targets"),
                                                                 StringArgumentType.getString(context, "skill_name"),
                                                                 IntegerArgumentType.getInteger(context, "amount"))))))))
-        );
+                .then(Commands.literal("playerlevel")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> playerLevelGet(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("level", IntegerArgumentType.integer(1, 10000))
+                                                .executes(context -> playerLevelSet(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context, "level"))))))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer(-10000, 10000))
+                                                .executes(context -> playerLevelAdd(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context, "amount"))))))
+                        .then(Commands.literal("xp")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("amount",
+                                                IntegerArgumentType.integer(0, 1000000000))
+                                                .executes(context -> playerLevelXp(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context, "amount")))))))
+                .then(Commands.literal("stat")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> statGet(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(statArgument()
+                                                .then(Commands.argument("amount",
+                                                        IntegerArgumentType.integer(0, 1000000))
+                                                        .executes(context -> statSet(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "stat"),
+                                                                IntegerArgumentType.getInteger(context, "amount")))))))
+                        .then(Commands.literal("add")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(statArgument()
+                                                .then(Commands.argument("amount",
+                                                        IntegerArgumentType.integer(-1000000, 1000000))
+                                                        .executes(context -> statAdd(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "stat"),
+                                                                IntegerArgumentType.getInteger(context, "amount"))))))))
+                .then(Commands.literal("enemylevel")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .executes(context -> enemyLevelGet(context,
+                                                EntityArgument.getEntities(context, "targets")))))
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .then(Commands.argument("level", IntegerArgumentType.integer(0, 10000))
+                                                .executes(context -> enemyLevelSet(context,
+                                                        EntityArgument.getEntities(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context, "level")))))))
+                .then(Commands.literal("forge")
+                        .then(Commands.literal("create")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("recipe", StringArgumentType.string())
+                                                .suggests(SUGGEST_RECIPES)
+                                                .executes(context -> forgeCreate(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        StringArgumentType.getString(context, "recipe"),
+                                                        "iron", false))
+                                                .then(Commands.argument("material", StringArgumentType.string())
+                                                        .suggests(SUGGEST_MATERIALS)
+                                                        .executes(context -> forgeCreate(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "recipe"),
+                                                                StringArgumentType.getString(context, "material"),
+                                                                false))))))
+                        .then(Commands.literal("reforge")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("recipe", StringArgumentType.string())
+                                                .suggests(SUGGEST_RECIPES)
+                                                .executes(context -> forgeCreate(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        StringArgumentType.getString(context, "recipe"),
+                                                        "iron", true))
+                                                .then(Commands.argument("material", StringArgumentType.string())
+                                                        .suggests(SUGGEST_MATERIALS)
+                                                        .executes(context -> forgeCreate(context,
+                                                                EntityArgument.getPlayers(context, "targets"),
+                                                                StringArgumentType.getString(context, "recipe"),
+                                                                StringArgumentType.getString(context, "material"),
+                                                                true))))))
+                        .then(Commands.literal("memory")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> forgeMemory(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("enhance")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer(1, 100))
+                                                .executes(context -> forgeEnhance(context,
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context, "amount"))))))
+                        .then(Commands.literal("melt")
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> forgeMelt(context,
+                                                EntityArgument.getPlayers(context, "targets")))))
+                        .then(Commands.literal("defs")
+                                .executes(SwordSkillCommands::forgeDefs))
+        ));
+    }
+
+    // --- 鍛冶コマンド ---------------------------------------------------
+
+    private static ResourceLocation smithingId(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String value = raw.trim();
+        if (value.isEmpty() || value.equals("-") || value.equalsIgnoreCase("none")
+                || value.equalsIgnoreCase("null")) {
+            return null;
+        }
+        if (!value.contains(":")) {
+            value = SwordSkill.MOD_ID + ":" + value;
+        }
+        return ResourceLocation.tryParse(value);
+    }
+
+    private static int forgeCreate(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String recipeArg, String materialArg, boolean reforge) {
+        com.zoma1101.swordskill.smithing.SmithingMaterial material = com.zoma1101.swordskill.smithing.SmithingDefinitions
+                .material(smithingId(materialArg));
+        com.zoma1101.swordskill.smithing.SmithingRecipe recipe = com.zoma1101.swordskill.smithing.SmithingDefinitions
+                .recipe(smithingId(recipeArg));
+        if (material == null || recipe == null) {
+            context.getSource().sendFailure(Component.translatable("commands.swordskill.forge.unknown_def"));
+            return 0;
+        }
+        int count = 0;
+        for (ServerPlayer player : targets) {
+            net.minecraft.world.item.ItemStack result;
+            if (reforge) {
+                net.minecraft.world.item.ItemStack source = player.getMainHandItem();
+                result = com.zoma1101.swordskill.smithing.SmithingForge.reforge(player, source, material, recipe);
+                if (!result.isEmpty()) {
+                    source.shrink(1);
+                }
+            } else {
+                result = com.zoma1101.swordskill.smithing.SmithingForge.create(player, material, recipe, null);
+            }
+            if (result.isEmpty()) {
+                continue;
+            }
+            if (!player.getInventory().add(result)) {
+                player.drop(result, false);
+            }
+            count++;
+        }
+        final int forged = count;
+        context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.forge.create", forged),
+                true);
+        return count;
+    }
+
+    private static String percent(double value) {
+        return String.format(java.util.Locale.ROOT, "%.1f%%", value * 100.0D);
+    }
+
+    private static int forgeMemory(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        int count = 0;
+        for (ServerPlayer player : targets) {
+            com.zoma1101.swordskill.smithing.ForgedWeaponData data = com.zoma1101.swordskill.smithing.ForgedWeaponData
+                    .get(player.getMainHandItem());
+            if (data == null) {
+                context.getSource().sendFailure(Component.translatable("commands.swordskill.forge.not_forged",
+                        player.getName()));
+                continue;
+            }
+            com.zoma1101.swordskill.smithing.WeaponMemory memory = data.memory();
+            com.zoma1101.swordskill.smithing.HiddenParams params = com.zoma1101.swordskill.smithing.SmithingCombat
+                    .hiddenParams(memory);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.forge.memory",
+                    player.getName(), memory.hits(), memory.thrustHits(), memory.sweepHits(), memory.flyingHits(),
+                    memory.critHits(), memory.shortCooldownHits(), (int) memory.damageDealt(),
+                    (int) memory.damageTaken(), memory.kills()), false);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.forge.hidden",
+                    percent(params.thrustBonus()), percent(params.sweepBonus()), percent(params.flyingBonus()),
+                    percent(params.criticalDamageBonus()), percent(params.cooldownReduction())), false);
+            count++;
+        }
+        return count;
+    }
+
+    private static int forgeEnhance(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            int amount) {
+        int count = 0;
+        for (ServerPlayer player : targets) {
+            net.minecraft.world.item.ItemStack stack = player.getMainHandItem();
+            int applied = 0;
+            for (int i = 0; i < amount; i++) {
+                if (!com.zoma1101.swordskill.smithing.SmithingForge.enhance(player, stack)) {
+                    break;
+                }
+                applied++;
+            }
+            if (applied == 0) {
+                context.getSource().sendFailure(Component.translatable("commands.swordskill.forge.enhance_failed",
+                        player.getName()));
+                continue;
+            }
+            final int appliedFinal = applied;
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.forge.enhance",
+                    player.getName(), appliedFinal), true);
+            count++;
+        }
+        return count;
+    }
+
+    private static int forgeMelt(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        int count = 0;
+        for (ServerPlayer player : targets) {
+            net.minecraft.world.item.ItemStack stack = player.getMainHandItem();
+            net.minecraft.world.item.ItemStack ingot = com.zoma1101.swordskill.smithing.SmithingForge.melt(stack);
+            if (ingot.isEmpty()) {
+                context.getSource().sendFailure(Component.translatable("commands.swordskill.forge.not_forged",
+                        player.getName()));
+                continue;
+            }
+            if (!player.getInventory().add(ingot)) {
+                player.drop(ingot, false);
+            }
+            stack.shrink(1);
+            count++;
+        }
+        final int melted = count;
+        context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.forge.melt", melted), true);
+        return count;
+    }
+
+    /** 素材・部品・レシピの一覧をログ用に出す。 */
+    private static int forgeDefs(CommandContext<CommandSourceStack> context) {
+        String materials = com.zoma1101.swordskill.smithing.SmithingDefinitions.materials().stream()
+                .map(material -> material.id() + " (tier " + material.tier() + ")")
+                .sorted()
+                .collect(Collectors.joining(", "));
+        String parts = com.zoma1101.swordskill.smithing.SmithingDefinitions.parts().stream()
+                .map(part -> part.id() + " [" + part.kind() + "]")
+                .sorted()
+                .collect(Collectors.joining(", "));
+        String recipes = com.zoma1101.swordskill.smithing.SmithingDefinitions.recipes().stream()
+                .map(recipe -> recipe.id().toString())
+                .sorted()
+                .collect(Collectors.joining(", "));
+        context.getSource().sendSuccess(() -> Component.literal("materials: " + materials), false);
+        context.getSource().sendSuccess(() -> Component.literal("parts: " + parts), false);
+        context.getSource().sendSuccess(() -> Component.literal("recipes: " + recipes), false);
+        return 1;
+    }
+
+    private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack, String> statArgument() {
+        return Commands.argument("stat", StringArgumentType.string()).suggests(SUGGEST_STATS);
     }
 
     private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack, String> skillNameArgument() {
         return Commands.argument("skill_name", StringArgumentType.string()).suggests(SUGGEST_SKILLS);
+    }
+
+    private static com.mojang.brigadier.builder.RequiredArgumentBuilder<CommandSourceStack, String> categoryArgument() {
+        return Commands.argument("category", StringArgumentType.string()).suggests(SUGGEST_CATEGORIES);
+    }
+
+    // --- 熟練度コマンド -------------------------------------------------
+
+    private static SkillData.WeaponType findCategory(String name) {
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        try {
+            SkillData.WeaponType category = SkillData.WeaponType
+                    .valueOf(name.trim().toUpperCase(java.util.Locale.ROOT));
+            return category == SkillData.WeaponType.NONE ? null : category;
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
+    private static String formatProficiencyList(ServerPlayer player) {
+        StringBuilder builder = new StringBuilder();
+        for (SkillData.WeaponType category : SkillData.WeaponType.values()) {
+            if (category == SkillData.WeaponType.NONE) {
+                continue;
+            }
+            int value = ProficiencyManager.getProficiency(player, category);
+            if (value <= 0) {
+                continue;
+            }
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(category.name()).append(" ").append(value)
+                    .append(" (+").append(ProficiencyManager.getAvailablePoints(player, category)).append(')');
+        }
+        return builder.length() == 0 ? "-" : builder.toString();
+    }
+
+    private static int proficiencyGet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        for (ServerPlayer player : targets) {
+            String summary = formatProficiencyList(player);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.proficiency.get",
+                    player.getName().getString(), summary), false);
+        }
+        return targets.size();
+    }
+
+    private static int proficiencySet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String categoryName, int amount) {
+        SkillData.WeaponType category = findCategory(categoryName);
+        if (category == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.proficiency.not_found", categoryName));
+            return 0;
+        }
+        for (ServerPlayer player : targets) {
+            int result = ProficiencyManager.setProficiency(player, category, amount);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.proficiency.set",
+                    player.getName().getString(), category.name(), result,
+                    ProficiencyManager.getAvailablePoints(player, category)), true);
+        }
+        return targets.size();
+    }
+
+    private static int proficiencyAdd(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String categoryName, int amount) {
+        SkillData.WeaponType category = findCategory(categoryName);
+        if (category == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.proficiency.not_found", categoryName));
+            return 0;
+        }
+        for (ServerPlayer player : targets) {
+            int result = ProficiencyManager.addProficiency(player, category, amount);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.proficiency.set",
+                    player.getName().getString(), category.name(), result,
+                    ProficiencyManager.getAvailablePoints(player, category)), true);
+        }
+        return targets.size();
     }
 
     private static int levelGet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
@@ -146,6 +514,116 @@ public class SwordSkillCommands {
         return applied;
     }
 
+    // --- プレイヤーレベルコマンド ---------------------------------------
+
+    private static int playerLevelGet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        for (ServerPlayer player : targets) {
+            int level = PlayerLevelManager.getLevel(player);
+            long xp = PlayerLevelManager.getXp(player);
+            long next = PlayerLevelManager.getXpToNext(player);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.playerlevel.get",
+                    player.getName().getString(), level, PlayerLevelManager.maxLevel(), xp, next), false);
+        }
+        return targets.size();
+    }
+
+    private static int playerLevelSet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            int level) {
+        for (ServerPlayer player : targets) {
+            int result = PlayerLevelManager.setLevel(player, level);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.playerlevel.set",
+                    player.getName().getString(), result), true);
+        }
+        return targets.size();
+    }
+
+    private static int playerLevelAdd(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            int amount) {
+        for (ServerPlayer player : targets) {
+            int result = PlayerLevelManager.addLevel(player, amount);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.playerlevel.set",
+                    player.getName().getString(), result), true);
+        }
+        return targets.size();
+    }
+
+    private static int playerLevelXp(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            int amount) {
+        for (ServerPlayer player : targets) {
+            int gained = PlayerLevelManager.addXp(player, amount);
+            int level = PlayerLevelManager.getLevel(player);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.playerlevel.xp",
+                    player.getName().getString(), amount, gained, level), true);
+        }
+        return targets.size();
+    }
+
+    // --- ステータス／敵レベルコマンド -----------------------------------
+
+    private static int statGet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets) {
+        for (ServerPlayer player : targets) {
+            String summary = "STR " + PlayerLevelManager.getStat(player, StatType.STR)
+                    + ", AGI " + PlayerLevelManager.getStat(player, StatType.AGI)
+                    + " (" + PlayerLevelManager.getAvailablePoints(player) + " free)";
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.stat.get",
+                    player.getName().getString(), summary), false);
+        }
+        return targets.size();
+    }
+
+    private static int statSet(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String statName, int amount) {
+        StatType type = StatType.byName(statName);
+        if (type == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.stat.not_found", statName));
+            return 0;
+        }
+        for (ServerPlayer player : targets) {
+            int result = PlayerLevelManager.setStat(player, type, amount);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.stat.set",
+                    player.getName().getString(), type.name(), result), true);
+        }
+        return targets.size();
+    }
+
+    private static int statAdd(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
+            String statName, int amount) {
+        StatType type = StatType.byName(statName);
+        if (type == null) {
+            context.getSource().sendFailure(
+                    Component.translatable("commands.swordskill.stat.not_found", statName));
+            return 0;
+        }
+        for (ServerPlayer player : targets) {
+            int result = PlayerLevelManager.setStat(player, type,
+                    PlayerLevelManager.getStat(player, type) + amount);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.stat.set",
+                    player.getName().getString(), type.name(), result), true);
+        }
+        return targets.size();
+    }
+
+    private static int enemyLevelGet(CommandContext<CommandSourceStack> context,
+            Collection<? extends net.minecraft.world.entity.Entity> targets) {
+        for (net.minecraft.world.entity.Entity entity : targets) {
+            int level = EnemyLevel.get(entity);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.enemylevel.get",
+                    entity.getDisplayName().getString(), level), false);
+        }
+        return targets.size();
+    }
+
+    private static int enemyLevelSet(CommandContext<CommandSourceStack> context,
+            Collection<? extends net.minecraft.world.entity.Entity> targets, int level) {
+        for (net.minecraft.world.entity.Entity entity : targets) {
+            EnemyLevel.set(entity, level);
+            context.getSource().sendSuccess(() -> Component.translatable("commands.swordskill.enemylevel.set",
+                    entity.getDisplayName().getString(), level), true);
+        }
+        return targets.size();
+    }
+
     private static SkillData findSkill(String skillName) {
         return SwordSkillRegistry.SKILLS.values().stream()
                 .filter(skill -> skill.getName().equals(skillName))
@@ -160,6 +638,38 @@ public class SwordSkillCommands {
     // スキル名の入力候補を提供する
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SKILLS = (context, builder) -> SharedSuggestionProvider.suggest(
             SwordSkillRegistry.SKILLS.values().stream().map(SkillData::getName),
+            builder
+    );
+
+    // 熟練度カテゴリ（武器種）の入力候補を提供する
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_CATEGORIES = (context, builder) -> SharedSuggestionProvider.suggest(
+            Arrays.stream(SkillData.WeaponType.values())
+                    .filter(type -> type != SkillData.WeaponType.NONE)
+                    .map(Enum::name),
+            builder
+    );
+
+    // ステータス名の入力候補を提供する
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_STATS = (context, builder) -> SharedSuggestionProvider.suggest(
+            Arrays.stream(StatType.values()).map(Enum::name),
+            builder
+    );
+
+    // 鍛冶素材の入力候補
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_MATERIALS = (context, builder) -> SharedSuggestionProvider.suggest(
+            com.zoma1101.swordskill.smithing.SmithingDefinitions.materials().stream()
+                    .map(material -> material.id().toString())
+                    .sorted()
+                    .collect(Collectors.toList()),
+            builder
+    );
+
+    /** レシピの入力候補。 */
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_RECIPES = (context, builder) -> SharedSuggestionProvider.suggest(
+            com.zoma1101.swordskill.smithing.SmithingDefinitions.recipes().stream()
+                    .map(recipe -> recipe.id().toString())
+                    .sorted()
+                    .collect(Collectors.toList()),
             builder
     );
 

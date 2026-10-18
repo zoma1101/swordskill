@@ -1,0 +1,12 @@
+{
+  "kind": "BLADE",
+  "weapons": [
+    "AXE"
+  ],
+  "texture": "blade_axe",
+  "power": 1.2,
+  "weight": 1.5,
+  "attack_speed": -3.0,
+  "color_slot": "MAIN",
+  "tier": 1
+}
