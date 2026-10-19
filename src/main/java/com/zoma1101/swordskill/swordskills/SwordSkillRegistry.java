@@ -343,7 +343,9 @@ public class SwordSkillRegistry {
                     definition.replaceBuiltin(), definition.rushStartTicks(), definition.rushStartAnimation(),
                     definition.rushMoveAnimation(), definition.rushFinishAnimation(), definition.rushCombo(),
                     definition.trailLength(), definition.shockwaveTicks(), definition.hitstopTicks(),
-                    definition.proficiencyCategory(), definition.unlockProficiency(), definition.assignable()));
+                    definition.proficiencyCategory(), definition.unlockProficiency(), definition.assignable(),
+                    definition.animations(), definition.playerEffects(), definition.invulnerabilityTicks(),
+                    definition.endSkillOnGround()));
         }
 
         List<DataSkillDefinition> orderedDefinitions = assignedDefinitions.stream()

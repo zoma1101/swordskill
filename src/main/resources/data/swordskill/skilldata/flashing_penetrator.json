@@ -23,21 +23,78 @@
       "vertical": 0.0
     },
     {
-      "tick": 6,
-      "forward": 0.0,
+      "tick": 2,
+      "forward": 2.0,
       "strafe": 0.0,
       "vertical": 0.0
     },
     {
-      "tick": 1,
+      "tick": 3,
       "forward": 2.0,
       "strafe": 0.0,
       "vertical": 0.0
+    },
+    {
+      "tick": 4,
+      "forward": 2.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 5,
+      "forward": 2.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 6,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 0.0,
+      "set": true
     }
   ],
   "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": true,
+  "projectiles": [
+    {
+      "tick": 6,
+      "offset": [
+        0.0,
+        0.81,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        45.0
+      ],
+      "size": [
+        2.5,
+        2.5,
+        6.0
+      ],
+      "damage_multiplier": 2.5,
+      "damage_type": "RUSH",
+      "knockback": 0.75,
+      "knockback_multiplier": 0.75,
+      "duration_ticks": 14,
+      "travel_distance": 0,
+      "particle": "spear_particle/super_blue",
+      "movement": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "path": {
+        "start_tick": 1,
+        "position": 0.5,
+        "rotation": true,
+        "size_scale": 2.0
+      }
+    }
+  ],
+  "legacy_fallback": false,
+  "invulnerability_ticks": 30,
   "sounds": [
     {
       "tick": 6,

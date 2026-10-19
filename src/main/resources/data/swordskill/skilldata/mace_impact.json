@@ -15,11 +15,91 @@
   "hidden": false,
   "unlock_proficiency": 200,
   "color": "#54D8FF",
-  "motions": [],
+  "motions": [
+    {
+      "tick": 1,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 3.0,
+      "set": true
+    },
+    {
+      "tick": 6,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": -1.5,
+      "set": true,
+      "repeat": true
+    },
+    {
+      "tick": 1,
+      "trigger": "GROUND",
+      "forward": -1.5,
+      "strafe": 0.0,
+      "vertical": 0.0,
+      "set": true
+    }
+  ],
   "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": true,
-  "sounds": [],
+  "projectiles": [
+    {
+      "tick": 1,
+      "trigger": "GROUND",
+      "offset": [
+        0.0,
+        1.2,
+        2.0
+      ],
+      "rotation": [
+        -30.0,
+        -15.0,
+        90.0
+      ],
+      "size": [
+        7.0,
+        3.0,
+        6.0
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "RUSH",
+      "knockback": 1.5,
+      "knockback_multiplier": 1.5,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/green",
+      "movement": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "fall_damage_scale": 1.0
+    }
+  ],
+  "player_effects": [
+    {
+      "tick": 5,
+      "effect": "swordskill:no_fall_damage",
+      "duration_ticks": 160
+    }
+  ],
+  "legacy_fallback": false,
+  "end_skill_on_ground": true,
+  "sounds": [
+    {
+      "tick": 0,
+      "trigger": "GROUND",
+      "sound": "minecraft:entity.player.attack.strong",
+      "volume": 1.0,
+      "pitch": 0.6
+    },
+    {
+      "tick": 0,
+      "trigger": "GROUND",
+      "sound": "minecraft:item.totem.use",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ],
   "rush_start_ticks": 5,
   "rush_start_animation": "start",
   "rush_move_animation": "move",

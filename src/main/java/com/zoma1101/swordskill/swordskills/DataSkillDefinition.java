@@ -33,7 +33,11 @@ public record DataSkillDefinition(
         int hitstopTicks,
         SkillData.WeaponType proficiencyCategory,
         int unlockProficiency,
-        boolean assignable) {
+        boolean assignable,
+        List<AnimationEvent> animations,
+        List<PlayerEffectEvent> playerEffects,
+        int invulnerabilityTicks,
+        boolean endSkillOnGround) {
     public DataSkillDefinition {
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
@@ -41,6 +45,8 @@ public record DataSkillDefinition(
         hitboxes = hitboxes == null ? List.of() : List.copyOf(hitboxes);
         projectiles = projectiles == null ? List.of() : List.copyOf(projectiles);
         sounds = sounds == null ? List.of() : List.copyOf(sounds);
+        animations = animations == null ? List.of() : List.copyOf(animations);
+        playerEffects = playerEffects == null ? List.of() : List.copyOf(playerEffects);
         rushStartTicks = Math.max(0, rushStartTicks);
         rushStartAnimation = rushStartAnimation == null || rushStartAnimation.isBlank()
                 ? "start" : rushStartAnimation;
@@ -58,7 +64,15 @@ public record DataSkillDefinition(
     public record Motion(double forward, double strafe, double vertical) {
     }
 
-    public record MotionEvent(int tick, double forward, double strafe, double vertical) {
+    /**
+     * 指定 tick の移動。{@code set} なら加算ではなく置き換え、{@code repeat} なら
+     * その tick 以降ずっと適用する。{@code trigger} は TICK / GROUND。
+     */
+    public record MotionEvent(int tick, double forward, double strafe, double vertical,
+            boolean set, boolean repeat, String trigger) {
+        public MotionEvent {
+            trigger = trigger == null ? "TICK" : trigger;
+        }
     }
 
     public record RushCombo(
@@ -116,7 +130,11 @@ public record DataSkillDefinition(
             double travelDistance,
             double[] movement,
             String sound,
-            String trigger) {
+            String trigger,
+            double fallDamageScale,
+            PathSpec path,
+            String randomGroup,
+            int randomIndex) {
         public ProjectileEvent {
             offset = offset.clone();
             rotation = rotation.clone();
@@ -126,12 +144,42 @@ public record DataSkillDefinition(
             particle = particle == null ? "skill_particle_sword/blue" : particle;
             sound = sound == null ? "" : sound;
             trigger = trigger == null ? "TICK" : trigger;
+            randomGroup = randomGroup == null ? "" : randomGroup;
         }
     }
 
-    public record SoundEvent(int tick, String sound, float volume, float pitch) {
+    /**
+     * 移動しながら伸びる攻撃（突進の斬撃など）のための指定。
+     *
+     * @param startTick 始点を記録する tick
+     * @param position  始点→現在位置のどこに出すか (0=現在位置, 0.5=中間, 1=始点)
+     * @param rotation  進行方向から向きを決めるか
+     * @param sizeScale 0 より大きければ size.z を「移動量の平均 × この値」にする
+     */
+    public record PathSpec(int startTick, double position, boolean rotation, double sizeScale) {
+    }
+
+    /** スキル中にクライアントへ送るアニメーション切り替え。 */
+    public record AnimationEvent(int tick, String animation, String trigger, String randomGroup, int randomIndex) {
+        public AnimationEvent {
+            animation = animation == null ? "" : animation;
+            trigger = trigger == null ? "TICK" : trigger;
+            randomGroup = randomGroup == null ? "" : randomGroup;
+        }
+    }
+
+    /** スキル中に自分へ付与するポーション効果（落下ダメージ無効など）。 */
+    public record PlayerEffectEvent(int tick, String effect, int durationTicks, int amplifier,
+            boolean showParticles, String trigger) {
+        public PlayerEffectEvent {
+            trigger = trigger == null ? "TICK" : trigger;
+        }
+    }
+
+    public record SoundEvent(int tick, String sound, float volume, float pitch, String trigger) {
         public SoundEvent {
             sound = sound == null ? "" : sound;
+            trigger = trigger == null ? "TICK" : trigger;
         }
     }
 

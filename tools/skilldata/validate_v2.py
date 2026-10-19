@@ -32,6 +32,26 @@ def vec3(value: list, path: str, name: str, problems: list[str]) -> None:
             fail(name, path, f"非有限/非数値: {element}", problems)
 
 
+VALID_TRIGGERS = ("TICK", "CONTACT", "GROUND")
+
+
+def check_trigger(event: dict, prefix: str, name: str, problems: list[str]) -> None:
+    trigger = str(event.get("trigger", "TICK")).upper()
+    if trigger not in VALID_TRIGGERS:
+        fail(name, prefix + ".trigger", f"不正: {trigger}", problems)
+
+
+def check_random(event: dict, prefix: str, name: str, problems: list[str]) -> None:
+    group = event.get("random_group")
+    if group is not None and not re.fullmatch(r"[a-z0-9_]+", str(group)):
+        fail(name, prefix + ".random_group", f"小文字/数字/アンダースコアのみ: {group}", problems)
+    index = event.get("random_index", 0)
+    if not isinstance(index, int) or isinstance(index, bool) or not (0 <= index <= 32):
+        fail(name, prefix + ".random_index", f"範囲外 (0..32): {index}", problems)
+    if group is None and "random_index" in event:
+        fail(name, prefix + ".random_index", "random_group が必要", problems)
+
+
 def validate(path: Path, problems: list[str]) -> dict:
     data = json.loads(path.read_text(encoding="utf-8"))
     name = data.get("name", path.stem)
@@ -82,6 +102,10 @@ def validate(path: Path, problems: list[str]) -> dict:
             value = motion.get(key, 0)
             if not isinstance(value, (int, float)) or not math.isfinite(value):
                 fail(name, f"{prefix}.{key}", f"非有限: {value}", problems)
+        for key in ("set", "repeat"):
+            if not isinstance(motion.get(key, False), bool):
+                fail(name, f"{prefix}.{key}", f"真偽値が必要: {motion.get(key)}", problems)
+        check_trigger(motion, prefix, name, problems)
 
     for index, hitbox in enumerate(data.get("hitboxes", []) or []):
         prefix = f"hitboxes[{index}]"
@@ -107,13 +131,12 @@ def validate(path: Path, problems: list[str]) -> dict:
         sound = hitbox.get("sound", "")
         if sound and not SOUND_ID_RE.fullmatch(sound):
             fail(name, prefix + ".sound", f"sound id形式不正: {sound}", problems)
-        trigger = str(hitbox.get("trigger", "TICK")).upper()
-        if trigger not in ("TICK", "CONTACT"):
-            fail(name, prefix + ".trigger", f"不正: {trigger}", problems)
+        check_trigger(hitbox, prefix, name, problems)
         for effect in hitbox.get("effects", []) or []:
             if effect.get("type") not in VALID_EFFECTS:
                 fail(name, prefix + ".effects", f"未登録effect: {effect.get('type')}", problems)
 
+    random_groups: dict[str, set] = {}
     for index, projectile in enumerate(data.get("projectiles", []) or []):
         prefix = f"projectiles[{index}]"
         check_tick(projectile.get("tick", 0), prefix + ".tick")
@@ -161,12 +184,67 @@ def validate(path: Path, problems: list[str]) -> dict:
         sound = projectile.get("sound", "")
         if sound and not SOUND_ID_RE.fullmatch(sound):
             fail(name, prefix + ".sound", f"sound id形式不正: {sound}", problems)
-        trigger = str(projectile.get("trigger", "TICK")).upper()
-        if trigger not in ("TICK", "CONTACT"):
-            fail(name, prefix + ".trigger", f"不正: {trigger}", problems)
+        check_trigger(projectile, prefix, name, problems)
+        check_random(projectile, prefix, name, problems)
+        projectile_group = projectile.get("random_group")
+        if projectile_group is not None:
+            random_groups.setdefault(str(projectile_group), set()).add(projectile.get("random_index", 0))
+        fall_scale = projectile.get("fall_damage_scale", 0)
+        if not isinstance(fall_scale, (int, float)) or isinstance(fall_scale, bool) \
+                or not math.isfinite(fall_scale) or not (0 <= fall_scale <= 16):
+            fail(name, prefix + ".fall_damage_scale", f"範囲外 (0..16): {fall_scale}", problems)
+        if "path" in projectile:
+            path = projectile["path"]
+            if not isinstance(path, dict):
+                fail(name, prefix + ".path", "オブジェクトが必要", problems)
+            else:
+                start_tick = path.get("start_tick", 1)
+                if not isinstance(start_tick, int) or not (1 <= start_tick <= duration):
+                    fail(name, prefix + ".path.start_tick", f"範囲外: {start_tick}", problems)
+                position = path.get("position", 0)
+                if not isinstance(position, (int, float)) or not math.isfinite(position) \
+                        or not (0 <= position <= 1):
+                    fail(name, prefix + ".path.position", f"範囲外 (0..1): {position}", problems)
+                size_scale = path.get("size_scale", 0)
+                if not isinstance(size_scale, (int, float)) or not math.isfinite(size_scale) \
+                        or not (0 <= size_scale <= 32):
+                    fail(name, prefix + ".path.size_scale", f"範囲外 (0..32): {size_scale}", problems)
+                if not isinstance(path.get("rotation", False), bool):
+                    fail(name, prefix + ".path.rotation", "真偽値が必要", problems)
         for effect in projectile.get("effects", []) or []:
             if effect.get("type") not in VALID_EFFECTS:
                 fail(name, prefix + ".effects", f"未登録effect: {effect.get('type')}", problems)
+
+    animation_groups: dict[str, set] = {}
+    for index, animation in enumerate(data.get("animations", []) or []):
+        prefix = f"animations[{index}]"
+        check_tick(animation.get("tick", 0), prefix + ".tick")
+        if not isinstance(animation.get("animation", ""), str):
+            fail(name, prefix + ".animation", "文字列が必要", problems)
+        check_trigger(animation, prefix, name, problems)
+        check_random(animation, prefix, name, problems)
+        group = animation.get("random_group")
+        if group is not None:
+            animation_groups.setdefault(str(group), set()).add(animation.get("random_index", 0))
+
+    for group, indices in {**animation_groups, **random_groups}.items():
+        expected = set(range(max(len(animation_groups.get(group, set())),
+                                 len(random_groups.get(group, set())))))
+        if indices != expected:
+            fail(name, "random_group", f"{group} の index が0から連番でない: {sorted(indices)}", problems)
+
+    for index, effect in enumerate(data.get("player_effects", []) or []):
+        prefix = f"player_effects[{index}]"
+        check_tick(effect.get("tick", 0), prefix + ".tick")
+        if not SOUND_ID_RE.fullmatch(str(effect.get("effect", ""))):
+            fail(name, prefix + ".effect", f"effect id形式不正: {effect.get('effect')}", problems)
+        effect_duration = effect.get("duration_ticks", 1)
+        if not isinstance(effect_duration, int) or not (1 <= effect_duration <= 100000):
+            fail(name, prefix + ".duration_ticks", f"範囲外: {effect_duration}", problems)
+        amplifier = effect.get("amplifier", 0)
+        if not isinstance(amplifier, int) or not (0 <= amplifier <= 255):
+            fail(name, prefix + ".amplifier", f"範囲外: {amplifier}", problems)
+        check_trigger(effect, prefix, name, problems)
 
     for index, sound_event in enumerate(data.get("sounds", []) or []):
         prefix = f"sounds[{index}]"
@@ -180,6 +258,7 @@ def validate(path: Path, problems: list[str]) -> dict:
         pitch = sound_event.get("pitch", 1)
         if not (0.5 <= pitch <= 2.0):
             fail(name, prefix + ".pitch", f"範囲外: {pitch}", problems)
+        check_trigger(sound_event, prefix, name, problems)
 
     if skill_type == "RUSH":
         rush_start = data.get("rush_start_ticks")
@@ -227,6 +306,14 @@ def validate(path: Path, problems: list[str]) -> dict:
     assignable = data.get("assignable", True)
     if not isinstance(assignable, bool):
         fail(name, "assignable", f"真偽値が必要: {assignable}", problems)
+    invulnerability = data.get("invulnerability_ticks", 0)
+    if not isinstance(invulnerability, int) or isinstance(invulnerability, bool) \
+            or not (0 <= invulnerability <= 1200):
+        fail(name, "invulnerability_ticks", f"範囲外 (0..1200): {invulnerability}", problems)
+    if not isinstance(data.get("end_skill_on_ground", False), bool):
+        fail(name, "end_skill_on_ground", "真偽値が必要", problems)
+    if data.get("legacy_fallback", False):
+        fail(name, "legacy_fallback", "同梱データでは禁止 (データ駆動で表現すること)", problems)
     return data
 
 

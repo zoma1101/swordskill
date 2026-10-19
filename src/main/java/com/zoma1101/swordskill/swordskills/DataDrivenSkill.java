@@ -37,6 +37,13 @@ public final class DataDrivenSkill implements ISkill {
     private static final Map<UUID, Integer> RUSH_CONTACT_TICKS = new ConcurrentHashMap<>();
     private static final Map<UUID, Vec3> RUSH_PREVIOUS_POS = new ConcurrentHashMap<>();
     private static final Set<UUID> SHOCKWAVE_FIRED = ConcurrentHashMap.newKeySet();
+    private static final Map<UUID, Set<Integer>> FIRED_ANIMATIONS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Set<Integer>> FIRED_PLAYER_EFFECTS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Vec3> SKILL_START_POS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Double> PEAK_Y = new ConcurrentHashMap<>();
+    private static final Map<UUID, Boolean> PREV_ON_GROUND = new ConcurrentHashMap<>();
+    private static final Map<UUID, Map<String, Integer>> RANDOM_CHOICES = new ConcurrentHashMap<>();
+    private static final java.util.Random RANDOM = new java.util.Random();
 
     public static float chargeMultiplier(int chargeTicks) {
         return chargeMultiplier(chargeTicks, 0);
@@ -87,21 +94,53 @@ public final class DataDrivenSkill implements ISkill {
             return;
         }
 
+        UUID playerId = player.getUUID();
         int shockwaveTicks = definition.shockwaveTicks();
         int hitstopTicks = definition.hitstopTicks() < 0
                 ? ServerConfig.hitstopTicks.get() : definition.hitstopTicks();
 
-        Set<Integer> firedMotions = FIRED_MOTIONS.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
+        // --- スキル開始時の初期化と接地判定 ---
+        // 初回 tick は実行環境によって 0 か 1 になるため、状態の有無で判定する
+        if (!PREV_ON_GROUND.containsKey(playerId)) {
+            SKILL_START_POS.remove(playerId);
+            PEAK_Y.put(playerId, player.getY());
+            PREV_ON_GROUND.put(playerId, true);
+            rollRandomChoices(playerId, definition);
+        }
+        PEAK_Y.merge(playerId, player.getY(), Math::max);
+        for (DataSkillDefinition.ProjectileEvent pathProjectile : definition.projectiles()) {
+            DataSkillDefinition.PathSpec path = pathProjectile.path();
+            if (path != null && path.startTick() == tick) {
+                SKILL_START_POS.put(playerId, player.position());
+                break;
+            }
+        }
+        boolean previousOnGround = PREV_ON_GROUND.getOrDefault(playerId, true);
+        boolean groundTriggered = player.onGround() && !previousOnGround;
+        PREV_ON_GROUND.put(playerId, player.onGround());
+        int invulnerability = definition.rushCombo() == null
+                ? definition.invulnerabilityTicks()
+                : Math.max(definition.invulnerabilityTicks(), definition.rushCombo().invulnerabilityTicks());
+        if (tick == 1 && invulnerability > 0) {
+            player.invulnerableTime = invulnerability;
+        }
+
+        Set<Integer> firedMotions = FIRED_MOTIONS.computeIfAbsent(playerId, ignored -> new HashSet<>());
         for (int index = 0; index < definition.motions().size(); index++) {
             DataSkillDefinition.MotionEvent motion = definition.motions().get(index);
-            if ((motion.tick() == tick || (tick == 1 && motion.tick() == 0)) && firedMotions.add(index)) {
-                applyMotion(player, new DataSkillDefinition.Motion(motion.forward(), motion.strafe(), motion.vertical()));
+            if (!motion.trigger().equals("TICK")) {
+                continue;
+            }
+            boolean first = (motion.tick() == tick || (tick == 1 && motion.tick() == 0)) && firedMotions.add(index);
+            if (first || (motion.repeat() && tick >= motion.tick() && tick > 0)) {
+                applyMotion(player, new DataSkillDefinition.Motion(motion.forward(), motion.strafe(), motion.vertical()),
+                        motion.set());
             }
         }
         if (definition.motion().forward() != 0 || definition.motion().strafe() != 0
                 || definition.motion().vertical() != 0) {
             if (tick <= 1 && firedMotions.add(-1)) {
-                applyMotion(player, definition.motion());
+                applyMotion(player, definition.motion(), false);
             }
         }
 
@@ -154,11 +193,30 @@ public final class DataDrivenSkill implements ISkill {
             RUSH_PREVIOUS_POS.put(player.getUUID(), currentCenter);
         }
 
+        // 接地・接触で動くモーション（突進の跳ね返りなど）
+        for (int index = 0; index < definition.motions().size(); index++) {
+            DataSkillDefinition.MotionEvent motion = definition.motions().get(index);
+            if (motion.trigger().equals("TICK")) {
+                continue;
+            }
+            boolean triggered = motion.trigger().equals("GROUND")
+                    ? groundTriggered && tick >= motion.tick()
+                    : contactTick >= 0 && tick == contactTick + motion.tick();
+            if (triggered && firedMotions.add(index)) {
+                applyMotion(player, new DataSkillDefinition.Motion(motion.forward(), motion.strafe(), motion.vertical()),
+                        motion.set());
+            }
+        }
+
         Set<Integer> firedSounds = FIRED_SOUNDS.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
         for (int soundIndex = 0; soundIndex < definition.sounds().size(); soundIndex++) {
             DataSkillDefinition.SoundEvent sound = definition.sounds().get(soundIndex);
-            boolean initialTick = tick == 1 && sound.tick() == 0;
-            if ((sound.tick() == tick || initialTick) && firedSounds.add(soundIndex)) {
+            boolean triggered = switch (sound.trigger()) {
+                case "GROUND" -> groundTriggered && tick >= sound.tick();
+                case "CONTACT" -> contactTick >= 0 && tick == contactTick + sound.tick();
+                default -> sound.tick() == tick || (tick == 1 && sound.tick() == 0);
+            };
+            if (triggered && firedSounds.add(soundIndex)) {
                 playSound(level, player, sound);
             }
         }
@@ -169,8 +227,11 @@ public final class DataDrivenSkill implements ISkill {
             boolean contactTriggered = hitbox.trigger().equals("CONTACT") && contactTick >= 0;
             int triggerTick = contactTriggered ? contactTick + hitbox.tick() : hitbox.tick();
             boolean initialTick = hitbox.trigger().equals("TICK") && tick == 1 && hitbox.tick() == 0;
+            boolean groundTriggeredHitbox = hitbox.trigger().equals("GROUND")
+                    && groundTriggered && tick >= hitbox.tick();
             boolean firstTrigger = ((hitbox.trigger().equals("TICK") && hitbox.tick() == tick)
-                    || (contactTriggered && triggerTick == tick) || initialTick) && firedHitboxes.add(index);
+                    || (contactTriggered && triggerTick == tick) || initialTick
+                    || groundTriggeredHitbox) && firedHitboxes.add(index);
             boolean repeatRushHitbox = hitbox.trigger().equals("TICK") && hitbox.repeatWhileRushing()
                     && definition.type() == SkillData.SkillType.RUSH && tick >= hitbox.tick();
             if (firstTrigger || repeatRushHitbox) {
@@ -194,15 +255,50 @@ public final class DataDrivenSkill implements ISkill {
                 ignored -> new HashSet<>());
         for (int projectileIndex = 0; projectileIndex < definition.projectiles().size(); projectileIndex++) {
             DataSkillDefinition.ProjectileEvent projectile = definition.projectiles().get(projectileIndex);
+            if (!matchesRandom(playerId, projectile.randomGroup(), projectile.randomIndex())) {
+                continue;
+            }
             boolean contactTriggered = projectile.trigger().equals("CONTACT") && contactTick >= 0;
             int triggerTick = contactTriggered ? contactTick + projectile.tick() : projectile.tick();
             boolean projectileInitialTick = projectile.trigger().equals("TICK") && tick == 1
                     && projectile.tick() == 0;
+            boolean groundTriggeredProjectile = projectile.trigger().equals("GROUND")
+                    && groundTriggered && tick >= projectile.tick();
             if (((projectile.trigger().equals("TICK") && projectile.tick() == tick)
-                    || (contactTriggered && triggerTick == tick) || projectileInitialTick)
+                    || (contactTriggered && triggerTick == tick) || projectileInitialTick
+                    || groundTriggeredProjectile)
                     && firedProjectiles.add(projectileIndex)) {
                 spawnProjectile(level, player, projectile, parseColor(definition.color()));
                 triggerShockwave(player, shockwaveTicks, definition.color());
+            }
+        }
+
+        Set<Integer> firedAnimations = FIRED_ANIMATIONS.computeIfAbsent(playerId, ignored -> new HashSet<>());
+        for (int index = 0; index < definition.animations().size(); index++) {
+            DataSkillDefinition.AnimationEvent animation = definition.animations().get(index);
+            if (!matchesRandom(playerId, animation.randomGroup(), animation.randomIndex())) {
+                continue;
+            }
+            boolean triggered = switch (animation.trigger()) {
+                case "GROUND" -> groundTriggered && tick >= animation.tick();
+                case "CONTACT" -> contactTick >= 0 && tick == contactTick + animation.tick();
+                default -> animation.tick() == tick || (tick == 1 && animation.tick() == 0);
+            };
+            if (triggered && firedAnimations.add(index)) {
+                playAnimation(player, skillId, animation.animation());
+            }
+        }
+
+        Set<Integer> firedPlayerEffects = FIRED_PLAYER_EFFECTS.computeIfAbsent(playerId, ignored -> new HashSet<>());
+        for (int index = 0; index < definition.playerEffects().size(); index++) {
+            DataSkillDefinition.PlayerEffectEvent effect = definition.playerEffects().get(index);
+            boolean triggered = switch (effect.trigger()) {
+                case "GROUND" -> groundTriggered && tick >= effect.tick();
+                case "CONTACT" -> contactTick >= 0 && tick == contactTick + effect.tick();
+                default -> effect.tick() == tick || (tick == 1 && effect.tick() == 0);
+            };
+            if (triggered && firedPlayerEffects.add(index)) {
+                applyPlayerEffect(player, effect);
             }
         }
 
@@ -211,7 +307,62 @@ public final class DataDrivenSkill implements ISkill {
             SkillExecutionManager.finishRush(player);
             return;
         }
+        // 着地でスキル終了（棍棒の着地衝撃など）。RUSH なら finish アニメーションも再生する。
+        if (definition.endSkillOnGround() && groundTriggered) {
+            if (definition.type() == SkillData.SkillType.RUSH) {
+                SkillExecutionManager.finishRush(player);
+            } else {
+                SkillExecutionManager.cancelRush(player);
+            }
+        }
 
+    }
+
+    /** アニメーション名が空なら「アニメーション解除」として skillId 0 を送る。 */
+    private static void playAnimation(ServerPlayer player, int skillId, String animation) {
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new com.zoma1101.swordskill.payload.PlayAnimationPayload(player.getId(),
+                        animation.isEmpty() ? 0 : skillId, animation));
+    }
+
+    private static void applyPlayerEffect(ServerPlayer player, DataSkillDefinition.PlayerEffectEvent effect) {
+        net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> holder = BuiltInRegistries.MOB_EFFECT
+                .getHolder(ResourceLocation.parse(effect.effect()))
+                .orElseThrow(() -> new IllegalStateException("Unknown player effect: " + effect.effect()));
+        player.addEffect(new MobEffectInstance(holder, effect.durationTicks(), effect.amplifier(),
+                false, effect.showParticles()));
+    }
+
+    /** スキル開始時に random_group ごとの出目を 1 つ決めておく。 */
+    private static void rollRandomChoices(UUID playerId, DataSkillDefinition definition) {
+        Map<String, Integer> sizes = new java.util.HashMap<>();
+        for (DataSkillDefinition.AnimationEvent animation : definition.animations()) {
+            if (!animation.randomGroup().isEmpty()) {
+                sizes.merge(animation.randomGroup(), animation.randomIndex() + 1, Math::max);
+            }
+        }
+        for (DataSkillDefinition.ProjectileEvent projectile : definition.projectiles()) {
+            if (!projectile.randomGroup().isEmpty()) {
+                sizes.merge(projectile.randomGroup(), projectile.randomIndex() + 1, Math::max);
+            }
+        }
+        if (sizes.isEmpty()) {
+            RANDOM_CHOICES.remove(playerId);
+            return;
+        }
+        Map<String, Integer> choices = new java.util.HashMap<>();
+        for (Map.Entry<String, Integer> entry : sizes.entrySet()) {
+            choices.put(entry.getKey(), RANDOM.nextInt(Math.max(1, entry.getValue())));
+        }
+        RANDOM_CHOICES.put(playerId, choices);
+    }
+
+    private static boolean matchesRandom(UUID playerId, String group, int index) {
+        if (group.isEmpty()) {
+            return true;
+        }
+        Map<String, Integer> choices = RANDOM_CHOICES.get(playerId);
+        return choices != null && choices.getOrDefault(group, -1) == index;
     }
 
     public static void clearPlayerState(UUID playerId) {
@@ -219,10 +370,16 @@ public final class DataDrivenSkill implements ISkill {
         FIRED_HITBOXES.remove(playerId);
         FIRED_PROJECTILES.remove(playerId);
         FIRED_SOUNDS.remove(playerId);
+        FIRED_ANIMATIONS.remove(playerId);
+        FIRED_PLAYER_EFFECTS.remove(playerId);
         CHARGE_MULTIPLIERS.remove(playerId);
         RUSH_CONTACT_TICKS.remove(playerId);
         RUSH_PREVIOUS_POS.remove(playerId);
         SHOCKWAVE_FIRED.remove(playerId);
+        SKILL_START_POS.remove(playerId);
+        PEAK_Y.remove(playerId);
+        PREV_ON_GROUND.remove(playerId);
+        RANDOM_CHOICES.remove(playerId);
     }
 
     private static Vec3 limitedLook(Vec3 look, double pitchLimitDegrees) {
@@ -242,19 +399,54 @@ public final class DataDrivenSkill implements ISkill {
         Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 up = right.cross(forward).normalize();
         double[] offset = projectile.offset();
-        double[] rotation = projectile.rotation();
-        double[] size = projectile.size();
+        double[] rotation = projectile.rotation().clone();
+        double[] size = projectile.size().clone();
         double playerPitch = player.getXRot();
+        double yaw = rotation[1];
         double pitch = projectile.horizontal() ? -playerPitch
                 : rotation[0] + playerPitch * projectile.playerPitchXMultiplier();
         double roll = rotation[2] + playerPitch * projectile.playerPitchZMultiplier();
+        double damageMultiplier = projectile.damageMultiplier();
         Vec3 spawnPosition = player.position()
                 .add(right.scale(offset[0]))
                 .add(up.scale(offset[1]))
                 .add(forward.scale(offset[2]));
+
+        // 突進しながら伸びる斬撃: 始点から現在位置までの線上に出し、進行方向へ向ける
+        DataSkillDefinition.PathSpec path = projectile.path();
+        if (path != null) {
+            Vec3 start = SKILL_START_POS.get(player.getUUID());
+            if (start != null) {
+                Vec3 travel = player.position().subtract(start);
+                spawnPosition = start.add(travel.scale(path.position()))
+                        .add(right.scale(offset[0]))
+                        .add(up.scale(offset[1]))
+                        .add(forward.scale(offset[2]));
+                if (path.rotation() && travel.lengthSqr() > 1.0E-6) {
+                    Vec3 direction = travel.normalize();
+                    double yawDegrees = Math.toDegrees(Math.atan2(direction.z, direction.x));
+                    double clampedY = Math.max(-1.0, Math.min(1.0, direction.y));
+                    double pitchDegrees = Math.toDegrees(Math.asin(clampedY));
+                    // AttackEffectEntity は owner の向きに rotation を加算するので、絶対角になるよう差し引く
+                    pitch = -pitchDegrees - player.getXRot() + rotation[0];
+                    yaw = yawDegrees - 90 + rotation[1] - player.getYRot();
+                    roll = rotation[2];
+                }
+                if (path.sizeScale() > 0) {
+                    double travelAverage = (Math.abs(travel.x) + Math.abs(travel.y) + Math.abs(travel.z)) / 3.0;
+                    size[2] = Math.max(1.0, travelAverage * path.sizeScale());
+                }
+            }
+        }
+        // 落下距離に比例したダメージ（棍棒の着地衝撃など）
+        if (projectile.fallDamageScale() > 0) {
+            double peak = PEAK_Y.getOrDefault(player.getUUID(), player.getY());
+            damageMultiplier *= Math.max(0, peak - player.getY()) * projectile.fallDamageScale();
+        }
+
         double baseDamage = projectile.damageType().equals("RUSH")
                 ? SkillUtils.RushDamage(player) : SkillUtils.BaseDamage(player);
-        float damage = (float) (baseDamage * projectile.damageMultiplier()
+        float damage = (float) (baseDamage * damageMultiplier
                 * getChargeMultiplier(player.getUUID()));
         if (!projectile.sound().isEmpty()) {
             playAttackSound(level, player, projectile.sound());
@@ -266,14 +458,14 @@ public final class DataDrivenSkill implements ISkill {
                 : projectile.knockback();
         if (movement == null) {
             SkillUtils.spawnFlyingSlash(level, spawnPosition,
-                    new Vec3(pitch, rotation[1], roll),
+                    new Vec3(pitch, yaw, roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback,
                     projectile.durationTicks(), projectile.particle(), projectile.travelDistance(),
                     projectile.renderPitch(), skillColor);
         } else {
             SkillUtils.spawnFlyingSlash(level, spawnPosition,
-                    new Vec3(pitch, rotation[1], roll),
+                    new Vec3(pitch, yaw, roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback, projectile.durationTicks(),
                     projectile.particle(), projectile.travelDistance(), movement, projectile.renderPitch(),
@@ -281,9 +473,10 @@ public final class DataDrivenSkill implements ISkill {
         }
     }
 
-    private static void applyMotion(ServerPlayer player, DataSkillDefinition.Motion motion) {
+    private static void applyMotion(ServerPlayer player, DataSkillDefinition.Motion motion, boolean set) {
         if (motion.forward() == 0 && motion.strafe() == 0 && motion.vertical() == 0) {
-            player.setDeltaMovement(0, Math.min(0, player.getDeltaMovement().y), 0);
+            player.setDeltaMovement(set ? Vec3.ZERO
+                    : new Vec3(0, Math.min(0, player.getDeltaMovement().y), 0));
             player.hurtMarked = true;
             return;
         }
@@ -292,7 +485,10 @@ public final class DataDrivenSkill implements ISkill {
         Vec3 addedMotion = forward.scale(motion.forward())
                 .add(right.scale(motion.strafe()))
                 .add(0, motion.vertical(), 0);
-        if (addedMotion.lengthSqr() > 0) {
+        if (set) {
+            player.setDeltaMovement(addedMotion);
+            player.hurtMarked = true;
+        } else if (addedMotion.lengthSqr() > 0) {
             player.setDeltaMovement(player.getDeltaMovement().add(addedMotion));
             player.hurtMarked = true;
         }

@@ -134,8 +134,13 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsJsonArray(json, "projectiles", new JsonArray()), duration);
         List<DataSkillDefinition.SoundEvent> sounds = parseSounds(
                 GsonHelper.getAsJsonArray(json, "sounds", new JsonArray()), duration);
+        List<DataSkillDefinition.AnimationEvent> animations = parseAnimations(
+                GsonHelper.getAsJsonArray(json, "animations", new JsonArray()), duration);
+        List<DataSkillDefinition.PlayerEffectEvent> playerEffects = parsePlayerEffects(
+                GsonHelper.getAsJsonArray(json, "player_effects", new JsonArray()), duration);
         boolean legacyFallback = GsonHelper.getAsBoolean(json, "legacy_fallback",
-                replaceBuiltin && hitboxes.isEmpty() && projectiles.isEmpty());
+                replaceBuiltin && hitboxes.isEmpty() && projectiles.isEmpty()
+                        && animations.isEmpty() && playerEffects.isEmpty() && motions.isEmpty());
         if (legacyFallback && (!replaceBuiltin || SwordSkillRegistry.getBaseSkill(id) == null)) {
             throw new JsonParseException("legacy_fallback requires a valid built-in skill replacement");
         }
@@ -178,6 +183,10 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("unlock_proficiency is outside the supported range");
         }
         boolean assignable = GsonHelper.getAsBoolean(json, "assignable", true);
+        int invulnerabilityTicks = GsonHelper.getAsInt(json, "invulnerability_ticks", 0);
+        if (invulnerabilityTicks < 0 || invulnerabilityTicks > 1200) {
+            throw new JsonParseException("invulnerability_ticks is outside the supported range");
+        }
 
         return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
@@ -189,7 +198,9 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsString(json, "rush_move_animation", "move"),
                 GsonHelper.getAsString(json, "rush_finish_animation", "finish"), rushCombo,
                 trailLength, shockwaveTicks, hitstopTicks,
-                proficiencyCategory, unlockProficiency, assignable);
+                proficiencyCategory, unlockProficiency, assignable,
+                animations, playerEffects, invulnerabilityTicks,
+                GsonHelper.getAsBoolean(json, "end_skill_on_ground", false));
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,
@@ -248,7 +259,10 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     || !Double.isFinite(strafe) || !Double.isFinite(vertical)) {
                 throw new JsonParseException("motion tick or vector is outside the supported range");
             }
-            motions.add(new DataSkillDefinition.MotionEvent(tick, forward, strafe, vertical));
+            motions.add(new DataSkillDefinition.MotionEvent(tick, forward, strafe, vertical,
+                    GsonHelper.getAsBoolean(motion, "set", false),
+                    GsonHelper.getAsBoolean(motion, "repeat", false),
+                    parseEventTrigger(motion)));
         }
         return motions;
     }
@@ -349,19 +363,86 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     throw new JsonParseException("Unknown projectile sound: " + sound);
                 }
             }
+            double fallDamageScale = GsonHelper.getAsDouble(projectile, "fall_damage_scale", 0);
+            if (!Double.isFinite(fallDamageScale) || fallDamageScale < 0 || fallDamageScale > 16) {
+                throw new JsonParseException("fall_damage_scale is outside the supported range");
+            }
+            DataSkillDefinition.PathSpec path = projectile.has("path")
+                    ? parsePath(GsonHelper.getAsJsonObject(projectile, "path"), duration)
+                    : null;
+            String randomGroup = GsonHelper.getAsString(projectile, "random_group", "").trim();
+            int randomIndex = GsonHelper.getAsInt(projectile, "random_index", 0);
+            if (randomIndex < 0 || randomIndex > 32) {
+                throw new JsonParseException("random_index is outside the supported range");
+            }
             projectiles.add(new DataSkillDefinition.ProjectileEvent(tick, offset, rotation,
                     playerPitchXMultiplier, playerPitchZMultiplier, renderPitch, horizontal, size,
                     damageMultiplier, damageType, knockback, knockbackMultiplier,
                     projectileDuration, particle, travelDistance,
-                    movement, sound, trigger));
+                    movement, sound, trigger, fallDamageScale, path, randomGroup, randomIndex));
         }
         return projectiles;
     }
 
+    private static DataSkillDefinition.PathSpec parsePath(JsonObject json, int duration) {
+        int startTick = GsonHelper.getAsInt(json, "start_tick", 1);
+        double position = GsonHelper.getAsDouble(json, "position", 0);
+        boolean rotation = GsonHelper.getAsBoolean(json, "rotation", false);
+        double sizeScale = GsonHelper.getAsDouble(json, "size_scale", 0);
+        if (startTick < 1 || startTick > duration
+                || !Double.isFinite(position) || position < 0 || position > 1
+                || !Double.isFinite(sizeScale) || sizeScale < 0 || sizeScale > 32) {
+            throw new JsonParseException("path fields are outside the supported range");
+        }
+        return new DataSkillDefinition.PathSpec(startTick, position, rotation, sizeScale);
+    }
+
+    private static List<DataSkillDefinition.AnimationEvent> parseAnimations(JsonArray json, int duration) {
+        List<DataSkillDefinition.AnimationEvent> animations = new ArrayList<>();
+        for (JsonElement element : json) {
+            JsonObject animation = GsonHelper.convertToJsonObject(element, "animation");
+            int tick = GsonHelper.getAsInt(animation, "tick");
+            if (tick < 0 || tick > duration) {
+                throw new JsonParseException("animation tick is outside the supported range");
+            }
+            String name = GsonHelper.getAsString(animation, "animation", "");
+            String randomGroup = GsonHelper.getAsString(animation, "random_group", "").trim();
+            int randomIndex = GsonHelper.getAsInt(animation, "random_index", 0);
+            if (randomIndex < 0 || randomIndex > 32) {
+                throw new JsonParseException("random_index is outside the supported range");
+            }
+            animations.add(new DataSkillDefinition.AnimationEvent(tick, name,
+                    parseEventTrigger(animation), randomGroup, randomIndex));
+        }
+        return animations;
+    }
+
+    private static List<DataSkillDefinition.PlayerEffectEvent> parsePlayerEffects(JsonArray json, int duration) {
+        List<DataSkillDefinition.PlayerEffectEvent> effects = new ArrayList<>();
+        for (JsonElement element : json) {
+            JsonObject effect = GsonHelper.convertToJsonObject(element, "player_effect");
+            int tick = GsonHelper.getAsInt(effect, "tick");
+            String effectId = GsonHelper.getAsString(effect, "effect", "").trim();
+            ResourceLocation id = ResourceLocation.tryParse(effectId);
+            if (tick < 0 || tick > duration || id == null
+                    || BuiltInRegistries.MOB_EFFECT.getHolder(id).isEmpty()) {
+                throw new JsonParseException("Unknown player effect: " + effectId);
+            }
+            int effectDuration = GsonHelper.getAsInt(effect, "duration_ticks", 1);
+            int amplifier = GsonHelper.getAsInt(effect, "amplifier", 0);
+            if (effectDuration < 1 || effectDuration > 100000 || amplifier < 0 || amplifier > 255) {
+                throw new JsonParseException("player effect duration/amplifier is outside the supported range");
+            }
+            effects.add(new DataSkillDefinition.PlayerEffectEvent(tick, effectId, effectDuration, amplifier,
+                    GsonHelper.getAsBoolean(effect, "show_particles", false), parseEventTrigger(effect)));
+        }
+        return effects;
+    }
+
     private static String parseEventTrigger(JsonObject event) {
         String trigger = GsonHelper.getAsString(event, "trigger", "TICK").toUpperCase(java.util.Locale.ROOT);
-        if (!trigger.equals("TICK") && !trigger.equals("CONTACT")) {
-            throw new JsonParseException("event trigger must be TICK or CONTACT");
+        if (!trigger.equals("TICK") && !trigger.equals("CONTACT") && !trigger.equals("GROUND")) {
+            throw new JsonParseException("event trigger must be TICK, CONTACT or GROUND");
         }
         return trigger;
     }
@@ -381,7 +462,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     || !Float.isFinite(pitch) || pitch < 0.5F || pitch > 2.0F) {
                 throw new JsonParseException("sound event fields are outside the supported range");
             }
-            sounds.add(new DataSkillDefinition.SoundEvent(tick, sound, volume, pitch));
+            sounds.add(new DataSkillDefinition.SoundEvent(tick, sound, volume, pitch, parseEventTrigger(soundEvent)));
         }
         return sounds;
     }
