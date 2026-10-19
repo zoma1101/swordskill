@@ -15,21 +15,22 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * 鍛冶定義（素材・部品・レシピ）をデータパックから読み込むリロードリスナー。
+ * 鍛冶定義（素材・部品・武器の形）をデータパックから読み込むリロードリスナー。
  *
  * <ul>
  *   <li>{@code data/<namespace>/smithing_material/<id>.json}</li>
  *   <li>{@code data/<namespace>/smithing_part/<id>.json}</li>
- *   <li>{@code data/<namespace>/smithing_recipe/<id>.json}</li>
+ *   <li>{@code data/<namespace>/weapon_pattern/<id>.json}</li>
  * </ul>
  *
- * <p>解析は素材・部品・レシピで共通の関数にまとめてあり、サーバーからの同期
+ * <p>解析は共通の関数にまとめてあり、サーバーからの同期
  * （{@link SmithingDefinitions#applyJson(JsonObject)}）でも同じ関数を使う。</p>
  */
 public final class SmithingDataLoader {
@@ -100,37 +101,32 @@ public final class SmithingDataLoader {
         }
     }
 
-    /** {@code smithing_recipe} フォルダを読む。 */
-    public static final class Recipes extends SimpleJsonResourceReloadListener {
+    /** {@code weapon_pattern} フォルダを読む。 */
+    public static final class Patterns extends SimpleJsonResourceReloadListener {
 
-        public Recipes() {
-            super(GSON, "smithing_recipe");
+        public Patterns() {
+            super(GSON, "weapon_pattern");
         }
 
         @Override
         protected void apply(Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManager,
                 @NotNull ProfilerFiller profiler) {
-            Map<ResourceLocation, SmithingRecipe> loaded = new HashMap<>();
+            Map<ResourceLocation, WeaponPattern> loaded = new HashMap<>();
             for (Map.Entry<ResourceLocation, JsonElement> entry : objects.entrySet()) {
                 ResourceLocation file = entry.getKey();
                 if (file.getPath().startsWith("_")) {
                     continue;
                 }
                 try {
-                    SmithingRecipe recipe = parseRecipe(file,
-                            GsonHelper.convertToJsonObject(entry.getValue(), "smithing recipe"));
-                    if (recipe.blade() == null || recipe.handle() == null) {
-                        LOGGER.error("Smithing recipe {} needs a blade and a handle", file);
-                        continue;
-                    }
-                    loaded.put(recipe.id(), recipe);
+                    WeaponPattern pattern = parsePattern(file,
+                            GsonHelper.convertToJsonObject(entry.getValue(), "weapon pattern"));
+                    loaded.put(pattern.id(), pattern);
                 } catch (Exception exception) {
-                    LOGGER.error("Failed to parse smithing recipe {}", file, exception);
+                    LOGGER.error("Failed to parse weapon pattern {}", file, exception);
                 }
             }
-            SmithingDefinitions.setRecipes(loaded);
-            SmithingDefinitions.markSyncPending();
-            LOGGER.info("Loaded {} smithing recipes", loaded.size());
+            SmithingDefinitions.setPatterns(loaded);
+            LOGGER.info("Loaded {} weapon patterns", loaded.size());
         }
     }
 
@@ -140,6 +136,18 @@ public final class SmithingDataLoader {
 
     public static SmithingMaterial parseMaterial(ResourceLocation file, JsonObject json) {
         ResourceLocation id = readId(json, "id", file);
+        Map<SkillData.WeaponType, ResourceLocation> blades = new EnumMap<>(SkillData.WeaponType.class);
+        if (json.has("blades")) {
+            JsonObject map = GsonHelper.getAsJsonObject(json, "blades");
+            for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
+                SkillData.WeaponType weapon = parseWeapon(entry.getKey());
+                if (weapon == SkillData.WeaponType.NONE) {
+                    LOGGER.warn("Unknown weapon type {} in {}", entry.getKey(), file);
+                    continue;
+                }
+                blades.put(weapon, ResourceLocation.parse(entry.getValue().getAsString()));
+            }
+        }
         return new SmithingMaterial(
                 id,
                 GsonHelper.getAsInt(json, "tier", 0),
@@ -149,7 +157,10 @@ public final class SmithingDataLoader {
                 parseColor(GsonHelper.getAsString(json, "color_sub", "#808080")),
                 readIds(json, "items"),
                 readIds(json, "tags"),
-                GsonHelper.getAsBoolean(json, "special", false));
+                GsonHelper.getAsBoolean(json, "special", false),
+                Map.copyOf(blades),
+                readId(json, "guard", null),
+                readId(json, "handle", null));
     }
 
     public static SmithingPart parsePart(ResourceLocation file, JsonObject json) {
@@ -181,47 +192,47 @@ public final class SmithingDataLoader {
                 GsonHelper.getAsInt(json, "tier", 0));
     }
 
-    public static SmithingRecipe parseRecipe(ResourceLocation file, JsonObject json) {
+    public static WeaponPattern parsePattern(ResourceLocation file, JsonObject json) {
         ResourceLocation id = readId(json, "id", file);
-        List<SmithingIngredient> ingredients = new ArrayList<>();
-        if (json.has("materials")) {
-            for (JsonElement element : json.getAsJsonArray("materials")) {
-                if (!element.isJsonObject()) {
-                    continue;
-                }
-                JsonObject entry = element.getAsJsonObject();
-                int count = GsonHelper.getAsInt(entry, "count", 1);
-                ResourceLocation item = readId(entry, "item", null);
-                ResourceLocation tag = readId(entry, "tag", null);
-                if (item == null && tag == null) {
-                    continue;
-                }
-                ingredients.add(item != null ? SmithingIngredient.ofItem(item, count)
-                        : SmithingIngredient.ofTag(tag, count));
+        List<String> rows = new ArrayList<>();
+        for (JsonElement element : GsonHelper.getAsJsonArray(json, "pattern")) {
+            rows.add(element.getAsString());
+        }
+        if (rows.isEmpty()) {
+            throw new IllegalArgumentException("weapon pattern needs a pattern");
+        }
+        Map<Character, WeaponPattern.Cell> key = new HashMap<>();
+        JsonObject keyJson = GsonHelper.getAsJsonObject(json, "key");
+        for (Map.Entry<String, JsonElement> entry : keyJson.entrySet()) {
+            if (entry.getKey().isEmpty() || !entry.getValue().isJsonObject()) {
+                continue;
             }
+            JsonObject cellJson = entry.getValue().getAsJsonObject();
+            SmithingRole role = SmithingRole.byName(GsonHelper.getAsString(cellJson, "role", ""));
+            if (role == null) {
+                throw new IllegalArgumentException("unknown role in weapon pattern " + file);
+            }
+            key.put(entry.getKey().charAt(0),
+                    new WeaponPattern.Cell(role, readId(cellJson, "item", null), readId(cellJson, "tag", null)));
         }
-        if (ingredients.size() > SmithingRecipe.MAX_INGREDIENTS) {
-            LOGGER.warn("Smithing recipe {} has {} extra materials, only the first {} are used", file,
-                    ingredients.size(), SmithingRecipe.MAX_INGREDIENTS);
-            ingredients = new ArrayList<>(ingredients.subList(0, SmithingRecipe.MAX_INGREDIENTS));
+        SkillData.WeaponType weapon = parseWeapon(GsonHelper.getAsString(json, "weapon", ""));
+        if (weapon == SkillData.WeaponType.NONE) {
+            throw new IllegalArgumentException("weapon pattern " + file + " needs a weapon type");
         }
-        return new SmithingRecipe(
+        return new WeaponPattern(
                 id,
+                List.copyOf(rows),
+                Map.copyOf(key),
+                weapon,
                 readId(json, "blade", null),
                 readId(json, "guard", null),
-                readId(json, "handle", null),
-                parseWeapon(GsonHelper.getAsString(json, "weapon", "NONE")),
-                Math.max(0, GsonHelper.getAsInt(json, "count", 1)),
-                Math.max(0, GsonHelper.getAsInt(json, "tier", 0)),
-                List.copyOf(ingredients),
-                readId(json, "essence", null));
+                readId(json, "handle", null));
     }
 
     /** サーバーから配られた定義（{@link SmithingDefinitions#toJson()} の形）を読み込む。 */
     public static void applyDefinitions(JsonObject root) {
         Map<ResourceLocation, SmithingMaterial> materials = new HashMap<>();
         Map<ResourceLocation, SmithingPart> parts = new HashMap<>();
-        Map<ResourceLocation, SmithingRecipe> recipes = new HashMap<>();
         if (root.has("materials")) {
             for (JsonElement element : root.getAsJsonArray("materials")) {
                 try {
@@ -246,23 +257,10 @@ public final class SmithingDataLoader {
                 }
             }
         }
-        if (root.has("recipes")) {
-            for (JsonElement element : root.getAsJsonArray("recipes")) {
-                try {
-                    SmithingRecipe recipe = parseRecipe(null, element.getAsJsonObject());
-                    if (recipe.id() != null && recipe.blade() != null && recipe.handle() != null) {
-                        recipes.put(recipe.id(), recipe);
-                    }
-                } catch (Exception exception) {
-                    LOGGER.error("Failed to read synced smithing recipe", exception);
-                }
-            }
-        }
         SmithingDefinitions.setMaterials(materials);
         SmithingDefinitions.setParts(parts);
-        SmithingDefinitions.setRecipes(recipes);
-        LOGGER.info("Loaded synced smithing definitions ({} materials / {} parts / {} recipes)",
-                materials.size(), parts.size(), recipes.size());
+        LOGGER.info("Loaded synced smithing definitions ({} materials / {} parts)",
+                materials.size(), parts.size());
     }
 
     private static ResourceLocation readId(JsonObject json, String key, ResourceLocation fallback) {

@@ -1,88 +1,72 @@
 package com.zoma1101.swordskill.smithing;
 
-import com.zoma1101.swordskill.config.ServerConfig;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 鍛冶台の GUI。作成・強化・溶解・再鍛造をモードで切り替える。
+ * 鍛冶台（作業台ベース）の GUI。
  *
- * <p>スロット構成（入力 5 + 出力 1）:</p>
+ * <p>スロット構成:</p>
  * <ul>
- *   <li>作成: 0 = メイン素材 / 1..4 = 対応素材 / 5 = 完成</li>
- *   <li>強化: 0 = 対象の武器 / 1 = 強化素材 / 5 = 完成</li>
- *   <li>溶解: 0 = 対象の武器 / 5 = 完成</li>
- *   <li>再鍛造: 0 = インゴット / 1 = メイン素材 / 5 = 完成</li>
+ *   <li>0..24 = 5×5 の作業グリッド。置いた形（{@link WeaponPattern}）で作る武器が決まる</li>
+ *   <li>25..27 = 補強スロット（溶解インゴット / 特殊素材 / 底上げ素材）</li>
+ *   <li>28 = 完成スロット</li>
  * </ul>
  *
- * <p>メイン素材を入れると、その素材で作れるレシピ（= 武器）が一覧になる。
- * レシピを選ぶと対応素材がゴースト表示され、揃うと完成スロットに品が出る。</p>
- *
  * <p>結果の計算は品質（熟練度）に依存するためサーバー専用で行い、
- * クライアントには通常のスロット同期で配られる。選択中のレシピ番号だけは
- * {@link ContainerData} で常にサーバーの値へ合わせる。</p>
+ * クライアントには通常のスロット同期で配られる。</p>
  */
 public class SmithingForgeMenu extends AbstractContainerMenu {
 
-    /** メイン素材（作成）、対象（強化・溶解）、インゴット（再鍛造）。 */
-    public static final int SLOT_MAIN = 0;
-    /** 対応素材の先頭スロット番号。 */
-    public static final int SLOT_EXTRA = 1;
-    /** 対応素材スロット数。 */
-    public static final int EXTRA_COUNT = SmithingRecipe.MAX_INGREDIENTS;
-    /** 入力スロット数（メイン + 対応素材）。 */
-    public static final int INPUT_COUNT = 1 + EXTRA_COUNT;
-    public static final int SLOT_RESULT = INPUT_COUNT;
+    /** グリッドの一辺。 */
+    public static final int GRID_SIZE = 5;
+    /** グリッドのスロット数。 */
+    public static final int GRID_SLOTS = GRID_SIZE * GRID_SIZE;
+    /** 補強スロットの数。 */
+    public static final int REINFORCE_COUNT = 3;
+    /** グリッドの先頭スロット番号。 */
+    public static final int SLOT_GRID = 0;
+    /** 補強スロットの先頭スロット番号。 */
+    public static final int SLOT_REINFORCE = SLOT_GRID + GRID_SLOTS;
+    /** 完成スロットの番号。 */
+    public static final int SLOT_RESULT = SLOT_REINFORCE + REINFORCE_COUNT;
     /** プレイヤーインベントリの先頭スロット番号。 */
-    public static final int FIRST_PLAYER_SLOT = INPUT_COUNT + 1;
+    public static final int FIRST_PLAYER_SLOT = SLOT_RESULT + 1;
 
-    /** スロット座標（{@code Slot.x/y} は final なので、全モードで同じ位置を使い意味だけ変える）。 */
-    private static final int[][] INPUT_POSITIONS = {
-            {8, 34}, {100, 56}, {118, 56}, {100, 74}, {118, 74}
-    };
-    private static final int RESULT_X = 146;
-    private static final int RESULT_Y = 56;
+    /** スロット座標。テクスチャの穴はこの座標から 1px 外側。 */
+    private static final int GRID_X = 8;
+    private static final int GRID_Y = 18;
+    private static final int REINFORCE_Y = 124;
+    private static final int[] REINFORCE_X = { 8, 26, 44 };
+    private static final int RESULT_X = 140;
+    private static final int RESULT_Y = 58;
 
     private final Player owner;
-    private final SimpleContainer inputs;
+    private final SimpleContainer grid;
+    private final SimpleContainer reinforce;
     private final SimpleContainer result = new SimpleContainer(1);
-    private SmithingMode mode = SmithingMode.CREATE;
-    private int selected;
     private boolean refreshing;
-
-    private final ContainerData dataAccess = new ContainerData() {
-        @Override
-        public int get(int index) {
-            return index == 0 ? selected : 0;
-        }
-
-        @Override
-        public void set(int index, int value) {
-            if (index == 0) {
-                selected = value;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 1;
-        }
-    };
 
     public SmithingForgeMenu(int containerId, Inventory inventory) {
         super(SmithingRegistry.forgeMenu(), containerId);
         this.owner = inventory.player;
-        this.inputs = new SimpleContainer(INPUT_COUNT) {
+        this.grid = new SimpleContainer(GRID_SLOTS) {
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                onInputsChanged();
+            }
+        };
+        this.reinforce = new SimpleContainer(REINFORCE_COUNT) {
             @Override
             public void setChanged() {
                 super.setChanged();
@@ -90,9 +74,14 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
             }
         };
 
-        for (int i = 0; i < INPUT_COUNT; i++) {
-            int[] position = INPUT_POSITIONS[Math.min(i, INPUT_POSITIONS.length - 1)];
-            addSlot(new InputSlot(inputs, i, position[0], position[1]));
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int column = 0; column < GRID_SIZE; column++) {
+                addSlot(new GridSlot(grid, row * GRID_SIZE + column,
+                        GRID_X + column * 18, GRID_Y + row * 18));
+            }
+        }
+        for (int i = 0; i < REINFORCE_COUNT; i++) {
+            addSlot(new ReinforceSlot(reinforce, i, REINFORCE_X[i], REINFORCE_Y));
         }
         addSlot(new SmithingResultSlot(result, 0, RESULT_X, RESULT_Y));
 
@@ -105,124 +94,29 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
             addSlot(new Slot(inventory, column, 8 + column * 18, 208));
         }
 
-        addDataSlots(this.dataAccess);
         refresh();
     }
 
     // ------------------------------------------------------------------
-    // モードとスロットの有効範囲
+    // 形と結果
     // ------------------------------------------------------------------
 
-    public SmithingMode getMode() {
-        return mode;
-    }
-
-    /** モードを切り替える。使わないスロットの中身はプレイヤーに返す。 */
-    public void setMode(SmithingMode newMode) {
-        SmithingMode next = newMode == null ? SmithingMode.CREATE : newMode;
-        if (next == mode) {
-            return;
+    /** 今のグリッドに一致する形。無ければ null。 */
+    public WeaponPattern.Match match() {
+        List<ItemStack> stacks = new ArrayList<>(GRID_SLOTS);
+        for (int i = 0; i < GRID_SLOTS; i++) {
+            stacks.add(grid.getItem(i));
         }
-        ejectInactiveInputs();
-        this.mode = next;
-        refresh();
+        return SmithingDefinitions.findPattern(stacks, GRID_SIZE, GRID_SIZE);
     }
 
-    /** そのモードで使う入力スロットか。 */
-    private boolean isInputActive(int index) {
-        return switch (mode) {
-            case CREATE -> true;
-            case ENHANCE, REFORGE -> index <= SLOT_EXTRA;
-            case MELT -> index == SLOT_MAIN;
-        };
-    }
-
-    private void ejectInactiveInputs() {
-        if (!(owner instanceof ServerPlayer player)) {
-            return;
+    private List<ItemStack> reinforcementStacks() {
+        List<ItemStack> stacks = new ArrayList<>(REINFORCE_COUNT);
+        for (int i = 0; i < REINFORCE_COUNT; i++) {
+            stacks.add(reinforce.getItem(i));
         }
-        for (int i = 0; i < INPUT_COUNT; i++) {
-            if (isInputActive(i)) {
-                continue;
-            }
-            ItemStack stack = inputs.getItem(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            inputs.setItem(i, ItemStack.EMPTY);
-            if (!player.getInventory().add(stack)) {
-                player.drop(stack, false);
-            }
-        }
+        return stacks;
     }
-
-    // ------------------------------------------------------------------
-    // レシピ
-    // ------------------------------------------------------------------
-
-    /**
-     * メイン素材の入ったスロット。
-     *
-     * <p>作成では先頭がメイン素材、強化では強化素材、再鍛造ではインゴットの隣がメイン素材。</p>
-     */
-    private int materialSlot() {
-        return switch (mode) {
-            case ENHANCE, REFORGE -> SLOT_EXTRA;
-            case CREATE, MELT -> SLOT_MAIN;
-        };
-    }
-
-    private ItemStack materialStack() {
-        return inputs.getItem(materialSlot());
-    }
-
-    /** メイン素材として判定された素材（無ければ null）。 */
-    public SmithingMaterial material() {
-        return SmithingDefinitions.materialFor(materialStack());
-    }
-
-    /**
-     * 選べるレシピ（サーバー・クライアントで同じ並び）。
-     *
-     * <p>レシピ一覧を使うのは作成と再鍛造だけ。強化・溶解では一覧を出さない。</p>
-     */
-    public List<SmithingRecipe> recipes() {
-        if (mode != SmithingMode.CREATE && mode != SmithingMode.REFORGE) {
-            return List.of();
-        }
-        return SmithingDefinitions.recipesFor(material());
-    }
-
-    /** 選択中のレシピ。無ければ null。 */
-    public SmithingRecipe selectedRecipe() {
-        List<SmithingRecipe> list = recipes();
-        return selected >= 0 && selected < list.size() ? list.get(selected) : null;
-    }
-
-    public int getSelectedIndex() {
-        return selected;
-    }
-
-    /** レシピ一覧の選択（クライアントからのリクエスト）。 */
-    public void selectRecipe(int index) {
-        List<SmithingRecipe> list = recipes();
-        if (list.isEmpty()) {
-            return;
-        }
-        int clamped = Mth.clamp(index, 0, list.size() - 1);
-        if (clamped == selected) {
-            return;
-        }
-        selected = clamped;
-        refresh();
-        if (owner instanceof ServerPlayer) {
-            broadcastChanges();
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // 結果の計算
-    // ------------------------------------------------------------------
 
     private void onInputsChanged() {
         if (refreshing || !(owner instanceof ServerPlayer)) {
@@ -238,10 +132,6 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
         boolean previous = refreshing;
         refreshing = true;
         try {
-            List<SmithingRecipe> list = recipes();
-            if (!list.isEmpty()) {
-                selected = Mth.clamp(selected, 0, list.size() - 1);
-            }
             result.setItem(0, computeResult());
         } finally {
             refreshing = previous;
@@ -252,93 +142,25 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
         if (!(owner instanceof ServerPlayer player)) {
             return ItemStack.EMPTY;
         }
-        SmithingMaterial material = material();
-
-        return switch (mode) {
-            case CREATE -> {
-                SmithingRecipe recipe = selectedRecipe();
-                if (material == null || recipe == null || !extrasSatisfied(recipe)
-                        || inputs.getItem(SLOT_MAIN).getCount() < recipe.count()) {
-                    yield ItemStack.EMPTY;
-                }
-                yield SmithingForge.create(player, material, recipe, null);
-            }
-            case ENHANCE -> {
-                ItemStack target = inputs.getItem(SLOT_MAIN);
-                ForgedWeaponData data = isForgedWeapon(target) ? ForgedWeaponData.get(target) : null;
-                if (data == null || material == null || !material.id().equals(data.material())
-                        || inputs.getItem(SLOT_EXTRA).getCount() < SmithingForge.enhancementCost()) {
-                    yield ItemStack.EMPTY;
-                }
-                yield SmithingForge.previewEnhance(target);
-            }
-            case MELT -> {
-                ItemStack target = inputs.getItem(SLOT_MAIN);
-                yield isForgedWeapon(target) ? SmithingForge.melt(target) : ItemStack.EMPTY;
-            }
-            case REFORGE -> {
-                ItemStack target = inputs.getItem(SLOT_MAIN);
-                SmithingRecipe recipe = selectedRecipe();
-                if (material == null || recipe == null
-                        || !target.is(SmithingRegistry.FORGED_INGOT.get())
-                        || ForgedWeaponData.get(target) == null
-                        || materialStack().getCount() < recipe.count()) {
-                    yield ItemStack.EMPTY;
-                }
-                yield SmithingForge.reforge(player, target, material, recipe);
-            }
-        };
-    }
-
-    /** 対応素材が揃っているか。 */
-    private boolean extrasSatisfied(SmithingRecipe recipe) {
-        List<SmithingIngredient> needed = recipe.materials();
-        if (needed.size() > EXTRA_COUNT) {
-            return false;
+        WeaponPattern.Match match = match();
+        if (match == null) {
+            return ItemStack.EMPTY;
         }
-        for (int i = 0; i < needed.size(); i++) {
-            SmithingIngredient ingredient = needed.get(i);
-            ItemStack stack = inputs.getItem(SLOT_EXTRA + i);
-            if (!ingredient.matches(stack) || stack.getCount() < ingredient.count()) {
-                return false;
-            }
-        }
-        return true;
+        return SmithingForge.craft(player, match, reinforcementStacks());
     }
 
-    private static boolean isForgedWeapon(ItemStack stack) {
-        return !stack.isEmpty()
-                && stack.is(SmithingRegistry.FORGED_WEAPON.get())
-                && ForgedWeaponData.get(stack) != null;
-    }
-
-    /** 結果を取り出したときに消費する材料。 */
+    /** 結果を取り出したときに消費する材料（置いたマスと補強スロットから 1 個ずつ）。 */
     private void consumeInputs() {
-        switch (mode) {
-            case CREATE -> {
-                SmithingRecipe recipe = selectedRecipe();
-                if (recipe == null) {
-                    return;
-                }
-                inputs.removeItem(SLOT_MAIN, recipe.count());
-                List<SmithingIngredient> needed = recipe.materials();
-                for (int i = 0; i < needed.size() && i < EXTRA_COUNT; i++) {
-                    inputs.removeItem(SLOT_EXTRA + i, needed.get(i).count());
-                }
-            }
-            case ENHANCE -> {
-                inputs.removeItem(SLOT_EXTRA, SmithingForge.enhancementCost());
-                inputs.removeItem(SLOT_MAIN, 1);
-            }
-            case MELT -> inputs.removeItem(SLOT_MAIN, 1);
-            case REFORGE -> {
-                SmithingRecipe recipe = selectedRecipe();
-                if (recipe != null) {
-                    inputs.removeItem(SLOT_EXTRA, recipe.count());
-                }
-                inputs.removeItem(SLOT_MAIN, 1);
-            }
+        for (int i = 0; i < GRID_SLOTS; i++) {
+            grid.removeItem(i, 1);
         }
+        for (int i = 0; i < REINFORCE_COUNT; i++) {
+            reinforce.removeItem(i, 1);
+        }
+    }
+
+    private static boolean isForgedIngot(ItemStack stack) {
+        return !stack.isEmpty() && stack.is(SmithingRegistry.FORGED_INGOT.get());
     }
 
     // ------------------------------------------------------------------
@@ -354,7 +176,8 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         if (!player.level().isClientSide) {
-            clearContainer(player, inputs);
+            clearContainer(player, grid);
+            clearContainer(player, reinforce);
             clearContainer(player, result);
         }
     }
@@ -374,7 +197,7 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
             }
             slot.onQuickCraft(stack, copy);
         } else if (index >= FIRST_PLAYER_SLOT) {
-            if (!this.moveItemStackTo(stack, SLOT_MAIN, SLOT_RESULT, false)) {
+            if (!this.moveItemStackTo(stack, SLOT_GRID, SLOT_RESULT, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (!this.moveItemStackTo(stack, FIRST_PLAYER_SLOT, this.slots.size(), false)) {
@@ -393,39 +216,29 @@ public class SmithingForgeMenu extends AbstractContainerMenu {
         return copy;
     }
 
-    /** 入力スロット。使わないモードでは非表示で、物を置けない。 */
-    private class InputSlot extends Slot {
+    /** 5×5 のマス。素材以外は置けない。 */
+    private static class GridSlot extends Slot {
 
-        private final int index;
-
-        InputSlot(Container container, int index, int x, int y) {
+        GridSlot(Container container, int index, int x, int y) {
             super(container, index, x, y);
-            this.index = index;
-        }
-
-        @Override
-        public boolean isActive() {
-            return isInputActive(index);
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            if (!isInputActive(index)) {
-                return false;
-            }
-            return switch (mode) {
-                case CREATE -> switch (index) {
-                    case SLOT_MAIN -> SmithingDefinitions.materialFor(stack) != null;
-                    default -> true;
-                };
-                case ENHANCE -> index == SLOT_MAIN
-                        ? isForgedWeapon(stack)
-                        : SmithingDefinitions.materialFor(stack) != null;
-                case MELT -> index == SLOT_MAIN && isForgedWeapon(stack);
-                case REFORGE -> index == SLOT_MAIN
-                        ? stack.is(SmithingRegistry.FORGED_INGOT.get())
-                        : SmithingDefinitions.materialFor(stack) != null;
-            };
+            return SmithingDefinitions.materialFor(stack) != null;
+        }
+    }
+
+    /** 補強スロット。溶解インゴットか素材を置ける。 */
+    private static class ReinforceSlot extends Slot {
+
+        ReinforceSlot(Container container, int index, int x, int y) {
+            super(container, index, x, y);
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return isForgedIngot(stack) || SmithingDefinitions.materialFor(stack) != null;
         }
     }
 

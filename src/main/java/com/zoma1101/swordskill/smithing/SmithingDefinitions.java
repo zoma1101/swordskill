@@ -17,17 +17,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 読み込み済みの鍛冶定義（素材・部品・レシピ）を保持する。
+ * 読み込み済みの鍛冶定義（素材・部品・武器の形）を保持する。
  *
- * <p>データパックのリロードで丸ごと差し替わる。マルチプレイではサーバーの定義を
+ * <p>データパックのリロードで丸ごと差し替わる。マルチプレイではサーバーの素材・部品を
  * JSON にしてクライアントへ配る（{@link #toJson()} / {@link #applyJson(JsonObject)}）ので、
- * クライアントでも同じレシピ一覧・部品名を扱える。</p>
+ * クライアントでもツールチップの素材名・部品名を扱える。</p>
+ *
+ * <p>武器の形（{@link WeaponPattern}）はサーバーでしか使わないため同期しない。</p>
  */
 public final class SmithingDefinitions {
 
     private static volatile Map<ResourceLocation, SmithingMaterial> materials = Map.of();
     private static volatile Map<ResourceLocation, SmithingPart> parts = Map.of();
-    private static volatile Map<ResourceLocation, SmithingRecipe> recipes = Map.of();
+    private static volatile Map<ResourceLocation, WeaponPattern> patterns = Map.of();
     private static volatile boolean syncPending;
 
     private SmithingDefinitions() {
@@ -45,8 +47,8 @@ public final class SmithingDefinitions {
         parts = Map.copyOf(loaded);
     }
 
-    public static void setRecipes(Map<ResourceLocation, SmithingRecipe> loaded) {
-        recipes = Map.copyOf(loaded);
+    public static void setPatterns(Map<ResourceLocation, WeaponPattern> loaded) {
+        patterns = Map.copyOf(loaded);
     }
 
     public static Collection<SmithingMaterial> materials() {
@@ -57,8 +59,8 @@ public final class SmithingDefinitions {
         return parts.values();
     }
 
-    public static Collection<SmithingRecipe> recipes() {
-        return recipes.values();
+    public static Collection<WeaponPattern> patterns() {
+        return patterns.values();
     }
 
     public static SmithingMaterial material(ResourceLocation id) {
@@ -69,8 +71,15 @@ public final class SmithingDefinitions {
         return id == null ? null : parts.get(id);
     }
 
-    public static SmithingRecipe recipe(ResourceLocation id) {
-        return id == null ? null : recipes.get(id);
+    public static WeaponPattern pattern(ResourceLocation id) {
+        return id == null ? null : patterns.get(id);
+    }
+
+    /** パターンを ID 順に並べた一覧（一致判定はこの順で行う）。 */
+    public static List<WeaponPattern> sortedPatterns() {
+        List<WeaponPattern> list = new ArrayList<>(patterns.values());
+        list.sort(Comparator.comparing(pattern -> pattern.id().toString()));
+        return list;
     }
 
     // ------------------------------------------------------------------
@@ -123,23 +132,66 @@ public final class SmithingDefinitions {
     }
 
     /**
-     * メイン素材を入れたときに選べるレシピを、ID 順で返す。
+     * 5×5 のグリッドに一致する武器の形を探す。
      *
-     * <p>この並び順がサーバーとクライアントで一致することが、レシピ一覧の
-     * 選択番号を共有する前提になっている。</p>
+     * <p>ID 順に見て最初に一致したものを返す。どのマスも素材として解決できることを条件にする。</p>
+     *
+     * @param grid    左上から右下へ並べたグリッド
+     * @param columns グリッドの幅
+     * @param rows    グリッドの高さ
+     * @return 一致した形と役割ごとの素材（無ければ {@code null}）
      */
-    public static List<SmithingRecipe> recipesFor(SmithingMaterial material) {
-        if (material == null) {
-            return List.of();
-        }
-        List<SmithingRecipe> result = new ArrayList<>();
-        for (SmithingRecipe recipe : recipes.values()) {
-            if (recipe.availableFor(material)) {
-                result.add(recipe);
+    public static WeaponPattern.Match findPattern(List<ItemStack> grid, int columns, int rows) {
+        for (WeaponPattern pattern : sortedPatterns()) {
+            WeaponPattern.Match match = pattern.match(grid, columns, rows);
+            if (match != null && isResolvable(match)) {
+                return match;
             }
         }
-        result.sort(Comparator.comparing(recipe -> recipe.id().toString()));
-        return result;
+        return null;
+    }
+
+    /** 一致したマスの素材がすべて素材定義に載っているか。 */
+    private static boolean isResolvable(WeaponPattern.Match match) {
+        for (List<ItemStack> role : List.of(match.blade(), match.guard(), match.handle())) {
+            for (ItemStack stack : role) {
+                if (materialFor(stack) == null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 武器種に対応する既定の刀身（ID 順で最初の対応部品）。
+     *
+     * <p>素材にも形にも刀身の指定が無いときのフォールバック。</p>
+     */
+    public static SmithingPart defaultBlade(SkillData.WeaponType weaponType) {
+        List<SmithingPart> candidates = partsOfKind(SmithingPartKind.BLADE, weaponType);
+        return candidates.isEmpty() ? null : candidates.get(0);
+    }
+
+    /** 既定の鍔。 */
+    public static SmithingPart defaultGuard() {
+        return firstOfKind(SmithingPartKind.GUARD);
+    }
+
+    /** 既定の柄。 */
+    public static SmithingPart defaultHandle() {
+        return firstOfKind(SmithingPartKind.HANDLE);
+    }
+
+    private static SmithingPart firstOfKind(SmithingPartKind kind) {
+        List<SmithingPart> list = new ArrayList<>();
+        for (SmithingPart part : parts.values()) {
+            if (part.kind() == kind) {
+                list.add(part);
+            }
+        }
+        list.sort(Comparator.comparing(part -> part.id().toString()));
+        return list.isEmpty() ? null : list.get(0);
     }
 
     /** 指定の種類・武器種で使える部品を、ID 順で返す。 */
@@ -179,11 +231,11 @@ public final class SmithingDefinitions {
     // JSON 化（クライアント同期）
     // ------------------------------------------------------------------
 
-    /** 素材・部品・レシピを丸ごと JSON にする。{@link #applyJson(JsonObject)} で戻せる。 */
+    /** 素材・部品を丸ごと JSON にする。{@link #applyJson(JsonObject)} で戻せる。 */
     public static JsonObject toJson() {
         JsonObject root = new JsonObject();
         JsonArray materialArray = new JsonArray();
-        for (SmithingMaterial material : sorted(materials, m -> m.id())) {
+        for (SmithingMaterial material : sorted(materials, SmithingMaterial::id)) {
             JsonObject json = new JsonObject();
             json.addProperty("id", material.id().toString());
             json.addProperty("tier", material.tier());
@@ -194,12 +246,21 @@ public final class SmithingDefinitions {
             json.add("items", idArray(material.items()));
             json.add("tags", idArray(material.tags()));
             json.addProperty("special", material.special());
+            JsonObject blades = new JsonObject();
+            material.blades().forEach((weapon, part) -> blades.addProperty(weapon.name(), part.toString()));
+            json.add("blades", blades);
+            if (material.guard() != null) {
+                json.addProperty("guard", material.guard().toString());
+            }
+            if (material.handle() != null) {
+                json.addProperty("handle", material.handle().toString());
+            }
             materialArray.add(json);
         }
         root.add("materials", materialArray);
 
         JsonArray partArray = new JsonArray();
-        for (SmithingPart part : sorted(parts, p -> p.id())) {
+        for (SmithingPart part : sorted(parts, SmithingPart::id)) {
             JsonObject json = new JsonObject();
             json.addProperty("id", part.id().toString());
             json.addProperty("kind", part.kind().name());
@@ -217,34 +278,6 @@ public final class SmithingDefinitions {
             partArray.add(json);
         }
         root.add("parts", partArray);
-
-        JsonArray recipeArray = new JsonArray();
-        for (SmithingRecipe recipe : sorted(recipes, r -> r.id())) {
-            JsonObject json = new JsonObject();
-            json.addProperty("id", recipe.id().toString());
-            json.addProperty("blade", recipe.blade() == null ? "" : recipe.blade().toString());
-            json.addProperty("guard", recipe.guard() == null ? "" : recipe.guard().toString());
-            json.addProperty("handle", recipe.handle() == null ? "" : recipe.handle().toString());
-            json.addProperty("weapon", recipe.weaponType().name());
-            json.addProperty("count", recipe.count());
-            json.addProperty("tier", recipe.tier());
-            json.addProperty("essence", recipe.essence() == null ? "" : recipe.essence().toString());
-            JsonArray ingredients = new JsonArray();
-            for (SmithingIngredient ingredient : recipe.materials()) {
-                JsonObject entry = new JsonObject();
-                if (ingredient.item() != null) {
-                    entry.addProperty("item", ingredient.item().toString());
-                }
-                if (ingredient.tag() != null) {
-                    entry.addProperty("tag", ingredient.tag().toString());
-                }
-                entry.addProperty("count", ingredient.count());
-                ingredients.add(entry);
-            }
-            json.add("materials", ingredients);
-            recipeArray.add(json);
-        }
-        root.add("recipes", recipeArray);
         return root;
     }
 
@@ -253,7 +286,8 @@ public final class SmithingDefinitions {
         SmithingDataLoader.applyDefinitions(root);
     }
 
-    private static <T> List<T> sorted(Map<ResourceLocation, T> map, java.util.function.Function<T, ResourceLocation> id) {
+    private static <T> List<T> sorted(Map<ResourceLocation, T> map,
+            java.util.function.Function<T, ResourceLocation> id) {
         List<T> list = new ArrayList<>(map.values());
         list.sort(Comparator.comparing(value -> id.apply(value).toString()));
         return list;

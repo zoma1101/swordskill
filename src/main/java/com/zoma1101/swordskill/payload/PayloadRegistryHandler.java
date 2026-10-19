@@ -46,10 +46,6 @@ public class PayloadRegistryHandler {
                 AllocateStatPayload::handle);
         registrar.playToServer(RequestPlayerLevelPayload.TYPE, RequestPlayerLevelPayload.STREAM_CODEC,
                 RequestPlayerLevelPayload::handle);
-        registrar.playToServer(SetSmithingModePayload.TYPE, SetSmithingModePayload.STREAM_CODEC,
-                SetSmithingModePayload::handle);
-        registrar.playToServer(SelectSmithingRecipePayload.TYPE, SelectSmithingRecipePayload.STREAM_CODEC,
-                SelectSmithingRecipePayload::handle);
 
         // --- Server -> Client ペイロード登録 ---
         registrar.playToClient(SyncSkillIndexPayload.TYPE, SyncSkillIndexPayload.STREAM_CODEC,

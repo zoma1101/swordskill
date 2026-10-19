@@ -45,6 +45,23 @@ public record WeaponMemory(
                 shortCooldownHits, kills + 1);
     }
 
+    /** 2 つの記憶を足し合わせる（複数のインゴットをまとめて引き継ぐとき）。 */
+    public WeaponMemory merge(WeaponMemory other) {
+        if (other == null || other == EMPTY) {
+            return this;
+        }
+        return new WeaponMemory(
+                damageDealt + other.damageDealt,
+                damageTaken + other.damageTaken,
+                hits + other.hits,
+                thrustHits + other.thrustHits,
+                sweepHits + other.sweepHits,
+                flyingHits + other.flyingHits,
+                critHits + other.critHits,
+                shortCooldownHits + other.shortCooldownHits,
+                kills + other.kills);
+    }
+
     public CompoundTag save() {
         CompoundTag tag = new CompoundTag();
         tag.putDouble("dealt", damageDealt);

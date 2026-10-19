@@ -15,11 +15,18 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 
+import java.util.List;
+
 /**
- * 部品と素材から鍛造武器を組み立てる。
+ * 作業台（5×5）に置いた素材と、下の補強スロットから鍛造武器を組み立てる。
  *
- * <p>強さは「素材の強さ」と「鍛冶スキル（武器カテゴリの熟練度）」で決まる。
- * 必要 STR は重さから算出し、装備判定は {@link SmithingEquipmentHandler} が行う。</p>
+ * <p>武器種は一致した形（{@link WeaponPattern}）で決まり、刀身・鍔・柄の見た目は
+ * 置いた素材（{@link SmithingMaterial#bladeFor} / {@link SmithingMaterial#guard} /
+ * {@link SmithingMaterial#handle}）と形の既定値から決まる。</p>
+ *
+ * <p>強さは「刀身に使った素材の強さ」と「鍛冶スキル（武器カテゴリの熟練度）」で決まり、
+ * 補強スロットに入れた素材で威力を底上げできる。必要 STR は重さから算出し、
+ * 装備判定は {@link SmithingEquipmentHandler} が行う。</p>
  */
 public final class SmithingForge {
 
@@ -49,7 +56,6 @@ public final class SmithingForge {
 
     /** 攻撃力（バニラの表示攻撃力に相当する値）。 */
     public static double attackDamage(ForgedWeaponData data) {
-        SmithingMaterial material = data.mainMaterial();
         SmithingPart blade = data.bladePart();
         double powerFactor = blade == null ? 1.0D : blade.power();
         powerFactor *= partPower(data.guard());
@@ -59,7 +65,7 @@ public final class SmithingForge {
         double essenceFactor = essence == null ? 1.0D : Math.max(0.0D, essence.power());
 
         double base = ServerConfig.forgeBaseDamage.get()
-                + (material == null ? 0.0D : material.power()) * ServerConfig.forgeMaterialPowerScale.get();
+                + Math.max(0.0D, data.power()) * ServerConfig.forgeMaterialPowerScale.get();
         double qualityFactor = 1.0D + (data.quality() / (double) Math.max(1, ServerConfig.qualityMax.get()))
                 * ServerConfig.forgeQualityDamageBonus.get();
         double enhanceFactor = 1.0D + data.enhancement() * ServerConfig.forgeEnhanceDamageBonus.get();
@@ -94,35 +100,82 @@ public final class SmithingForge {
     }
 
     // ------------------------------------------------------------------
-    // 作成・再鍛造・溶解・強化
+    // 作成・溶解・強化
     // ------------------------------------------------------------------
 
-    /** 部品構成と素材から武器を作る。{@code inheritedMemory} に武器記憶を渡すと引き継ぐ（再鍛造）。 */
-    public static ItemStack create(ServerPlayer player, SmithingMaterial material, SmithingRecipe recipe,
-            WeaponMemory inheritedMemory) {
-        return create(player, material, recipe, recipe == null ? null : recipe.essence(), inheritedMemory);
-    }
-
-    /** 特殊素材（{@code essenceId}）を明示して武器を作る。 */
-    public static ItemStack create(ServerPlayer player, SmithingMaterial material, SmithingRecipe recipe,
-            ResourceLocation essenceId, WeaponMemory inheritedMemory) {
-        if (material == null || recipe == null) {
+    /**
+     * 一致した形と補強素材から武器を作る。
+     *
+     * @param match         一致した形と、役割ごとに置かれていた素材
+     * @param reinforcement 補強スロット（溶解インゴット / 特殊素材 / 底上げ素材）
+     */
+    public static ItemStack craft(ServerPlayer player, WeaponPattern.Match match, List<ItemStack> reinforcement) {
+        if (match == null) {
             return ItemStack.EMPTY;
         }
-        SmithingPart blade = recipe.bladePart();
-        SmithingPart guard = recipe.guardPart();
-        SmithingPart handle = recipe.handlePart();
+        SmithingMaterial main = SmithingDefinitions.materialFor(match.mainStack());
+        if (main == null) {
+            return ItemStack.EMPTY;
+        }
+        return forge(player, match.pattern(), main, firstMaterial(match.guard()), firstMaterial(match.handle()),
+                reinforcement);
+    }
+
+    /**
+     * 素材と形を直接指定して武器を作る。
+     *
+     * <p>{@code guardMaterial} / {@code handleMaterial} が無いときは刀身の素材で代用する。</p>
+     */
+    public static ItemStack forge(ServerPlayer player, WeaponPattern pattern, SmithingMaterial main,
+            SmithingMaterial guardMaterial, SmithingMaterial handleMaterial, List<ItemStack> reinforcement) {
+        if (pattern == null || main == null) {
+            return ItemStack.EMPTY;
+        }
+        SkillData.WeaponType weaponType = pattern.weapon();
+        SmithingMaterial guardSource = guardMaterial == null ? main : guardMaterial;
+        SmithingMaterial handleSource = handleMaterial == null ? main : handleMaterial;
+
+        SmithingPart blade = resolveBlade(pattern, main, weaponType);
+        SmithingPart handle = resolvePart(pattern.handle(), handleSource.handle(),
+                SmithingDefinitions.defaultHandle());
         if (blade == null || handle == null) {
             return ItemStack.EMPTY;
         }
-        SkillData.WeaponType weaponType = recipe.resolvedWeaponType();
-        SmithingMaterial essence = SmithingDefinitions.material(essenceId);
+        SmithingPart guard = resolvePart(pattern.guard(), guardSource.guard(), SmithingDefinitions.defaultGuard());
 
-        int colorMain = essence == null ? material.colorMain() : essence.colorMain();
-        int colorSub = essence == null ? material.colorSub() : essence.colorSub();
+        // 補強スロット: インゴット（武器記憶）/ 特殊素材（能力付与）/ それ以外（威力の底上げ）
+        WeaponMemory memory = WeaponMemory.EMPTY;
+        ResourceLocation essenceId = null;
+        double bonusPower = 0.0D;
+        double ratio = Math.max(0.0D, ServerConfig.reinforcementPowerRatio.get());
+        for (ItemStack stack : reinforcement) {
+            if (stack == null || stack.isEmpty()) {
+                continue;
+            }
+            if (stack.is(SmithingRegistry.FORGED_INGOT.get())) {
+                ForgedWeaponData ingot = ForgedWeaponData.get(stack);
+                if (ingot != null) {
+                    memory = memory.merge(ingot.memory());
+                }
+                continue;
+            }
+            SmithingMaterial material = SmithingDefinitions.materialFor(stack);
+            if (material == null) {
+                continue;
+            }
+            if (material.special() && essenceId == null) {
+                essenceId = material.id();
+            } else {
+                bonusPower += Math.max(0.0D, material.power()) * ratio;
+            }
+        }
+
+        SmithingMaterial essence = SmithingDefinitions.material(essenceId);
+        int colorMain = essence == null ? main.colorMain() : essence.colorMain();
+        int colorSub = essence == null ? guardSource.colorSub() : essence.colorSub();
 
         ForgedWeaponData draft = new ForgedWeaponData(
-                material.id(),
+                main.id(),
                 blade.id(),
                 guard == null ? null : guard.id(),
                 handle.id(),
@@ -131,10 +184,11 @@ public final class SmithingForge {
                 colorSub,
                 weaponType,
                 qualityFor(player, weaponType),
+                Math.max(0.0D, main.power()) + bonusPower,
                 0,
                 0,
                 player == null ? "" : player.getName().getString(),
-                inheritedMemory == null ? WeaponMemory.EMPTY : inheritedMemory);
+                memory);
 
         ForgedWeaponData data = draft.withRequiredStr(requiredStr(draft));
         ItemStack stack = new ItemStack(SmithingRegistry.FORGED_WEAPON.get());
@@ -142,14 +196,37 @@ public final class SmithingForge {
         return stack;
     }
 
-    /** インゴットと素材から鍛造し直す。武器記憶を引き継ぐ。 */
-    public static ItemStack reforge(ServerPlayer player, ItemStack ingot, SmithingMaterial material,
-            SmithingRecipe recipe) {
-        ForgedWeaponData source = ForgedWeaponData.get(ingot);
-        WeaponMemory memory = source == null ? WeaponMemory.EMPTY : source.memory();
-        ResourceLocation essence = recipe != null && recipe.essence() != null ? recipe.essence()
-                : (source == null ? null : source.essence());
-        return create(player, material, recipe, essence, memory);
+    /** 刀身を決める。素材 → 形 → 既定 の順で、武器種に対応するものを探す。 */
+    private static SmithingPart resolveBlade(WeaponPattern pattern, SmithingMaterial main,
+            SkillData.WeaponType weaponType) {
+        SmithingPart part = SmithingDefinitions.part(main.bladeFor(weaponType));
+        if (part == null || !part.supports(weaponType)) {
+            part = SmithingDefinitions.part(pattern.blade());
+        }
+        if (part == null || !part.supports(weaponType)) {
+            part = SmithingDefinitions.defaultBlade(weaponType);
+        }
+        return part;
+    }
+
+    /** 鍔・柄を決める。素材 → 形 → 既定 の順。 */
+    private static SmithingPart resolvePart(ResourceLocation patternPart, ResourceLocation materialPart,
+            SmithingPart fallback) {
+        SmithingPart part = SmithingDefinitions.part(materialPart);
+        if (part == null) {
+            part = SmithingDefinitions.part(patternPart);
+        }
+        return part == null ? fallback : part;
+    }
+
+    private static SmithingMaterial firstMaterial(List<ItemStack> stacks) {
+        for (ItemStack stack : stacks) {
+            SmithingMaterial material = SmithingDefinitions.materialFor(stack);
+            if (material != null) {
+                return material;
+            }
+        }
+        return null;
     }
 
     /** 武器を溶かしてインゴットにする。武器記憶はそのまま引き継がれる。 */
@@ -161,21 +238,6 @@ public final class SmithingForge {
         ItemStack ingot = new ItemStack(SmithingRegistry.FORGED_INGOT.get());
         ForgedWeaponData.set(ingot, data);
         return ingot;
-    }
-
-    /**
-     * 強化後の見た目だけを作る（GUI のプレビュー用）。素材は消費しない。
-     *
-     * @return 強化できないときは {@link ItemStack#EMPTY}
-     */
-    public static ItemStack previewEnhance(ItemStack weapon) {
-        ForgedWeaponData data = ForgedWeaponData.get(weapon);
-        if (data == null || data.enhancement() >= ServerConfig.forgeEnhanceMax.get()) {
-            return ItemStack.EMPTY;
-        }
-        ItemStack copy = weapon.copy();
-        applyToStack(copy, data.withEnhancement(data.enhancement() + 1));
-        return copy;
     }
 
     /** 強化素材の必要数。作成素材の {@code enhancementCostRatio} 分。 */

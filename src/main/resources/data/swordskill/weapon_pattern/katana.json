@@ -1,0 +1,24 @@
+{
+  "pattern": [
+    "   B ",
+    "  B  ",
+    "  B  ",
+    "G B  ",
+    "  H  "
+  ],
+  "key": {
+    "B": {
+      "role": "blade"
+    },
+    "G": {
+      "role": "guard"
+    },
+    "H": {
+      "role": "handle"
+    }
+  },
+  "weapon": "KATANA",
+  "blade": "swordskill:blade_curved",
+  "guard": "swordskill:guard_ring",
+  "handle": "swordskill:handle_long"
+}

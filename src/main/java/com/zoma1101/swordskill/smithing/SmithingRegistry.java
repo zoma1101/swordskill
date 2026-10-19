@@ -35,6 +35,17 @@ public final class SmithingRegistry {
     public static final DeferredItem<BlockItem> SMITHING_FORGE_ITEM = ITEMS.registerItem("smithing_forge",
             properties -> new BlockItem(SMITHING_FORGE.get(), properties));
 
+    /** 溶解炉。鍛造武器をインゴットに戻す。 */
+    public static final DeferredBlock<Block> MELTING_FORGE = BLOCKS.registerBlock("melting_forge",
+            MeltingForgeBlock::new,
+            BlockBehaviour.Properties.of()
+                    .strength(3.5F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.METAL));
+
+    public static final DeferredItem<BlockItem> MELTING_FORGE_ITEM = ITEMS.registerItem("melting_forge",
+            properties -> new BlockItem(MELTING_FORGE.get(), properties));
+
     /** 鍛造武器。中身はコンポーネントで持ち、1 種類のアイテムで全パターンをまかなう。 */
     public static final DeferredItem<Item> FORGED_WEAPON = ITEMS.registerItem("forged_weapon",
             properties -> new ForgedWeaponItem(properties.rarity(Rarity.UNCOMMON).stacksTo(1)));
@@ -47,6 +58,10 @@ public final class SmithingRegistry {
             MENUS.register("smithing_forge",
                     () -> new MenuType<>(SmithingForgeMenu::new, FeatureFlags.VANILLA_SET));
 
+    private static final DeferredHolder<MenuType<?>, MenuType<?>> MELTING_FORGE_MENU_HOLDER =
+            MENUS.register("melting_forge",
+                    () -> new MenuType<>(MeltingForgeMenu::new, FeatureFlags.VANILLA_SET));
+
     private SmithingRegistry() {
     }
 
@@ -54,6 +69,12 @@ public final class SmithingRegistry {
     @SuppressWarnings("unchecked")
     public static MenuType<SmithingForgeMenu> forgeMenu() {
         return (MenuType<SmithingForgeMenu>) SMITHING_FORGE_MENU_HOLDER.get();
+    }
+
+    /** 溶解炉のメニュー種別（型付き）。 */
+    @SuppressWarnings("unchecked")
+    public static MenuType<MeltingForgeMenu> meltingMenu() {
+        return (MenuType<MeltingForgeMenu>) MELTING_FORGE_MENU_HOLDER.get();
     }
 
     public static void register(IEventBus eventBus) {

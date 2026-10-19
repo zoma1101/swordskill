@@ -28,6 +28,7 @@ import java.util.List;
  * @param colorMain   メインカラー (0xRRGGBB)
  * @param colorSub    サブカラー (0xRRGGBB)
  * @param quality     鍛冶スキルに応じた品質 (0-100)
+ * @param power       攻撃力のもとになる素材の強さ（作成時に確定して焼き込む）
  * @param enhancement 強化値
  * @param requiredStr 装備に必要な STR
  * @param forgedBy    鍛えたプレイヤー名
@@ -43,6 +44,7 @@ public record ForgedWeaponData(
         int colorSub,
         SkillData.WeaponType weaponType,
         int quality,
+        double power,
         int enhancement,
         int requiredStr,
         String forgedBy,
@@ -52,17 +54,17 @@ public record ForgedWeaponData(
 
     public ForgedWeaponData withMemory(WeaponMemory newMemory) {
         return new ForgedWeaponData(material, blade, guard, handle, essence, colorMain, colorSub, weaponType,
-                quality, enhancement, requiredStr, forgedBy, newMemory);
+                quality, power, enhancement, requiredStr, forgedBy, newMemory);
     }
 
     public ForgedWeaponData withEnhancement(int level) {
         return new ForgedWeaponData(material, blade, guard, handle, essence, colorMain, colorSub, weaponType,
-                quality, level, requiredStr, forgedBy, memory);
+                quality, power, level, requiredStr, forgedBy, memory);
     }
 
     public ForgedWeaponData withRequiredStr(int value) {
         return new ForgedWeaponData(material, blade, guard, handle, essence, colorMain, colorSub, weaponType,
-                quality, enhancement, value, forgedBy, memory);
+                quality, power, enhancement, value, forgedBy, memory);
     }
 
     /** 使われている部品 ID の一覧（鍔は省略可）。 */
@@ -177,6 +179,7 @@ public record ForgedWeaponData(
         tag.putInt("color_sub", data.colorSub());
         tag.putString("weapon", data.weaponType().name());
         tag.putInt("quality", data.quality());
+        tag.putDouble("power", data.power());
         tag.putInt("enhancement", data.enhancement());
         tag.putInt("required_str", data.requiredStr());
         tag.putString("forged_by", data.forgedBy() == null ? "" : data.forgedBy());
@@ -185,8 +188,9 @@ public record ForgedWeaponData(
     }
 
     public static ForgedWeaponData load(CompoundTag tag) {
+        ResourceLocation material = readId(tag, "material");
         return new ForgedWeaponData(
-                readId(tag, "material"),
+                material,
                 readId(tag, "blade"),
                 readId(tag, "guard"),
                 readId(tag, "handle"),
@@ -195,10 +199,17 @@ public record ForgedWeaponData(
                 tag.getInt("color_sub"),
                 parseWeapon(tag.getString("weapon")),
                 tag.getInt("quality"),
+                tag.contains("power") ? tag.getDouble("power") : defaultPower(material),
                 tag.getInt("enhancement"),
                 tag.getInt("required_str"),
                 tag.getString("forged_by"),
                 tag.contains("memory") ? WeaponMemory.load(tag.getCompound("memory")) : WeaponMemory.EMPTY);
+    }
+
+    /** 古いデータ（{@code power} が無い）向けのフォールバック。 */
+    private static double defaultPower(ResourceLocation materialId) {
+        SmithingMaterial material = SmithingDefinitions.material(materialId);
+        return material == null ? 1.0D : material.power();
     }
 
     private static void putId(CompoundTag tag, String key, ResourceLocation id) {

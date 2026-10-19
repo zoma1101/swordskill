@@ -8,5 +8,7 @@
     "minecraft:amethyst_shard"
   ],
   "tags": [],
-  "special": true
+  "special": true,
+  "guard": "swordskill:guard_ornate",
+  "handle": "swordskill:handle_long"
 }

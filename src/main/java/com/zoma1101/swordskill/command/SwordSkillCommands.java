@@ -165,34 +165,18 @@ public class SwordSkillCommands {
                 .then(Commands.literal("forge")
                         .then(Commands.literal("create")
                                 .then(Commands.argument("targets", EntityArgument.players())
-                                        .then(Commands.argument("recipe", StringArgumentType.string())
-                                                .suggests(SUGGEST_RECIPES)
+                                        .then(Commands.argument("pattern", StringArgumentType.string())
+                                                .suggests(SUGGEST_PATTERNS)
                                                 .executes(context -> forgeCreate(context,
                                                         EntityArgument.getPlayers(context, "targets"),
-                                                        StringArgumentType.getString(context, "recipe"),
-                                                        "iron", false))
+                                                        StringArgumentType.getString(context, "pattern"),
+                                                        "iron"))
                                                 .then(Commands.argument("material", StringArgumentType.string())
                                                         .suggests(SUGGEST_MATERIALS)
                                                         .executes(context -> forgeCreate(context,
                                                                 EntityArgument.getPlayers(context, "targets"),
-                                                                StringArgumentType.getString(context, "recipe"),
-                                                                StringArgumentType.getString(context, "material"),
-                                                                false))))))
-                        .then(Commands.literal("reforge")
-                                .then(Commands.argument("targets", EntityArgument.players())
-                                        .then(Commands.argument("recipe", StringArgumentType.string())
-                                                .suggests(SUGGEST_RECIPES)
-                                                .executes(context -> forgeCreate(context,
-                                                        EntityArgument.getPlayers(context, "targets"),
-                                                        StringArgumentType.getString(context, "recipe"),
-                                                        "iron", true))
-                                                .then(Commands.argument("material", StringArgumentType.string())
-                                                        .suggests(SUGGEST_MATERIALS)
-                                                        .executes(context -> forgeCreate(context,
-                                                                EntityArgument.getPlayers(context, "targets"),
-                                                                StringArgumentType.getString(context, "recipe"),
-                                                                StringArgumentType.getString(context, "material"),
-                                                                true))))))
+                                                                StringArgumentType.getString(context, "pattern"),
+                                                                StringArgumentType.getString(context, "material")))))))
                         .then(Commands.literal("memory")
                                 .then(Commands.argument("targets", EntityArgument.players())
                                         .executes(context -> forgeMemory(context,
@@ -230,27 +214,19 @@ public class SwordSkillCommands {
     }
 
     private static int forgeCreate(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
-            String recipeArg, String materialArg, boolean reforge) {
+            String patternArg, String materialArg) {
         com.zoma1101.swordskill.smithing.SmithingMaterial material = com.zoma1101.swordskill.smithing.SmithingDefinitions
                 .material(smithingId(materialArg));
-        com.zoma1101.swordskill.smithing.SmithingRecipe recipe = com.zoma1101.swordskill.smithing.SmithingDefinitions
-                .recipe(smithingId(recipeArg));
-        if (material == null || recipe == null) {
+        com.zoma1101.swordskill.smithing.WeaponPattern pattern = com.zoma1101.swordskill.smithing.SmithingDefinitions
+                .pattern(smithingId(patternArg));
+        if (material == null || pattern == null) {
             context.getSource().sendFailure(Component.translatable("commands.swordskill.forge.unknown_def"));
             return 0;
         }
         int count = 0;
         for (ServerPlayer player : targets) {
-            net.minecraft.world.item.ItemStack result;
-            if (reforge) {
-                net.minecraft.world.item.ItemStack source = player.getMainHandItem();
-                result = com.zoma1101.swordskill.smithing.SmithingForge.reforge(player, source, material, recipe);
-                if (!result.isEmpty()) {
-                    source.shrink(1);
-                }
-            } else {
-                result = com.zoma1101.swordskill.smithing.SmithingForge.create(player, material, recipe, null);
-            }
+            net.minecraft.world.item.ItemStack result = com.zoma1101.swordskill.smithing.SmithingForge.forge(player,
+                    pattern, material, material, material, java.util.List.of());
             if (result.isEmpty()) {
                 continue;
             }
@@ -340,7 +316,7 @@ public class SwordSkillCommands {
         return count;
     }
 
-    /** 素材・部品・レシピの一覧をログ用に出す。 */
+    /** 素材・部品・武器の形の一覧をログ用に出す。 */
     private static int forgeDefs(CommandContext<CommandSourceStack> context) {
         String materials = com.zoma1101.swordskill.smithing.SmithingDefinitions.materials().stream()
                 .map(material -> material.id() + " (tier " + material.tier() + ")")
@@ -350,13 +326,13 @@ public class SwordSkillCommands {
                 .map(part -> part.id() + " [" + part.kind() + "]")
                 .sorted()
                 .collect(Collectors.joining(", "));
-        String recipes = com.zoma1101.swordskill.smithing.SmithingDefinitions.recipes().stream()
-                .map(recipe -> recipe.id().toString())
+        String patterns = com.zoma1101.swordskill.smithing.SmithingDefinitions.patterns().stream()
+                .map(pattern -> pattern.id() + " -> " + pattern.weapon())
                 .sorted()
                 .collect(Collectors.joining(", "));
         context.getSource().sendSuccess(() -> Component.literal("materials: " + materials), false);
         context.getSource().sendSuccess(() -> Component.literal("parts: " + parts), false);
-        context.getSource().sendSuccess(() -> Component.literal("recipes: " + recipes), false);
+        context.getSource().sendSuccess(() -> Component.literal("patterns: " + patterns), false);
         return 1;
     }
 
@@ -664,10 +640,10 @@ public class SwordSkillCommands {
             builder
     );
 
-    /** レシピの入力候補。 */
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_RECIPES = (context, builder) -> SharedSuggestionProvider.suggest(
-            com.zoma1101.swordskill.smithing.SmithingDefinitions.recipes().stream()
-                    .map(recipe -> recipe.id().toString())
+    /** 武器の形の入力候補。 */
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_PATTERNS = (context, builder) -> SharedSuggestionProvider.suggest(
+            com.zoma1101.swordskill.smithing.SmithingDefinitions.patterns().stream()
+                    .map(pattern -> pattern.id().toString())
                     .sorted()
                     .collect(Collectors.toList()),
             builder

@@ -8,5 +8,6 @@
   "tags": [
     "minecraft:planks"
   ],
-  "special": false
+  "special": false,
+  "handle": "swordskill:handle_wrapped"
 }

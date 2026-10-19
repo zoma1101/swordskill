@@ -55,6 +55,7 @@ public class ServerConfig {
     public static final ModConfigSpec.DoubleValue enhancementCostRatio;
     public static final ModConfigSpec.DoubleValue qualityProficiencyPerPoint;
     public static final ModConfigSpec.IntValue qualityMax;
+    public static final ModConfigSpec.DoubleValue reinforcementPowerRatio;
 
     public static final ModConfigSpec.DoubleValue critBaseChance;
     public static final ModConfigSpec.DoubleValue critBaseMultiplier;
@@ -205,6 +206,10 @@ public class ServerConfig {
                 .defineInRange("qualityProficiencyPerPoint", 20.0, 0.01, 100000.0);
         qualityMax = BUILDER.comment("Maximum quality of a forged weapon.")
                 .defineInRange("qualityMax", 100, 1, 100000);
+        reinforcementPowerRatio = BUILDER.comment(
+                "Material power added per unit of power of a material placed in a reinforcement slot "
+                        + "(0.15 = +15% of the material power).")
+                .defineInRange("reinforcementPowerRatio", 0.15, 0.0, 100.0);
         BUILDER.pop();
 
         BUILDER.push("Weapon Memory Settings");

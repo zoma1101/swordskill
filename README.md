@@ -52,7 +52,7 @@ Player level (SAO-style character level). Levelling grants **stat points** and m
 
 | ステータス | 効果 | config |
 | --- | --- | --- |
-| STR | ソードスキルの与ダメージ倍率（`+strDamagePerPoint`/点、`strMaxBonus` で頭打ち）。**予定**: 鍛冶システムと連動した装備重量の緩和 | `strDamagePerPoint` (0.005) / `strMaxBonus` (0.5) |
+| STR | ソードスキルの与ダメージ倍率（`+strDamagePerPoint`/点、`strMaxBonus` で頭打ち）。鍛造武器の装備ゲート（重さ → 必要 STR）も兼ねる | `strDamagePerPoint` (0.005) / `strMaxBonus` (0.5) |
 | AGI | 移動速度（`agilityMoveSpeedPerPoint`/点、`agilityMaxMoveSpeedBonus` で頭打ち） | `agilityMoveSpeedPerPoint` (0.003) / `agilityMaxMoveSpeedBonus` (0.3) |
 
 STR はバニラの攻撃力属性ではなく、独自の計算式（`CombatStats`）に組み込んでいます。**レベル差補正**（`levelDiffPerPoint`/差1、`levelDiffCap` で打ち切り）も同じ式に入っており、`EnemyLevel`（敵レベル）を持つエンティティに対してだけ作用します。レベル未設定のエンティティ（他 MOD のモブやバニラのモブ）には一切かかりません。
@@ -78,15 +78,23 @@ STR はバニラの攻撃力属性ではなく、独自の計算式（`CombatSta
 武器を何百種類も作らず、**部品（刀身・鍔・柄）と素材の組み合わせ**で武器を作るシステムです。武器アイテムは `swordskill:forged_weapon` の 1 種類だけで、中身は 1.21 のデータコンポーネント（`swordskill:forge`）に持たせます。見た目と着色は部品テクスチャ＋ `tintindex 0/1`（メインカラー／サブカラー）で行います。
 Data-driven forging: one item (`swordskill:forged_weapon`) whose stats, colours, STR requirement and memory all live in its data components.
 
-- 定義: `data/<namespace>/smithing_material/<id>.json`（素材）/ `smithing_part/<id>.json`（部品）/ `smithing_recipe/<id>.json`（レシピ）。データパックで追加でき、**敵実装後に素材アイテムを足すときは `items` / `tags` に追記するだけ**でコード変更は不要です。
-- 作成（1 段階・レシピ駆動）: 鍛冶台の**メイン素材スロット**に素材を入れると、その素材で作れる**レシピ（= 武器 1 種）の一覧**が出ます。一覧から選ぶと**対応素材**がゴースト表示され、揃うと**完成スロット**に武器が出ます。
-  - 一覧は素材の `tier` で絞られます（`レシピの tier ≦ 素材の tier`）。弱い素材では作れる武器が少なく、良い素材ほど上位のレシピが選べます。
-  - レシピ 1 つ = 刀身 + 鍔（省略可）+ 柄の組み合わせで、`count`（メイン素材の必要数）と `materials`（対応素材: アイテム or タグ + 個数）を持ちます。
-  - 既定のレシピは 刀身 10 × 鍔 4（無し含む）× 柄 3 = **120 種**です（生成スクリプトで作成。不要なものは JSON を消すだけ）。
-- 見た目: `assets/swordskill/textures/item/forged_part/<部品>.png`（16×16、合成用レイヤー）を**モデルの要素として重ね**、`tintindex 0 = メインカラー / 1 = サブカラー` で着色します。組み合わせごとのモデル `models/item/forged/<組み合わせ>.json` を `forged_weapon.json` の `overrides`（`custom_model_data`）で切り替えます。番号は `SmithingCombos#modelIndex`（刀身 ID 順 × 鍔 × 柄の辞書順）で決まり、サーバーとクライアントで必ず一致します。
-- 強さ: `素材の power × 部品の power 係数 × 品質 × 強化値`。素材の `tier` が高いほど強い武器になります。
+- 定義: `data/<namespace>/smithing_material/<id>.json`（素材）/ `smithing_part/<id>.json`（部品）/ `weapon_pattern/<id>.json`（武器の形）。データパックで追加でき、**敵実装後に素材アイテムを足すときは `items` / `tags` に追記するだけ**でコード変更は不要です。
+- 作成（作業台ベース・1 段階）: 鍛冶台の **5×5 のマス**に素材を並べるだけで作れます。マスの並び（形）が武器種を決め、**下の補強スロット 3 つ**が仕上げを決めます。
+  - 形は `weapon_pattern/<id>.json` で定義します。`pattern`（5×5 の文字列）と `key`（文字 → 役割 `blade` / `guard` / `handle`）を持ち、どのマスも素材定義に載っているアイテムで埋まっていれば成立します。
+  - 一致判定はバニラの shaped レシピと同じで、**上下左右のずらし**と**左右反転**を許します。形の外に物があると一致しません。ID 順に見て最初に一致した形を採用します。
+  - 既定の形は武器種ごとに 1 つ、**10 種**です（`one_handed_sword` / `two_handed_sword` / `katana` / `axe` / `rapier` / `dagger` / `claw` / `spear` / `mace` / `scythe`）。両手剣は刀身 3 + 鍔 2 + 柄 1 のように、強い武器ほど必要な素材が多くなります。
+- 見た目（素材が部品テクスチャを直接指定）: 素材 JSON の `blades` / `guard` / `handle` が使う部品を決めます。優先順位は **素材 > 形の既定 > ID 順で最初の部品** です。
+  - `blades` は武器種ごとの上書き（例 `"blades": { "axe": "swordskill:blade_axe" }`）、`guard` / `handle` は全武器種共通の指定です。
+  - すでに `wood` = 巻柄、`obsidian` / `crystal` = 装飾鍔、`crystal` = 長柄 を指定してあります。
+  - 役割（刀身／鍔／柄）のマスが無い形では、その役割の素材は刀身の素材で代用します。
+- 部品テクスチャ: `assets/swordskill/textures/item/forged_part/<部品>.png`（16×16、合成用レイヤー）を**モデルの要素として重ね**、`tintindex 0 = メインカラー / 1 = サブカラー` で着色します。組み合わせごとのモデル `models/item/forged/<組み合わせ>.json` を `forged_weapon.json` の `overrides`（`custom_model_data`）で切り替えます。番号は `SmithingCombos#modelIndex`（刀身 ID 順 × 鍔 × 柄の辞書順）で決まり、サーバーとクライアントで必ず一致します。
+- 強さ: `(forgeBaseDamage + 素材の power × forgeMaterialPowerScale) × 部品の power 係数 × 品質 × 強化値 × 特殊素材`。素材の `tier` が高いほど強い武器になります。
 - 品質: 鍛冶スキル（その武器種の熟練度）から算出します（`quality = 熟練度 / qualityProficiencyPerPoint`、`qualityMax` で頭打ち）。
-- 重さと必要 STR: `素材の weight × 部品の weight 係数` に `strPerWeight` を掛けた値（切り上げ）が **必要 STR** です。
+- 重さと必要 STR: `素材の weight × 部品の weight 係数の合計` に `strPerWeight` を掛けた値（切り上げ）が **必要 STR** です。
+- 補強スロット（下の 3 つ）: 置いたアイテムで効果が変わります。
+  - **溶解インゴット** (`swordskill:forged_ingot`) … 武器記憶を引き継ぎます（複数可・合算）。溶かして鍛え直すと、育った隠しパラメータをそのまま受け継げます。
+  - **特殊素材**（素材 JSON に `"special": true`）… 能力（色とダメージ倍率）を付与します。複数置いたときは最初の 1 つだけ有効です。
+  - **それ以外の素材** … 威力の底上げです。`素材の power × reinforcementPowerRatio`（既定 0.15）を加算します（重量は変わらないので STR 要件は据え置き）。
 - 装備ゲート:
   - `STR ≧ 必要量` … 通常どおり装備できます。
   - `必要量 ÷ 2 ≦ STR < 必要量` … 攻撃速度（`overweightAttackSpeedPenalty`、既定 −30%）と**ソードスキル速度**（`overweightSkillSpeedMultiplier`、既定 0.7＝3割遅い）が低下します。
@@ -94,41 +102,59 @@ Data-driven forging: one item (`swordskill:forged_weapon`) whose stats, colours,
 - 武器記憶: 鍛造武器は与えた／受けたダメージと攻撃の傾向を記録します。傾向はスキルのヒットボックス形状（突き／凪払い）と飛翔斬撃（`AttackEffectEntity`）、スキルのクールダウン（短CT）から自動分類します。
   - 導出される隠しパラメータ: **突き威力 / 凪払い威力 / 飛翔斬撃威力 / クリティカルダメージ / クールダウン短縮**（`memory*PerHit` と `memory*Cap`）。
   - クリティカルは鍛造武器に新設した機構です（`critBaseChance`、`critBaseMultiplier`）。
-- 溶解と再鍛造: 武器を溶かすと `swordskill:forged_ingot` になり、**素材と武器記憶を保持**します。良い素材と組み合わせて鍛造し直す（再鍛造）と、育った武器記憶と隠しパラメータをそのまま引き継ぎます。
-- 強化: `forgeEnhanceMax` まで強化でき、1 段階ごとに作成素材の `enhancementCostRatio`（既定 1 割）を消費します。
-- 特殊素材: 素材 JSON に `"special": true` を付けたものは、ラストアタックボーナス系・特殊報酬系の武器に使う想定です（色を上書きし、`power` がダメージ倍率になります）。
-- モデル/テクスチャ: 部品テクスチャを重ねた組み合わせモデル（120 種）を `models/item/forged/` に生成済みです。色は `tintindex` で乗算するので、部品テクスチャは明るいグレースケールで描くほど素材色が濃く出ます。
+  - 確認は `swordskill forge memory` のみで、数値は武器の正体（`swordskill:forge` タグ）に保存されます。
+- 強化: `forgeEnhanceMax` まで強化でき、1 段階ごとに作成素材の `enhancementCostRatio`（既定 1 割）を消費します（`/swordskill forge enhance`）。
 
 ### 鍛冶台 GUI (`swordskill:smithing_forge`)
 
 - ブロック: `swordskill:smithing_forge`。右クリックで GUI が開きます。ブロックエンティティは持たず、材料は GUI（`SmithingForgeMenu`）側で管理します。
 - 入手: クラフトレシピ（鉄インゴット8 + 作業台1）または `/give @s swordskill:smithing_forge`。
-- 部品: 部品はレシピ定義の中の見た目・性能データです（**素材の段階でスロットに入れるものではありません**）。旧・部品アイテム `swordskill:smithing_part` は廃止し、`/swordskill forge part` コマンド・テクスチャ・モデルも削除しました。
-- モード切替: 画面上部のボタンで **作成 / 強化 / 溶解 / 再鍛造** を切り替えます（`SetSmithingModePayload`）。
-- スロット: 作成 = `メイン素材` + `対応素材 ×4` + `完成` / 強化 = `対象` + `強化素材` + `完成` / 溶解 = `対象` + `完成` / 再鍛造 = `インゴット` + `メイン素材` + `完成`。使わないスロットは暗く表示され、物を置けません。結果はサーバー側で計算し、通常のスロット同期でクライアントへ配ります（品質が熟練度依存のため）。
-- レシピ選択: 一覧クリックで `SelectSmithingRecipePayload` を送り、選択番号はサーバーが `ContainerData` で返します（常にサーバーが正）。
+- スロット（**1 画面に統合・モード切替なし**）: `5×5 = 25`（作業グリッド）+ `補強 ×3` + `完成 ×1` + プレイヤーインベントリ 36。結果はサーバー側で計算し、通常のスロット同期でクライアントへ配ります（品質が熟練度依存のため）。
+- 操作: グリッドに形どおり素材を置き、補強スロットに仕上げのアイテムを入れると完成スロットに武器が出ます。取り出すとマスと補強スロットから 1 個ずつ消費します。
+- 部品: 部品は素材 JSON の中の見た目・性能データです（**素材の段階でスロットに入れるものではありません**）。旧・部品アイテム `swordskill:smithing_part` は廃止し、`/swordskill forge part` コマンド・テクスチャ・モデルも削除しました。
 - 表示名: 鍛造武器の名前は「素材 + 武器種」です（例: `鉄の斧` / `Iron Axe`）。武器種が分からないデータのときだけ刀身の部品名にフォールバックします。刀身・鍔・柄はツールチップの `部品: 直刀身・素朴な鍔・巻柄` に表示します。
-- レシピ一覧の見分け方: 一覧も同じ「素材 + 武器種」で並ぶため、同じ武器種で鍔・柄だけ違うレシピは名前が同じになります（レシピ ID 順に並ぶので同じ刀身のものは連続します）。見分けるのはアイコンの合成見た目と、ホバー時のツールチップ（素材の必要数・対応素材・`部品: ...`）です。
-- ツールチップ: バニラの `AbstractContainerScreen` はスロットのアイテムツールチップを自動では描画しないため、`SmithingForgeScreen.render` から `renderTooltip(...)` を明示的に呼んでいます（スロット → レシピ一覧 → 対応素材のゴーストの順に判定）。
-- 定義の同期: ログイン時とデータパック再読み込み時に `SyncSmithingDefsPayload` で素材・部品・レシピの定義をクライアントへ配るので、マルチプレイでも一覧と部品名が正しく出ます。
+- ツールチップ: バニラの `AbstractContainerScreen` はスロットのアイテムツールチップを自動では描画しないため、`SmithingForgeScreen.render` から `renderTooltip(...)` を明示的に呼んでいます。
+- 定義の同期: ログイン時とデータパック再読み込み時に `SyncSmithingDefsPayload` で素材・部品の定義をクライアントへ配ります（形はサーバー専用なので配りません）。
+
+### 溶解炉 (`swordskill:melting_forge`)
+
+- ブロック: `swordskill:melting_forge`。鍛造武器を 1 つ入れると `swordskill:forged_ingot` になり、**素材と武器記憶を保持**します。取り出したインゴットを鍛冶台の補強スロットに入れると、記憶を引き継いで鍛え直せます。
+- 入手: クラフトレシピ（鉄インゴット4 + 石レンガ4 + かまど1）または `/give @s swordskill:melting_forge`。
+- コマンドでも `swordskill forge melt` で同じことができます（手持ちの武器を溶かします）。
 
 コマンド (要 OP 権限レベル2):
 ```
-/swordskill forge create <targets> <recipe> [material]
-/swordskill forge reforge <targets> <recipe> [material]
+/swordskill forge create <targets> <pattern> [material]
 /swordskill forge enhance <targets> <amount>
 /swordskill forge melt <targets>
 /swordskill forge memory <targets>
 /swordskill forge defs
 ```
-`<material>` は省略すると `iron` です。`<recipe>` / `<material>` は `swordskill:` を省略した ID でも指定できます。
-例: `/swordskill forge create @s blade_straight__guard_plain__handle_wrapped` → `/swordskill forge memory @s`
+`<material>` は省略すると `iron` です。`<pattern>` / `<material>` は `swordskill:` を省略した ID でも指定できます。
+例: `/swordskill forge create @s one_handed_sword netherite` → `/swordskill forge memory @s`
 
 作成の手順（ゲーム内）:
 1. `/give @s swordskill:smithing_forge` で入手して設置し、右クリックで GUI を開きます。
-2. **作成**モードでメイン素材（例: 鉄インゴット）を入れると、レシピ一覧が出ます。
-3. 一覧から武器を選ぶと、対応素材（例: 木材・革）がゴースト表示されます。
-4. 対応素材を入れると完成スロットに武器が出るので取り出します。
+2. **形どおり**に素材を 5×5 のマスへ置きます（例: 片手剣は中央縦 3 マス + その下の左右に鍔 + 中央下に柄）。
+3. 必要なら**補強スロット**にインゴット（記憶の継承）や特殊素材（能力付与）、底上げ素材を入れます。
+4. 完成スロットに武器が出るので取り出します。
+
+既定の形（`B` = 刀身 / `G` = 鍔 / `H` = 柄。`·` は空きマス。左右反転・上下左右のずらしは可）:
+
+| 形 (pattern) | 武器種 | 形 |
+| --- | --- | --- |
+| `one_handed_sword` | 片手剣 | `··B··` / `··B··` / `··B··` / `G·B·G` / `··H··` |
+| `two_handed_sword` | 両手剣 | `··B··` / `··B··` / `··B··` / `GBBBG` / `··H··` |
+| `katana` | 刀 | `···B·` / `··B··` / `··B··` / `G·B··` / `··H··` |
+| `axe` | 斧 | `BB···` / `BBB··` / `·BB··` / `··H··` / `··H··` |
+| `rapier` | レイピア | `··B··` / `··B··` / `··B··` / `··B··` / `G·H·G` |
+| `dagger` | 短剣 | `··B··` / `··B··` / `G·B·G` / `··H··` |
+| `claw` | 爪 | `B·B·B` / `·B·B·` / `··H··` / `··H··` |
+| `spear` | 槍 | `··B··` / `··B··` / `··H··` / `··H··` / `··H··` |
+| `mace` | 棍棒 | `·BB··` / `BBBB·` / `·BB··` / `··H··` / `··H··` |
+| `scythe` | 大鎌 | `BBBBB` / `···B·` / `··H··` / `··H··` / `··H··` |
+
+**注意**: 形はどれか 1 つにだけ一致させる必要があります。別の形と素材を混ぜると一致しません（例: 鍔マスに鍔を 1 つだけ置くと両手剣ではなく片手剣になります）。追加したい形は `weapon_pattern/<id>.json` を足すだけです。
 
 ## Proficiency (熟練度)
 武器種などのカテゴリごとに貯まる熟練度です。将来的に料理・投擲・鍛冶などのカテゴリを追加する前提の作りになっています。

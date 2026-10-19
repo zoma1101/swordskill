@@ -8,5 +8,6 @@
     "minecraft:obsidian"
   ],
   "tags": [],
-  "special": false
+  "special": false,
+  "guard": "swordskill:guard_ornate"
 }

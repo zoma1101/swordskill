@@ -35,7 +35,7 @@ import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
     public static final String MOD_ID = "swordskill";
-    public static final String PROTOCOL_VERSION = "8";
+    public static final String PROTOCOL_VERSION = "9";
 
     public SwordSkill(IEventBus modEventBus, ModContainer container) {
         SwordSkill_Entities.register(modEventBus);
@@ -82,6 +82,6 @@ public class SwordSkill {
         event.addListener(new SkillDataLoader());
         event.addListener(new SmithingDataLoader.Materials());
         event.addListener(new SmithingDataLoader.Parts());
-        event.addListener(new SmithingDataLoader.Recipes());
+        event.addListener(new SmithingDataLoader.Patterns());
     }
 }

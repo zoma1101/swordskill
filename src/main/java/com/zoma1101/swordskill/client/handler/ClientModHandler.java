@@ -54,11 +54,13 @@ public class ClientModHandler {
                 new SparkStreakParticle(level, x, y, z, vx, vy, vz, options));
     }
 
-    //鍛冶台の画面
+    //鍛冶台・溶解炉の画面
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event) {
         event.register(com.zoma1101.swordskill.smithing.SmithingRegistry.forgeMenu(),
                 com.zoma1101.swordskill.client.gui.SmithingForgeScreen::new);
+        event.register(com.zoma1101.swordskill.smithing.SmithingRegistry.meltingMenu(),
+                com.zoma1101.swordskill.client.gui.MeltingForgeScreen::new);
     }
 
     //鍛造武器の色（tintindex 0 = メインカラー / 1 = サブカラー）

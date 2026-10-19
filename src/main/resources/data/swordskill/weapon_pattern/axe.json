@@ -1,0 +1,24 @@
+{
+  "pattern": [
+    "BB   ",
+    "BBB  ",
+    " BB  ",
+    "  H  ",
+    "  H  "
+  ],
+  "key": {
+    "B": {
+      "role": "blade"
+    },
+    "G": {
+      "role": "guard"
+    },
+    "H": {
+      "role": "handle"
+    }
+  },
+  "weapon": "AXE",
+  "blade": "swordskill:blade_axe",
+  "guard": "swordskill:guard_plain",
+  "handle": "swordskill:handle_straight"
+}

@@ -344,18 +344,8 @@
   "part.swordskill.handle_wrapped" : "Wrapped Handle",
   "part.swordskill.handle_straight" : "Straight Handle",
   "part.swordskill.handle_long" : "Long Handle",
-  "gui.swordskill.smithing.slot.material" : "Main Material",
-  "gui.swordskill.smithing.slot.target" : "Target",
-  "gui.swordskill.smithing.slot.result" : "Result",
-  "gui.swordskill.smithing.mode.create" : "Create",
-  "gui.swordskill.smithing.mode.enhance" : "Enhance",
-  "gui.swordskill.smithing.mode.melt" : "Melt",
-  "gui.swordskill.smithing.mode.reforge" : "Reforge",
   "block.swordskill.smithing_forge" : "Smithing Forge",
-  "gui.swordskill.smithing.slot.extras" : "Materials",
-  "gui.swordskill.smithing.slot.enhance" : "Enhance Material",
-  "gui.swordskill.smithing.slot.ingot" : "Ingot",
-  "gui.swordskill.smithing.recipe.empty" : "Insert a main material",
-  "gui.swordskill.smithing.recipe.material" : "Material: %s x%s",
-  "gui.swordskill.smithing.recipe.extra" : "- %s x%s"
+  "gui.swordskill.smithing.reinforce" : "Reinforcement",
+  "gui.swordskill.smithing.result" : "Result",
+  "block.swordskill.melting_forge" : "Melting Forge"
 }
