@@ -16,6 +16,10 @@ final class SmithingTooltip {
             tooltip.add(Component.translatable("gui." + SwordSkill.MOD_ID + ".smithing.tooltip.material",
                     data.mainMaterial().displayName()));
         }
+        if (!data.partIds().isEmpty()) {
+            tooltip.add(Component.translatable("gui." + SwordSkill.MOD_ID + ".smithing.tooltip.parts",
+                    data.partsName()));
+        }
         tooltip.add(Component.translatable("gui." + SwordSkill.MOD_ID + ".smithing.tooltip.required_str",
                 data.requiredStr()));
         if (data.quality() > 0) {

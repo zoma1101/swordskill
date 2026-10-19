@@ -88,19 +88,45 @@ public record ForgedWeaponData(
         return SmithingDefinitions.material(material);
     }
 
-    /** 表示名（「+2 鉄の刀」のような形）。 */
+    /** 武器種の表示名（武器種が無いときは刀身の部品名）。 */
+    public Component weaponName() {
+        if (weaponType != null && weaponType != SkillData.WeaponType.NONE) {
+            return weaponType.displayName();
+        }
+        SmithingPart bladePart = bladePart();
+        return bladePart != null
+                ? bladePart.displayName()
+                : Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon");
+    }
+
+    /** 部品の並び（例「直刀身・素朴な鍔・巻き柄」）。 */
+    public Component partsName() {
+        MutableComponent parts = Component.empty();
+        boolean first = true;
+        for (ResourceLocation id : partIds()) {
+            SmithingPart part = SmithingDefinitions.part(id);
+            if (part == null) {
+                continue;
+            }
+            if (!first) {
+                parts.append(Component.literal("・"));
+            }
+            parts.append(part.displayName());
+            first = false;
+        }
+        return parts;
+    }
+
+    /** 表示名（「鉄の斧」「鉄の斧 +2」のような形）。 */
     public Component displayName() {
         MutableComponent name;
         SmithingMaterial main = mainMaterial();
-        SmithingPart bladePart = bladePart();
-        if (main != null && bladePart != null) {
+        Component weapon = weaponName();
+        if (main != null) {
             name = Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon.name",
-                    main.displayName(), bladePart.displayName());
-        } else if (main != null) {
-            name = Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon.name_simple",
-                    main.displayName());
+                    main.displayName(), weapon);
         } else {
-            name = Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon");
+            name = Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon.name_simple", weapon);
         }
         if (enhancement > 0) {
             name = Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon.enhanced", name,

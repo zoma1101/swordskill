@@ -180,7 +180,8 @@ public class SmithingForgeScreen extends AbstractContainerScreen<SmithingForgeMe
             graphics.renderItem(preview, 0, 0);
             graphics.pose().popPose();
 
-            String name = this.font.plainSubstrByWidth(recipe.displayName().getString(), LIST_W - 18);
+            String name = this.font.plainSubstrByWidth(
+                    recipe.displayName(getMenu().material()).getString(), LIST_W - 18);
             graphics.drawString(this.font, name, x + 14, rowY + 3, index == selected ? 0x2B2B00 : 0x404040, false);
         }
 
@@ -259,20 +260,64 @@ public class SmithingForgeScreen extends AbstractContainerScreen<SmithingForgeMe
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
-        if (!showsRecipeList()) {
+        // バニラの AbstractContainerScreen はスロットのツールチップを自動では出さないため、自分で呼ぶ
+        this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    /**
+     * ツールチップ。レシピ一覧 → ゴーストの対応素材 → 通常のスロットの順に判定する。
+     */
+    @Override
+    protected void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (showsRecipeList()) {
+            int index = recipeIndexAt(mouseX, mouseY);
+            List<SmithingRecipe> list = getMenu().recipes();
+            if (index >= 0 && index < list.size()) {
+                graphics.renderTooltip(this.font, recipeTooltip(list.get(index)),
+                        java.util.Optional.empty(), mouseX, mouseY);
+                return;
+            }
+        }
+        ItemStack ghost = ghostIngredientAt(mouseX, mouseY);
+        if (!ghost.isEmpty()) {
+            List<Component> lines = new ArrayList<>(getTooltipFromContainerItem(ghost));
+            lines.add(Component.translatable("gui.swordskill.smithing.recipe.extra",
+                    ghost.getHoverName(), ghost.getCount()));
+            graphics.renderTooltip(this.font, lines, ghost.getTooltipImage(), ghost, mouseX, mouseY);
             return;
         }
-        int index = recipeIndexAt(mouseX, mouseY);
-        List<SmithingRecipe> list = getMenu().recipes();
-        if (index >= 0 && index < list.size()) {
-            graphics.renderTooltip(this.font, recipeTooltip(list.get(index)), java.util.Optional.empty(), mouseX, mouseY);
+        super.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    /** 空の対応素材スロットにゴースト表示している品（無ければ空）。 */
+    private ItemStack ghostIngredientAt(double mouseX, double mouseY) {
+        if (getMenu().getMode() != SmithingMode.CREATE) {
+            return ItemStack.EMPTY;
         }
+        SmithingRecipe recipe = getMenu().selectedRecipe();
+        if (recipe == null) {
+            return ItemStack.EMPTY;
+        }
+        List<SmithingIngredient> needed = recipe.materials();
+        for (int i = 0; i < needed.size() && i < SmithingForgeMenu.EXTRA_COUNT; i++) {
+            Slot slot = getMenu().getSlot(SmithingForgeMenu.SLOT_EXTRA + i);
+            if (slot == null || !slot.isActive() || slot.hasItem()) {
+                continue;
+            }
+            if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY)) {
+                ItemStack ghost = needed.get(i).displayStack();
+                if (!ghost.isEmpty()) {
+                    return ghost.copyWithCount(needed.get(i).count());
+                }
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     private List<Component> recipeTooltip(SmithingRecipe recipe) {
         List<Component> lines = new ArrayList<>();
-        lines.add(recipe.displayName());
         SmithingMaterial material = getMenu().material();
+        lines.add(recipe.displayName(material));
         if (material != null) {
             lines.add(Component.translatable("gui.swordskill.smithing.recipe.material",
                     material.displayName(), recipe.count()));
@@ -283,6 +328,7 @@ public class SmithingForgeScreen extends AbstractContainerScreen<SmithingForgeMe
                         ingredientName(ingredient), ingredient.count()));
             }
         }
+        lines.add(Component.translatable("gui.swordskill.smithing.tooltip.parts", recipe.partsName()));
         return lines;
     }
 

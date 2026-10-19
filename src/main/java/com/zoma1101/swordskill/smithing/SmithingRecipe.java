@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill.smithing;
 
+import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -83,21 +84,46 @@ public record SmithingRecipe(
         return material != null && material.tier() >= tier;
     }
 
-    /** 表示名（「直刀身・素朴な鍔・巻き柄」のように部品名を並べる）。 */
-    public Component displayName() {
-        MutableComponent name = Component.empty();
-        name.append(partName(blade));
-        if (guard != null) {
-            name.append(Component.literal("・")).append(partName(guard));
+    /** 武器名（武器種名。武器種が無ければ刀身の部品名）。 */
+    public Component weaponName() {
+        SkillData.WeaponType type = resolvedWeaponType();
+        if (type != null && type != SkillData.WeaponType.NONE) {
+            return type.displayName();
         }
-        if (handle != null) {
-            name.append(Component.literal("・")).append(partName(handle));
-        }
-        return name;
+        SmithingPart bladePart = bladePart();
+        return bladePart != null ? bladePart.displayName() : Component.literal(String.valueOf(blade));
     }
 
-    private static Component partName(ResourceLocation id) {
-        SmithingPart part = SmithingDefinitions.part(id);
-        return part == null ? Component.literal(String.valueOf(id)) : part.displayName();
+    /** 素材を添えた表示名（一覧用。素材が無ければ武器名だけ）。 */
+    public Component displayName(SmithingMaterial material) {
+        Component weapon = weaponName();
+        if (material != null) {
+            return Component.translatable("item." + SwordSkill.MOD_ID + ".forged_weapon.name",
+                    material.displayName(), weapon);
+        }
+        return weapon;
+    }
+
+    /** 使う部品を並べた表示（「直刀身・素朴な鍔・巻き柄」）。 */
+    public Component partsName() {
+        MutableComponent parts = Component.empty();
+        boolean first = true;
+        for (ResourceLocation id : partIds()) {
+            SmithingPart part = SmithingDefinitions.part(id);
+            if (part == null) {
+                continue;
+            }
+            if (!first) {
+                parts.append(Component.literal("・"));
+            }
+            parts.append(part.displayName());
+            first = false;
+        }
+        return parts;
+    }
+
+    /** 表示名（素材が分からない文脈では武器名のみ）。 */
+    public Component displayName() {
+        return displayName(null);
     }
 }

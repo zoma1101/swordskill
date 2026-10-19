@@ -293,12 +293,13 @@
   "swordskill.weapon.scythe": "大鎌",
   "swordskill.weapon.dagger": "短剣",
   "swordskill.weapon.dualsword": "二刀流",
+  "swordskill.weapon.none": "武器",
 
   "item.swordskill.unlock_item": "スキルオーブ",
 
   "effect.swordskill.no_fall_damage": "落下ダメージ無効状態",
   "item.swordskill.forged_weapon" : "鍛造武器",
-  "item.swordskill.forged_weapon.name" : "%s%s",
+  "item.swordskill.forged_weapon.name" : "%sの%s",
   "item.swordskill.forged_weapon.name_simple" : "%s",
   "item.swordskill.forged_weapon.enhanced" : "%s +%s",
   "item.swordskill.forged_ingot" : "鍛造インゴット",
@@ -307,6 +308,7 @@
   "gui.swordskill.smithing.tooltip.required_str" : "必要STR: %s",
   "gui.swordskill.smithing.tooltip.quality" : "品質: %s",
   "gui.swordskill.smithing.tooltip.ingot" : "武器の記憶を宿している",
+  "gui.swordskill.smithing.tooltip.parts" : "部品: %s",
   "message.swordskill.smithing.overweight_equip" : "STR %s / %s - 重すぎて装備できない！",
   "commands.swordskill.forge.create" : "%s 本の武器を鍛造した",
   "commands.swordskill.forge.memory" : "%s: %s回 (突き%s / 凪払い%s / 飛翔%s) クリ%s 短CT%s 与%s 被%s 撃破%s",

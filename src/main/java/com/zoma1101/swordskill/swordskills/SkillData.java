@@ -143,6 +143,13 @@ public class SkillData {
         DAGGER, // 短剣〇
         DUALSWORD, // 二刀流〇
         NONE // 設定しないでください
+        ;
+
+        /** 武器種の表示名（lang: {@code swordskill.weapon.<type>}）。 */
+        public net.minecraft.network.chat.Component displayName() {
+            return net.minecraft.network.chat.Component.translatable(
+                    SwordSkill.MOD_ID + ".weapon." + name().toLowerCase(java.util.Locale.ROOT));
+        }
     }
 
     public SkillType getType() {

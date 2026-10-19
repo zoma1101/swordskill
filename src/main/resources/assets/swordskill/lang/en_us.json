@@ -293,6 +293,7 @@
   "swordskill.weapon.scythe": "Scythe",
   "swordskill.weapon.dagger": "Short Sword",
   "swordskill.weapon.dualsword": "Dual Swords",
+  "swordskill.weapon.none": "Weapon",
 
   "item.swordskill.unlock_item": "Skill Orb",
 
@@ -307,6 +308,7 @@
   "gui.swordskill.smithing.tooltip.required_str" : "Required STR: %s",
   "gui.swordskill.smithing.tooltip.quality" : "Quality: %s",
   "gui.swordskill.smithing.tooltip.ingot" : "Carries the weapon's memory",
+  "gui.swordskill.smithing.tooltip.parts" : "Parts: %s",
   "message.swordskill.smithing.overweight_equip" : "STR %s / %s - too heavy to equip!",
   "commands.swordskill.forge.create" : "Forged %s weapon(s)",
   "commands.swordskill.forge.memory" : "%s: %s hits (thrust %s / sweep %s / flying %s) crit %s shortCD %s dealt %s taken %s kills %s",
