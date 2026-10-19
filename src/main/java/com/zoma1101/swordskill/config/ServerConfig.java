@@ -187,8 +187,9 @@ public class ServerConfig {
         forgeEnhanceMax = BUILDER.comment("Maximum enhancement level of a forged weapon.")
                 .defineInRange("forgeEnhanceMax", 10, 0, 1000);
         strPerWeight = BUILDER.comment(
-                "STR required per unit of weapon weight. The requirement is weight * this value rounded up.")
-                .defineInRange("strPerWeight", 1.0, 0.0, 100.0);
+                "STR required per unit of weapon weight. The requirement is weight * this value rounded up. "
+                        + "0.1 keeps the requirement low (about 1-3 for wood..iron and 3-5 for the top tiers).")
+                .defineInRange("strPerWeight", 0.1, 0.0, 100.0);
         overweightAttackSpeedPenalty = BUILDER.comment(
                 "Attack speed modifier applied when STR is at least half of the requirement but below it "
                         + "(-0.3 = -30% attack speed).")

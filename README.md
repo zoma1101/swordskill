@@ -90,7 +90,7 @@ Data-driven forging: one item (`swordskill:forged_weapon`) whose stats, colours,
 - 部品テクスチャ: `assets/swordskill/textures/item/forged_part/<部品>.png`（16×16、合成用レイヤー）を**モデルの要素として重ね**、`tintindex 0 = メインカラー / 1 = サブカラー` で着色します。組み合わせごとのモデル `models/item/forged/<組み合わせ>.json` を `forged_weapon.json` の `overrides`（`custom_model_data`）で切り替えます。番号は `SmithingCombos#modelIndex`（刀身 ID 順 × 鍔 × 柄の辞書順）で決まり、サーバーとクライアントで必ず一致します。
 - 強さ: `(forgeBaseDamage + 素材の power × forgeMaterialPowerScale) × 部品の power 係数 × 品質 × 強化値 × 特殊素材`。素材の `tier` が高いほど強い武器になります。
 - 品質: 鍛冶スキル（その武器種の熟練度）から算出します（`quality = 熟練度 / qualityProficiencyPerPoint`、`qualityMax` で頭打ち）。
-- 重さと必要 STR: `素材の weight × 部品の weight 係数の合計` に `strPerWeight` を掛けた値（切り上げ）が **必要 STR** です。
+- 重さと必要 STR: `素材の weight × 部品の weight 係数の合計` に `strPerWeight`（既定 0.1）を掛けた値（切り上げ）が **必要 STR** です。既定値では片手剣で 木 1 / 石 2 / 銅・鉄 3 / ダイヤ 4 / ネザライト・黒曜石 5 程度で、**鉄武器までは STR 0〜3** に収まります（厳しくしたいときは `strPerWeight` を上げてください）。
 - 補強スロット（下の 3 つ）: 置いたアイテムで効果が変わります。
   - **溶解インゴット** (`swordskill:forged_ingot`) … 武器記憶を引き継ぎます（複数可・合算）。溶かして鍛え直すと、育った隠しパラメータをそのまま受け継げます。
   - **特殊素材**（素材 JSON に `"special": true`）… 能力（色とダメージ倍率）を付与します。複数置いたときは最初の 1 つだけ有効です。
@@ -197,6 +197,70 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 | `proficiency_category` | string | `weapons` の先頭 | 熟練度カテゴリ。`weapons` と別のカテゴリにしたいときだけ指定 |
 | `unlock_proficiency` | int | 0 | 解放に必要な熟練度（0 = 不要） |
 | `assignable` | bool | true | false にするとスロットにセットできない（説明用エントリなど） |
+| `invulnerability_ticks` | int | 0 | スキル開始時に与える無敵時間（`rush_combo` の値と大きい方を採用） |
+| `end_skill_on_ground` | bool | false | 着地したtickでスキルを終了する（`finish` アニメーションを再生。RUSH のみ） |
+| `animations` | array | 空 | 途中で切り替えるアニメーション（下記） |
+| `player_effects` | array | 空 | 自分に付与するポーション効果（下記） |
+
+`animations` の要素:
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `tick` | int | 必須 | 実行tick（`trigger` が `CONTACT` のときは接触tickからの経過） |
+| `animation` | string | `""` | アニメーション名。`<skilldata の animation>.<名前>` を再生する。空文字で解除 |
+| `trigger` | string | `TICK` | `TICK` / `CONTACT`（接触tick） / `GROUND`（着地tick） |
+| `random_group` | string | 空 | 同じ名前のイベント群から1つだけを実行する |
+| `random_index` | int | 0 | そのグループ内での番号（0 から連番） |
+
+`player_effects` の要素:
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `tick` | int | 必須 | 実行tick（`trigger` が `CONTACT` のときは接触tickからの経過） |
+| `effect` | string | 必須 | 効果ID（例 `swordskill:no_fall_damage`） |
+| `duration_ticks` | int | 1 | 効果時間 |
+| `amplifier` | int | 0 | 効果の強さ |
+| `show_particles` | bool | false | 効果のパーティクルを表示する |
+| `trigger` | string | `TICK` | `TICK` / `CONTACT` / `GROUND` |
+
+### skilldata のイベント共通キー
+`motions` / `hitboxes` / `projectiles` / `sounds` の要素は、種類を問わず次のキーを使えます。
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `trigger` | string | `TICK` | `TICK` / `CONTACT`（突進の接触tick）/ `GROUND`（着地tick） |
+
+`motions` の要素は追加で:
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `set` | bool | false | true なら加算ではなく移動ベクトルを置き換える（一定速度で落下させる等） |
+| `repeat` | bool | false | true なら `tick` 以降ずっと毎tick適用する |
+
+`projectiles` の要素は追加で:
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `fall_damage_scale` | double | 0 | 0 より大きければ、落下距離（スキル中の最高到達点からの差）を倍率に掛ける |
+| `path` | object | なし | 突進しながら伸びる斬撃（下記） |
+| `random_group` / `random_index` | string / int | 空 / 0 | `animations` と同じ。同じグループなら**同じ出目**を共有する |
+
+`path` の要素（剣閃を始点から現在位置までの線に沿って伸ばす）:
+
+| キー | 型 | 既定 | 内容 |
+| --- | --- | --- | --- |
+| `start_tick` | int | 1 | 始点を記録するtick |
+| `position` | double | 0 | 始点→現在位置のどこに出すか（0 = 現在位置、0.5 = 中間） |
+| `rotation` | bool | false | true なら向きを進行方向から決める |
+| `size_scale` | double | 0 | 0 より大きければ `size` のZ成分を「移動量の平均 × この値」にする |
+
+> 同梱データでは `legacy_fallback` は使いません（`validate_v2.py` も禁止しています）。判断に迷う挙動は上記のキーか、`hitboxes` / `projectiles` の近似で表現します。
+
+旧実装からデータ駆動へ移したときに近似した箇所:
+
+- `rapid_bite`: 命中時にクールダウンを 1/5 にする旧処理は、クールダウンがクライアント側の表示用マップ（`ClientForgeHandler`）にしか無いため移植していません。また斬撃の向きは「本体→対象」の実座標から決めていたため、`rotation` の固定値による近似にしています。
+- `flashing_penetrator` / `mace_impact`: 発生位置はプレイヤーのローカル座標（右・上・前）基準のため、見上げ・見下ろし時は旧実装のワールドY基準とわずかにずれます。
+- `gengetu`: 上段/下段の分岐は `random_group` + `random_index` で再現しています（アニメーションと斬撃が同じ出目を共有します）。
 
 ## Selection Screen UI (選択画面)
 SAO 風の UI になっています。SAO-styled skill selection screen.
