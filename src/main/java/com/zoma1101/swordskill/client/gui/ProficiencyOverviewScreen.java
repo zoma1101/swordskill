@@ -42,13 +42,6 @@ public class ProficiencyOverviewScreen extends Screen {
     /** スクロールバーとテキストが重ならないように確保する右端の余白。 */
     private static final int SCROLLBAR_GUTTER = 8;
 
-    private static final int COLOR_PANEL = 0xE6101116;
-    private static final int COLOR_ACCENT = 0xFF5ADFFF;
-    private static final int COLOR_TEXT = 0xFFF0F0F0;
-    private static final int COLOR_TEXT_DIM = 0xFFA0A8B0;
-    private static final int COLOR_TEXT_LOCKED = 0xFF8A8A8A;
-    private static final int COLOR_HIGHLIGHT = 0x40FFFFFF;
-
     private final List<SkillData.WeaponType> categories = new ArrayList<>();
     private final List<SkillData> allSkills = new ArrayList<>();
     private int selectedCategory;
@@ -95,6 +88,9 @@ public class ProficiencyOverviewScreen extends Screen {
 
     @Override
     protected void init() {
+        // テーマ切替（右上）
+        addRenderableWidget(SaoTheme.toggleButton(panelRight() - 26, panelTop() + 4, 20, this::rebuildWidgets));
+
         int buttonWidth = 110;
         int gap = 8;
         int totalWidth = buttonWidth * 2 + gap;
@@ -103,11 +99,11 @@ public class ProficiencyOverviewScreen extends Screen {
         addRenderableWidget(SaoButton.of(
                 Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
                 () -> Minecraft.getInstance().setScreen(new StatusScreen()),
-                buttonX, buttonY, buttonWidth, 20, true));
+                buttonX, buttonY, buttonWidth, 20, SaoTheme.dark()));
         addRenderableWidget(SaoButton.of(
                 Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
                 this::onClose,
-                buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, true));
+                buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, SaoTheme.dark()));
     }
 
     // ==================================================================
@@ -223,21 +219,21 @@ public class ProficiencyOverviewScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        guiGraphics.fill(0, 0, width, height, 0x99000000);
+        guiGraphics.fill(0, 0, width, height, SaoTheme.dimBackground());
         int left = panelLeft();
         int top = panelTop();
         int right = panelRight();
         int bottom = panelBottom();
-        guiGraphics.fill(left, top, right, bottom, COLOR_PANEL);
-        guiGraphics.fill(left, top, right, top + 1, COLOR_ACCENT);
-        guiGraphics.fill(left, bottom - 1, right, bottom, COLOR_ACCENT);
-        guiGraphics.fill(left, top, left + 1, bottom, COLOR_ACCENT);
-        guiGraphics.fill(right - 1, top, right, bottom, COLOR_ACCENT);
+        guiGraphics.fill(left, top, right, bottom, SaoTheme.panelBody());
+        guiGraphics.fill(left, top, right, top + 1, SaoTheme.panelBorder());
+        guiGraphics.fill(left, bottom - 1, right, bottom, SaoTheme.panelBorder());
+        guiGraphics.fill(left, top, left + 1, bottom, SaoTheme.panelBorder());
+        guiGraphics.fill(right - 1, top, right, bottom, SaoTheme.panelBorder());
 
-        guiGraphics.drawCenteredString(font, title, width / 2, top + 8, COLOR_TEXT);
+        SaoTheme.drawCentered(guiGraphics, font, title, width / 2, top + 8, SaoTheme.textPrimary());
 
         int dividerX = rightX() - 7;
-        guiGraphics.fill(dividerX, contentTop() - 4, dividerX + 1, contentBottom(), 0x40FFFFFF);
+        guiGraphics.fill(dividerX, contentTop() - 4, dividerX + 1, contentBottom(), SaoTheme.separator());
 
         drawCategories(guiGraphics, mouseX, mouseY);
         drawSkills(guiGraphics, mouseX, mouseY);
@@ -247,11 +243,11 @@ public class ProficiencyOverviewScreen extends Screen {
 
     private void drawCategories(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(font, Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_category_header"),
-                leftX(), headerY(), COLOR_TEXT_DIM, false);
+                leftX(), headerY(), SaoTheme.textDim(), false);
         if (categories.isEmpty()) {
             guiGraphics.drawString(font,
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_empty"),
-                    leftX(), contentTop(), COLOR_TEXT_DIM, false);
+                    leftX(), contentTop(), SaoTheme.textDim(), false);
             return;
         }
         int maxScroll = maxCategoryScroll();
@@ -268,9 +264,9 @@ public class ProficiencyOverviewScreen extends Screen {
             boolean hovered = mouseX >= leftX() && mouseX <= leftX() + leftWidth()
                     && mouseY >= rowY && mouseY < rowY + CATEGORY_ROW - 2;
             if (selected) {
-                guiGraphics.fill(leftX() - 3, rowY - 2, leftX() + leftWidth(), rowY + CATEGORY_ROW - 4, 0x4030A8E0);
+                guiGraphics.fill(leftX() - 3, rowY - 2, leftX() + leftWidth(), rowY + CATEGORY_ROW - 4, SaoTheme.selectionFill());
             } else if (hovered) {
-                guiGraphics.fill(leftX() - 3, rowY - 2, leftX() + leftWidth(), rowY + CATEGORY_ROW - 4, COLOR_HIGHLIGHT);
+                guiGraphics.fill(leftX() - 3, rowY - 2, leftX() + leftWidth(), rowY + CATEGORY_ROW - 4, SaoTheme.highlight());
             }
 
             Component name = Component.translatable(SwordSkill.MOD_ID + ".weapon." + category.name().toLowerCase());
@@ -282,8 +278,8 @@ public class ProficiencyOverviewScreen extends Screen {
             int nameLimit = Math.max(leftX() + 8, valueX - 6);
             guiGraphics.drawString(font,
                     font.plainSubstrByWidth(name.getString(), Math.max(8, nameLimit - leftX())),
-                    leftX(), rowY, selected ? COLOR_ACCENT : COLOR_TEXT, false);
-            guiGraphics.drawString(font, value, valueX, rowY, points > 0 ? COLOR_ACCENT : COLOR_TEXT_DIM, false);
+                    leftX(), rowY, selected ? SaoTheme.accent() : SaoTheme.textPrimary(), false);
+            guiGraphics.drawString(font, value, valueX, rowY, points > 0 ? SaoTheme.accent() : SaoTheme.textDim(), false);
         }
         guiGraphics.disableScissor();
         drawScrollHint(guiGraphics, leftX(), leftWidth(), categoryScroll, maxScroll);
@@ -295,7 +291,7 @@ public class ProficiencyOverviewScreen extends Screen {
         }
         SkillData.WeaponType category = categories.get(selectedCategory);
         Component header = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_skill_header");
-        guiGraphics.drawString(font, header, rightX(), headerY(), COLOR_TEXT_DIM, false);
+        guiGraphics.drawString(font, header, rightX(), headerY(), SaoTheme.textDim(), false);
 
         int perLevel = ClientProficiencyHandler.getPointsPerLevel();
         int proficiency = ClientProficiencyHandler.getProficiency(category);
@@ -305,7 +301,7 @@ public class ProficiencyOverviewScreen extends Screen {
                 proficiency, progress, perLevel, points);
         guiGraphics.enableScissor(rightX(), summaryY() - 1, rightX() + rightWidth(),
                 summaryY() + font.lineHeight + 1);
-        guiGraphics.drawString(font, summary, rightX(), summaryY(), COLOR_TEXT, false);
+        guiGraphics.drawString(font, summary, rightX(), summaryY(), SaoTheme.textPrimary(), false);
         guiGraphics.disableScissor();
 
         List<SkillData> skills = skillsOf(category);
@@ -314,7 +310,7 @@ public class ProficiencyOverviewScreen extends Screen {
         if (skills.isEmpty()) {
             guiGraphics.drawString(font,
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_empty"),
-                    rightX(), contentTop(), COLOR_TEXT_DIM, false);
+                    rightX(), contentTop(), SaoTheme.textDim(), false);
             return;
         }
         int maxLevel = ClientSkillLevelHandler.getMaxLevel();
@@ -351,11 +347,11 @@ public class ProficiencyOverviewScreen extends Screen {
             int stateColor;
             if (unlocked) {
                 state = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_unlocked");
-                stateColor = COLOR_TEXT_DIM;
+                stateColor = SaoTheme.textDim();
             } else {
                 state = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_locked",
                         skill.getUnlockProficiency());
-                stateColor = COLOR_TEXT_LOCKED;
+                stateColor = SaoTheme.textLocked();
             }
 
             // 右端に状態（解放状況／必要な熟練度）を寄せ、名前・レベルは重ならない幅に切り詰める
@@ -368,10 +364,10 @@ public class ProficiencyOverviewScreen extends Screen {
             int textLimit = Math.max(textX, stateX - 6);
             guiGraphics.drawString(font,
                     font.plainSubstrByWidth(name.getString(), Math.max(8, textLimit - textX)),
-                    textX, rowY + 1, unlocked ? COLOR_TEXT : COLOR_TEXT_LOCKED, false);
+                    textX, rowY + 1, unlocked ? SaoTheme.textPrimary() : SaoTheme.textLocked(), false);
             guiGraphics.drawString(font,
                     font.plainSubstrByWidth(levelText.getString(), Math.max(8, textLimit - textX)),
-                    textX, rowY + 10, level > 1 ? COLOR_ACCENT : COLOR_TEXT_DIM, false);
+                    textX, rowY + 10, level > 1 ? SaoTheme.accent() : SaoTheme.textDim(), false);
             if (showState) {
                 guiGraphics.drawString(font, state, stateX, rowY + 5, stateColor, false);
             }
@@ -404,7 +400,7 @@ public class ProficiencyOverviewScreen extends Screen {
         int rowCenter = rowY + ICON_SIZE / 2;
         int top = Math.max(contentTop(), Math.min(parentCenter, rowCenter));
         int bottom = Math.max(top + 1, rowCenter + 1);
-        int color = 0x805ADFFF;
+        int color = SaoTheme.connector();
         guiGraphics.fill(x, top, x + 1, bottom, color);
         guiGraphics.fill(x, rowCenter, rightX() + depth * DERIVED_INDENT - 2, rowCenter + 1, color);
     }
@@ -417,7 +413,7 @@ public class ProficiencyOverviewScreen extends Screen {
         int trackHeight = contentBottom() - contentTop();
         int barHeight = Math.max(12, trackHeight * trackHeight / (trackHeight + maxScroll));
         int barY = trackTop + (int) ((trackHeight - barHeight) * (scroll / (float) maxScroll));
-        guiGraphics.fill(x + panelWidth - 2, trackTop, x + panelWidth, contentBottom(), 0x30000000);
-        guiGraphics.fill(x + panelWidth - 2, barY, x + panelWidth, barY + barHeight, 0x80FFFFFF);
+        guiGraphics.fill(x + panelWidth - 2, trackTop, x + panelWidth, contentBottom(), SaoTheme.scrollTrack());
+        guiGraphics.fill(x + panelWidth - 2, barY, x + panelWidth, barY + barHeight, SaoTheme.scrollBar());
     }
 }

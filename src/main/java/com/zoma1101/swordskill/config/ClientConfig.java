@@ -21,6 +21,8 @@ public class ClientConfig {
     public static final ModConfigSpec.BooleanValue slashDecals;
     public static final ModConfigSpec.DoubleValue sparkDensity;
 
+    public static final ModConfigSpec.BooleanValue guiDarkTheme;
+
     public static final int HUD_SCALE_MAX = 64;
 
     static {
@@ -50,6 +52,11 @@ public class ClientConfig {
         hudScale = BUILDER.defineInRange("hudScale", 24, 1, HUD_SCALE_MAX);
         hudShowSkillLevel = BUILDER.comment("Show the selected skill's level and damage multiplier under the HUD SP bar.")
                 .define("hudShowSkillLevel", true);
+        BUILDER.pop();
+
+        BUILDER.push("GUI Settings");
+        guiDarkTheme = BUILDER.comment("Use the dark theme for the sword skill GUI. Set to false for the light theme.")
+                .define("guiDarkTheme", true);
         BUILDER.pop();
         SPEC = BUILDER.build();
     }

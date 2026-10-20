@@ -34,6 +34,7 @@ Each skill has its own level (1–10). The damage multiplier grows linearly from
 
 選択画面 (SwordSkillSelectionScreen) では、現在のスキルレベル・倍率と、段（ヒット）ごとの攻撃倍率（`1段目 200%→300%` の形式）を確認できます。
 HUD の SP バー下にも、選択中スロットのスキルの `Lv.x ×y.yy` が表示されます（config の `hudShowSkillLevel` で無効化可能）。
+選択画面・ステータス画面・熟練度一覧画面はライト／ダークの 2 テーマに対応しており、各画面右上のランプボタンで切り替えられます（状態は config の `guiDarkTheme` に保存）。
 
 ## Player Level (プレイヤーレベル)
 SAO のキャラクターレベルに相当する、プレイヤーごとのレベルです。レベルアップで得られるのは **ステータスポイント**と最大 SP だけで、レベルそのものは HP も火力も増やしません。攻撃力は STR、移動速度は AGI に割り振って伸ばし、防御は防具（バニラの防御力）が担当します。

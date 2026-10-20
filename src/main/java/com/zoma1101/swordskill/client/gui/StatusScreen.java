@@ -31,12 +31,6 @@ public class StatusScreen extends Screen {
     private static final int STAT_ROW = 40;
     private static final int SUMMARY_ROW = 14;
 
-    private static final int COLOR_PANEL = 0xE6101116;
-    private static final int COLOR_ACCENT = 0xFF5ADFFF;
-    private static final int COLOR_TEXT = 0xFFF0F0F0;
-    private static final int COLOR_TEXT_DIM = 0xFFA0A8B0;
-    private static final int COLOR_POSITIVE = 0xFF5ADF8A;
-
     private final SaoButton[] statButtons = new SaoButton[StatType.values().length];
 
     public StatusScreen() {
@@ -50,8 +44,11 @@ public class StatusScreen extends Screen {
             StatType type = StatType.values()[index];
             statButtons[index] = addRenderableWidget(SaoButton.of(
                     Component.literal("+"), () -> allocate(type),
-                    plusButtonX(), statRowY(index) + 2, 26, 18, true));
+                    plusButtonX(), statRowY(index) + 2, 26, 18, SaoTheme.dark()));
         }
+
+        // テーマ切替（右上）
+        addRenderableWidget(SaoTheme.toggleButton(panelRight() - 26, panelTop() + 4, 20, this::rebuildWidgets));
 
         int navWidth = 110;
         int gap = 8;
@@ -62,11 +59,11 @@ public class StatusScreen extends Screen {
         addRenderableWidget(SaoButton.of(
                 Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_open"),
                 this::openProficiency,
-                navX, navY, navWidth, 20, true));
+                navX, navY, navWidth, 20, SaoTheme.dark()));
         addRenderableWidget(SaoButton.of(
                 Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
                 this::onClose,
-                navX + navWidth + gap, navY, navWidth, 20, true));
+                navX + navWidth + gap, navY, navWidth, 20, SaoTheme.dark()));
     }
 
     private void allocate(StatType type) {
@@ -137,18 +134,18 @@ public class StatusScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        guiGraphics.fill(0, 0, width, height, 0x99000000);
+        guiGraphics.fill(0, 0, width, height, SaoTheme.dimBackground());
         int left = panelLeft();
         int top = panelTop();
         int right = panelRight();
         int bottom = panelBottom();
-        guiGraphics.fill(left, top, right, bottom, COLOR_PANEL);
-        guiGraphics.fill(left, top, right, top + 1, COLOR_ACCENT);
-        guiGraphics.fill(left, bottom - 1, right, bottom, COLOR_ACCENT);
-        guiGraphics.fill(left, top, left + 1, bottom, COLOR_ACCENT);
-        guiGraphics.fill(right - 1, top, right, bottom, COLOR_ACCENT);
+        guiGraphics.fill(left, top, right, bottom, SaoTheme.panelBody());
+        guiGraphics.fill(left, top, right, top + 1, SaoTheme.panelBorder());
+        guiGraphics.fill(left, bottom - 1, right, bottom, SaoTheme.panelBorder());
+        guiGraphics.fill(left, top, left + 1, bottom, SaoTheme.panelBorder());
+        guiGraphics.fill(right - 1, top, right, bottom, SaoTheme.panelBorder());
 
-        guiGraphics.drawCenteredString(font, title, width / 2, top + 8, COLOR_TEXT);
+        SaoTheme.drawCentered(guiGraphics, font, title, width / 2, top + 8, SaoTheme.textPrimary());
 
         boolean hasData = ClientPlayerLevelHandler.hasData();
         int available = ClientPlayerLevelHandler.getAvailablePoints();
@@ -178,27 +175,27 @@ public class StatusScreen extends Screen {
                     ClientPlayerLevelHandler.getLevel(), ClientPlayerLevelHandler.getMaxLevel(),
                     ClientPlayerLevelHandler.getXp(), ClientPlayerLevelHandler.getXpToNext());
         }
-        guiGraphics.drawCenteredString(font, line, width / 2, panelTop() + 24, COLOR_ACCENT);
+        SaoTheme.drawCentered(guiGraphics, font, line, width / 2, panelTop() + 24, SaoTheme.accent());
 
         // XP バー
         int barWidth = Mth.clamp((panelRight() - panelLeft()) / 2, 140, 260);
         int barX = width / 2 - barWidth / 2;
         int barY = panelTop() + 38;
-        guiGraphics.fill(barX - 1, barY - 1, barX + barWidth + 1, barY + 5, 0x60000000);
+        guiGraphics.fill(barX - 1, barY - 1, barX + barWidth + 1, barY + 5, SaoTheme.barBackground());
         float progress = !hasData || ClientPlayerLevelHandler.isMaxLevel() ? 1.0F
                 : Mth.clamp((float) ClientPlayerLevelHandler.getXp()
                         / (float) Math.max(1L, ClientPlayerLevelHandler.getXpToNext()), 0.0F, 1.0F);
         int filled = Math.round(barWidth * progress);
         if (hasData && filled > 0) {
-            guiGraphics.fill(barX, barY, barX + filled, barY + 4, COLOR_ACCENT);
+            guiGraphics.fill(barX, barY, barX + filled, barY + 4, SaoTheme.accent());
         }
 
         Component points = Component.translatable("gui." + SwordSkill.MOD_ID + ".status_points",
                 available, ClientPlayerLevelHandler.getSpentPoints(), ClientPlayerLevelHandler.getTotalPoints());
-        guiGraphics.drawCenteredString(font, points, width / 2, panelTop() + 52,
-                available > 0 ? COLOR_POSITIVE : COLOR_TEXT_DIM);
+        SaoTheme.drawCentered(guiGraphics, font, points, width / 2, panelTop() + 52,
+                available > 0 ? SaoTheme.positive() : SaoTheme.textDim());
 
-        guiGraphics.fill(panelLeft() + 8, panelTop() + 66, panelRight() - 8, panelTop() + 67, 0x40FFFFFF);
+        guiGraphics.fill(panelLeft() + 8, panelTop() + 66, panelRight() - 8, panelTop() + 67, SaoTheme.separator());
     }
 
     private void drawStats(GuiGraphics guiGraphics, boolean hasData) {
@@ -211,18 +208,18 @@ public class StatusScreen extends Screen {
             Component valueText = Component.literal(Integer.toString(hasData ? ClientPlayerLevelHandler.getStat(type) : 0));
             int valueX = leftX() + 46;
             guiGraphics.drawString(font, name, leftX(), rowY,
-                    hasData ? COLOR_TEXT : COLOR_TEXT_DIM, false);
-            guiGraphics.drawString(font, valueText, valueX, rowY, COLOR_ACCENT, false);
+                    hasData ? SaoTheme.textPrimary() : SaoTheme.textDim(), false);
+            guiGraphics.drawString(font, valueText, valueX, rowY, SaoTheme.accent(), false);
 
             guiGraphics.drawString(font,
                     font.plainSubstrByWidth(statEffect(type, hasData).getString(), Math.max(8, textLimit - leftX())),
-                    leftX(), rowY + 11, COLOR_TEXT_DIM, false);
+                    leftX(), rowY + 11, SaoTheme.textDim(), false);
 
-            guiGraphics.fill(panelLeft() + 8, rowY + STAT_ROW - 10, midX() - 4, rowY + STAT_ROW - 9, 0x20FFFFFF);
+            guiGraphics.fill(panelLeft() + 8, rowY + STAT_ROW - 10, midX() - 4, rowY + STAT_ROW - 9, SaoTheme.separator());
         }
 
         // 中央の区切り線
-        guiGraphics.fill(midX(), contentTop(), midX() + 1, panelBottom() - 32, 0x40FFFFFF);
+        guiGraphics.fill(midX(), contentTop(), midX() + 1, panelBottom() - 32, SaoTheme.separator());
     }
 
     /** クライアント側で計算した、現在のステータス効果。 */
@@ -251,7 +248,7 @@ public class StatusScreen extends Screen {
     private void drawCombatSummary(GuiGraphics guiGraphics, boolean hasData) {
         guiGraphics.drawString(font,
                 Component.translatable("gui." + SwordSkill.MOD_ID + ".status_combat_header"),
-                summaryX(), contentTop() + 2, COLOR_TEXT_DIM, false);
+                summaryX(), contentTop() + 2, SaoTheme.textDim(), false);
 
         Player player = Minecraft.getInstance().player;
         int valueRight = panelRight() - 14;
@@ -267,17 +264,17 @@ public class StatusScreen extends Screen {
             guiGraphics.drawString(font,
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".status_maxsp_note",
                             ClientPlayerLevelHandler.getSpBonus()),
-                    summaryX(), summaryRowY(4) + 12, COLOR_TEXT_DIM, false);
+                    summaryX(), summaryRowY(4) + 12, SaoTheme.textDim(), false);
         }
     }
 
     private void drawSummaryRow(GuiGraphics guiGraphics, int index, String labelKey, String value, int valueRight) {
         int rowY = summaryRowY(index);
         Component label = Component.translatable("gui." + SwordSkill.MOD_ID + "." + labelKey);
-        guiGraphics.drawString(font, label, summaryX(), rowY, COLOR_TEXT, false);
+        guiGraphics.drawString(font, label, summaryX(), rowY, SaoTheme.textPrimary(), false);
         Component valueText = Component.literal(value);
         int valueX = Math.max(summaryX() + 40, valueRight - font.width(valueText));
-        guiGraphics.drawString(font, valueText, valueX, rowY, COLOR_ACCENT, false);
+        guiGraphics.drawString(font, valueText, valueX, rowY, SaoTheme.accent(), false);
     }
 
     /** ソードスキルの実効攻撃力（武器攻撃力 × STR 補正）。 */

@@ -24,7 +24,12 @@ public final class SkillChains {
     /** そのスキルが属するチェーンの先頭（元スキル）の ID。単発スキルなら自身の ID。 */
     public static int start(int skillId) {
         int start = Math.max(0, skillId);
-        while (start > 0 && isChainMember(SwordSkillRegistry.SKILLS.get(start - 1))) {
+        while (start > 0) {
+            SkillData previous = SwordSkillRegistry.SKILLS.get(start - 1);
+            // 直前が TRANSFORM_FINISH なら別チェーンの終端。ID が連続していても連結しない
+            if (!isChainMember(previous) || previous.getType() == SkillData.SkillType.TRANSFORM_FINISH) {
+                break;
+            }
             start--;
         }
         return start;
@@ -76,7 +81,11 @@ public final class SkillChains {
     public static int depthOf(int skillId) {
         int depth = 0;
         int id = Math.max(0, skillId);
-        while (id > 0 && isChainMember(SwordSkillRegistry.SKILLS.get(id - 1))) {
+        while (id > 0) {
+            SkillData previous = SwordSkillRegistry.SKILLS.get(id - 1);
+            if (!isChainMember(previous) || previous.getType() == SkillData.SkillType.TRANSFORM_FINISH) {
+                break;
+            }
             depth++;
             id--;
         }
