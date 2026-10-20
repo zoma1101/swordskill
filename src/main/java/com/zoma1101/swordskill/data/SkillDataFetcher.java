@@ -45,9 +45,9 @@ public class SkillDataFetcher {
     }
 
     /**
-     * データで {@code default_unlocked} になっているスキルを、未解放なら解放済みにする。
+     * 必要熟練度が0のスキル（および {@code default_unlocked} のスキル）を、未解放なら解放済みにする。
      *
-     * <p>武器カテゴリごとの初期スキルを、アンロックアイテムや熟練度なしで最初から使えるようにする。
+     * <p>熟練度を消費せずに使える入門スキルを、アンロックアイテムなしで最初から使えるようにする。
      * ログインのたびに呼ばれるため、後からデータパックへ追加した初期スキルも次回ログインで付与される。</p>
      *
      * @return 新しく解放したスキルがあれば {@code true}
@@ -65,7 +65,11 @@ public class SkillDataFetcher {
 
         boolean changed = false;
         for (SkillData skill : SwordSkillRegistry.SKILLS.values()) {
-            if (skill == null || !skill.isAssignable() || !skill.isDefaultUnlocked()) {
+            if (skill == null || !skill.isAssignable()) {
+                continue;
+            }
+            // 必要熟練度0 = 熟練度なしで修得できるスキル。データパックで0にしたものもここで拾う。
+            if (!skill.isDefaultUnlocked() && skill.getUnlockProficiency() > 0) {
                 continue;
             }
             if (unlocked.add(skill.getId())) {

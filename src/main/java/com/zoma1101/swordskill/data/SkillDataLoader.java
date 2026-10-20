@@ -65,9 +65,32 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     exception.getMessage());
             SwordSkillRegistry.replaceDataDrivenSkills(List.of());
         }
+        grantDefaultUnlockedSkillsToOnlinePlayers();
         syncPending = true;
         LOGGER.info("Loaded {} data-driven SwordSkill definitions",
                 SwordSkillRegistry.getDataDrivenDefinitions().size());
+    }
+
+    /**
+     * 必要熟練度0のスキルを、いまオンラインのプレイヤーにも即時解放する（{@code /reload} 用）。
+     * 起動直後などサーバーがまだ準備できていない場合は何もしない。
+     */
+    private static void grantDefaultUnlockedSkillsToOnlinePlayers() {
+        try {
+            net.minecraft.server.MinecraftServer server =
+                    net.neoforged.neoforge.server.ServerLifecycleHooks.getCurrentServer();
+            if (server == null || server.getPlayerList() == null) {
+                return;
+            }
+            for (net.minecraft.server.level.ServerPlayer player : server.getPlayerList().getPlayers()) {
+                if (SkillDataFetcher.grantDefaultUnlockedSkills(player)) {
+                    com.zoma1101.swordskill.server.handler.ServerEventHandler.syncUnlockedSkills(player);
+                }
+            }
+        } catch (RuntimeException exception) {
+            LOGGER.warn("Failed to grant default-unlocked skills to online players: {}",
+                    exception.getMessage());
+        }
     }
 
     public static String toSyncJson(DataSkillDefinition definition) {
