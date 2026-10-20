@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 80,
   "name": "grand",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "grand",
   "type": "SIMPLE",

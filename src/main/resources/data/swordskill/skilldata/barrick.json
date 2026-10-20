@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 64,
   "name": "barrick",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "barrick",
   "type": "SIMPLE",

@@ -166,6 +166,8 @@ public class ServerEventHandler {
             // 鍛冶定義（素材・部品・レシピ）も配る
             com.zoma1101.swordskill.payload.SyncSmithingDefsPayload.sendTo(player);
             sendSkillSlotInfo(player); // ログイン時にスキル情報を送信
+            // 武器カテゴリごとの初期スキルは、アンロックアイテムなしで最初から解放しておく
+            SkillDataFetcher.grantDefaultUnlockedSkills(player);
             syncUnlockedSkills(player); // ログイン時にアンロック情報を送信
             SkillLevelManager.loadPlayer(player);
             PacketDistributor.sendToPlayer(player, SkillLevelManager.buildSyncPayload(player));

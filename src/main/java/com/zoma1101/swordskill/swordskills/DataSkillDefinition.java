@@ -36,7 +36,8 @@ public record DataSkillDefinition(
         List<AnimationEvent> animations,
         List<PlayerEffectEvent> playerEffects,
         int invulnerabilityTicks,
-        boolean endSkillOnGround) {
+        boolean endSkillOnGround,
+        boolean defaultUnlocked) {
     public DataSkillDefinition {
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
@@ -66,7 +67,7 @@ public record DataSkillDefinition(
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
-                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround);
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked);
     }
 
     /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
@@ -75,7 +76,7 @@ public record DataSkillDefinition(
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,
-                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround);
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked);
     }
 
     public record Motion(double forward, double strafe, double vertical) {

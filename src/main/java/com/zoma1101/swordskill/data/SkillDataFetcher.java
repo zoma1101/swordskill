@@ -3,11 +3,15 @@ package com.zoma1101.swordskill.data;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SkillDataFetcher {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -38,5 +42,60 @@ public class SkillDataFetcher {
     public static boolean isSkillUnlocked(ServerPlayer player, int targetSkillId) {
         int[] unlockedSkills = getUnlockedSkills(player);
         return Arrays.stream(unlockedSkills).anyMatch(skillId -> skillId == targetSkillId);
+    }
+
+    /**
+     * データで {@code default_unlocked} になっているスキルを、未解放なら解放済みにする。
+     *
+     * <p>武器カテゴリごとの初期スキルを、アンロックアイテムや熟練度なしで最初から使えるようにする。
+     * ログインのたびに呼ばれるため、後からデータパックへ追加した初期スキルも次回ログインで付与される。</p>
+     *
+     * @return 新しく解放したスキルがあれば {@code true}
+     */
+    public static boolean grantDefaultUnlockedSkills(ServerPlayer player) {
+        JsonObject playerData = DataManager.loadPlayerData(player);
+        JsonArray unlockedSkillsArray = readUnlockedArray(playerData);
+
+        Set<Integer> unlocked = new HashSet<>();
+        for (JsonElement element : unlockedSkillsArray) {
+            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+                unlocked.add(element.getAsInt());
+            }
+        }
+
+        boolean changed = false;
+        for (SkillData skill : SwordSkillRegistry.SKILLS.values()) {
+            if (skill == null || !skill.isAssignable() || !skill.isDefaultUnlocked()) {
+                continue;
+            }
+            if (unlocked.add(skill.getId())) {
+                unlockedSkillsArray.add(skill.getId());
+                changed = true;
+                LOGGER.debug("Granted default-unlocked skill {} to {}",
+                        skill.getName(), player.getName().getString());
+            }
+        }
+
+        if (changed) {
+            playerData.add("unlockedskill", unlockedSkillsArray);
+            DataManager.savePlayerData(player, playerData);
+        }
+        return changed;
+    }
+
+    /** {@code unlockedskill} を配列として取り出す（旧形式の単一数値も配列へ変換する）。 */
+    private static JsonArray readUnlockedArray(JsonObject playerData) {
+        JsonElement element = playerData.get("unlockedskill");
+        if (element == null || element.isJsonNull()) {
+            return new JsonArray();
+        }
+        if (element.isJsonArray()) {
+            return element.getAsJsonArray();
+        }
+        JsonArray array = new JsonArray();
+        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            array.add(element.getAsInt());
+        }
+        return array;
     }
 }

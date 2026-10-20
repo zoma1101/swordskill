@@ -203,7 +203,8 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 trailLength, shockwaveTicks, hitstopTicks,
                 proficiencyCategory, unlockProficiency, assignable,
                 animations, playerEffects, invulnerabilityTicks,
-                GsonHelper.getAsBoolean(json, "end_skill_on_ground", false));
+                GsonHelper.getAsBoolean(json, "end_skill_on_ground", false),
+                GsonHelper.getAsBoolean(json, "default_unlocked", false));
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,

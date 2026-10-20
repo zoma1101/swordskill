@@ -170,6 +170,7 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 - 解放条件: スキル JSON の `unlock_proficiency` に数値を書くと、そのカテゴリの熟練度がその値以上でないと解放できなくなります（0 または未指定なら熟練度不要）。解放ボタンには必要な熟練度が表示され、足りない場合は警告が出ます（クリエイティブは免除）。
   - **データパックでカテゴリごとに上書きできます**（下記「修得熟練度の設定」）。書かなかったスキルは skilldata の `unlock_proficiency` が使われます。
   - 既定値の目安: 各スキルの攻撃倍率から `score = 最大単発倍率 × 1.5 + 全ヒット合計倍率` を計算し、`score < 5 → 0` / `< 8 → 50` / `< 11 → 100` / `< 15.5 → 150` / それ以上 `→ 200` で設定しています。武器種ごとに必ず1つは必要熟練度0の入門スキルが残るようにしています（SPEAR・RAPIER・KATANA は自動補正）。
+  - **初期スキル**: 各武器カテゴリの単発スキル1つに `"default_unlocked": true` が付いており、ログイン時に **アンロックアイテムなしで自動解放** されます（片手剣 `slant` / 両手剣 `cascade` / 刀 `sakura_mai` / 斧 `wall_wind` / レイピア `spark_thrust` / 双剣 `end_revolver` / 槍 `thrusts` / 短剣 `canine` / 大鎌 `barrick` / 爪 `talon` / メイス `grand`）。熟練度はスキルでの撃破でのみ増えるため、最初の1つは無条件で使えるようにしています。
 - 保存先: `world/swordskill_data/<uuid>.json` の `proficiencies`（カテゴリ→熟練度）と `proficiency_spent`（カテゴリ→使用済みポイント）。
 - 表示: 選択画面のフッター右側に `片手剣 熟練度 142 (次まで 42/100) ▲1` の形式で表示されます。
 - 熟練度一覧画面: `K`（`key.swordskill.status_key`、既定 `K`）で直接開けます（ステータス画面が有効なときは、そこの「熟練度一覧」ボタンからも移動できます）。左にカテゴリごとの熟練度・ポイント、右にそのカテゴリのスキルごとのレベル・解放状況・解放に必要な熟練度を一覧表示します（ホイールでスクロール、行は領域内でクリップされます）。
@@ -221,6 +222,7 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 | --- | --- | --- | --- |
 | `proficiency_category` | string | `weapons` の先頭 | 熟練度カテゴリ。`weapons` と別のカテゴリにしたいときだけ指定 |
 | `unlock_proficiency` | int | 0 | 解放に必要な熟練度（0 = 不要） |
+| `default_unlocked` | bool | false | true にするとログイン時にアンロックアイテムなしで自動解放（各カテゴリの初期スキル用） |
 | `assignable` | bool | true | false にするとスロットにセットできない（説明用エントリなど） |
 | `invulnerability_ticks` | int | 0 | スキル開始時に与える無敵時間（`rush_combo` の値と大きい方を採用） |
 | `end_skill_on_ground` | bool | false | 着地したtickでスキルを終了する（`finish` アニメーションを再生。RUSH のみ） |

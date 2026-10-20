@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 29,
   "name": "spark_thrust",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "spark_thrust",
   "type": "SIMPLE",

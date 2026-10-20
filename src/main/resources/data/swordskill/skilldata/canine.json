@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 58,
   "name": "canine",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "canine",
   "type": "SIMPLE",

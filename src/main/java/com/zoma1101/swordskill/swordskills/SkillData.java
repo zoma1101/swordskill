@@ -107,6 +107,11 @@ public class SkillData {
         return dataDefinition == null ? 0 : dataDefinition.unlockProficiency();
     }
 
+    /** 最初から解放されているスキルか（武器カテゴリごとの初期スキル）。 */
+    public boolean isDefaultUnlocked() {
+        return dataDefinition != null && dataDefinition.defaultUnlocked();
+    }
+
     /** スロットにセットできるスキルか（説明用エントリなどは false）。 */
     public boolean isAssignable() {
         return dataDefinition == null || dataDefinition.assignable();

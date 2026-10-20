@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 27,
   "name": "thrusts",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "thrusts",
   "type": "SIMPLE",
