@@ -41,7 +41,6 @@
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
   "sounds": [],
   "rush_start_ticks": 1,
   "rush_start_animation": "start",

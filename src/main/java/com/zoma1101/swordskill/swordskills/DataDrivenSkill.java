@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.swordskills;
 
 import com.zoma1101.swordskill.config.ServerConfig;
+import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
 import com.zoma1101.swordskill.payload.SkillShockwavePayload;
 import com.zoma1101.swordskill.server.handler.HitstopManager;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
@@ -35,6 +36,7 @@ public final class DataDrivenSkill implements ISkill {
     private static final Map<UUID, Set<Integer>> FIRED_SOUNDS = new ConcurrentHashMap<>();
     private static final Map<UUID, Float> CHARGE_MULTIPLIERS = new ConcurrentHashMap<>();
     private static final Map<UUID, Integer> RUSH_CONTACT_TICKS = new ConcurrentHashMap<>();
+    private static final Map<UUID, Integer> RUSH_CONTACT_ENTITIES = new ConcurrentHashMap<>();
     private static final Map<UUID, Vec3> RUSH_PREVIOUS_POS = new ConcurrentHashMap<>();
     private static final Set<UUID> SHOCKWAVE_FIRED = ConcurrentHashMap.newKeySet();
     private static final Map<UUID, Set<Integer>> FIRED_ANIMATIONS = new ConcurrentHashMap<>();
@@ -76,23 +78,6 @@ public final class DataDrivenSkill implements ISkill {
         }
 
         DataSkillDefinition definition = skill.getDataDefinition();
-        if (definition.legacyFallback()) {
-            SkillData baseSkill = SwordSkillRegistry.getBaseSkill(skillId);
-            if (baseSkill == null) {
-                throw new IllegalStateException("No built-in skill is available for legacy fallback: " + skillId);
-            }
-            // ビルトイン側がプレースホルダ（説明枠など）の場合は再帰するので何もしない
-            if (baseSkill.getSkillClass() == DataDrivenSkill.class) {
-                return;
-            }
-            try {
-                baseSkill.getSkillClass().getDeclaredConstructor().newInstance()
-                        .execute(level, player, tick, skillId);
-            } catch (ReflectiveOperationException exception) {
-                throw new IllegalStateException("Failed to execute legacy skill " + baseSkill.getName(), exception);
-            }
-            return;
-        }
 
         UUID playerId = player.getUUID();
         int shockwaveTicks = definition.shockwaveTicks();
@@ -171,6 +156,7 @@ public final class DataDrivenSkill implements ISkill {
                     if (reached) {
                         contactTick = tick;
                         RUSH_CONTACT_TICKS.put(player.getUUID(), contactTick);
+                        RUSH_CONTACT_ENTITIES.put(player.getUUID(), entity.getId());
                         player.setDeltaMovement(player.getLookAngle().scale(rushCombo.contactMotionForward()));
                         player.hurtMarked = true;
                         break;
@@ -374,6 +360,7 @@ public final class DataDrivenSkill implements ISkill {
         FIRED_PLAYER_EFFECTS.remove(playerId);
         CHARGE_MULTIPLIERS.remove(playerId);
         RUSH_CONTACT_TICKS.remove(playerId);
+        RUSH_CONTACT_ENTITIES.remove(playerId);
         RUSH_PREVIOUS_POS.remove(playerId);
         SHOCKWAVE_FIRED.remove(playerId);
         SKILL_START_POS.remove(playerId);
@@ -412,9 +399,33 @@ public final class DataDrivenSkill implements ISkill {
                 .add(up.scale(offset[1]))
                 .add(forward.scale(offset[2]));
 
+        // 接触した相手に自動で狙いを付ける（突進の接触斬撃など）。
+        // 旧実装と同じく「相手の足元から相手→本体方向へ offset[2] 離れた位置」から相手の中心を狙う。
+        boolean aimedAtContact = false;
+        if (projectile.aimAtContact() && projectile.trigger().equals("CONTACT")) {
+            Integer targetId = RUSH_CONTACT_ENTITIES.get(player.getUUID());
+            if (targetId != null && level.getEntity(targetId) instanceof LivingEntity target) {
+                Vec3 targetCenter = target.getBoundingBox().getCenter();
+                Vec3 away = new Vec3(player.getX() - targetCenter.x, 0, player.getZ() - targetCenter.z);
+                away = away.lengthSqr() < 1.0E-6 ? forward.scale(-1) : away.normalize();
+                spawnPosition = target.position().add(away.scale(offset[2])).add(0, offset[1], 0);
+                Vec3 direction = targetCenter.subtract(spawnPosition);
+                if (direction.lengthSqr() > 1.0E-6) {
+                    direction = direction.normalize();
+                    double yawDegrees = Math.toDegrees(Math.atan2(-direction.x, direction.z));
+                    double pitchDegrees = Math.toDegrees(Math.asin(Math.max(-1.0, Math.min(1.0, direction.y))));
+                    // AttackEffectEntity は owner の向きに rotation を加算するので、絶対角になるよう差し引く
+                    pitch = -pitchDegrees - player.getXRot();
+                    yaw = yawDegrees - player.getYRot();
+                    roll = rotation[2];
+                }
+                aimedAtContact = true;
+            }
+        }
+
         // 突進しながら伸びる斬撃: 始点から現在位置までの線上に出し、進行方向へ向ける
         DataSkillDefinition.PathSpec path = projectile.path();
-        if (path != null) {
+        if (path != null && !aimedAtContact) {
             Vec3 start = SKILL_START_POS.get(player.getUUID());
             if (start != null) {
                 Vec3 travel = player.position().subtract(start);
@@ -456,20 +467,24 @@ public final class DataDrivenSkill implements ISkill {
         double knockback = projectile.knockbackMultiplier() != -1
                 ? SkillUtils.BaseKnowBack(player) * projectile.knockbackMultiplier()
                 : projectile.knockback();
+        AttackEffectEntity effect;
         if (movement == null) {
-            SkillUtils.spawnFlyingSlash(level, spawnPosition,
+            effect = SkillUtils.spawnFlyingSlash(level, spawnPosition,
                     new Vec3(pitch, yaw, roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback,
                     projectile.durationTicks(), projectile.particle(), projectile.travelDistance(),
                     projectile.renderPitch(), skillColor);
         } else {
-            SkillUtils.spawnFlyingSlash(level, spawnPosition,
+            effect = SkillUtils.spawnFlyingSlash(level, spawnPosition,
                     new Vec3(pitch, yaw, roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback, projectile.durationTicks(),
                     projectile.particle(), projectile.travelDistance(), movement, projectile.renderPitch(),
                     skillColor);
+        }
+        if (effect != null && projectile.singleTarget()) {
+            effect.setSingleTarget(true);
         }
     }
 

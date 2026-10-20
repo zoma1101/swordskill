@@ -82,7 +82,6 @@
       "duration_ticks": 160
     }
   ],
-  "legacy_fallback": false,
   "end_skill_on_ground": true,
   "sounds": [
     {

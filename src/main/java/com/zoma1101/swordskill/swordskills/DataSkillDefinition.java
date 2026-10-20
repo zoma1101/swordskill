@@ -21,7 +21,6 @@ public record DataSkillDefinition(
         List<Hitbox> hitboxes,
         List<ProjectileEvent> projectiles,
         List<SoundEvent> sounds,
-        boolean legacyFallback,
         boolean replaceBuiltin,
         int rushStartTicks,
         String rushStartAnimation,
@@ -59,6 +58,15 @@ public record DataSkillDefinition(
         hitstopTicks = Math.max(-1, hitstopTicks);
         // null なら「先頭の武器種」が熟練度カテゴリとして使われる
         unlockProficiency = Math.max(0, unlockProficiency);
+    }
+
+    /** ID だけ差し替えた複製を返す（自動採番用）。 */
+    public DataSkillDefinition withId(int newId) {
+        return new DataSkillDefinition(newId, name, cooldown, spCost, type, weapons, hidden, durationTicks,
+                transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
+                replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
+                rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround);
     }
 
     public record Motion(double forward, double strafe, double vertical) {
@@ -134,7 +142,9 @@ public record DataSkillDefinition(
             double fallDamageScale,
             PathSpec path,
             String randomGroup,
-            int randomIndex) {
+            int randomIndex,
+            boolean singleTarget,
+            boolean aimAtContact) {
         public ProjectileEvent {
             offset = offset.clone();
             rotation = rotation.clone();

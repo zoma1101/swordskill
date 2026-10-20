@@ -85,10 +85,8 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
         }
         int id = GsonHelper.getAsInt(json, "id");
         boolean replaceBuiltin = GsonHelper.getAsBoolean(json, "replace_builtin", false);
-        if (id < 0 || (replaceBuiltin && id >= SwordSkillRegistry.BASE_SKILL_COUNT)
-                || (!replaceBuiltin && id > 0 && id < SwordSkillRegistry.BASE_SKILL_COUNT)) {
-            throw new JsonParseException("id must be 0 (auto-assign), at least "
-                    + SwordSkillRegistry.BASE_SKILL_COUNT + ", or a valid built-in ID with replace_builtin=true");
+        if (id < 0) {
+            throw new JsonParseException("id must be 0 (auto-assign) or a positive skill ID");
         }
         String name = GsonHelper.getAsString(json, "name", resourceId.getPath());
         if (!name.matches("[a-z0-9_]+")) {
@@ -138,11 +136,9 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsJsonArray(json, "animations", new JsonArray()), duration);
         List<DataSkillDefinition.PlayerEffectEvent> playerEffects = parsePlayerEffects(
                 GsonHelper.getAsJsonArray(json, "player_effects", new JsonArray()), duration);
-        boolean legacyFallback = GsonHelper.getAsBoolean(json, "legacy_fallback",
-                replaceBuiltin && hitboxes.isEmpty() && projectiles.isEmpty()
-                        && animations.isEmpty() && playerEffects.isEmpty() && motions.isEmpty());
-        if (legacyFallback && (!replaceBuiltin || SwordSkillRegistry.getBaseSkill(id) == null)) {
-            throw new JsonParseException("legacy_fallback requires a valid built-in skill replacement");
+        boolean legacyFallback = GsonHelper.getAsBoolean(json, "legacy_fallback", false);
+        if (legacyFallback) {
+            throw new JsonParseException("legacy_fallback is no longer supported; describe the skill with JSON events");
         }
 
         String color = GsonHelper.getAsString(json, "color", "#54D8FF");
@@ -192,7 +188,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
                 GsonHelper.getAsString(json, "animation", name), color, motion, motions, hitboxes, projectiles,
-                sounds, legacyFallback, replaceBuiltin,
+                sounds, replaceBuiltin,
                 rushStartTicks,
                 GsonHelper.getAsString(json, "rush_start_animation", "start"),
                 GsonHelper.getAsString(json, "rush_move_animation", "move"),
@@ -375,11 +371,17 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             if (randomIndex < 0 || randomIndex > 32) {
                 throw new JsonParseException("random_index is outside the supported range");
             }
+            boolean singleTarget = GsonHelper.getAsBoolean(projectile, "single_target", false);
+            boolean aimAtContact = GsonHelper.getAsBoolean(projectile, "aim_at_contact", false);
+            if (aimAtContact && !trigger.equals("CONTACT")) {
+                throw new JsonParseException("aim_at_contact is only valid for CONTACT projectiles");
+            }
             projectiles.add(new DataSkillDefinition.ProjectileEvent(tick, offset, rotation,
                     playerPitchXMultiplier, playerPitchZMultiplier, renderPitch, horizontal, size,
                     damageMultiplier, damageType, knockback, knockbackMultiplier,
                     projectileDuration, particle, travelDistance,
-                    movement, sound, trigger, fallDamageScale, path, randomGroup, randomIndex));
+                    movement, sound, trigger, fallDamageScale, path, randomGroup, randomIndex,
+                    singleTarget, aimAtContact));
         }
         return projectiles;
     }

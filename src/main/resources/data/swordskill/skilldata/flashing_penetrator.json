@@ -93,7 +93,6 @@
       }
     }
   ],
-  "legacy_fallback": false,
   "invulnerability_ticks": 30,
   "sounds": [
     {

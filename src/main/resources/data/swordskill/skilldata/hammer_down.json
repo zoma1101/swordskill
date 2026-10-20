@@ -52,7 +52,6 @@
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
   "sounds": [
     {
       "tick": 7,

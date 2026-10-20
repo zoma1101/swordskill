@@ -28,14 +28,14 @@
       ],
       "rotation": [
         0.0,
-        90.0,
+        0.0,
         30.0
       ],
       "player_pitch_x_multiplier": -1.0,
       "size": [
-        0.35,
-        0.35,
-        6.0
+        1.6,
+        1.6,
+        9.0
       ],
       "damage_multiplier": 3.5,
       "damage_type": "RUSH",
@@ -44,6 +44,8 @@
       "duration_ticks": 12,
       "travel_distance": 0,
       "particle": "spear_particle/simple_green",
+      "aim_at_contact": true,
+      "single_target": true,
       "movement": [
         0.0,
         0.0,
@@ -64,7 +66,6 @@
       "duration_ticks": 100
     }
   ],
-  "legacy_fallback": false,
   "end_skill_on_ground": true,
   "sounds": [
     {

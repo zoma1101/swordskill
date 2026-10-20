@@ -1,373 +1,121 @@
 package com.zoma1101.swordskill.swordskills;
 
-import com.zoma1101.swordskill.swordskills.skill.axe.*;
-import com.zoma1101.swordskill.swordskills.skill.claw.*;
-import com.zoma1101.swordskill.swordskills.skill.dagger.*;
-import com.zoma1101.swordskill.swordskills.skill.dual_sword.*;
-import com.zoma1101.swordskill.swordskills.skill.katana.*;
-import com.zoma1101.swordskill.swordskills.skill.mace.*;
-import com.zoma1101.swordskill.swordskills.skill.rapier.*;
-import com.zoma1101.swordskill.swordskills.skill.scythe.*;
-import com.zoma1101.swordskill.swordskills.skill.spear.*;
-import com.zoma1101.swordskill.swordskills.skill.sword.*;
-import com.zoma1101.swordskill.swordskills.skill.two_handed_sword.*;
-
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.AXE;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.CLAW;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.DAGGER;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.DUALSWORD;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.KATANA;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.MACE;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.ONE_HANDED_SWORD;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.RAPIER;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.SCYTHE;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.SPEAR;
-import static com.zoma1101.swordskill.swordskills.SkillData.WeaponType.TWO_HANDED_SWORD;
+/**
+ * スキル定義の登録所。
+ *
+ * <p>標準のスキルはすべて {@code data/<namespace>/skilldata/*.json} のデータ定義で登録される。
+ * Java でしか表現できない挙動が必要な場合だけ {@link #registerJavaSkill(SkillData)} で
+ * {@link ISkill} の実装を登録できる。</p>
+ *
+ * <p>スキル ID は 0 から連番でなければならない。クライアントのスキル選択画面が
+ * ID をそのまま一覧の並び順として使っているため。</p>
+ */
+public final class SwordSkillRegistry {
 
-public class SwordSkillRegistry {
-    public static final Map<Integer, SkillData> SKILLS = new HashMap<>();
-    private static final Map<Integer, SkillData> BASE_SKILLS;
-    private static int nextSkillId = 0; // 自動ID生成用
-    public static final int BASE_SKILL_COUNT;
-    private static final int DefaultTransformTick = 20;
+    /** ID → スキル。データ定義の読み込みで作り直される。 */
+    public static final Map<Integer, SkillData> SKILLS = new LinkedHashMap<>();
 
-    private static final List<SkillData.WeaponType> AllWeapons = List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA,
-            AXE, RAPIER, CLAW, SPEAR, SCYTHE, DAGGER, DUALSWORD, MACE);
+    /**
+     * Java 実装として登録されたスキル。データ定義は同じ ID を
+     * {@code replace_builtin: true} で上書きできる。
+     */
+    private static final Map<Integer, SkillData> JAVA_SKILLS = new LinkedHashMap<>();
 
-    static {
-        // スキル登録
-        // ID 0 は「説明（ガイド）」枠。データドリブン定義 (skilldata/how_to_use.json) が必ず上書きするため、
-        // ビルトイン側は何もしないプレースホルダとして登録して ID の並びを保つ。
-        registerSkill(new SkillData(getNextSkillId(), "how_to_use", 100, 0.0, SkillData.SkillType.SIMPLE,
-                DataDrivenSkill.class,
-                AllWeapons, false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "slant", 50, 5.0, SkillData.SkillType.SIMPLE,
-                Slant.class,
-                List.of(ONE_HANDED_SWORD, TWO_HANDED_SWORD, KATANA, RAPIER, DUALSWORD), false, 0,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "horizontal", 60, 8.0, SkillData.SkillType.TRANSFORM,
-                Horizontal.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 0,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "horizontal_arc", 120, 7.0, SkillData.SkillType.TRANSFORM,
-                Horizontal_arc.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 0,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "horizontal_square", 240, 15.0,
-                SkillData.SkillType.TRANSFORM_FINISH,
-                Horizontal_square.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 7,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "vertical", 60, 8.0, SkillData.SkillType.TRANSFORM,
-                Vertical.class,
-                List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "vertical_arc", 120, 7.0, SkillData.SkillType.TRANSFORM,
-                Vertical_arc.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 0,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "vertical_square", 240, 15.0,
-                SkillData.SkillType.TRANSFORM_FINISH,
-                Vertical_square.class, List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), true, 7,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "x_break", 80, 10.0, SkillData.SkillType.SIMPLE,
-                XBreak.class,
-                List.of(ONE_HANDED_SWORD, KATANA, DUALSWORD), false, 6, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sharp_neil", 200, 20.0, SkillData.SkillType.SIMPLE,
-                SharpNeil.class,
-                List.of(ONE_HANDED_SWORD, DUALSWORD), false, 15, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "holy_cross_brade", 140, 15.0, SkillData.SkillType.SIMPLE,
-                HolyCrossBrade.class, List.of(ONE_HANDED_SWORD, DUALSWORD), false, 7,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "rage_spike", 105, 10.0, SkillData.SkillType.RUSH,
-                RageSpike.class,
-                List.of(ONE_HANDED_SWORD, DUALSWORD), false, 9, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sonic_reap", 250, 20.0, SkillData.SkillType.RUSH,
-                SonicReap.class,
-                List.of(ONE_HANDED_SWORD, DUALSWORD, DAGGER), false, 35, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "savage_fulcrum", 100, 15.0, SkillData.SkillType.SIMPLE,
-                SavageFulcrum.class, List.of(ONE_HANDED_SWORD, DUALSWORD), false, 20,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "howling_octave", 225, 20.0, SkillData.SkillType.SIMPLE,
-                HowlingOctave.class, List.of(ONE_HANDED_SWORD, DUALSWORD), false, 32,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "vorpal_strike", 250, 30.0, SkillData.SkillType.SIMPLE,
-                VorpalStrike.class, List.of(ONE_HANDED_SWORD, DUALSWORD), false, 16,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "star_sword", 250, 35.0, SkillData.SkillType.SIMPLE,
-                StarSword.class,
-                List.of(ONE_HANDED_SWORD, DUALSWORD), false, 32, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "world_nova", 250, 30.0, SkillData.SkillType.SIMPLE,
-                WorldNova.class,
-                List.of(ONE_HANDED_SWORD, DUALSWORD), false, 25, DefaultTransformTick)); // 低クオ
-        // 斧
-        registerSkill(new SkillData(getNextSkillId(), "wall_wind", 120, 7.0, SkillData.SkillType.SIMPLE,
-                WallWind.class,
-                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 7, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "blood_finisher", 280, 15.0, SkillData.SkillType.SIMPLE,
-                BloodFinisher.class, List.of(AXE), false, 16, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite", 90, 10.0, SkillData.SkillType.TRANSFORM,
-                Excite.class,
-                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite_line", 150, 8.0, SkillData.SkillType.TRANSFORM,
-                Excite_line.class, List.of(AXE, TWO_HANDED_SWORD, MACE), true, 0,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "excite_triangle", 250, 12.0,
-                SkillData.SkillType.TRANSFORM_FINISH,
-                Excite_triangle.class, List.of(AXE, TWO_HANDED_SWORD, MACE), true, 7,
-                DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "king_axe", 600, 60.0, SkillData.SkillType.SIMPLE,
-                KingAxe.class,
-                List.of(AXE), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "lumber_jack", 250, 10.0, SkillData.SkillType.SIMPLE,
-                LumberJack.class,
-                List.of(AXE, MACE), false, 30, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "grand_upper", 150, 20.0, SkillData.SkillType.RUSH,
-                GrandUpper.class,
-                List.of(AXE, TWO_HANDED_SWORD, MACE), false, 16, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "ryuuko_souhaku", 900, 70.0, SkillData.SkillType.SIMPLE,
-                RyuukoSouhaku.class, List.of(AXE), false, 31, DefaultTransformTick));
-        // 槍
-        registerSkill(new SkillData(getNextSkillId(), "thrusts", 100, 8.0, SkillData.SkillType.SIMPLE,
-                Thrusts.class,
-                List.of(SPEAR), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "spinning_spear", 150, 12.0, SkillData.SkillType.SIMPLE,
-                SpinningSpear.class, List.of(SPEAR), false, 33, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "spark_thrust", 90, 20.0, SkillData.SkillType.SIMPLE,
-                SparkThrust.class, List.of(RAPIER, SPEAR), false, 22, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sorvelte_charge", 200, 30.0, SkillData.SkillType.RUSH,
-                SorvelteCharge.class, List.of(SPEAR), false, 14, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "longlonglong", 225, 50.0, SkillData.SkillType.SIMPLE,
-                LongLongLong.class, List.of(SPEAR), false, 14, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "falling_star", 250, 40.0, SkillData.SkillType.RUSH,
-                FallingStar.class,
-                List.of(SPEAR), false, 30, DefaultTransformTick));
-        // 二刀流
-        registerSkill(new SkillData(getNextSkillId(), "end_revolver", 100, 10.0, SkillData.SkillType.SIMPLE,
-                EndRevolver.class, List.of(DUALSWORD), false, 5, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "ascade_refraction", 160, 20.0, SkillData.SkillType.SIMPLE,
-                AscadeRefraction.class, List.of(DUALSWORD), false, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "double_circular", 150, 30.0, SkillData.SkillType.RUSH,
-                DoubleCircular.class, List.of(DUALSWORD), false, 55, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "star_burst_stream", 600, 50.0,
-                SkillData.SkillType.SIMPLE,
-                StarBurstStream.class, List.of(DUALSWORD), false, 70, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "the_eclipse", 750, 70.0, SkillData.SkillType.SIMPLE,
-                TheEclipse.class,
-                List.of(DUALSWORD), false, 115, DefaultTransformTick));
-        // 刀
-        registerSkill(new SkillData(getNextSkillId(), "reaper", 100, 6.0, SkillData.SkillType.SIMPLE,
-                Reaper.class,
-                List.of(ONE_HANDED_SWORD, KATANA, DAGGER), false, 5, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "sakura_mai", 175, 20.0, SkillData.SkillType.SIMPLE,
-                SakuraMai.class,
-                List.of(KATANA), false, 20, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "zekku", 90, 15.0, SkillData.SkillType.SIMPLE,
-                Zekkuu.class,
-                List.of(KATANA), false, 2, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "tumuzi_guruma", 250, 20.0, SkillData.SkillType.SIMPLE,
-                TumuziGuruma.class, List.of(KATANA), false, 15, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "gengetu", 200, 30.0, SkillData.SkillType.RUSH,
-                GenGetu.class,
-                List.of(KATANA), false, 20, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "hiougi", 300, 50.0, SkillData.SkillType.SIMPLE,
-                Hiougi.class,
-                List.of(KATANA), false, 16, DefaultTransformTick));
-        // 大剣
-        registerSkill(new SkillData(getNextSkillId(), "cascade", 80, 8.0, SkillData.SkillType.SIMPLE,
-                CasCade.class,
-                List.of(TWO_HANDED_SWORD), false, 3, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "aban_rash", 120, 15.0, SkillData.SkillType.SIMPLE,
-                AbanRash.class,
-                List.of(TWO_HANDED_SWORD), false, 7, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "cyclone", 140, 20.0, SkillData.SkillType.SIMPLE,
-                Cyclone.class,
-                List.of(TWO_HANDED_SWORD), false, 5, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "stan_hazard", 250, 25.0, SkillData.SkillType.SIMPLE,
-                StanHazard.class,
-                List.of(TWO_HANDED_SWORD), false, 32, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "slash_blade", 150, 20.0, SkillData.SkillType.SIMPLE,
-                SlashBlade.class,
-                List.of(TWO_HANDED_SWORD), false, 22, DefaultTransformTick));
-        // 細剣（レイピア）
-        registerSkill(new SkillData(getNextSkillId(), "linear", 80, 6.0, SkillData.SkillType.SIMPLE,
-                Linear.class,
-                List.of(ONE_HANDED_SWORD, RAPIER), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "parallel_sting", 120, 10.0, SkillData.SkillType.SIMPLE,
-                ParallelSting.class, List.of(RAPIER), false, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "quadraple_pain", 200, 14.0, SkillData.SkillType.SIMPLE,
-                QuadraplePain.class, List.of(RAPIER), false, 14, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "cruci_fiction", 200, 20.0, SkillData.SkillType.SIMPLE,
-                Crucifiction.class, List.of(RAPIER), false, 29, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "star_splash", 250, 25.0, SkillData.SkillType.SIMPLE,
-                StarSplash.class,
-                List.of(RAPIER), false, 31, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "stary_tier", 200, 20.0, SkillData.SkillType.SIMPLE,
-                StaryTier.class,
-                List.of(RAPIER), false, 21, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "mothers_rosario", 350, 30.0, SkillData.SkillType.SIMPLE,
-                MothersRosario.class, List.of(RAPIER), false, 37, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "shooting_star", 150, 35.0, SkillData.SkillType.SIMPLE,
-                ShootingStar.class, List.of(RAPIER), false, 4, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "flashing_penetrator", 400, 40.0,
-                SkillData.SkillType.SIMPLE,
-                FlashingPenetrator.class, List.of(RAPIER), false, 6, DefaultTransformTick));
-        // 短剣
-        registerSkill(new SkillData(getNextSkillId(), "canine", 60, 6.0, SkillData.SkillType.SIMPLE,
-                Canine.class,
-                List.of(DAGGER), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "face_liner", 100, 10.0, SkillData.SkillType.SIMPLE,
-                FaceLiner.class,
-                List.of(DAGGER), false, 16, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "fad_edge", 150, 18.0, SkillData.SkillType.SIMPLE,
-                FadEdge.class,
-                List.of(DAGGER), false, 17, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "rapid_bite", 150, 20.0, SkillData.SkillType.RUSH,
-                RapidBite.class,
-                List.of(DAGGER), false, 200, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "octagon_edge", 160, 20.0, SkillData.SkillType.SIMPLE,
-                OctagonEdge.class, List.of(DAGGER), false, 18, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "kodati", 200, 15.0, SkillData.SkillType.SIMPLE,
-                Kodati.class,
-                List.of(DAGGER), false, 11, DefaultTransformTick));
-        // 鎌
-        registerSkill(new SkillData(getNextSkillId(), "barrick", 80, 8.0, SkillData.SkillType.SIMPLE,
-                Barrick.class,
-                List.of(SCYTHE), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "reaper_of_life", 10, 15.0, SkillData.SkillType.SIMPLE,
-                ReaperOfLife.class, List.of(SCYTHE), false, 12, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "reaper_of_death", 120, 15.0, SkillData.SkillType.SIMPLE,
-                ReaperOfDeath.class, List.of(SCYTHE), false, 12, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "shadow_scythe", 160, 25.0, SkillData.SkillType.SIMPLE,
-                ShadowScythe.class, List.of(SCYTHE), false, 7, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "requiem", 210, 20.0, SkillData.SkillType.SIMPLE,
-                Requiem.class,
-                List.of(SCYTHE), false, 26, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "storm", 105, 10.0, SkillData.SkillType.TRANSFORM,
-                Storm.class,
-                List.of(SCYTHE), false, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "storm_mirror", 170, 10.0,
-                SkillData.SkillType.TRANSFORM_FINISH,
-                StormMirror.class, List.of(SCYTHE), true, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "judgment", 300, 30.0, SkillData.SkillType.SIMPLE,
-                Judgment.class,
-                List.of(SCYTHE), false, 38, DefaultTransformTick));
-        // 爪
-        registerSkill(new SkillData(getNextSkillId(), "talon", 70, 4.0, SkillData.SkillType.SIMPLE,
-                Talon.class,
-                List.of(CLAW), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "hant", 140, 6.0, SkillData.SkillType.TRANSFORM,
-                Hant.class,
-                List.of(CLAW), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "hant_killer", 200, 12.0,
-                SkillData.SkillType.TRANSFORM_FINISH,
-                HantKiller.class, List.of(CLAW), true, 16, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "tiger_claw", 160, 15.0, SkillData.SkillType.SIMPLE,
-                TigerClaw.class,
-                List.of(CLAW), false, 14, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "dragon_claw", 160, 20.0, SkillData.SkillType.SIMPLE,
-                DragonClaw.class,
-                List.of(CLAW), false, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "beast_claw", 200, 20.0, SkillData.SkillType.SIMPLE,
-                BeastClaw.class,
-                List.of(CLAW), false, 9, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "golden_claw", 225, 30.0, SkillData.SkillType.SIMPLE,
-                GoldClaw.class,
-                List.of(CLAW), false, 5, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "fast", 100, 10.0, SkillData.SkillType.RUSH, Fast.class,
-                List.of(CLAW),
-                false, 10, DefaultTransformTick));
-        // メイス
-        registerSkill(new SkillData(getNextSkillId(), "grand", 75, 10.0, SkillData.SkillType.SIMPLE,
-                Grand.class,
-                List.of(MACE), false, 0, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "double_creep", 100, 20.0, SkillData.SkillType.SIMPLE,
-                DoubleCreep.class, List.of(MACE), false, 10, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "hammer_down", 325, 40.0, SkillData.SkillType.SIMPLE,
-                HammerDown.class,
-                List.of(MACE), false, 8, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "diastrophism", 240, 30.0, SkillData.SkillType.SIMPLE,
-                Diastrophism.class, List.of(MACE), false, 18, DefaultTransformTick));
-        registerSkill(new SkillData(getNextSkillId(), "mace_impact", 450, 60.0, SkillData.SkillType.RUSH,
-                MaceImpact.class,
-                List.of(MACE), false, 200, DefaultTransformTick));
-        BASE_SKILL_COUNT = nextSkillId;
-        BASE_SKILLS = Map.copyOf(SKILLS);
+    private SwordSkillRegistry() {
     }
 
-    private static int getNextSkillId() {
-        return nextSkillId++;
+    /**
+     * Java 実装のスキルを登録する。MOD 初期化時（クライアント・サーバーの両方）に呼ぶこと。
+     *
+     * <p>データ定義（JSON）はこの後に読み込まれる。ID が同じデータ定義は
+     * {@code replace_builtin: true} のときだけこのスキルを置き換える。</p>
+     */
+    public static synchronized void registerJavaSkill(SkillData skill) {
+        Objects.requireNonNull(skill, "skill");
+        if (skill.getSkillClass() == DataDrivenSkill.class) {
+            throw new IllegalArgumentException(
+                    "DataDrivenSkill は registerJavaSkill では登録できません（JSON の skilldata を使ってください）: "
+                            + skill.getName());
+        }
+        if (JAVA_SKILLS.containsKey(skill.getId())) {
+            throw new IllegalArgumentException("Java スキルの ID が重複しています: " + skill.getId());
+        }
+        JAVA_SKILLS.put(skill.getId(), skill);
+        SKILLS.put(skill.getId(), skill);
     }
 
-    private static void registerSkill(SkillData skillData) {
-        SKILLS.put(skillData.getId(), skillData);
+    /** 登録済みの Java スキル（読み取り専用）。 */
+    public static synchronized Map<Integer, SkillData> getJavaSkills() {
+        return Map.copyOf(JAVA_SKILLS);
     }
 
+    /**
+     * データ定義でレジストリを作り直す。Java スキルを土台に、JSON 定義を ID 順で載せる。
+     *
+     * <p>{@code id} が 0 かつ {@code replace_builtin} でない定義は、空いている最小の ID を自動で振る。</p>
+     */
     public static synchronized void replaceDataDrivenSkills(Collection<DataSkillDefinition> definitions) {
-        SKILLS.clear();
-        SKILLS.putAll(BASE_SKILLS);
-        List<DataSkillDefinition> definitionsInResourceOrder = List.copyOf(definitions);
-        java.util.Set<Integer> usedIds = new java.util.HashSet<>();
-        for (DataSkillDefinition definition : definitionsInResourceOrder) {
+        Objects.requireNonNull(definitions, "definitions");
+        List<DataSkillDefinition> ordered = definitions.stream()
+                .sorted(Comparator.comparingInt(DataSkillDefinition::id))
+                .toList();
+
+        Map<Integer, DataSkillDefinition> resolved = new LinkedHashMap<>();
+        Set<Integer> usedIds = new HashSet<>();
+        List<DataSkillDefinition> autoIdDefinitions = new ArrayList<>();
+        for (DataSkillDefinition definition : ordered) {
             if (definition.id() < 0) {
                 throw new IllegalArgumentException("Invalid data skill ID: " + definition.id());
             }
-            if (definition.id() == 0 && !definition.replaceBuiltin()) continue;
-            if (definition.replaceBuiltin()) {
-                if (definition.id() >= BASE_SKILL_COUNT || !BASE_SKILLS.containsKey(definition.id())) {
-                    throw new IllegalArgumentException("Cannot replace built-in skill ID: " + definition.id());
-                }
-            } else if (definition.id() < BASE_SKILL_COUNT) {
-                throw new IllegalArgumentException("Data skill IDs below " + BASE_SKILL_COUNT
-                        + " require replace_builtin=true; found " + definition.id());
+            if (definition.id() == 0 && !definition.replaceBuiltin()) {
+                autoIdDefinitions.add(definition);
+                continue;
             }
             if (!usedIds.add(definition.id())) {
                 throw new IllegalArgumentException("Duplicate data skill ID: " + definition.id());
             }
+            if (JAVA_SKILLS.containsKey(definition.id()) && !definition.replaceBuiltin()) {
+                throw new IllegalArgumentException("Data skill ID " + definition.id()
+                        + " conflicts with a Java skill; set replace_builtin=true to override it");
+            }
+            resolved.put(definition.id(), definition);
         }
 
-        List<DataSkillDefinition> assignedDefinitions = new java.util.ArrayList<>(definitionsInResourceOrder.size());
-        int nextAvailableId = BASE_SKILL_COUNT;
-        for (DataSkillDefinition definition : definitionsInResourceOrder) {
-            int assignedId = definition.id();
-            if (assignedId == 0 && !definition.replaceBuiltin()) {
-                while (usedIds.contains(nextAvailableId)) nextAvailableId++;
-                assignedId = nextAvailableId++;
-                usedIds.add(assignedId);
+        int nextAvailableId = 0;
+        for (DataSkillDefinition definition : autoIdDefinitions) {
+            while (usedIds.contains(nextAvailableId) || JAVA_SKILLS.containsKey(nextAvailableId)) {
+                nextAvailableId++;
             }
-            assignedDefinitions.add(new DataSkillDefinition(assignedId, definition.name(), definition.cooldown(),
-                    definition.spCost(), definition.type(), definition.weapons(), definition.hidden(),
-                    definition.durationTicks(), definition.transformLimitTicks(), definition.animation(),
-                    definition.color(), definition.motion(), definition.motions(), definition.hitboxes(),
-                    definition.projectiles(), definition.sounds(), definition.legacyFallback(),
-                    definition.replaceBuiltin(), definition.rushStartTicks(), definition.rushStartAnimation(),
-                    definition.rushMoveAnimation(), definition.rushFinishAnimation(), definition.rushCombo(),
-                    definition.trailLength(), definition.shockwaveTicks(), definition.hitstopTicks(),
-                    definition.proficiencyCategory(), definition.unlockProficiency(), definition.assignable(),
-                    definition.animations(), definition.playerEffects(), definition.invulnerabilityTicks(),
-                    definition.endSkillOnGround()));
+            int assignedId = nextAvailableId++;
+            usedIds.add(assignedId);
+            resolved.put(assignedId, definition.withId(assignedId));
         }
 
-        List<DataSkillDefinition> orderedDefinitions = assignedDefinitions.stream()
-                .sorted(java.util.Comparator.comparingInt(DataSkillDefinition::id))
-                .toList();
-        List<DataSkillDefinition> addedDefinitions = orderedDefinitions.stream()
-                .filter(definition -> !definition.replaceBuiltin())
-                .toList();
-        for (DataSkillDefinition definition : orderedDefinitions) {
-            if (definition.replaceBuiltin()) {
-                SKILLS.put(definition.id(), createDataSkill(definition));
+        Map<Integer, SkillData> rebuilt = new LinkedHashMap<>(JAVA_SKILLS);
+        resolved.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> rebuilt.put(entry.getKey(), createDataSkill(entry.getValue())));
+
+        if (!rebuilt.isEmpty()) {
+            int highestId = rebuilt.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1);
+            if (rebuilt.size() != highestId + 1) {
+                throw new IllegalArgumentException("Skill IDs must be contiguous from 0; found IDs " + rebuilt.keySet()
+                        + ". 追加スキルは id を省略すると自動採番されます");
             }
         }
-        for (int index = 0; index < addedDefinitions.size(); index++) {
-            DataSkillDefinition definition = addedDefinitions.get(index);
-            int expectedId = BASE_SKILL_COUNT + index;
-            if (definition.id() != expectedId) {
-                throw new IllegalArgumentException("Data skill IDs must be contiguous starting at "
-                        + BASE_SKILL_COUNT + "; expected " + expectedId + " but found " + definition.id());
-            }
-            SKILLS.put(definition.id(), createDataSkill(definition));
-        }
+
+        SKILLS.clear();
+        SKILLS.putAll(rebuilt);
     }
 
     private static SkillData createDataSkill(DataSkillDefinition definition) {
@@ -376,14 +124,11 @@ public class SwordSkillRegistry {
                 definition.durationTicks(), definition.transformLimitTicks(), definition);
     }
 
-    public static SkillData getBaseSkill(int id) {
-        return BASE_SKILLS.get(id);
-    }
-
+    /** クライアントへ同期するデータ定義（ID 順）。 */
     public static synchronized List<DataSkillDefinition> getDataDrivenDefinitions() {
         return SKILLS.values().stream()
                 .filter(skill -> skill.getDataDefinition() != null)
-                .sorted(java.util.Comparator.comparingInt(SkillData::getId))
+                .sorted(Comparator.comparingInt(SkillData::getId))
                 .map(SkillData::getDataDefinition)
                 .toList();
     }

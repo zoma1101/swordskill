@@ -70,6 +70,14 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
 
         VertexConsumer vertices = buffers.getBuffer(SLASH_TRAIL);
         PoseStack.Pose pose = poseStack.last();
+        int skillColor = entity.getSkillColor();
+        float red = ((skillColor >> 16) & 0xFF) / 255.0F;
+        float green = ((skillColor >> 8) & 0xFF) / 255.0F;
+        float blue = (skillColor & 0xFF) / 255.0F;
+        // 芯は白寄りにして発光感を出す
+        float coreRed = red + (1.0F - red) * 0.75F;
+        float coreGreen = green + (1.0F - green) * 0.75F;
+        float coreBlue = blue + (1.0F - blue) * 0.75F;
         float radiusX = Math.max(0.35F, size.x * 0.5F);
         float radiusY = Math.max(0.25F, size.y * 0.5F);
         float thickness = Math.max(0.06F, Math.min(size.z * 0.035F, 0.2F));
@@ -84,10 +92,10 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
             float toAngle = Mth.lerp(to, -75.0F, endAngle);
             float intensity = fade * (0.35F + 0.65F * to);
             Vec3[] outer = arcStrip(radiusX, radiusY, thickness, z, fromAngle, toAngle);
-            drawQuad(vertices, pose, outer, 0.2F, 0.75F, 1.0F, intensity * 0.18F);
+            drawQuad(vertices, pose, outer, red, green, blue, intensity * 0.18F);
             Vec3[] core = arcStrip(radiusX, radiusY, thickness * 0.28F, z - 0.005F,
                     fromAngle, toAngle);
-            drawQuad(vertices, pose, core, 0.8F, 0.95F, 1.0F, intensity * 0.9F);
+            drawQuad(vertices, pose, core, coreRed, coreGreen, coreBlue, intensity * 0.9F);
         }
         poseStack.popPose();
     }

@@ -181,6 +181,7 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 スキルのトレイル（weapon trail）と同色の火花・光輪・斬痕・フラッシュで命中を強調します。すべて config（`Spark Settings`）で個別に無効化できます。
 
 - 発光粒子 `swordskill:skill_spark` を加算合成で描画します。色はスキル JSON の `color`（＝トレイル色）から取ります。
+- 飛び道具の三日月（`AttackEffectEntity`）の描画色も、同じくスキル JSON の `color` に追従します（芯は白寄りに発光）。
 - 火花 `swordskill:spark_streak`: 速度方向に伸びた光の筋として描画する火花です。色はトレイル色と同じで、先端だけ白熱させています。重力で落ちながら地面では跳ね返ります。
 - 武器の火花 (`trailSparks`): スキルのアニメーション中、刃に沿って火花を散らします。刃の移動方向に乗せて飛ばすため、振り抜くほど流れます。
 - 火花の筋 (`sparkStreaks`): 刃と命中位置に、上記の伸びる火花を追加します。
@@ -244,6 +245,8 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 | `fall_damage_scale` | double | 0 | 0 より大きければ、落下距離（スキル中の最高到達点からの差）を倍率に掛ける |
 | `path` | object | なし | 突進しながら伸びる斬撃（下記） |
 | `random_group` / `random_index` | string / int | 空 / 0 | `animations` と同じ。同じグループなら**同じ出目**を共有する |
+| `single_target` | bool | false | true なら範囲内で最も近い 1 体にだけダメージを与える |
+| `aim_at_contact` | bool | false | `trigger: CONTACT` のとき、接触した相手の中心を自動で狙う。`rotation` は無視され、`offset[2]` が相手からの距離、`offset[1]` が足元からの高さになる |
 
 `path` の要素（剣閃を始点から現在位置までの線に沿って伸ばす）:
 
@@ -254,13 +257,35 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 | `rotation` | bool | false | true なら向きを進行方向から決める |
 | `size_scale` | double | 0 | 0 より大きければ `size` のZ成分を「移動量の平均 × この値」にする |
 
-> 同梱データでは `legacy_fallback` は使いません（`validate_v2.py` も禁止しています）。判断に迷う挙動は上記のキーか、`hitboxes` / `projectiles` の近似で表現します。
+> `legacy_fallback`（旧 Java 実装を呼び出す仕組み）は廃止しました。`true` を書くと読み込みエラーになります。判断に迷う挙動は上記のキーか、`hitboxes` / `projectiles` の近似で表現します。
 
 旧実装からデータ駆動へ移したときに近似した箇所:
 
-- `rapid_bite`: 命中時にクールダウンを 1/5 にする旧処理は、クールダウンがクライアント側の表示用マップ（`ClientForgeHandler`）にしか無いため移植していません。また斬撃の向きは「本体→対象」の実座標から決めていたため、`rotation` の固定値による近似にしています。
+- `rapid_bite`: 命中時にクールダウンを 1/5 にする旧処理は、クールダウンがクライアント側の表示用マップ（`ClientForgeHandler`）にしか無いため移植していません。斬撃は `aim_at_contact` で接触した相手を自動で狙い、`single_target` で 1 体にだけ当たります。
 - `flashing_penetrator` / `mace_impact`: 発生位置はプレイヤーのローカル座標（右・上・前）基準のため、見上げ・見下ろし時は旧実装のワールドY基準とわずかにずれます。
 - `gengetu`: 上段/下段の分岐は `random_group` + `random_index` で再現しています（アニメーションと斬撃が同じ出目を共有します）。
+
+### Java でスキルを追加する（例外）
+標準のスキルはすべて JSON（`data/<namespace>/skilldata/*.json`）で定義します。旧来の「1スキル1Javaクラス」形式は削除済みです。
+どうしても Java でしか書けない挙動が必要な場合だけ、`ISkill` を実装したクラスを登録できます。
+
+```java
+// 共通初期化（クライアント・サーバーの両方で 1 回だけ）で登録する
+SwordSkillRegistry.registerJavaSkill(new SkillData(
+        85,                                   // ID。JSON 定義と合わせて 0 から連番になるようにする
+        "my_skill",                           // 名前（アイコンは textures/gui/my_skill.png）
+        100, 10.0,                            // クールダウン(tick), SP
+        SkillData.SkillType.SIMPLE,           // SIMPLE / RUSH / TRANSFORM / TRANSFORM_FINISH
+        MySkill.class,                        // ISkill の実装
+        List.of(SkillData.WeaponType.ONE_HANDED_SWORD),
+        false,                                // hidden
+        20,                                   // duration ticks
+        20));                                 // transform limit ticks
+```
+
+- スキル ID は選択画面が一覧の並び順として使うため、**0 から連番**にしてください（データ定義と併用するときはデータ側の最大 ID の次を使います）。
+- 同じ ID のデータ定義（JSON）がある場合、`replace_builtin: true` なら JSON が優先されます。
+- Java スキルはクライアントへ同期されません（同じ MOD jar が両側に入っている前提）。
 
 ## Selection Screen UI (選択画面)
 SAO 風の UI になっています。SAO-styled skill selection screen.

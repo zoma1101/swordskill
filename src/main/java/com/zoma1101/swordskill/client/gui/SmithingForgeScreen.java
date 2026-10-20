@@ -18,7 +18,9 @@ public class SmithingForgeScreen extends AbstractContainerScreen<SmithingForgeMe
 
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID,
             "textures/gui/smithing_forge.png");
-    private static final int TEXTURE_SIZE = 256;
+    /** テクスチャの実寸。imageWidth/imageHeight と揃えないとスロット穴と絵がずれる。 */
+    private static final int TEXTURE_WIDTH = 176;
+    private static final int TEXTURE_HEIGHT = 232;
 
     public SmithingForgeScreen(SmithingForgeMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -30,7 +32,7 @@ public class SmithingForgeScreen extends AbstractContainerScreen<SmithingForgeMe
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         graphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight,
-                TEXTURE_SIZE, TEXTURE_SIZE);
+                TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 
     @Override

@@ -46,7 +46,6 @@
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
   "sounds": [],
   "trail_length": 5.0,
   "shockwave_ticks": 12

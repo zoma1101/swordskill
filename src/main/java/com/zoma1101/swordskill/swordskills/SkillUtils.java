@@ -74,23 +74,24 @@ public class SkillUtils {
                 movement, flyingSlash, travelDistance, renderPitch, DEFAULT_SKILL_COLOR);
     }
 
-    /** トレイル色と同じ色で飛び道具を出す版。色は命中演出に使う。 */
-    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+    /** トレイル色と同じ色で飛び道具を出す版。色は命中演出に使う。生成したエンティティを返す。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             double travelDistance, double renderPitch, int skillColor) {
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
                 null, true, travelDistance, renderPitch, skillColor);
     }
 
-    /** トレイル色と同じ色で飛び道具（移動ベクトル指定）を出す版。 */
-    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+    /** トレイル色と同じ色で飛び道具（移動ベクトル指定）を出す版。生成したエンティティを返す。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             double travelDistance, Vec3 movement, double renderPitch, int skillColor) {
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
                 movement, true, travelDistance, renderPitch, skillColor);
     }
 
-    private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+    /** クライアント側では生成しないため null を返す。 */
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor) {
         if (!level.isClientSide) {
@@ -180,7 +181,9 @@ public class SkillUtils {
                     level.addFreshEntity(leftEffect);
                 }
             }
+            return effect;
         }
+        return null;
     }
 
     public static double BaseDamage(ServerPlayer player) {

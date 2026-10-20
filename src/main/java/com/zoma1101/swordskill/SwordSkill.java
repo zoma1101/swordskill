@@ -35,7 +35,7 @@ import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
     public static final String MOD_ID = "swordskill";
-    public static final String PROTOCOL_VERSION = "9";
+    public static final String PROTOCOL_VERSION = "10";
 
     public SwordSkill(IEventBus modEventBus, ModContainer container) {
         SwordSkill_Entities.register(modEventBus);

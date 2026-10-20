@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,17 +44,28 @@ public class AttackEffectEntity extends Entity {
             .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<String> SKILL_PARTICLE = SynchedEntityData
             .defineId(AttackEffectEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> SKILL_COLOR = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
 
     private double damage = 4.0f; // ダメージ量
     private double knockbackStrength = 0.5; // ノックバック強さ
     private int duration = 15; // 生存時間 (tick)
     private LivingEntity owner;
-    private int skillColor = 0x54D8FF; // 命中演出に使うトレイル色（サーバー側のみで保持）
     private final List<Integer> hitEntities = new ArrayList<>();
+    private boolean singleTarget = false; // 命中対象を最も近い 1 体だけにする（サーバー側のみ）
 
-    /** 命中演出の色を設定する。クライアントへは同期不要（演出はサーバーから通知する）。 */
+    /** スキル色。トレイル・命中演出・斬撃の描画に使う（クライアントにも同期する）。 */
     public void setSkillColor(int color) {
-        this.skillColor = color & 0xFFFFFF;
+        this.entityData.set(SKILL_COLOR, color & 0xFFFFFF);
+    }
+
+    public int getSkillColor() {
+        return this.entityData.get(SKILL_COLOR);
+    }
+
+    /** true にすると、範囲内で最も近い 1 体だけにダメージを与える。 */
+    public void setSingleTarget(boolean singleTarget) {
+        this.singleTarget = singleTarget;
     }
 
     public AttackEffectEntity(EntityType<? extends Entity> entityType, Level level) {
@@ -69,6 +81,7 @@ public class AttackEffectEntity extends Entity {
         builder.define(EFFECT_RADIUS_Y, 2f);
         builder.define(EFFECT_RADIUS_Z, 2f);
         builder.define(SKILL_PARTICLE, "skill_particle");
+        builder.define(SKILL_COLOR, 0x54D8FF);
     }
 
     private boolean hasAppliedDamage = false;
@@ -100,15 +113,25 @@ public class AttackEffectEntity extends Entity {
         AABB area = this.getBoundingBox()
                 .inflate((getEffectRadius().x + getEffectRadius().y + getEffectRadius().z) / 5);
         List<LivingEntity> entities = serverLevel.getEntitiesOfClass(LivingEntity.class, area,
-                entity -> (SkillTargetEntity(entity, owner)));
+                entity -> (SkillTargetEntity(entity, owner)) && !hitEntities.contains(entity.getId()));
+        entities = limitToSingleTarget(entities);
 
         for (LivingEntity entity : entities) {
-            if (!hitEntities.contains(entity.getId())) {
-                KnowBack(entity);
-                ApplyDamage(entity);
-                hitEntities.add(entity.getId());
-            }
+            KnowBack(entity);
+            ApplyDamage(entity);
+            hitEntities.add(entity.getId());
         }
+    }
+
+    /** 単体指定なら最も近い 1 体だけを残す。 */
+    private List<LivingEntity> limitToSingleTarget(List<LivingEntity> entities) {
+        if (!singleTarget || entities.size() <= 1) {
+            return entities;
+        }
+        LivingEntity closest = entities.stream()
+                .min(Comparator.comparingDouble(entity -> entity.distanceToSqr(this)))
+                .orElse(null);
+        return closest == null ? List.of() : List.of(closest);
     }
 
     private void applyRayDamage() {
@@ -142,18 +165,18 @@ public class AttackEffectEntity extends Entity {
 
         Vec3 finalRayEnd = rayEnd;
         List<LivingEntity> hitEntitiesInRange = entitiesInRange.stream()
+                .filter(entity -> !hitEntities.contains(entity.getId()))
                 .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd))
                 .toList();
+        hitEntitiesInRange = limitToSingleTarget(hitEntitiesInRange);
 
         for (LivingEntity entity : hitEntitiesInRange) {
-            if (!hitEntities.contains(entity.getId())) {
-                ApplyDamage(entity);
-                if (owner != null) {
-                    Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
-                    entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
-                }
-                hitEntities.add(entity.getId());
+            ApplyDamage(entity);
+            if (owner != null) {
+                Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
+                entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
             }
+            hitEntities.add(entity.getId());
         }
     }
 
@@ -203,7 +226,7 @@ public class AttackEffectEntity extends Entity {
         if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer
                 && this.level() instanceof ServerLevel) {
             double power = damage * DamagePer / Math.max(1.0D, SkillUtils.BaseDamage(serverPlayer));
-            DataDrivenSkill.sendHitEffect(serverPlayer, entity, this.skillColor, power);
+            DataDrivenSkill.sendHitEffect(serverPlayer, entity, getSkillColor(), power);
         }
         if (getDeltaMovement() == Vec3.ZERO) {
             entity.invulnerableTime = 0;

@@ -14,7 +14,7 @@
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 100,
-  "color": "#54D8FF",
+  "color": "#FF0000",
   "motions": [],
   "hitboxes": [],
   "projectiles": [
@@ -97,7 +97,6 @@
       "random_index": 1
     }
   ],
-  "legacy_fallback": false,
   "sounds": [
     {
       "tick": 8,
