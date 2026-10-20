@@ -16,7 +16,6 @@ public class SampleItemRegistry {
     public static final DeferredItem<Item> SAMPLE_SCYTHE = RegiSampleSword("sample_scythe", 4, -2.8F);
     public static final DeferredItem<Item> SAMPLE_WHIP = RegiSampleSword("sample_whip", 3, -2.6F);
     public static final DeferredItem<Item> SAMPLE_CLAW = RegiSampleSword("sample_claw", 3, -1.0F);
-    public static final DeferredItem<Item> UNLOCKITEM = ITEMS.registerItem("unlock_item",Item::new, new Item.Properties().rarity(Rarity.EPIC) );
 
 
     public static void register(IEventBus eventBus) {
