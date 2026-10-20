@@ -33,6 +33,11 @@ public class AnimationUtils {
     //手の方向そのままに剣配置　(0,3,2) -90
 
     public static void PlayerAnim(Player player,int SkillID, String type){
+        // skillId 0 は「アニメーション解除」の合図。ここで色とトレイル長まで戻すと、
+        // 消えかけのトレイルが既定色（青）で描かれてしまうので触らない。
+        if (SkillID <= 0) {
+            return;
+        }
         var skill = SwordSkillRegistry.SKILLS.get(SkillID);
         if (skill == null) {
             return;
@@ -106,6 +111,10 @@ public class AnimationUtils {
     }
 
     private static FrozenKeyframeAnimationPlayer getChargeAnimationPlayer(Player player, int skillId, String type) {
+        // skillId 0 はスキルなし。既定色で上書きしないようにする。
+        if (skillId <= 0) {
+            return null;
+        }
         var skill = SwordSkillRegistry.SKILLS.get(skillId);
         if (skill == null || !(player instanceof AbstractClientPlayer clientPlayer)) {
             return null;
