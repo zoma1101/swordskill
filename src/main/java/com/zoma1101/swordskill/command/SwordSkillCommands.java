@@ -163,6 +163,7 @@ public class SwordSkillCommands {
                                                         EntityArgument.getEntities(context, "targets"),
                                                         IntegerArgumentType.getInteger(context, "level")))))))
                 .then(Commands.literal("forge")
+                        .requires(source -> com.zoma1101.swordskill.SwordSkillFeatures.SMITHING)
                         .then(Commands.literal("create")
                                 .then(Commands.argument("targets", EntityArgument.players())
                                         .then(Commands.argument("pattern", StringArgumentType.string())

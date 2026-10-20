@@ -123,8 +123,9 @@ public class ServerConfig {
         BUILDER.push("Player Level Settings");
         levelSystemEnabled = BUILDER.comment(
                 "Enable the player level system. Level grants stat points (STR/AGI), maximum SP and "
-                        + "progression gates. Level itself never adds raw HP or damage; STR/AGI do.")
-                .define("levelSystemEnabled", true);
+                        + "progression gates. Level itself never adds raw HP or damage; STR/AGI do.",
+                "Disabled by default for the first release; the status screen is also disabled.")
+                .define("levelSystemEnabled", false);
         playerLevelMax = BUILDER.comment("Maximum player level.")
                 .defineInRange("playerLevelMax", 100, 1, 10000);
         levelXpBase = BUILDER.comment(
@@ -173,7 +174,7 @@ public class ServerConfig {
 
         BUILDER.push("Smithing Settings");
         smithingEnabled = BUILDER.comment("Enable the smithing (forged weapon) system.")
-                .define("smithingEnabled", true);
+                .define("smithingEnabled", false);
         forgeBaseDamage = BUILDER.comment("Base attack damage of a forged weapon before material and part scaling.")
                 .defineInRange("forgeBaseDamage", 1.0, 0.0, 1000.0);
         forgeMaterialPowerScale = BUILDER.comment(

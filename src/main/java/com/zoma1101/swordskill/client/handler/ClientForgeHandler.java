@@ -1,8 +1,10 @@
 package com.zoma1101.swordskill.client.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkillFeatures;
 import com.zoma1101.swordskill.AnimationUtils;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
+import com.zoma1101.swordskill.client.gui.ProficiencyOverviewScreen;
 import com.zoma1101.swordskill.client.gui.StatusScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
@@ -223,7 +225,12 @@ public class ClientForgeHandler {
         } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isActiveAndMatches(inputKey)) {
             mc.setScreen(new HudPositionSettingScreen());
         } else if (Keybindings.INSTANCE.SwordSkill_Status_Key.isActiveAndMatches(inputKey)) {
-            mc.setScreen(new StatusScreen());
+            // ステータス画面が無効なリリースでは、熟練度一覧を直接開く
+            if (SwordSkillFeatures.STATUS_SCREEN) {
+                mc.setScreen(new StatusScreen());
+            } else {
+                mc.setScreen(new ProficiencyOverviewScreen());
+            }
         }
     }
 

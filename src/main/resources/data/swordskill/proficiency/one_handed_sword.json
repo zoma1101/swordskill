@@ -1,0 +1,23 @@
+{
+  "skills": {
+    "slant": 50,
+    "horizontal": 0,
+    "horizontal_arc": 0,
+    "horizontal_square": 0,
+    "vertical": 0,
+    "vertical_arc": 0,
+    "vertical_square": 0,
+    "x_break": 50,
+    "sharp_neil": 100,
+    "holy_cross_brade": 50,
+    "rage_spike": 0,
+    "sonic_reap": 50,
+    "savage_fulcrum": 100,
+    "howling_octave": 150,
+    "vorpal_strike": 150,
+    "star_sword": 100,
+    "world_nova": 150,
+    "reaper": 0,
+    "linear": 50
+  }
+}

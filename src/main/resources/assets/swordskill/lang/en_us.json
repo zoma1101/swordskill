@@ -9,7 +9,7 @@
   "key.swordskill.use_ss_key_2" : "QuickUse Skill-2",
   "key.swordskill.use_ss_key_3" : "QuickUse Skill-3",
   "key.swordskill.use_ss_key_4" : "QuickUse Skill-4",
-  "key.swordskill.status_key" : "Open status window",
+  "key.swordskill.status_key" : "Open proficiency screen",
   "message.swordskill.swordskill_selector_key_pressed" : "Please select sword skill",
   "entity.swordskill.attack_effect": "Slash",
 

@@ -93,17 +93,25 @@ public class ProficiencyOverviewScreen extends Screen {
 
         int buttonWidth = 110;
         int gap = 8;
-        int totalWidth = buttonWidth * 2 + gap;
-        int buttonX = width / 2 - totalWidth / 2;
         int buttonY = panelBottom() - 24;
-        addRenderableWidget(SaoButton.of(
-                Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
-                () -> Minecraft.getInstance().setScreen(new StatusScreen()),
-                buttonX, buttonY, buttonWidth, 20, SaoTheme.dark()));
-        addRenderableWidget(SaoButton.of(
-                Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
-                this::onClose,
-                buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, SaoTheme.dark()));
+        if (com.zoma1101.swordskill.SwordSkillFeatures.STATUS_SCREEN) {
+            int totalWidth = buttonWidth * 2 + gap;
+            int buttonX = width / 2 - totalWidth / 2;
+            addRenderableWidget(SaoButton.of(
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
+                    () -> Minecraft.getInstance().setScreen(new StatusScreen()),
+                    buttonX, buttonY, buttonWidth, 20, SaoTheme.dark()));
+            addRenderableWidget(SaoButton.of(
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
+                    this::onClose,
+                    buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, SaoTheme.dark()));
+        } else {
+            // ステータス画面が無効なリリースでは「閉じる」だけを中央に置く
+            addRenderableWidget(SaoButton.of(
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
+                    this::onClose,
+                    width / 2 - buttonWidth / 2, buttonY, buttonWidth, 20, SaoTheme.dark()));
+        }
     }
 
     // ==================================================================

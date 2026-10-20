@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.zoma1101.swordskill.proficiency.ProficiencyUnlockTable;
 import com.zoma1101.swordskill.swordskills.DataSkillDefinition;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SkillHitEffectRegistry;
@@ -52,7 +53,13 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     }
                 });
         try {
-            SwordSkillRegistry.replaceDataDrivenSkills(definitions);
+            ProficiencyUnlockTable.reload(resourceManager);
+        } catch (RuntimeException exception) {
+            LOGGER.error("Failed to load proficiency unlock tables: {}", exception.getMessage());
+        }
+        List<DataSkillDefinition> effective = ProficiencyUnlockTable.apply(definitions);
+        try {
+            SwordSkillRegistry.replaceDataDrivenSkills(effective);
         } catch (IllegalArgumentException exception) {
             LOGGER.error("Invalid data-driven skill ID sequence; no data-driven skills were loaded: {}",
                     exception.getMessage());

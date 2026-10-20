@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.smithing;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkillFeatures;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -78,6 +79,9 @@ public final class SmithingRegistry {
     }
 
     public static void register(IEventBus eventBus) {
+        if (!SwordSkillFeatures.SMITHING) {
+            return;
+        }
         BLOCKS.register(eventBus);
         ITEMS.register(eventBus);
         MENUS.register(eventBus);

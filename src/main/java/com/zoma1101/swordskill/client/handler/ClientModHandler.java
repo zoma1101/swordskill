@@ -57,6 +57,9 @@ public class ClientModHandler {
     //鍛冶台・溶解炉の画面
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        if (!com.zoma1101.swordskill.SwordSkillFeatures.SMITHING) {
+            return;
+        }
         event.register(com.zoma1101.swordskill.smithing.SmithingRegistry.forgeMenu(),
                 com.zoma1101.swordskill.client.gui.SmithingForgeScreen::new);
         event.register(com.zoma1101.swordskill.smithing.SmithingRegistry.meltingMenu(),
@@ -66,6 +69,9 @@ public class ClientModHandler {
     //鍛造武器の色（tintindex 0 = メインカラー / 1 = サブカラー）
     @SubscribeEvent
     public static void registerItemColors(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Item event) {
+        if (!com.zoma1101.swordskill.SwordSkillFeatures.SMITHING) {
+            return;
+        }
         event.register((stack, tintIndex) -> {
             com.zoma1101.swordskill.smithing.ForgedWeaponData data =
                     com.zoma1101.swordskill.smithing.ForgedWeaponData.get(stack);

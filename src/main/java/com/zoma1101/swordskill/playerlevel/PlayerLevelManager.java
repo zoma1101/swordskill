@@ -65,7 +65,10 @@ public final class PlayerLevelManager {
     // --- 設定 -----------------------------------------------------------
 
     public static boolean enabled() {
-        return ServerConfig.levelSystemEnabled.get();
+        // 一次リリースではステータス（レベル／STR・AGI）を無効化している。
+        // 熟練度はこのフラグに依存しないため、そのまま動作する。
+        return com.zoma1101.swordskill.SwordSkillFeatures.STATUS_SCREEN
+                && ServerConfig.levelSystemEnabled.get();
     }
 
     public static int maxLevel() {

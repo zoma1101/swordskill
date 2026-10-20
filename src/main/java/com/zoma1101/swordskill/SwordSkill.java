@@ -65,7 +65,7 @@ public class SwordSkill {
                 }
             }
         }
-        if (SmithingDefinitions.consumeSyncPending()) {
+        if (SmithingDefinitions.consumeSyncPending() && SwordSkillFeatures.SMITHING) {
             for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
                 SyncSmithingDefsPayload.sendTo(player);
             }
@@ -80,8 +80,10 @@ public class SwordSkill {
         event.addListener(dataLoader);
         WeaponTypeDetector.initialize(dataLoader);
         event.addListener(new SkillDataLoader());
-        event.addListener(new SmithingDataLoader.Materials());
-        event.addListener(new SmithingDataLoader.Parts());
-        event.addListener(new SmithingDataLoader.Patterns());
+        if (SwordSkillFeatures.SMITHING) {
+            event.addListener(new SmithingDataLoader.Materials());
+            event.addListener(new SmithingDataLoader.Parts());
+            event.addListener(new SmithingDataLoader.Patterns());
+        }
     }
 }

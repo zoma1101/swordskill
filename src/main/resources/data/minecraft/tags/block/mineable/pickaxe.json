@@ -1,7 +1,4 @@
 {
   "replace": false,
-  "values": [
-    "swordskill:smithing_forge",
-    "swordskill:melting_forge"
-  ]
+  "values": []
 }

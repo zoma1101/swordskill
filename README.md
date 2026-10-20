@@ -49,7 +49,9 @@ Player level (SAO-style character level). Levelling grants **stat points** and m
 - 予定: 階層・クエスト・スキルスロットの解放ゲート。
 
 ### Status (ステータス)
-`K`（`key.swordskill.status_key`）、または選択画面の「ステータス」ボタンで **ステータス画面** が開きます。レベル・XP バー・未使用ポイントを表示し、STR / AGI に好きなだけ割り振れます（`+` ボタン、Shift で 10 ずつ）。右側には **簡易的な戦闘ステータス**（攻撃力・防御力・移動速度・最大HP・最大SP）を表示します。ここから「熟練度一覧」ボタンで熟練度メニューへ移動できます。
+**一次リリースではステータス（レベル／STR・AGI）を無効化しています**（`SwordSkillFeatures.STATUS_SCREEN = false`、`levelSystemEnabled` 既定 `false`）。モンスター撃破でのレベルアップ、ステータスポイント、レベル由来の最大SP増加、STRの与ダメージ補正、AGIの移動速度補正はすべて停止します。**熟練度（プロフィシエンシー）はレベルとは独立しているため、そのまま動作します。** 無効時は `K`（`key.swordskill.status_key`）で **熟練度一覧画面** が直接開きます。
+
+有効化する場合は `SwordSkillFeatures.STATUS_SCREEN` を `true` に、`config/swordskill-server.toml` の `levelSystemEnabled` を `true` にしてください。有効時の内容: レベル・XP バー・未使用ポイントを表示し、STR / AGI に好きなだけ割り振れます（`+` ボタン、Shift で 10 ずつ）。右側には **簡易的な戦闘ステータス**（攻撃力・防御力・移動速度・最大HP・最大SP）を表示します。ここから「熟練度一覧」ボタンで熟練度メニューへ移動できます。
 
 | ステータス | 効果 | config |
 | --- | --- | --- |
@@ -76,6 +78,8 @@ STR はバニラの攻撃力属性ではなく、独自の計算式（`CombatSta
 例: `/swordskill playerlevel xp @s 500` / `/swordskill stat add @s STR 5` / `/swordskill enemylevel set @e[type=zombie,limit=1] 10`
 
 ## Smithing (鍛冶システム)
+> **一次リリースでは無効化しています。** `SwordSkillFeatures.SMITHING = false` の間は、鍛冶台・溶解炉・鍛造武器・インゴットを**登録しない**ため、アイテムとしても存在しません（レシピ・コマンドも無効）。再有効化するときは `SwordSkillFeatures.SMITHING` を `true` に戻し、`recipe/smithing_forge.json` / `recipe/melting_forge.json` を復元してください。以下の記述は有効化したときの仕様です。
+
 武器を何百種類も作らず、**部品（刀身・鍔・柄）と素材の組み合わせ**で武器を作るシステムです。武器アイテムは `swordskill:forged_weapon` の 1 種類だけで、中身は 1.21 のデータコンポーネント（`swordskill:forge`）に持たせます。見た目と着色は部品テクスチャ＋ `tintindex 0/1`（メインカラー／サブカラー）で行います。
 Data-driven forging: one item (`swordskill:forged_weapon`) whose stats, colours, STR requirement and memory all live in its data components.
 
@@ -164,10 +168,29 @@ Per-player proficiency stored per category (weapon type for now; cooking / throw
 - 上昇: そのカテゴリのスキルでモンスターを撃破すると熟練度が加算されます（`proficiencyPerKill`、既定 1）。`proficiencyFromMonstersOnly` を false にすると動物などでも加算されます。料理・鍛冶などのカテゴリは、それぞれの行動に成功したときに `ProficiencyManager.addProficiency(...)` を呼ぶ形で追加できます。
 - レベルアップ: 熟練度が `proficiencyPerLevelUp`（既定 100）貯まるごとに「レベルアップポイント」を1つ獲得します。選択画面の「レベルアップ (熟練度ポイント n)」ボタンで、**そのカテゴリのスキル**を1レベル上げられます（最大レベル・未解放・説明枠は対象外）。ポイントは「獲得済み − 使用済み」で管理し、レベルアップ以外では消費されません。
 - 解放条件: スキル JSON の `unlock_proficiency` に数値を書くと、そのカテゴリの熟練度がその値以上でないと解放できなくなります（0 または未指定なら熟練度不要）。解放ボタンには必要な熟練度が表示され、足りない場合は警告が出ます（クリエイティブは免除）。
+  - **データパックでカテゴリごとに上書きできます**（下記「修得熟練度の設定」）。書かなかったスキルは skilldata の `unlock_proficiency` が使われます。
   - 既定値の目安: 各スキルの攻撃倍率から `score = 最大単発倍率 × 1.5 + 全ヒット合計倍率` を計算し、`score < 5 → 0` / `< 8 → 50` / `< 11 → 100` / `< 15.5 → 150` / それ以上 `→ 200` で設定しています。武器種ごとに必ず1つは必要熟練度0の入門スキルが残るようにしています（SPEAR・RAPIER・KATANA は自動補正）。
 - 保存先: `world/swordskill_data/<uuid>.json` の `proficiencies`（カテゴリ→熟練度）と `proficiency_spent`（カテゴリ→使用済みポイント）。
 - 表示: 選択画面のフッター右側に `片手剣 熟練度 142 (次まで 42/100) ▲1` の形式で表示されます。
-- 熟練度一覧画面: ステータス画面の「熟練度一覧」ボタンから開けます（`key.swordskill.status_key`、既定 `K` → ステータス画面）。左にカテゴリごとの熟練度・ポイント、右にそのカテゴリのスキルごとのレベル・解放状況・解放に必要な熟練度を一覧表示します（ホイールでスクロール、行は領域内でクリップされます）。
+- 熟練度一覧画面: `K`（`key.swordskill.status_key`、既定 `K`）で直接開けます（ステータス画面が有効なときは、そこの「熟練度一覧」ボタンからも移動できます）。左にカテゴリごとの熟練度・ポイント、右にそのカテゴリのスキルごとのレベル・解放状況・解放に必要な熟練度を一覧表示します（ホイールでスクロール、行は領域内でクリップされます）。
+
+### 修得熟練度の設定（データパック）
+`data/<namespace>/proficiency/<category>.json` に、スキル名＝必要熟練度を書きます。ファイル名がカテゴリ名（`one_handed_sword` / `two_handed_sword` / `katana` / `axe` / `rapier` / `claw` / `spear` / `mace` / `scythe` / `dagger` / `dualsword`）です。
+
+```json
+{
+  "skills": {
+    "slant": 50,
+    "horizontal": 0,
+    "sharp_neil": 100
+  }
+}
+```
+
+- 既定で 11 カテゴリ分のファイルを同梱しており、現在の `unlock_proficiency` と同じ値が入っています。数値を書き換えるだけで調整できます。
+- ここに書いた値が優先されます（`skilldata` の `unlock_proficiency` より強い）。項目を消す／ファイルを消すと `skilldata` の値に戻ります。
+- 値は 0〜1000000。`/reload` で反映され、サーバーからクライアントへも同期されます（表示中の必要熟練度も更新されます）。
+- 同じカテゴリのファイル内に、そのカテゴリに存在しないスキル名を書いた場合はログに警告が出ます。
 
 コマンド (要 OP 権限レベル2):
 ```

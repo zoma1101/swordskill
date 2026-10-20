@@ -25,6 +25,9 @@ public final class CombatStats {
     }
 
     private static int stat(ServerPlayer player, StatType type) {
+        if (!PlayerLevelManager.enabled()) {
+            return 0;
+        }
         return Math.max(0, PlayerLevelManager.getStat(player, type));
     }
 

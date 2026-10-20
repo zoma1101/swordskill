@@ -9,7 +9,7 @@
   "key.swordskill.use_ss_key_2" : "即時ソードスキル2使用",
   "key.swordskill.use_ss_key_3" : "即時ソードスキル3使用",
   "key.swordskill.use_ss_key_4" : "即時ソードスキル4使用",
-  "key.swordskill.status_key" : "ステータス画面を開く",
+  "key.swordskill.status_key" : "熟練度画面を開く",
   "message.swordskill.swordskill_selector_key_pressed" : "ソードスキルを選択してください",
   "entity.swordskill.attack_effect": "斬撃",
 

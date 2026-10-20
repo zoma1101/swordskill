@@ -69,6 +69,15 @@ public record DataSkillDefinition(
                 assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround);
     }
 
+    /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
+    public DataSkillDefinition withUnlockProficiency(int newUnlockProficiency) {
+        return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons, hidden, durationTicks,
+                transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
+                replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
+                rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround);
+    }
+
     public record Motion(double forward, double strafe, double vertical) {
     }
 
