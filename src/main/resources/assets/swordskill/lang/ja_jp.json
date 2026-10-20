@@ -63,6 +63,7 @@
   "gui.swordskill.hud_level": "Lv.%s ×%s",
   "gui.swordskill.slot_weapon_mismatch": "装備中の武器種ではこのスキルをセットできません",
   "gui.swordskill.not_assignable": "この項目は説明です（スロットにセットできません）",
+  "gui.swordskill.derived_not_assignable": "派生スキルは直接セットできません（元スキルから派生させて使用します）",
   "gui.swordskill.slot_locked": "未解放のスキルはスロットにセットできません",
   "gui.swordskill.unlock_locked": "解放 (要 %s 熟練度 %s / 現在 %s)",
   "gui.swordskill.unlock_proficiency_warning": "熟練度が足りないため解放できません",

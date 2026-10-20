@@ -78,7 +78,7 @@ public record SkillSlotSelectionPayload(int skillId, int slotIndex, String weapo
                             msg.weaponName(), serverWeaponName, player.getName().getString());
                     return;
                 }
-                boolean compatible = skill.isAssignable() && !serverWeaponTypes.isEmpty()
+                boolean compatible = skill.isSlotAssignable() && !serverWeaponTypes.isEmpty()
                         && skill.getAvailableWeaponTypes().stream().anyMatch(serverWeaponTypes::contains);
                 if (!compatible) {
                     LOGGER.warn("Rejected skill {} (types: {}) for weapon '{}' (types: {}) from player {}",

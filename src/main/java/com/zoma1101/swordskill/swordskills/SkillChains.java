@@ -77,6 +77,25 @@ public final class SkillChains {
         return start(skillId) == skillId ? -1 : skillId - 1;
     }
 
+    /** そのスキルが派生先（チェーンの2段目以降）か。 */
+    public static boolean isDerived(int skillId) {
+        return isChainMember(SwordSkillRegistry.SKILLS.get(skillId)) && parentOf(skillId) >= 0;
+    }
+
+    /** そのスキルから派生できる次の段の ID。派生先が無ければ -1。 */
+    public static int next(int skillId) {
+        SkillData current = SwordSkillRegistry.SKILLS.get(skillId);
+        if (!isChainMember(current) || current.getType() == SkillData.SkillType.TRANSFORM_FINISH) {
+            return -1;
+        }
+        int nextId = skillId + 1;
+        SkillData next = SwordSkillRegistry.SKILLS.get(nextId);
+        if (!isChainMember(next) || parentOf(nextId) != skillId) {
+            return -1;
+        }
+        return nextId;
+    }
+
     /** チェーン先頭からの段数（元スキル=0、その派生=1...）。 */
     public static int depthOf(int skillId) {
         int depth = 0;

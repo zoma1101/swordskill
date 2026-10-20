@@ -16,6 +16,7 @@ import com.zoma1101.swordskill.payload.CheckSkillUnlockedPayload;
 import com.zoma1101.swordskill.payload.SkillLoadSlotPayload;
 import com.zoma1101.swordskill.payload.SkillRequestPayload;
 import com.zoma1101.swordskill.payload.UseSkillPayload;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -55,6 +56,7 @@ public class ClientForgeHandler {
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
     private static int addSkillIndex = 0;
     private static Integer transformChainBaseId = null;
+    private static Integer lastExecutedSkillId = null;
     private static Integer skillUsedTicks = null;
     private static Integer limitTickMax = 20;
     private static final Integer limitTickMin = 0; // 0に短縮して反応を改善
@@ -81,6 +83,7 @@ public class ClientForgeHandler {
         cooldowns.clear();
         addSkillIndex = 0;
         transformChainBaseId = null;
+        lastExecutedSkillId = null;
         skillUsedTicks = null;
         clearSkillCharge(Minecraft.getInstance().player);
         SetWeaponType = false;
@@ -118,6 +121,7 @@ public class ClientForgeHandler {
             if (skillUsedTicks > limitTickMax) {
                 addSkillIndex = 0;
                 transformChainBaseId = null;
+                lastExecutedSkillId = null;
                 skillUsedTicks = null;
             }
         }
@@ -270,6 +274,9 @@ public class ClientForgeHandler {
                 // クールダウン設定（スロットに対して設定）
                 cooldowns.put(coolDownSkillID, getCoolDown(skillData));
 
+                // 直前に実行したスキル（派生チェーンの検証用）
+                lastExecutedSkillId = skillID;
+
                 // 受付時間更新
                 limitTickMax = skillData.getTransformLimitTick();
 
@@ -293,23 +300,37 @@ public class ClientForgeHandler {
 
         // 1. クールダウン中でないなら、コンボを開始
         if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
+            // 派生先は元スキルからの派生時のみ使用できる（古いスロットデータ対策）
+            if (SkillChains.isDerived(selectedSkillIndex)) {
+                return;
+            }
             ExecuteSkill(selectedSkillIndex, selectedSkillIndex, chargeTicks);
             addSkillIndex = 0;
             transformChainBaseId = null;
             skillUsedTicks = 0;
         }
-        // 2. クールダウン中に同じキーが押された場合、派生をチェック
-        else if (skillUsedTicks != null && skillUsedTicks < limitTickMax && skillUsedTicks >= limitTickMin) {
+        // 2. クールダウン中に同じキーが押された場合、直前のスキルからの派生のみ受け付ける
+        else if (lastExecutedSkillId != null && lastExecutedSkillId == currentSkillId
+                && skillUsedTicks != null && skillUsedTicks < limitTickMax && skillUsedTicks >= limitTickMin) {
             if (currentSkill != null && currentSkill.getType() == TRANSFORM) {
-                int nextSkillId = currentSkillId + 1;
+                int nextSkillId = SkillChains.next(currentSkillId);
 
                 // 次の段がアンロックされているかチェック（コンフィグでアンロック不要ならスルー）
-                boolean isNextUnlocked = ClientUnlockedSkillsHandler.isUnlocked(nextSkillId)
-                        || (ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get());
+                boolean isNextUnlocked = nextSkillId >= 0
+                        && (ClientUnlockedSkillsHandler.isUnlocked(nextSkillId)
+                                || (ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get()));
 
-                if (nextSkillId < SwordSkillRegistry.SKILLS.size() && isNextUnlocked) {
+                if (isNextUnlocked) {
                     addSkillIndex++;
                     ExecuteSkill(nextSkillId, selectedSkillIndex, chargeTicks);
+                    // 別キーから派生した場合も、派生元チェーンのスロットをクールダウンさせる
+                    int chainBase = transformChainBaseId != null ? transformChainBaseId : selectedSkillIndex;
+                    if (chainBase != selectedSkillIndex) {
+                        SkillData nextSkill = SwordSkillRegistry.SKILLS.get(nextSkillId);
+                        if (nextSkill != null) {
+                            cooldowns.put(chainBase, getCoolDown(nextSkill));
+                        }
+                    }
                     skillUsedTicks = 0;
                 }
 
@@ -317,6 +338,7 @@ public class ClientForgeHandler {
                 // フィニッシュ発動後の再入力はリセット
                 addSkillIndex = 0;
                 transformChainBaseId = null;
+                lastExecutedSkillId = null;
                 skillUsedTicks = null;
             }
         }
@@ -369,15 +391,22 @@ public class ClientForgeHandler {
             return;
         }
 
-        boolean cooldownReady = cooldowns.getOrDefault(selectedSkillId, 0) <= 0;
+        boolean cooldownReady = cooldowns.getOrDefault(selectedSkillId, 0) <= 0
+                && cooldowns.getOrDefault(baseSkillId, 0) <= 0;
         int activeChainId = transformChainBaseId == null ? selectedSkillId : transformChainBaseId;
         SkillData activeChainSkill = SwordSkillRegistry.SKILLS.get(activeChainId + addSkillIndex);
-        boolean comboWindowOpen = skillUsedTicks != null && skillUsedTicks < limitTickMax
+        boolean comboWindowOpen = lastExecutedSkillId != null
+                && lastExecutedSkillId == activeChainId + addSkillIndex
+                && skillUsedTicks != null && skillUsedTicks < limitTickMax
                 && skillUsedTicks >= limitTickMin && activeChainSkill != null
                 && (activeChainSkill.getType() == TRANSFORM || activeChainSkill.getType() == TRANSFORM_FINISH);
         if (!cooldownReady && !comboWindowOpen) return;
 
         ExecuteSkill(targetSkill.getId(), selectedSkillId, chargeTicks);
+        // 別のキーからチャージ派生した場合も、派生元チェーンのスロットをクールダウンさせる
+        if (baseSkillId != selectedSkillId) {
+            cooldowns.put(baseSkillId, getCoolDown(targetSkill));
+        }
         String targetName = targetSkill.getName();
         if (targetName.endsWith("_square")) {
             addSkillIndex = 0;

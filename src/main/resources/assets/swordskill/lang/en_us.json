@@ -63,6 +63,7 @@
   "gui.swordskill.hud_level": "Lv.%s x%s",
   "gui.swordskill.slot_weapon_mismatch": "This skill cannot be assigned to the current weapon type.",
   "gui.swordskill.not_assignable": "This entry is an explanation and cannot be assigned to a slot.",
+  "gui.swordskill.derived_not_assignable": "Derived skills cannot be assigned directly. Use them from the base skill.",
   "gui.swordskill.slot_locked": "Unlock this skill before assigning it to a slot.",
   "gui.swordskill.unlock_locked": "Unlock (needs %s proficiency %s / now %s)",
   "gui.swordskill.unlock_proficiency_warning": "Not enough proficiency to unlock this skill.",

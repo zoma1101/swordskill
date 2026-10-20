@@ -1,9 +1,11 @@
 package com.zoma1101.swordskill.payload;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.server.handler.SkillChainTracker;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,6 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,15 +62,27 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 return;
             }
 
+            SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId());
+            if (skill == null) {
+                LOGGER.warn("Skill with ID {} not found for player {}.", msg.skillId(), player.getName().getString());
+                return;
+            }
+
+            boolean derived = SkillChains.isDerived(msg.skillId());
+            // 派生先は元スキルからのコンボ時のみ受け付ける（チャージによる派生は chargeTicks > 0 で許可）
+            if (derived && msg.chargeTicks() == 0 && !SkillChainTracker.canAdvance(player, msg.skillId())) {
+                LOGGER.debug("Player {} tried to use derived skill {} outside of a combo window. Ignored.",
+                        player.getName().getString(), msg.skillId());
+                return;
+            }
+
             if (SkillExecutionManager.isSkillActive(player)) {
                 int runningSkillId = SkillExecutionManager.getRunningSkillId(player);
                 SkillData runningSkill = SwordSkillRegistry.SKILLS.get(runningSkillId);
-                SkillData requestedSkill = SwordSkillRegistry.SKILLS.get(msg.skillId());
 
-                boolean isCombo = runningSkill != null && requestedSkill != null &&
-                        runningSkill.getType() == SkillData.SkillType.TRANSFORM &&
-                        (requestedSkill.getType() == SkillData.SkillType.TRANSFORM ||
-                                requestedSkill.getType() == SkillData.SkillType.TRANSFORM_FINISH);
+                boolean isCombo = runningSkill != null
+                        && runningSkill.getType() == SkillData.SkillType.TRANSFORM
+                        && SkillChains.next(runningSkillId) == msg.skillId();
 
                 if (!isCombo) {
                     LOGGER.debug("Player {} tried to use skill {} while skill {} is active. Ignored.",
@@ -75,9 +91,8 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 }
             }
 
-            SkillData skill = SwordSkillRegistry.SKILLS.get(msg.skillId());
-            if (skill != null && (isSkillUnlocked(player, msg.skillId()) || player.gameMode.isCreative()
-                    || !UnlockedSkill.get())) {
+            if (isSkillUnlocked(player, msg.skillId()) || player.gameMode.isCreative()
+                    || !UnlockedSkill.get()) {
                 // SP チェック
                 if (!player.gameMode.isCreative()) {
                     double currentSP = player.getPersistentData().getDouble("SS_CurrentSP");
@@ -94,14 +109,20 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                             player.getAttributeValue(SwordSkillAttribute.MAX_SP)));
                 }
 
+                // コンボ成立を記録し、派生時はチャイム音を鳴らす
+                SkillChainTracker.record(player, msg.skillId());
+                if (derived) {
+                    float pitch = 1.2F + 0.1F * SkillChains.depthOf(msg.skillId());
+                    player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.7F, pitch);
+                }
+
                 if (msg.finalTick() == 0) {
                     executeSkill(player, skill, msg.chargeTicks());
                 } else {
                     SkillExecutionManager.startSkillExecution(player, msg.skillId(), msg.finalTick(),
                             DataDrivenSkill.chargeMultiplier(msg.chargeTicks()));
                 }
-            } else if (skill == null) {
-                LOGGER.warn("Skill with ID {} not found for player {}.", msg.skillId(), player.getName().getString());
             } else {
                 LOGGER.warn("Player {} attempted to use locked skill ID {}.", player.getName().getString(),
                         msg.skillId());

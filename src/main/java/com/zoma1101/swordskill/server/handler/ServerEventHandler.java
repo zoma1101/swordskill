@@ -230,6 +230,7 @@ public class ServerEventHandler {
             mainHandItems.remove(player);
             offHandItems.remove(player);
             SkillExecutionManager.skillExecutions.remove(player.getUUID());
+            SkillChainTracker.clear(player);
             DataDrivenSkill.clearPlayerState(player.getUUID());
             com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
             com.zoma1101.swordskill.skilllevel.SkillLevelManager.unloadPlayer(player.getUUID());
@@ -274,7 +275,10 @@ public class ServerEventHandler {
                 int limit = Math.min(skillSlot.size(), skillIds.length);
                 for (int i = 0; i < limit; i++) {
                     if (skillSlot.get(i) != null && !skillSlot.get(i).isJsonNull()) {
-                        skillIds[i] = skillSlot.get(i).getAsInt();
+                        int skillId = skillSlot.get(i).getAsInt();
+                        SkillData assigned = SwordSkillRegistry.SKILLS.get(skillId);
+                        // 派生先や説明用エントリはスロットに残っていても無効として扱う
+                        skillIds[i] = (assigned != null && assigned.isSlotAssignable()) ? skillId : -1;
                     }
                 }
             }

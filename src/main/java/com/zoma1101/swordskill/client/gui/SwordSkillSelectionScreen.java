@@ -487,7 +487,10 @@ public class SwordSkillSelectionScreen extends Screen {
         if (tooltip != null) {
             guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
         } else if (hoveredSlot >= 0) {
-            if (skill != null && !skill.isAssignable()) {
+            if (skill != null && SkillChains.isDerived(skill.getId())) {
+                guiGraphics.renderTooltip(font,
+                        Component.translatable("gui." + SwordSkill.MOD_ID + ".derived_not_assignable"), mouseX, mouseY);
+            } else if (skill != null && !skill.isAssignable()) {
                 guiGraphics.renderTooltip(font,
                         Component.translatable("gui." + SwordSkill.MOD_ID + ".not_assignable"), mouseX, mouseY);
             } else if (!isAssignable(skill)) {
@@ -1258,6 +1261,11 @@ public class SwordSkillSelectionScreen extends Screen {
             showWarning("gui." + SwordSkill.MOD_ID + ".not_assignable");
             return;
         }
+        // 派生先は直接セットできない（元スキルからのコンボでのみ使用）
+        if (SkillChains.isDerived(skill.getId())) {
+            showWarning("gui." + SwordSkill.MOD_ID + ".derived_not_assignable");
+            return;
+        }
         // スロットは常時表示なので、未解放のスキルはここで弾く
         if (UnlockedSkill.get() && !unlockedSkills.contains(selectedSkillIndex)) {
             showWarning("gui." + SwordSkill.MOD_ID + ".slot_locked");
@@ -1280,7 +1288,7 @@ public class SwordSkillSelectionScreen extends Screen {
      * 選択画面のタブで別の武器種を表示していても、装備中の武器種に対応しないスキルはセットできない。
      */
     private boolean isAssignable(SkillData skill) {
-        if (skill == null || !skill.isAssignable()) {
+        if (skill == null || !skill.isSlotAssignable()) {
             return false;
         }
         Set<SkillData.WeaponType> equipped = (weaponType != null && !weaponType.isEmpty())

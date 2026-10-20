@@ -117,6 +117,11 @@ public class SkillData {
         return dataDefinition == null || dataDefinition.assignable();
     }
 
+    /** スキルスロットに直接セットできるか。派生先は元スキルからのコンボでのみ使用する。 */
+    public boolean isSlotAssignable() {
+        return isAssignable() && !SkillChains.isDerived(id);
+    }
+
     // ★追加: 熟練度設定用のヘルパーメソッド
     @SuppressWarnings("unchecked")
     public void setRequiredProficiency(String weaponType, int amount) {
