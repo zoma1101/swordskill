@@ -1,9 +1,9 @@
 {
   "skills": {
-    "end_revolver": 50,
-    "ascade_refraction": 0,
-    "double_circular": 150,
-    "star_burst_stream": 200,
+    "end_revolver": 0,
+    "ascade_refraction": 50,
+    "double_circular": 100,
+    "star_burst_stream": 150,
     "the_eclipse": 200
   }
 }

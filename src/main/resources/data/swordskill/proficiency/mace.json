@@ -1,8 +1,8 @@
 {
   "skills": {
     "grand": 0,
-    "double_creep": 100,
-    "hammer_down": 100,
+    "double_creep": 20,
+    "hammer_down": 50,
     "diastrophism": 100,
     "mace_impact": 200
   }

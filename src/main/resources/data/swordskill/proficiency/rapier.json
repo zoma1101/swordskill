@@ -1,13 +1,13 @@
 {
   "skills": {
-    "spark_thrust": 150,
-    "parallel_sting": 0,
-    "quadraple_pain": 50,
-    "cruci_fiction": 100,
-    "star_splash": 100,
-    "stary_tier": 100,
-    "mothers_rosario": 200,
-    "shooting_star": 150,
-    "flashing_penetrator": 100
+    "spark_thrust": 100,
+    "parallel_sting": 50,
+    "quadraple_pain": 75,
+    "cruci_fiction": 125,
+    "star_splash": 90,
+    "stary_tier": 175,
+    "mothers_rosario": 250,
+    "shooting_star": 200,
+    "flashing_penetrator": 270
   }
 }

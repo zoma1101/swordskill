@@ -1,13 +1,13 @@
 {
   "skills": {
-    "wall_wind": 50,
+    "wall_wind": 0,
     "blood_finisher": 50,
     "excite": 0,
-    "excite_line": 0,
-    "excite_triangle": 0,
+    "excite_line": 75,
+    "excite_triangle": 150,
     "king_axe": 200,
-    "lumber_jack": 100,
-    "grand_upper": 0,
-    "ryuuko_souhaku": 100
+    "lumber_jack": 150,
+    "grand_upper": 50,
+    "ryuuko_souhaku": 250
   }
 }

@@ -1,9 +1,9 @@
 {
   "skills": {
-    "cascade": 50,
-    "aban_rash": 50,
-    "cyclone": 50,
+    "cascade": 0,
+    "aban_rash": 150,
+    "cyclone": 100,
     "stan_hazard": 150,
-    "slash_blade": 0
+    "slash_blade": 75
   }
 }

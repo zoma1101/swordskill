@@ -1,12 +1,12 @@
 {
   "skills": {
     "barrick": 0,
-    "reaper_of_life": 50,
-    "reaper_of_death": 50,
-    "shadow_scythe": 0,
+    "reaper_of_life": 30,
+    "reaper_of_death": 30,
+    "shadow_scythe": 80,
     "requiem": 100,
-    "storm": 50,
-    "storm_mirror": 0,
-    "judgment": 200
+    "storm": 150,
+    "storm_mirror": 200,
+    "judgment": 250
   }
 }
