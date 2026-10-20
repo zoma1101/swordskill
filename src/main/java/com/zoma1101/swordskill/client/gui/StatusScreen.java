@@ -9,7 +9,6 @@ import com.zoma1101.swordskill.payload.RequestPlayerLevelPayload;
 import com.zoma1101.swordskill.playerlevel.StatType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -38,7 +37,7 @@ public class StatusScreen extends Screen {
     private static final int COLOR_TEXT_DIM = 0xFFA0A8B0;
     private static final int COLOR_POSITIVE = 0xFF5ADF8A;
 
-    private final Button[] statButtons = new Button[StatType.values().length];
+    private final SaoButton[] statButtons = new SaoButton[StatType.values().length];
 
     public StatusScreen() {
         super(Component.translatable("gui." + SwordSkill.MOD_ID + ".status_title"));
@@ -49,10 +48,9 @@ public class StatusScreen extends Screen {
     protected void init() {
         for (int index = 0; index < StatType.values().length; index++) {
             StatType type = StatType.values()[index];
-            statButtons[index] = addRenderableWidget(Button
-                    .builder(Component.literal("+"), button -> allocate(type))
-                    .bounds(plusButtonX(), statRowY(index) + 2, 26, 18)
-                    .build());
+            statButtons[index] = addRenderableWidget(SaoButton.of(
+                    Component.literal("+"), () -> allocate(type),
+                    plusButtonX(), statRowY(index) + 2, 26, 18, true));
         }
 
         int navWidth = 110;
@@ -61,16 +59,14 @@ public class StatusScreen extends Screen {
         int navX = width / 2 - totalWidth / 2;
         int navY = panelBottom() - 26;
 
-        addRenderableWidget(Button
-                .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_open"),
-                        button -> openProficiency())
-                .bounds(navX, navY, navWidth, 20)
-                .build());
-        addRenderableWidget(Button
-                .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
-                        button -> onClose())
-                .bounds(navX + navWidth + gap, navY, navWidth, 20)
-                .build());
+        addRenderableWidget(SaoButton.of(
+                Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_open"),
+                this::openProficiency,
+                navX, navY, navWidth, 20, true));
+        addRenderableWidget(SaoButton.of(
+                Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
+                this::onClose,
+                navX + navWidth + gap, navY, navWidth, 20, true));
     }
 
     private void allocate(StatType type) {
@@ -157,7 +153,7 @@ public class StatusScreen extends Screen {
         boolean hasData = ClientPlayerLevelHandler.hasData();
         int available = ClientPlayerLevelHandler.getAvailablePoints();
         boolean canSpend = hasData && available > 0;
-        for (Button button : statButtons) {
+        for (SaoButton button : statButtons) {
             if (button != null) {
                 button.active = canSpend;
             }

@@ -8,12 +8,12 @@ import com.zoma1101.swordskill.client.handler.ClientTickHandler;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.payload.*;
 import com.zoma1101.swordskill.swordskills.DataSkillDefinition;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.zoma1101.swordskill.client.gui.SaoShapes.fillClipped;
+import static com.zoma1101.swordskill.client.gui.SaoShapes.fillClippedGradient;
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
 import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
@@ -42,10 +44,11 @@ import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 public class SwordSkillSelectionScreen extends Screen {
 
     private static final float UI_TEXT_SCALE = 0.9F;
-    private static final ResourceLocation LIGHT_MODE_ICON = fromNamespaceAndPath(SwordSkill.MOD_ID,
-            "textures/gui/system_icon/night.png");
-    private static final ResourceLocation NIGHT_MODE_ICON = fromNamespaceAndPath(SwordSkill.MOD_ID,
-            "textures/gui/system_icon/light.png");
+    /** テーマ切替ボタン（ライトをイメージしたボタン）。テクスチャは 32x32。 */
+    private static final ResourceLocation THEME_BUTTON_OFF = fromNamespaceAndPath(SwordSkill.MOD_ID,
+            "textures/gui/system_icon/theme_toggle_off.png");
+    private static final ResourceLocation THEME_BUTTON_ON = fromNamespaceAndPath(SwordSkill.MOD_ID,
+            "textures/gui/system_icon/theme_toggle_on.png");
 
     /** SAO UI の武器種タブに並べる武器種（NONE は除外）。 */
     private static final SkillData.WeaponType[] TAB_TYPES = {
@@ -76,8 +79,6 @@ public class SwordSkillSelectionScreen extends Screen {
     public Set<Integer> unlockedSkills = new HashSet<>();
     public int selectedSkillIndex = 0;
     private Set<SkillData.WeaponType> weaponType;
-    private final List<Button> hoverHighlightButtons = new ArrayList<>();
-    private Button themeButton;
 
     /** 絞り込み中の武器種。null のときは装備中の武器種で自動絞り込みを行う。 */
     private SkillData.WeaponType activeFilter;
@@ -272,8 +273,9 @@ public class SwordSkillSelectionScreen extends Screen {
             int tabY, int tabIconSize, int tabStep, int tabStartX, int tabVisibleCount,
             int iconCenterY, int selectedIconSize, int nameY, int levelY, int cooldownY,
             int weaponIconY, int descriptionTop,
-            int powerPanelWidth, int diamondSize, int diamondTop, int footerTop, int proficiencyButtonY,
-            boolean showSlots, boolean needsUnlock, boolean hasDerivedButton, boolean canLevelUp) {
+            int powerPanelWidth, int diamondSize, int diamondTop, int footerTop,
+            boolean canAssign, boolean needsUnlock, boolean hasDerivedButton, boolean canLevelUp,
+            int themeButtonSize, int themeButtonX, int themeButtonY) {
 
         /** 説明文の描画幅（右側の攻撃倍率パネルを除いた分）。 */
         int descriptionWidth() {
@@ -327,11 +329,12 @@ public class SwordSkillSelectionScreen extends Screen {
 
         SkillData selectedSkillForLayout = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
         boolean assignableSkill = selectedSkillForLayout != null && selectedSkillForLayout.isAssignable();
-        boolean showSlots = unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get();
+        // スロット（現在のセット内容）は常に表示する。セット可能かどうかだけを別に判定する
+        boolean canAssign = unlockedSkills.contains(selectedSkillIndex) || !UnlockedSkill.get();
         // 説明枠（assignable=false）は解放も派生解放もレベルアップもできない
-        boolean hasDerivedButton = assignableSkill && hasDerivedUnlock();
-        boolean needsUnlock = !showSlots && assignableSkill;
-        boolean canLevelUp = assignableSkill && showSlots && canLevelUpSelected();
+        boolean hasDerivedButton = assignableSkill && canAssign && hasDerivedUnlock();
+        boolean needsUnlock = !canAssign && assignableSkill;
+        boolean canLevelUp = assignableSkill && canAssign && canLevelUpSelected();
 
         int diamondSize = compact ? 26 : 32;
         // ウィンドウ幅が狭いときはスロットがカードからはみ出さないように縮める
@@ -341,9 +344,9 @@ public class SwordSkillSelectionScreen extends Screen {
         }
         int diamondTop = cardBottom - 6 - diamondSize;
 
-        // ボタンは菱形の上に下から積む（派生 → 解放 / レベルアップ → 熟練度一覧）
-        int buttonRows = 1; // 熟練度一覧ボタンは常に表示
-        if (showSlots && hasDerivedButton) {
+        // ボタンは菱形の上に下から積む（派生 → 解放 / レベルアップ）
+        int buttonRows = 0;
+        if (hasDerivedButton) {
             buttonRows++;
         }
         if (needsUnlock || canLevelUp) {
@@ -351,73 +354,58 @@ public class SwordSkillSelectionScreen extends Screen {
         }
         int buttonTop = diamondTop - buttonRows * 24;
         int footerTop = buttonTop - 10;
-        int proficiencyButtonY = diamondTop - 24 * buttonRows;
+
+        // テーマ切替ボタン（右上）。通常は 32x32、コンパクト時は 16x16 で表示する
+        int themeButtonSize = compact ? 16 : 32;
+        int themeButtonX = cardLeft + cardWidth - (compact ? 8 : 12) - themeButtonSize;
+        int themeButtonY = cardTop + 1;
 
         return new Layout(compact, cardLeft, cardWidth, cardTop, cardBottom, cornerCut,
                 tabY, tabIconSize, tabStep, tabStartX, tabVisibleCount,
                 iconCenterY, selectedIconSize, nameY, levelY, cooldownY,
                 weaponIconY, descriptionTop, powerPanelWidth, diamondSize, diamondTop, footerTop,
-                proficiencyButtonY, showSlots, needsUnlock, hasDerivedButton, canLevelUp);
+                canAssign, needsUnlock, hasDerivedButton, canLevelUp,
+                themeButtonSize, themeButtonX, themeButtonY);
     }
 
     private void ViewButton(Layout layout) {
         this.clearWidgets();
-        hoverHighlightButtons.clear();
-        themeButton = null;
 
-        themeButton = Button.builder(Component.empty(), button -> {
-            blackTheme = !blackTheme;
-            triggerFlash(0.4F);
-        })
-                .bounds(layout.cardLeft() + layout.cardWidth() - 27, 10, 18, 18)
-                .build();
-        addRenderableWidget(themeButton);
+        addRenderableWidget(SaoButton.icon(
+                Component.translatable("gui." + SwordSkill.MOD_ID + ".theme_toggle"),
+                blackTheme ? THEME_BUTTON_ON : THEME_BUTTON_OFF,
+                () -> {
+                    blackTheme = !blackTheme;
+                    triggerFlash(0.4F);
+                },
+                layout.themeButtonX(), layout.themeButtonY(), layout.themeButtonSize(), blackTheme));
 
         int buttonWidth = Math.min(160, width - 24);
         int buttonX = width / 2 - buttonWidth / 2;
         int row = 1;
 
         if (layout.hasDerivedButton()) {
-            Button unlockDerivedButton = Button
-                    .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock_derived"),
-                            button -> unlockDerivedSkill())
-                    .bounds(buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20)
-                    .build();
-            addButton(unlockDerivedButton);
+            addRenderableWidget(SaoButton.of(
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock_derived"),
+                    this::unlockDerivedSkill,
+                    buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20, blackTheme));
             row++;
         }
         if (layout.needsUnlock()) {
             SkillData selected = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
-            Button unlockButton = Button
-                    .builder(unlockButtonLabel(selected),
-                            button -> unlockSkill(selectedSkillIndex))
-                    .bounds(buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20)
-                    .build();
-            addButton(unlockButton);
-            row++;
+            addRenderableWidget(SaoButton.of(
+                    unlockButtonLabel(selected),
+                    () -> unlockSkill(selectedSkillIndex),
+                    buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20, blackTheme));
         } else if (layout.canLevelUp()) {
             SkillData selected = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
             int points = ClientProficiencyHandler.getAvailablePoints(
                     selected == null ? null : selected.getProficiencyCategory());
-            Button levelUpButton = Button
-                    .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".level_up", points),
-                            button -> levelUpSelectedSkill())
-                    .bounds(buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20)
-                    .build();
-            addButton(levelUpButton);
+            addRenderableWidget(SaoButton.of(
+                    Component.translatable("gui." + SwordSkill.MOD_ID + ".level_up", points),
+                    this::levelUpSelectedSkill,
+                    buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20, blackTheme));
         }
-
-        Button statusButton = Button
-                .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".status_open"),
-                        button -> openStatusScreen())
-                .bounds(buttonX, layout.proficiencyButtonY(), buttonWidth, 20)
-                .build();
-        addButton(statusButton);
-    }
-
-    /** ステータス画面を開く。 */
-    private void openStatusScreen() {
-        Minecraft.getInstance().setScreen(new StatusScreen());
     }
 
     /** 解放ボタンのラベル。熟練度が足りないときは必要量と現在値を出す。 */
@@ -499,28 +487,21 @@ public class SwordSkillSelectionScreen extends Screen {
 
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-        drawButtonHighlights(guiGraphics);
-        if (themeButton != null) {
-            ResourceLocation icon = blackTheme ? NIGHT_MODE_ICON : LIGHT_MODE_ICON;
-            guiGraphics.blit(icon, themeButton.getX() + 1, themeButton.getY() + 1, 0, 0, 16, 16, 16, 16);
-            if (themeButton.isHoveredOrFocused()) {
-                guiGraphics.renderTooltip(font, Component.translatable("gui." + SwordSkill.MOD_ID + ".theme_toggle"),
-                        mouseX, mouseY);
-            }
-        }
-
-        drawSlotDiamonds(guiGraphics, layout, fade, isAssignable(skill));
+        drawSlotDiamonds(guiGraphics, layout, fade, isAssignable(skill) && layout.canAssign());
 
         // --- ツールチップ ---
         if (tooltip != null) {
             guiGraphics.renderTooltip(font, tooltip, mouseX, mouseY);
-        } else if (hoveredSlot >= 0 && (layout.showSlots() || (skill != null && !skill.isAssignable()))) {
+        } else if (hoveredSlot >= 0) {
             if (skill != null && !skill.isAssignable()) {
                 guiGraphics.renderTooltip(font,
                         Component.translatable("gui." + SwordSkill.MOD_ID + ".not_assignable"), mouseX, mouseY);
             } else if (!isAssignable(skill)) {
                 guiGraphics.renderTooltip(font,
                         Component.translatable("gui." + SwordSkill.MOD_ID + ".slot_weapon_mismatch"), mouseX, mouseY);
+            } else if (!layout.canAssign()) {
+                guiGraphics.renderTooltip(font,
+                        Component.translatable("gui." + SwordSkill.MOD_ID + ".slot_locked"), mouseX, mouseY);
             } else {
                 int[] currentSkillIds = ClientSkillSlotHandler.getSkillSlotInfo();
                 int skillId = hoveredSlot < currentSkillIds.length ? currentSkillIds[hoveredSlot] : -1;
@@ -763,9 +744,6 @@ public class SwordSkillSelectionScreen extends Screen {
     }
 
     private int hitTestSlot(Layout layout, double mouseX, double mouseY) {
-        if (!layout.showSlots()) {
-            return -1;
-        }
         int size = layout.diamondSize();
         int step = size + SLOT_DIAMOND_GAP;
         int total = SLOT_COUNT * step - SLOT_DIAMOND_GAP;
@@ -946,7 +924,7 @@ public class SwordSkillSelectionScreen extends Screen {
     }
 
     /** 派生スキルのリンク図ブロック。visualRows はアイコン行数（1行=CHAIN_NODE_STEP px）。 */
-    private record ChainBlock(List<Integer> skillIds, int visualRows) implements ContentBlock {
+    private record ChainBlock(List<Integer> skillIds, int visualRows, Component label) implements ContentBlock {
     }
 
     private void drawContent(GuiGraphics guiGraphics, Layout layout, SkillData skill, float fade) {
@@ -958,7 +936,9 @@ public class SwordSkillSelectionScreen extends Screen {
 
         List<Integer> derived = derivedSkillIds();
         if (!derived.isEmpty()) {
-            blocks.add(new ChainBlock(derived, chainVisualRows(derived.size(), descriptionWidth)));
+            Component chainLabel = chainLabel(derived);
+            blocks.add(new ChainBlock(derived,
+                    chainVisualRows(derived.size(), descriptionWidth, chainLabelWidth(chainLabel)), chainLabel));
         }
 
         String descriptionKey = SwordSkill.MOD_ID + ".skill." + skill.getName() + ".description";
@@ -992,7 +972,8 @@ public class SwordSkillSelectionScreen extends Screen {
                 drawSmallString(guiGraphics, text.line(), descriptionLeft, y, fade(text.color(), fade));
                 row += 1;
             } else if (block instanceof ChainBlock chain) {
-                drawDerivedChain(guiGraphics, chain.skillIds(), descriptionLeft, y, descriptionWidth, fade);
+                drawDerivedChain(guiGraphics, chain.skillIds(), chain.label(), descriptionLeft, y, descriptionWidth,
+                        fade);
                 row += rows(chain, rowStep);
             }
         }
@@ -1037,34 +1018,45 @@ public class SwordSkillSelectionScreen extends Screen {
         return pages;
     }
 
-    private int chainLabelWidth() {
-        return font.width(Component.translatable("gui." + SwordSkill.MOD_ID + ".derived_chain")) + 6;
+    private int chainLabelWidth(Component label) {
+        return font.width(label) + 6;
     }
 
-    private int chainFirstCapacity(int descriptionWidth) {
-        return Math.max(1, (descriptionWidth - chainLabelWidth()) / CHAIN_NODE_STEP);
+    /** リンク図のラベル。元スキルを表示中なら「派生」、派生スキルを表示中なら「派生元: 元スキル名」。 */
+    private Component chainLabel(List<Integer> chain) {
+        int start = chain.isEmpty() ? -1 : chain.get(0);
+        if (start < 0 || start == selectedSkillIndex) {
+            return Component.translatable("gui." + SwordSkill.MOD_ID + ".derived_chain");
+        }
+        SkillData root = SwordSkillRegistry.SKILLS.get(start);
+        Component rootName = root == null ? Component.empty()
+                : Component.translatable(SwordSkill.MOD_ID + ".skill." + root.getName());
+        return Component.translatable("gui." + SwordSkill.MOD_ID + ".derived_from", rootName);
+    }
+
+    private int chainFirstCapacity(int descriptionWidth, int labelWidth) {
+        return Math.max(1, (descriptionWidth - labelWidth) / CHAIN_NODE_STEP);
     }
 
     private int chainPerRow(int descriptionWidth) {
         return Math.max(1, descriptionWidth / CHAIN_NODE_STEP);
     }
 
-    private int chainVisualRows(int nodeCount, int descriptionWidth) {
-        int first = chainFirstCapacity(descriptionWidth);
+    private int chainVisualRows(int nodeCount, int descriptionWidth, int labelWidth) {
+        int first = chainFirstCapacity(descriptionWidth, labelWidth);
         if (nodeCount <= first) {
             return 1;
         }
         return 1 + Mth.ceil((nodeCount - first) / (float) chainPerRow(descriptionWidth));
     }
 
-    /** 派生スキルをノード＋接続線のリンク図として描く。 */
-    private void drawDerivedChain(GuiGraphics guiGraphics, List<Integer> skillIds, int x, int y, int descriptionWidth,
-            float fade) {
-        Component label = Component.translatable("gui." + SwordSkill.MOD_ID + ".derived_chain");
-        int labelWidth = chainLabelWidth();
+    /** 派生スキルをノード＋接続線のリンク図として描く。選択中のノードは枠を強調する。 */
+    private void drawDerivedChain(GuiGraphics guiGraphics, List<Integer> skillIds, Component label, int x, int y,
+            int descriptionWidth, float fade) {
+        int labelWidth = chainLabelWidth(label);
         drawSmallString(guiGraphics, label, x, y + 4, fade(blackTheme ? 0xFFE0E0E0 : 0xFF303030, fade));
 
-        int firstCapacity = chainFirstCapacity(descriptionWidth);
+        int firstCapacity = chainFirstCapacity(descriptionWidth, labelWidth);
         int perRow = chainPerRow(descriptionWidth);
         int index = 0;
         int previousNodeX = Integer.MIN_VALUE;
@@ -1086,11 +1078,17 @@ public class SwordSkillSelectionScreen extends Screen {
             int nodeY = y + row * CHAIN_NODE_STEP;
             SkillData nodeSkill = SwordSkillRegistry.SKILLS.get(skillId);
             boolean unlocked = unlockedSkills.contains(skillId);
+            boolean current = skillId == selectedSkillIndex;
 
-            int frame = unlocked
-                    ? fade(blackTheme ? 0xFF7FEFFF : 0xFFFFB74D, fade)
-                    : fade(blackTheme ? 0x88999999 : 0x99888888, fade);
+            int frame = current ? fade(blackTheme ? 0xFFFFF0A0 : 0xFFB35A00, fade)
+                    : unlocked ? fade(blackTheme ? 0xFF7FEFFF : 0xFFFFB74D, fade)
+                            : fade(blackTheme ? 0x88999999 : 0x99888888, fade);
             int body = fade(blackTheme ? 0xE6101114 : 0xE6FFFFFF, fade);
+            if (current) {
+                // 選択中のノードはひと回り外側にも枠を描いて現在位置を示す
+                guiGraphics.fill(nodeX - 1, nodeY - 1, nodeX + CHAIN_NODE_SIZE + 1, nodeY + CHAIN_NODE_SIZE + 1,
+                        fade(blackTheme ? 0xFFFFE066 : 0xFFE08A00, fade));
+            }
             guiGraphics.fill(nodeX, nodeY, nodeX + CHAIN_NODE_SIZE, nodeY + CHAIN_NODE_SIZE, frame);
             guiGraphics.fill(nodeX + 1, nodeY + 1, nodeX + CHAIN_NODE_SIZE - 1, nodeY + CHAIN_NODE_SIZE - 1, body);
             if (nodeSkill != null) {
@@ -1123,9 +1121,6 @@ public class SwordSkillSelectionScreen extends Screen {
     // ==================================================================
 
     private void drawSlotDiamonds(GuiGraphics guiGraphics, Layout layout, float fade, boolean assignable) {
-        if (!layout.showSlots()) {
-            return;
-        }
         int size = layout.diamondSize();
         int radius = size / 2;
         int step = size + SLOT_DIAMOND_GAP;
@@ -1167,21 +1162,6 @@ public class SwordSkillSelectionScreen extends Screen {
         }
     }
 
-    private void drawButtonHighlights(GuiGraphics guiGraphics) {
-        for (Button button : hoverHighlightButtons) {
-            if (button.isHoveredOrFocused()) {
-                int hoverFill = blackTheme ? 0x5538CFFF : 0x55FF8A00;
-                int hoverEdge = blackTheme ? 0xFF58DFFF : 0xFFFF9A24;
-                guiGraphics.fill(button.getX(), button.getY(), button.getX() + button.getWidth(),
-                        button.getY() + button.getHeight(), hoverFill);
-                guiGraphics.fill(button.getX(), button.getY(), button.getX() + button.getWidth(),
-                        button.getY() + 1, hoverEdge);
-                guiGraphics.fill(button.getX(), button.getY() + button.getHeight() - 1,
-                        button.getX() + button.getWidth(), button.getY() + button.getHeight(), hoverEdge);
-            }
-        }
-    }
-
     /** ひし形を1pxずつ塗る。 */
     private void fillDiamond(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
         if (radius <= 0) {
@@ -1199,68 +1179,6 @@ public class SwordSkillSelectionScreen extends Screen {
     // ==================================================================
     // パネル描画ヘルパ
     // ==================================================================
-
-    /** 角を斜めにカットした矩形を塗る。 */
-    private void fillClipped(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int color, int cut) {
-        if (x2 <= x1 || y2 <= y1) {
-            return;
-        }
-        int c = Math.max(0, cut);
-        int topEnd = Math.min(y1 + c, y2);
-        for (int y = y1; y < topEnd; y++) {
-            int inset = c - (y - y1);
-            if (x1 + inset < x2 - inset) {
-                guiGraphics.fill(x1 + inset, y, x2 - inset, y + 1, color);
-            }
-        }
-        int bottomStart = Math.max(topEnd, y2 - c);
-        if (topEnd < bottomStart) {
-            guiGraphics.fill(x1, topEnd, x2, bottomStart, color);
-        }
-        for (int y = bottomStart; y < y2; y++) {
-            int inset = c - (y2 - 1 - y);
-            if (x1 + inset < x2 - inset) {
-                guiGraphics.fill(x1 + inset, y, x2 - inset, y + 1, color);
-            }
-        }
-    }
-
-    /** 角カット矩形を上下グラデーションで塗る。 */
-    private void fillClippedGradient(GuiGraphics guiGraphics, int x1, int y1, int x2, int y2, int colorTop,
-            int colorBottom, int cut) {
-        if (x2 <= x1 || y2 <= y1) {
-            return;
-        }
-        int c = Math.max(0, cut);
-        float span = Math.max(1, y2 - y1 - 1);
-        for (int y = y1; y < y2; y++) {
-            int inset = 0;
-            if (y - y1 < c) {
-                inset = c - (y - y1);
-            }
-            if (y2 - 1 - y < c) {
-                inset = Math.max(inset, c - (y2 - 1 - y));
-            }
-            if (x1 + inset >= x2 - inset) {
-                continue;
-            }
-            int color = lerpColor(colorTop, colorBottom, (y - y1) / span);
-            guiGraphics.fill(x1 + inset, y, x2 - inset, y + 1, color);
-        }
-    }
-
-    private static int lerpColor(int from, int to, float t) {
-        float clamped = Mth.clamp(t, 0.0F, 1.0F);
-        int a = lerpChannel(from >>> 24, to >>> 24, clamped);
-        int r = lerpChannel((from >> 16) & 0xFF, (to >> 16) & 0xFF, clamped);
-        int g = lerpChannel((from >> 8) & 0xFF, (to >> 8) & 0xFF, clamped);
-        int b = lerpChannel(from & 0xFF, to & 0xFF, clamped);
-        return (a << 24) | (r << 16) | (g << 8) | b;
-    }
-
-    private static int lerpChannel(int from, int to, float t) {
-        return (int) (from + (to - from) * t);
-    }
 
     private static int fade(int color, float factor) {
         if (factor >= 1.0F) {
@@ -1302,11 +1220,6 @@ public class SwordSkillSelectionScreen extends Screen {
     // ==================================================================
     // スキル内容
     // ==================================================================
-
-    private void addButton(Button button) {
-        addRenderableWidget(button);
-        hoverHighlightButtons.add(button);
-    }
 
     private void unlockSkill(int selectedSkill) {
         Player player = Minecraft.getInstance().player;
@@ -1359,6 +1272,11 @@ public class SwordSkillSelectionScreen extends Screen {
         // 説明用エントリはセットできない
         if (!skill.isAssignable()) {
             showWarning("gui." + SwordSkill.MOD_ID + ".not_assignable");
+            return;
+        }
+        // スロットは常時表示なので、未解放のスキルはここで弾く
+        if (UnlockedSkill.get() && !unlockedSkills.contains(selectedSkillIndex)) {
+            showWarning("gui." + SwordSkill.MOD_ID + ".slot_locked");
             return;
         }
         // 装備中の武器種で使えないスキルはセットできない（タブで別武器種を表示中でも同様）
@@ -1472,19 +1390,9 @@ public class SwordSkillSelectionScreen extends Screen {
         return -1;
     }
 
-    /** 選択中スキルの派生スキル（TRANSFORM_FINISH を含む）のIDリスト。 */
+    /** 選択中スキルが属する派生チェーン全体（元スキル〜TRANSFORM_FINISH）のIDリスト。 */
     private List<Integer> derivedSkillIds() {
-        List<Integer> ids = new ArrayList<>();
-        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
-        if (selectedSkill == null || selectedSkill.getType() != SkillData.SkillType.TRANSFORM) {
-            return ids;
-        }
-        int finish = transformFinishIndex();
-        int size = SwordSkillRegistry.SKILLS.size();
-        for (int i = selectedSkillIndex + 1; i <= finish && i < size; i++) {
-            ids.add(i);
-        }
-        return ids;
+        return SkillChains.chainOf(selectedSkillIndex);
     }
 
     private void drawLevelBar(GuiGraphics guiGraphics, int x, int y, int width, int level, int maxLevel, float fade) {

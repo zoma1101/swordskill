@@ -6,11 +6,11 @@ import com.zoma1101.swordskill.client.handler.ClientSkillLevelHandler;
 import com.zoma1101.swordskill.client.handler.ClientUnlockedSkillsHandler;
 import com.zoma1101.swordskill.payload.CheckSkillUnlockedPayload;
 import com.zoma1101.swordskill.payload.RequestSkillLevelsPayload;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,6 +37,8 @@ public class ProficiencyOverviewScreen extends Screen {
     private static final int CATEGORY_ROW = 20;
     private static final int SKILL_ROW = 22;
     private static final int ICON_SIZE = 16;
+    /** 派生スキルを元スキルより右にずらす幅。 */
+    private static final int DERIVED_INDENT = 10;
     /** スクロールバーとテキストが重ならないように確保する右端の余白。 */
     private static final int SCROLLBAR_GUTTER = 8;
 
@@ -98,16 +100,14 @@ public class ProficiencyOverviewScreen extends Screen {
         int totalWidth = buttonWidth * 2 + gap;
         int buttonX = width / 2 - totalWidth / 2;
         int buttonY = panelBottom() - 24;
-        addRenderableWidget(Button
-                .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
-                        button -> Minecraft.getInstance().setScreen(new StatusScreen()))
-                .bounds(buttonX, buttonY, buttonWidth, 20)
-                .build());
-        addRenderableWidget(Button
-                .builder(Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
-                        button -> onClose())
-                .bounds(buttonX + buttonWidth + gap, buttonY, buttonWidth, 20)
-                .build());
+        addRenderableWidget(SaoButton.of(
+                Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
+                () -> Minecraft.getInstance().setScreen(new StatusScreen()),
+                buttonX, buttonY, buttonWidth, 20, true));
+        addRenderableWidget(SaoButton.of(
+                Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
+                this::onClose,
+                buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, true));
     }
 
     // ==================================================================
@@ -329,10 +329,19 @@ public class ProficiencyOverviewScreen extends Screen {
             SkillData skill = skills.get(index);
             boolean unlocked = !UnlockedSkill.get() || ClientUnlockedSkillsHandler.isUnlocked(skill.getId());
 
-            ResourceLocation icon = skill.getIconTexture();
-            guiGraphics.blit(icon, rightX(), rowY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+            // 派生スキルは元スキルの下にぶら下げて表示する
+            int parentIndex = derivedParentIndex(skills, skill);
+            int depth = parentIndex >= 0 ? SkillChains.depthOf(skill.getId()) : 0;
+            int indent = depth * DERIVED_INDENT;
+            int iconX = rightX() + indent;
+            if (depth > 0) {
+                drawDerivedConnector(guiGraphics, skillRowY(parentIndex), rowY, depth);
+            }
 
-            int textX = rightX() + ICON_SIZE + 6;
+            ResourceLocation icon = skill.getIconTexture();
+            guiGraphics.blit(icon, iconX, rowY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+
+            int textX = iconX + ICON_SIZE + 6;
             Component name = Component.translatable(SwordSkill.MOD_ID + ".skill." + skill.getName());
             int level = ClientSkillLevelHandler.getLevel(skill.getId());
             Component levelText = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_level",
@@ -369,6 +378,35 @@ public class ProficiencyOverviewScreen extends Screen {
         }
         guiGraphics.disableScissor();
         drawScrollHint(guiGraphics, rightX(), rightWidth(), skillScroll, maxScroll);
+    }
+
+    /**
+     * そのスキルの派生元（1つ前段）が同じカテゴリの一覧に載っているとき、その行番号を返す。
+     * 載っていなければ -1（＝インデントしない）。
+     */
+    private int derivedParentIndex(List<SkillData> skills, SkillData skill) {
+        int parentId = SkillChains.parentOf(skill.getId());
+        if (parentId < 0) {
+            return -1;
+        }
+        for (int index = 0; index < skills.size(); index++) {
+            if (skills.get(index).getId() == parentId) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    /** 派生スキルと元スキルを結ぶ L 字の接続線。 */
+    private void drawDerivedConnector(GuiGraphics guiGraphics, int parentRowY, int rowY, int depth) {
+        int x = rightX() + (depth - 1) * DERIVED_INDENT + 3;
+        int parentCenter = parentRowY + ICON_SIZE / 2;
+        int rowCenter = rowY + ICON_SIZE / 2;
+        int top = Math.max(contentTop(), Math.min(parentCenter, rowCenter));
+        int bottom = Math.max(top + 1, rowCenter + 1);
+        int color = 0x805ADFFF;
+        guiGraphics.fill(x, top, x + 1, bottom, color);
+        guiGraphics.fill(x, rowCenter, rightX() + depth * DERIVED_INDENT - 2, rowCenter + 1, color);
     }
 
     private void drawScrollHint(GuiGraphics guiGraphics, int x, int panelWidth, int scroll, int maxScroll) {
