@@ -59,6 +59,16 @@ public class ClientForgeHandler {
     private static boolean SetWeaponType = false;
     private static SkillCharge activeSkillCharge;
 
+    /** スキル使用キー（-1 = 選択中のスロット、0〜4 = 固定スロット）。 */
+    private static final SkillUseKey[] SKILL_KEYS = {
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key, -1),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_0, 0),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_1, 1),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_2, 2),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_3, 3),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_4, 4)
+    };
+
     @SubscribeEvent
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientSkillSlotHandler.reset();
@@ -135,7 +145,59 @@ public class ClientForgeHandler {
     public static void onKeyInput(InputEvent.Key event) {
         if (event.getAction() == GLFW.GLFW_PRESS) {
             handleSystemKeyInteraction(event.getKey(), false);
+            suppressVanillaHotbarSwitch(event.getKey(), event.getScanCode());
         }
+    }
+
+    /**
+     * スキル使用キーがバニラのホットバー選択キー（1〜9）と重なっている場合、
+     * バニラ側のホットバー切り替えを打ち消す。今の武器でそのスキルを撃てないときは
+     * 通常どおりホットバーを切り替える。
+     */
+    private static void suppressVanillaHotbarSwitch(int key, int scanCode) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.screen != null || minecraft.options == null) {
+            return;
+        }
+        for (int slot = 0; slot < 9; slot++) {
+            KeyMapping hotbar = minecraft.options.keyHotbarSlots[slot];
+            if (!hotbar.matches(key, scanCode)) {
+                continue;
+            }
+            if (!isSkillUsableFromKey(key)) {
+                return;
+            }
+            // KeyMapping.click() はこのイベントの直前に積まれているので、ここで消費して打ち消す
+            while (hotbar.consumeClick()) {
+                // 何もしない
+            }
+            return;
+        }
+    }
+
+    /** そのキーに割り当てたスキルを、今装備している武器種で撃てるか。 */
+    private static boolean isSkillUsableFromKey(int key) {
+        Minecraft minecraft = Minecraft.getInstance();
+        int[] skillSlots = ClientSkillSlotHandler.getSkillSlotInfo();
+        Set<SkillData.WeaponType> equipped = ClientSkillSlotHandler.getCurrentWeaponTypes();
+        if (skillSlots == null || equipped == null || equipped.isEmpty()) {
+            return false;
+        }
+        for (SkillUseKey skillKey : SKILL_KEYS) {
+            if (skillKey.mapping().getKey().getValue() != key) {
+                continue;
+            }
+            int slot = skillKey.slot() < 0 ? minecraft.player.getInventory().selected : skillKey.slot();
+            if (slot < 0 || slot >= skillSlots.length) {
+                return false;
+            }
+            SkillData skill = SwordSkillRegistry.SKILLS.get(skillSlots[slot]);
+            if (skill == null || !skill.isAssignable() || skill.getDataDefinition() == null) {
+                return false;
+            }
+            return skill.getAvailableWeaponTypes().stream().anyMatch(equipped::contains);
+        }
+        return false;
     }
 
     @SubscribeEvent
@@ -333,15 +395,7 @@ public class ClientForgeHandler {
     }
 
     private static void handleSkillUseInputs(LocalPlayer player) {
-        Keybindings bindings = Keybindings.INSTANCE;
-        SkillUseKey[] keys = {
-                new SkillUseKey(bindings.SwordSkill_Use_Key, -1),
-                new SkillUseKey(bindings.SwordSkill_Use_Key_0, 0),
-                new SkillUseKey(bindings.SwordSkill_Use_Key_1, 1),
-                new SkillUseKey(bindings.SwordSkill_Use_Key_2, 2),
-                new SkillUseKey(bindings.SwordSkill_Use_Key_3, 3),
-                new SkillUseKey(bindings.SwordSkill_Use_Key_4, 4)
-        };
+        SkillUseKey[] keys = SKILL_KEYS;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.screen != null || !player.isAlive()) {
             clearSkillCharge(player);

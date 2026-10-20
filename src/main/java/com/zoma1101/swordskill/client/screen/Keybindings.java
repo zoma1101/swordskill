@@ -49,31 +49,31 @@ public class Keybindings {
     public final KeyMapping SwordSkill_Use_Key_0 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_0",
             IN_GAME,
-            InputConstants.getKey(InputConstants.KEY_X, -1),
+            InputConstants.getKey(InputConstants.KEY_1, -1),
             QUICK_CAST_CATEGORY
     );
     public final KeyMapping SwordSkill_Use_Key_1 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_1",
             IN_GAME,
-            InputConstants.getKey(InputConstants.KEY_C, -1),
+            InputConstants.getKey(InputConstants.KEY_2, -1),
             QUICK_CAST_CATEGORY
     );
     public final KeyMapping SwordSkill_Use_Key_2 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_2",
             IN_GAME,
-            InputConstants.getKey(InputConstants.KEY_V, -1),
+            InputConstants.getKey(InputConstants.KEY_3, -1),
             QUICK_CAST_CATEGORY
     );
     public final KeyMapping SwordSkill_Use_Key_3 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_3",
             IN_GAME,
-            InputConstants.getKey(InputConstants.KEY_B, -1),
+            InputConstants.getKey(InputConstants.KEY_4, -1),
             QUICK_CAST_CATEGORY
     );
     public final KeyMapping SwordSkill_Use_Key_4 = new KeyMapping(
             "key."+ SwordSkill.MOD_ID + ".use_ss_key_4",
             IN_GAME,
-            InputConstants.getKey(InputConstants.KEY_N, -1),
+            InputConstants.getKey(InputConstants.KEY_5, -1),
             QUICK_CAST_CATEGORY
     );
 

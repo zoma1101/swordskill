@@ -455,7 +455,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
         int primaryTextColor = fade(blackTheme ? 0xFFF0F0F0 : 0xFF202020, fade);
         int secondaryTextColor = fade(blackTheme ? 0xFFC0C0C0 : 0xFF555555, fade);
-        int levelAccent = fade(blackTheme ? 0xFF5ADFFF : 0xFFD07A00, fade);
+        int levelAccent = fade(blackTheme ? 0xFF5ADFFF : 0xFFB46515, fade);
 
         Component screenTitle = Component.translatable("gui." + SwordSkill.MOD_ID + ".title");
         drawSmallCenteredString(guiGraphics, screenTitle, width / 2, layout.cardTop() + (layout.compact() ? 3 : 8),
@@ -596,12 +596,17 @@ public class SwordSkillSelectionScreen extends Screen {
         int bottom = layout.cardBottom();
         int cut = layout.cornerCut();
 
-        fillClipped(guiGraphics, left - 3, top - 3, right + 3, bottom + 3, 0x10FFFFFF, cut + 3);
-        fillClipped(guiGraphics, left - 2, top - 2, right + 2, bottom + 2, 0x20FFFFFF, cut + 2);
-        fillClipped(guiGraphics, left - 1, top - 1, right + 1, bottom + 1, 0x30FFFFFF, cut + 1);
+        // 外側の光（ダーク）／影（ライト）
+        if (blackTheme) {
+            fillClipped(guiGraphics, left - 3, top - 3, right + 3, bottom + 3, 0x10FFFFFF, cut + 3);
+            fillClipped(guiGraphics, left - 2, top - 2, right + 2, bottom + 2, 0x20FFFFFF, cut + 2);
+            fillClipped(guiGraphics, left - 1, top - 1, right + 1, bottom + 1, 0x30FFFFFF, cut + 1);
+        } else {
+            fillClipped(guiGraphics, left - 2, top - 2, right + 2, bottom + 4, 0x14000000, cut + 2);
+        }
 
-        int accentTop = blackTheme ? 0xFF8FF0FF : 0xFFFFC978;
-        int accentBottom = blackTheme ? 0xFF2A72E8 : 0xFFFF7A14;
+        int accentTop = blackTheme ? 0xFF8FF0FF : 0xFF9E9E9E;
+        int accentBottom = blackTheme ? 0xFF2A72E8 : 0xFF3E3E3E;
         fillClippedGradient(guiGraphics, left, top, right, bottom, accentTop, accentBottom, cut);
 
         fillClipped(guiGraphics, left + 2, top + 2, right - 2, bottom - 2,
@@ -618,7 +623,7 @@ public class SwordSkillSelectionScreen extends Screen {
             return;
         }
         float strength = 1.0F - progress;
-        int rgb = blackTheme ? 0x5ADFFF : 0xFF9A24;
+        int rgb = blackTheme ? 0x5ADFFF : 0xC06A18;
 
         int overlayAlpha = (int) (0x30 * strength);
         fillClipped(guiGraphics, layout.cardLeft() + 2, layout.cardTop() + 2,
@@ -649,15 +654,15 @@ public class SwordSkillSelectionScreen extends Screen {
             boolean hover = mouseX >= x - 2 && mouseX < x + iconSize + 2
                     && mouseY >= y - 2 && mouseY < y + iconSize + 2;
 
-            int background = active ? (blackTheme ? 0x6648DFFF : 0x66FF9A24)
-                    : equipped ? (blackTheme ? 0x3338CFFF : 0x33FF8A00)
+            int background = active ? (blackTheme ? 0x6648DFFF : 0x2EC06A18)
+                    : equipped ? (blackTheme ? 0x3338CFFF : 0x1AC06A18)
                             : (blackTheme ? 0x22000000 : 0x22000000);
             guiGraphics.fill(x - 2, y - 2, x + iconSize + 2, y + iconSize + 2, fade(background, fade));
             // texWidth/texHeight に描画サイズを渡すことで、16x16 のアイコンを iconSize に拡大縮小する
             guiGraphics.blit(getWeaponIconTexture(type), x, y, 0, 0, iconSize, iconSize, iconSize, iconSize);
             if (active) {
                 guiGraphics.fill(x - 2, y + iconSize + 2, x + iconSize + 2, y + iconSize + 3,
-                        fade(blackTheme ? 0xFF5ADFFF : 0xFFFF9A24, fade));
+                        fade(blackTheme ? 0xFF5ADFFF : 0xFFC06A18, fade));
             }
             if (hover) {
                 hovered = Component.translatable(SwordSkill.MOD_ID + ".weapon." + type.name().toLowerCase())
@@ -673,8 +678,8 @@ public class SwordSkillSelectionScreen extends Screen {
             boolean canLeft = tabScroll > 0;
             boolean canRight = tabScroll + layout.tabVisibleCount() < TAB_TYPES.length;
             int arrowY = layout.tabY() + iconSize / 2 - 4;
-            int leftColor = fade(canLeft ? (blackTheme ? 0xFF7FEFFF : 0xFFFFC168) : 0x44FFFFFF, fade);
-            int rightColor = fade(canRight ? (blackTheme ? 0xFF7FEFFF : 0xFFFFC168) : 0x44FFFFFF, fade);
+            int leftColor = fade(canLeft ? (blackTheme ? 0xFF7FEFFF : 0xFFC06A18) : 0x44FFFFFF, fade);
+            int rightColor = fade(canRight ? (blackTheme ? 0xFF7FEFFF : 0xFFC06A18) : 0x44FFFFFF, fade);
             guiGraphics.drawString(font, "<", tabArrowLeftX(layout), arrowY, leftColor, false);
             guiGraphics.drawString(font, ">", tabArrowRightX(layout), arrowY, rightColor, false);
         }
@@ -780,9 +785,9 @@ public class SwordSkillSelectionScreen extends Screen {
         int haloOuter = layout.compact() ? 4 : 5;
         int haloMid = layout.compact() ? 2 : 3;
         int haloFrame = layout.compact() ? 1 : 2;
-        int selectionGlow = fade(blackTheme ? 0x1838CFFF : 0x18FF8A00, fade);
-        int selectionAura = fade(blackTheme ? 0x3848DFFF : 0x38FF8A00, fade);
-        int selectionFrame = fade(blackTheme ? 0xA05ADFFF : 0xA0FF9A24, fade);
+        int selectionGlow = fade(blackTheme ? 0x1838CFFF : 0x12C06A18, fade);
+        int selectionAura = fade(blackTheme ? 0x3848DFFF : 0x24C06A18, fade);
+        int selectionFrame = fade(blackTheme ? 0xA05ADFFF : 0xA0C06A18, fade);
         guiGraphics.fill(selectedIconX - haloOuter, selectedIconY - haloOuter,
                 selectedIconX + selectedIconSize + haloOuter, selectedIconY + selectedIconSize + haloOuter,
                 selectionGlow);
@@ -889,7 +894,7 @@ public class SwordSkillSelectionScreen extends Screen {
         fillClipped(guiGraphics, panelLeft - 4, top - 4, panelRight + 4, panelBottom,
                 fade(blackTheme ? 0x33000000 : 0x22FFFFFF, fade), 4);
         guiGraphics.fill(panelLeft - 4, top - 4, panelLeft - 2, panelBottom,
-                fade(blackTheme ? 0xAA5ADFFF : 0xAAFF9A24, fade));
+                fade(blackTheme ? 0xAA5ADFFF : 0x99C06A18, fade));
 
         drawSmallString(guiGraphics, Component.translatable("gui." + SwordSkill.MOD_ID + ".power_prefix"),
                 panelLeft, top, levelAccent);
@@ -1080,14 +1085,14 @@ public class SwordSkillSelectionScreen extends Screen {
             boolean unlocked = unlockedSkills.contains(skillId);
             boolean current = skillId == selectedSkillIndex;
 
-            int frame = current ? fade(blackTheme ? 0xFFFFF0A0 : 0xFFB35A00, fade)
-                    : unlocked ? fade(blackTheme ? 0xFF7FEFFF : 0xFFFFB74D, fade)
+            int frame = current ? fade(blackTheme ? 0xFFFFF0A0 : 0xFF2A2A2A, fade)
+                    : unlocked ? fade(blackTheme ? 0xFF7FEFFF : 0xFFC06A18, fade)
                             : fade(blackTheme ? 0x88999999 : 0x99888888, fade);
             int body = fade(blackTheme ? 0xE6101114 : 0xE6FFFFFF, fade);
             if (current) {
                 // 選択中のノードはひと回り外側にも枠を描いて現在位置を示す
                 guiGraphics.fill(nodeX - 1, nodeY - 1, nodeX + CHAIN_NODE_SIZE + 1, nodeY + CHAIN_NODE_SIZE + 1,
-                        fade(blackTheme ? 0xFFFFE066 : 0xFFE08A00, fade));
+                        fade(blackTheme ? 0xFFFFF0A0 : 0xFFC06A18, fade));
             }
             guiGraphics.fill(nodeX, nodeY, nodeX + CHAIN_NODE_SIZE, nodeY + CHAIN_NODE_SIZE, frame);
             guiGraphics.fill(nodeX + 1, nodeY + 1, nodeX + CHAIN_NODE_SIZE - 1, nodeY + CHAIN_NODE_SIZE - 1, body);
@@ -1103,7 +1108,7 @@ public class SwordSkillSelectionScreen extends Screen {
             if (previousNodeX != Integer.MIN_VALUE && previousNodeY == nodeY) {
                 int lineY = nodeY + CHAIN_NODE_SIZE / 2;
                 guiGraphics.fill(previousNodeX + CHAIN_NODE_SIZE, lineY, nodeX, lineY + 1,
-                        fade(blackTheme ? 0x885ADFFF : 0x88FF9A24, fade));
+                        fade(blackTheme ? 0x885ADFFF : 0x66C06A18, fade));
             }
 
             chainNodeHits.add(new ChainNodeHit(skillId, nodeX, nodeY, CHAIN_NODE_SIZE));
@@ -1145,9 +1150,9 @@ public class SwordSkillSelectionScreen extends Screen {
                 // 装備武器種と合わないスキルを選んでいる間はセット不可であることを示す
                 frame = fade(blackTheme ? 0x66999999 : 0x99888888, fade);
             } else if (hover || active) {
-                frame = fade(blackTheme ? 0xFF7FEFFF : 0xFFFFC168, fade);
+                frame = fade(blackTheme ? 0xFF7FEFFF : 0xFFC06A18, fade);
             } else {
-                frame = fade(blackTheme ? 0x885ADFFF : 0x88FF9A24, fade);
+                frame = fade(blackTheme ? 0x885ADFFF : 0x88000000, fade);
             }
             fillDiamond(guiGraphics, centerX, centerY, radius, frame);
             fillDiamond(guiGraphics, centerX, centerY, radius - 1,
@@ -1399,7 +1404,7 @@ public class SwordSkillSelectionScreen extends Screen {
         int segments = Math.max(1, Math.min(maxLevel, 20));
         int gap = 2;
         int segmentWidth = Math.max(1, (width - gap * (segments - 1)) / segments);
-        int filledColor = fade(blackTheme ? 0xFF5ADFFF : 0xFFD07A00, fade);
+        int filledColor = fade(blackTheme ? 0xFF5ADFFF : 0xFFB46515, fade);
         int emptyColor = fade(blackTheme ? 0x44FFFFFF : 0x33000000, fade);
         for (int index = 0; index < segments; index++) {
             int left = x + index * (segmentWidth + gap);
@@ -1447,7 +1452,7 @@ public class SwordSkillSelectionScreen extends Screen {
     }
 
     private int levelAccentColor(float fade) {
-        return fade(blackTheme ? 0xFF5ADFFF : 0xFFD07A00, fade);
+        return fade(blackTheme ? 0xFF5ADFFF : 0xFFB46515, fade);
     }
 
     private static String formatMultiplier(double multiplier) {

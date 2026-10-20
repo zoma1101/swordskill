@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.client.gui;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -32,6 +33,8 @@ public class SaoButton extends Button {
     private final boolean dark;
     @Nullable
     private final ResourceLocation background;
+    /** 文字が入りきらないときのツールチップを一度だけ設定するためのフラグ。 */
+    private boolean clippedTooltipSet;
 
     private SaoButton(int x, int y, int width, int height, Component message, OnPress onPress, boolean dark,
             @Nullable ResourceLocation background) {
@@ -59,7 +62,8 @@ public class SaoButton extends Button {
             guiGraphics.blit(background, getX(), getY(), 0, 0, getWidth(), getHeight(), ICON_TEXTURE_SIZE,
                     ICON_TEXTURE_SIZE);
             if (isHoveredOrFocused()) {
-                guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x33FFD24A);
+                guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(),
+                        dark ? 0x2238CFFF : 0x22C06A18);
             }
             return;
         }
@@ -79,23 +83,39 @@ public class SaoButton extends Button {
                 Math.max(0, cut - FRAME));
         if (hovered && this.active) {
             // 左端のアクセントバーでホバーを強調する
-            guiGraphics.fill(x1 + FRAME, y1 + cut, x1 + FRAME + 2, y2 - cut, accentTop());
+            guiGraphics.fill(x1 + FRAME, y1 + cut, x1 + FRAME + 2, y2 - cut, hoverBarColor());
         }
 
-        int textColor = !this.active ? textDisabled() : (dark ? 0xFFF0F0F0 : 0xFF1E2024);
-        this.renderScrollingString(guiGraphics, Minecraft.getInstance().font, FRAME + 2, textColor);
+        // ライトテーマでは影付き文字が読みにくいので、影なしで中央に描く
+        Font font = Minecraft.getInstance().font;
+        int textColor = !this.active ? textDisabled() : (dark ? 0xFFF0F0F0 : 0xFF16181C);
+        int maxTextWidth = Math.max(8, getWidth() - (FRAME + 2) * 2);
+        Component message = getMessage();
+        boolean clipped = font.width(message) > maxTextWidth;
+        String label = clipped ? font.plainSubstrByWidth(message.getString(), maxTextWidth) : message.getString();
+        int labelWidth = font.width(label);
+        guiGraphics.drawString(font, label, x1 + (getWidth() - labelWidth) / 2, y1 + (getHeight() - 8) / 2,
+                textColor, false);
+        if (clipped && !clippedTooltipSet) {
+            setTooltip(Tooltip.create(message));
+            clippedTooltipSet = true;
+        }
+    }
+
+    private int hoverBarColor() {
+        return dark ? accentTop() : 0xFFC06A18;
     }
 
     private int accentTop() {
-        return dark ? 0xFF8FF0FF : 0xFFFFC978;
+        return dark ? 0xFF8FF0FF : 0xFFC8C8C8;
     }
 
     private int accentBottom() {
-        return dark ? 0xFF2A72E8 : 0xFFFF7A14;
+        return dark ? 0xFF2A72E8 : 0xFF6E6E6E;
     }
 
     private int bodyColor() {
-        return dark ? 0xE61A1C20 : 0xE6F4F4F4;
+        return dark ? 0xE61A1C20 : 0xF2F7F7F7;
     }
 
     private int bodyHover() {
@@ -103,10 +123,10 @@ public class SaoButton extends Button {
     }
 
     private int bodyDisabled() {
-        return dark ? 0xE6131417 : 0xE6E2E2E2;
+        return dark ? 0xE6131417 : 0xF2E4E4E4;
     }
 
     private int textDisabled() {
-        return dark ? 0xFF6E747C : 0xFF9AA0A8;
+        return dark ? 0xFF6E747C : 0xFF8A9098;
     }
 }
