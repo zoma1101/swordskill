@@ -17,7 +17,9 @@ const SWORDSKILL_EVENT_MARKER_LABELS = {
     attack: 'Hitbox',
     motion: 'Motion',
     projectile: 'Flying Slash',
-    sound: 'Sound'
+    sound: 'Sound',
+    animation: 'Animation',
+    player_effect: 'Player Effect'
 };
 
 let previewRoot = null;
@@ -47,9 +49,9 @@ let previewGizmoHost = null;
 Plugin.register('swordskill_skill_creator', {
     title: 'SwordSkill Timeline Events',
     author: 'SwordSkill',
-    description: 'Author skill hits, movement, and contact-triggered RUSH combos on an animation timeline.',
+    description: 'Author skill hits, movement, animation switches, player effects, and contact-triggered RUSH combos on an animation timeline.',
     icon: 'sports_martial_arts',
-    version: '2.18.0',
+    version: '2.19.0',
     variant: 'both',
     onload() {
         migrateLegacyMarkers();
@@ -84,6 +86,18 @@ Plugin.register('swordskill_skill_creator', {
                 description: 'Play a sound at the current animation time without an attack hitbox.',
                 icon: 'volume_up',
                 click: () => openTimelineEventDialog('sound')
+            }),
+            new Action('swordskill_add_animation_event', {
+                name: 'SwordSkill: Add Animation Switch at Playhead',
+                description: 'Switch the PlayerAnimator animation at the current animation time.',
+                icon: 'animation',
+                click: () => openTimelineEventDialog('animation')
+            }),
+            new Action('swordskill_add_player_effect_event', {
+                name: 'SwordSkill: Add Player Effect at Playhead',
+                description: 'Apply a status effect to the user at the current animation time.',
+                icon: 'healing',
+                click: () => openTimelineEventDialog('player_effect')
             }),
             new Action('swordskill_edit_event', {
                 name: 'SwordSkill: Edit Selected Event',
@@ -1031,7 +1045,6 @@ function setupSkillMetadata() {
     const values = {
         id: existing.id ?? 0,
         replace_builtin: existing.replace_builtin ?? false,
-        legacy_fallback: existing.legacy_fallback ?? existing.replace_builtin ?? false,
         name: existing.name || currentName || 'new_skill',
         animation: existing.animation || currentAnimationName,
         type: existing.type || 'SIMPLE',
@@ -1059,6 +1072,12 @@ function setupSkillMetadata() {
         rush_contact_animation_offset: rushCombo.contact_animation_offset ?? 1,
         rush_finish_contact_offset: rushCombo.finish_contact_offset ?? 18,
         hidden: existing.hidden ?? false,
+        assignable: existing.assignable ?? true,
+        default_unlocked: existing.default_unlocked ?? false,
+        proficiency_category: String(existing.proficiency_category || '').toUpperCase(),
+        unlock_proficiency: existing.unlock_proficiency ?? 0,
+        invulnerability_ticks: existing.invulnerability_ticks ?? 0,
+        end_skill_on_ground: existing.end_skill_on_ground ?? false,
         color: existing.color || '#54D8FF',
         trail_length: existing.trail_length ?? 1.5,
         shockwave_ticks: existing.shockwave_ticks ?? 0,
@@ -1078,6 +1097,8 @@ function setupSkillMetadata() {
         value: normalizedWeapons.filter(weapon => !SWORDSKILL_WEAPONS.includes(weapon)).join(', '),
         description: 'You may type supported weapon type names here instead of selecting them above.'
     };
+    const proficiencyCategoryOptions = Object.fromEntries(
+        SWORDSKILL_WEAPONS.map(weapon => [weapon, weapon]));
 
     new Dialog({
         id: 'swordskill_timeline_metadata',
@@ -1095,12 +1116,6 @@ function setupSkillMetadata() {
                 type: 'checkbox',
                 value: values.replace_builtin,
                 description: 'Use only when migrating a registered Java skill. Its ID, slot assignments, and unlocks are preserved.'
-            },
-            legacy_fallback: {
-                label: 'Keep original Java skill behavior',
-                type: 'checkbox',
-                value: values.legacy_fallback,
-                description: 'Runs the original Java skill instead of skilldata events. Turn off after converting its combat behavior.'
             },
             name: {
                 label: 'Skill registry name (auto-filled)',
@@ -1153,6 +1168,47 @@ function setupSkillMetadata() {
             rush_contact_animation_offset: { label: 'RUSH combo: finish animation delay after contact', type: 'number', value: values.rush_contact_animation_offset, min: 0, step: 1 },
             rush_finish_contact_offset: { label: 'RUSH combo: end delay after contact', type: 'number', value: values.rush_finish_contact_offset, min: 1, step: 1 },
             hidden: { label: 'Hide from skill selection', type: 'checkbox', value: values.hidden },
+            assignable: {
+                label: 'Assignable to a skill slot',
+                type: 'checkbox',
+                value: values.assignable,
+                description: 'Turn off for description-only entries such as how_to_use.'
+            },
+            default_unlocked: {
+                label: 'Unlocked from the start',
+                type: 'checkbox',
+                value: values.default_unlocked,
+                description: 'Granted to every player on login even when a proficiency requirement is set.'
+            },
+            proficiency_category: {
+                label: 'Proficiency category',
+                type: 'select',
+                options: { '': 'Auto (first weapon type)', ...proficiencyCategoryOptions },
+                value: values.proficiency_category,
+                description: 'Category used for unlock requirements and level-up points.'
+            },
+            unlock_proficiency: {
+                label: 'Required proficiency to unlock (0 = free)',
+                type: 'number',
+                value: values.unlock_proficiency,
+                min: 0,
+                max: 1000000,
+                step: 1,
+                description: '0 unlocks the skill automatically on login. Data packs can override this value.'
+            },
+            invulnerability_ticks: {
+                label: 'Invulnerability ticks after activation',
+                type: 'number',
+                value: values.invulnerability_ticks,
+                min: 0,
+                max: 1200,
+                step: 1
+            },
+            end_skill_on_ground: {
+                label: 'End the skill when touching the ground',
+                type: 'checkbox',
+                value: values.end_skill_on_ground
+            },
             color: { label: 'Skill and weapon trail color', type: 'color', value: values.color },
             trail_length: {
                 label: 'Weapon trail length (default 1.5)',
@@ -1292,12 +1348,23 @@ function buildMetadata(form, animation) {
     if (!Number.isSafeInteger(hitstopTicks) || hitstopTicks < -1 || hitstopTicks > 40) {
         throw new Error('Hit-stop ticks must be -1 (server default), 0 (disabled), or up to 40.');
     }
+    const proficiencyCategory = String(form.proficiency_category || '').trim().toUpperCase();
+    if (proficiencyCategory && !SWORDSKILL_WEAPONS.includes(proficiencyCategory)) {
+        throw new Error(`Unknown proficiency category "${proficiencyCategory}".`);
+    }
+    const unlockProficiency = Math.floor(Number(form.unlock_proficiency ?? 0));
+    if (!Number.isSafeInteger(unlockProficiency) || unlockProficiency < 0 || unlockProficiency > 1000000) {
+        throw new Error('Required proficiency must be a whole number from 0 to 1000000.');
+    }
+    const invulnerabilityTicks = Math.floor(Number(form.invulnerability_ticks ?? 0));
+    if (!Number.isSafeInteger(invulnerabilityTicks) || invulnerabilityTicks < 0 || invulnerabilityTicks > 1200) {
+        throw new Error('Invulnerability ticks must be a whole number from 0 to 1200.');
+    }
 
     const metadata = {
         name,
         animation: animationBaseName,
         replace_builtin: replaceBuiltin,
-        legacy_fallback: Boolean(form.legacy_fallback),
         type: String(form.type || 'SIMPLE'),
         weapons,
         cooldown: Math.max(0, Math.floor(Number(form.cooldown || 0))),
@@ -1310,6 +1377,12 @@ function buildMetadata(form, animation) {
         rush_finish_animation: rushAnimationSuffixes[2],
         rush_combo: rushCombo,
         hidden: Boolean(form.hidden),
+        assignable: form.assignable !== false,
+        default_unlocked: Boolean(form.default_unlocked),
+        proficiency_category: proficiencyCategory,
+        unlock_proficiency: unlockProficiency,
+        invulnerability_ticks: invulnerabilityTicks,
+        end_skill_on_ground: Boolean(form.end_skill_on_ground),
         color: `#${color.toUpperCase()}`,
         trail_length: trailLength,
         shockwave_ticks: shockwaveTicks,
@@ -1337,6 +1410,9 @@ function openTimelineEventDialog(kind, existingEntry = null) {
     const attack = kind === 'attack';
     const projectile = kind === 'projectile';
     const soundOnly = kind === 'sound';
+    const animationSwitch = kind === 'animation';
+    const playerEffect = kind === 'player_effect';
+    const motionOnly = kind === 'motion';
     const effectOptions = {
         none: 'None',
         undead_bonus: 'Bonus damage vs undead',
@@ -1444,7 +1520,97 @@ function openTimelineEventDialog(kind, existingEntry = null) {
         sound_pitch: { label: 'Sound pitch', type: 'number', value: data.pitch ?? 1, min: 0.5, max: 2, step: 0.05 },
         forward: { label: 'User movement: forward', type: 'number', value: data.forward ?? 0, step: 0.1 },
         strafe: { label: 'User movement: right', type: 'number', value: data.strafe ?? 0, step: 0.1 },
-        vertical: { label: 'User movement: up', type: 'number', value: data.vertical ?? 0, step: 0.1 }
+        vertical: { label: 'User movement: up', type: 'number', value: data.vertical ?? 0, step: 0.1 },
+        motion_set: {
+            label: 'Replace velocity instead of adding to it',
+            type: 'checkbox',
+            value: Boolean(data.set)
+        },
+        motion_repeat: {
+            label: 'Keep applying this movement from this tick onward',
+            type: 'checkbox',
+            value: Boolean(data.repeat)
+        },
+        event_trigger: {
+            label: 'Event trigger',
+            type: 'select',
+            options: {
+                TICK: 'From skill start',
+                GROUND: 'When the user is on the ground',
+                CONTACT: 'After RUSH contact'
+            },
+            value: data.trigger || 'TICK'
+        },
+        animation_name: {
+            label: 'Animation name (PlayerAnimator)',
+            type: 'text',
+            value: data.animation || '',
+            description: 'Animation resource name played at this tick, for example slash_blade.'
+        },
+        random_group: {
+            label: 'Random choice group (optional)',
+            type: 'text',
+            value: data.random_group || '',
+            description: 'Events sharing a group trigger only one of their random indices.'
+        },
+        random_index: {
+            label: 'Random choice index',
+            type: 'number',
+            value: data.random_index ?? 0,
+            min: 0,
+            max: 32,
+            step: 1
+        },
+        player_effect_id: {
+            label: 'Status effect ID',
+            type: 'text',
+            value: data.effect || 'minecraft:slow_falling'
+        },
+        player_effect_duration: {
+            label: 'Effect duration (ticks)',
+            type: 'number',
+            value: data.duration_ticks ?? 40,
+            min: 1,
+            max: 100000,
+            step: 1
+        },
+        player_effect_amplifier: {
+            label: 'Effect amplifier (0-based)',
+            type: 'number',
+            value: data.amplifier ?? 0,
+            min: 0,
+            max: 255,
+            step: 1
+        },
+        player_effect_particles: {
+            label: 'Show effect particles',
+            type: 'checkbox',
+            value: Boolean(data.show_particles)
+        },
+        fall_damage_scale: {
+            label: 'Falling slash: fall damage scale (0 = off)',
+            type: 'number',
+            value: data.fall_damage_scale ?? 0,
+            min: 0,
+            max: 16,
+            step: 0.1
+        },
+        path_json: {
+            label: 'Falling slash: path (JSON, empty = off)',
+            type: 'textarea',
+            value: data.path ? JSON.stringify(data.path) : '',
+            description: 'Optional. Example: {"start_tick":1,"position":0.5,"rotation":true,"size_scale":0}'
+        },
+        single_target: {
+            label: 'Falling slash: hit only one target',
+            type: 'checkbox',
+            value: Boolean(data.single_target)
+        },
+        aim_at_contact: {
+            label: 'Falling slash: aim at the contact target (CONTACT only)',
+            type: 'checkbox',
+            value: Boolean(data.aim_at_contact)
+        }
     };
     if (attack || projectile) {
         delete form.forward;
@@ -1526,16 +1692,50 @@ function openTimelineEventDialog(kind, existingEntry = null) {
             delete form[field];
         }
     }
+    if (!motionOnly) {
+        delete form.motion_set;
+        delete form.motion_repeat;
+        delete form.forward;
+        delete form.strafe;
+        delete form.vertical;
+    }
+    if (!animationSwitch && !projectile) {
+        delete form.random_group;
+        delete form.random_index;
+    }
+    if (!animationSwitch) {
+        delete form.animation_name;
+    }
+    if (!playerEffect) {
+        delete form.player_effect_id;
+        delete form.player_effect_duration;
+        delete form.player_effect_amplifier;
+        delete form.player_effect_particles;
+    }
+    if (!(animationSwitch || playerEffect || motionOnly || soundOnly)) {
+        delete form.event_trigger;
+    }
+    if (!projectile) {
+        delete form.fall_damage_scale;
+        delete form.path_json;
+        delete form.single_target;
+        delete form.aim_at_contact;
+    }
 
     new Dialog({
         id: `swordskill_timeline_${kind}_event`,
-        title: `${existingEntry ? 'Edit' : 'Add'} ${attack ? 'Attack' : projectile ? 'Flying Slash' : soundOnly ? 'Sound' : 'Movement'} Event at ${time.toFixed(3)}s`,
+        title: `${existingEntry ? 'Edit' : 'Add'} ${attack ? 'Attack' : projectile ? 'Flying Slash'
+            : soundOnly ? 'Sound' : animationSwitch ? 'Animation Switch'
+                : playerEffect ? 'Player Effect' : 'Movement'} Event at ${time.toFixed(3)}s`,
         form,
         onConfirm(values) {
             try {
                 const event = attack ? buildAttackEvent(values, tick, data)
                     : projectile ? buildProjectileEvent(values, tick)
-                        : soundOnly ? buildSoundEvent(values, tick) : buildMotionEvent(values, tick);
+                        : soundOnly ? buildSoundEvent(values, tick)
+                            : animationSwitch ? buildAnimationEvent(values, tick)
+                                : playerEffect ? buildPlayerEffectEvent(values, tick)
+                                    : buildMotionEvent(values, tick);
                 const keyTime = tick / 20;
                 const metadata = getMetadata(animation);
                 if (metadata?.legacy_fallback) {
@@ -1586,10 +1786,64 @@ function buildSoundEvent(form, tick) {
         volume: Number(form.sound_volume),
         pitch: Number(form.sound_pitch)
     };
+    const trigger = String(form.event_trigger || 'TICK').toUpperCase();
+    if (!['TICK', 'CONTACT', 'GROUND'].includes(trigger)) {
+        throw new Error('Sound trigger must be TICK, CONTACT, or GROUND.');
+    }
+    if (trigger !== 'TICK') event.trigger = trigger;
     if (!/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(event.sound)
         || !Number.isFinite(event.volume) || event.volume < 0 || event.volume > 16
         || !Number.isFinite(event.pitch) || event.pitch < 0.5 || event.pitch > 2) {
         throw new Error('Sound ID, volume, or pitch is outside the supported range.');
+    }
+    return event;
+}
+
+function buildAnimationEvent(form, tick) {
+    const event = {
+        kind: 'animation',
+        tick,
+        animation: String(form.animation_name || '').trim(),
+        trigger: String(form.event_trigger || 'TICK').toUpperCase()
+    };
+    if (!/^[a-z0-9_./-]+$/.test(event.animation)) {
+        throw new Error('Animation name must use lowercase letters, digits, underscores, dots, or slashes.');
+    }
+    if (!['TICK', 'CONTACT', 'GROUND'].includes(event.trigger)) {
+        throw new Error('Animation trigger must be TICK, CONTACT, or GROUND.');
+    }
+    const randomGroup = String(form.random_group || '').trim();
+    const randomIndex = Math.floor(Number(form.random_index ?? 0));
+    if (randomGroup) {
+        if (!Number.isSafeInteger(randomIndex) || randomIndex < 0 || randomIndex > 32) {
+            throw new Error('Random choice index must be a whole number from 0 to 32.');
+        }
+        event.random_group = randomGroup;
+        event.random_index = randomIndex;
+    }
+    return event;
+}
+
+function buildPlayerEffectEvent(form, tick) {
+    const event = {
+        kind: 'player_effect',
+        tick,
+        effect: String(form.player_effect_id || '').trim(),
+        duration_ticks: Math.floor(Number(form.player_effect_duration)),
+        amplifier: Math.floor(Number(form.player_effect_amplifier ?? 0)),
+        show_particles: Boolean(form.player_effect_particles),
+        trigger: String(form.event_trigger || 'TICK').toUpperCase()
+    };
+    if (!/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(event.effect)) {
+        throw new Error('Status effect ID must be a registered resource location such as minecraft:slow_falling.');
+    }
+    if (!['TICK', 'CONTACT', 'GROUND'].includes(event.trigger)) {
+        throw new Error('Player effect trigger must be TICK, CONTACT, or GROUND.');
+    }
+    if (!Number.isSafeInteger(event.duration_ticks) || event.duration_ticks < 1
+        || event.duration_ticks > 100000
+        || !Number.isSafeInteger(event.amplifier) || event.amplifier < 0 || event.amplifier > 255) {
+        throw new Error('Player effect duration or amplifier is outside the supported range.');
     }
     return event;
 }
@@ -1663,6 +1917,13 @@ function buildMotionEvent(form, tick) {
     if (![motion.forward, motion.strafe, motion.vertical].every(Number.isFinite)) {
         throw new Error('Movement values must be finite numbers.');
     }
+    if (form.motion_set) motion.set = true;
+    if (form.motion_repeat) motion.repeat = true;
+    const trigger = String(form.event_trigger || 'TICK').toUpperCase();
+    if (!['TICK', 'CONTACT', 'GROUND'].includes(trigger)) {
+        throw new Error('Movement trigger must be TICK, CONTACT, or GROUND.');
+    }
+    if (trigger !== 'TICK') motion.trigger = trigger;
     return motion;
 }
 
@@ -1686,15 +1947,49 @@ function buildProjectileEvent(form, tick) {
         duration_ticks: Math.floor(Number(form.duration_ticks)),
         travel_distance: Number(form.travel_distance),
         particle: String(form.particle || '').trim(),
-        sound: String(form.sound_custom || form.sound_preset || '').trim()
+        sound: String(form.sound_custom || form.sound_preset || '').trim(),
+        fall_damage_scale: Number(form.fall_damage_scale || 0),
+        single_target: Boolean(form.single_target),
+        aim_at_contact: Boolean(form.aim_at_contact)
     };
     if (form.use_movement) {
         event.movement = [Number(form.movement_x), Number(form.movement_y), Number(form.movement_z)];
+    }
+    const randomGroup = String(form.random_group || '').trim();
+    if (randomGroup) {
+        const randomIndex = Math.floor(Number(form.random_index ?? 0));
+        if (!Number.isSafeInteger(randomIndex) || randomIndex < 0 || randomIndex > 32) {
+            throw new Error('Random choice index must be a whole number from 0 to 32.');
+        }
+        event.random_group = randomGroup;
+        event.random_index = randomIndex;
+    }
+    const pathRaw = String(form.path_json || '').trim();
+    if (pathRaw) {
+        let path;
+        try {
+            path = JSON.parse(pathRaw);
+        } catch (error) {
+            throw new Error('Falling slash path must be valid JSON.');
+        }
+        if (!path || typeof path !== 'object' || Array.isArray(path)) {
+            throw new Error('Falling slash path must be a JSON object.');
+        }
+        const pathStartTick = Math.floor(Number(path.start_tick ?? 1));
+        const pathPosition = Number(path.position ?? 0);
+        const pathSizeScale = Number(path.size_scale ?? 0);
+        if (!Number.isSafeInteger(pathStartTick) || pathStartTick < 1
+            || !Number.isFinite(pathPosition) || pathPosition < 0 || pathPosition > 1
+            || !Number.isFinite(pathSizeScale) || pathSizeScale < 0 || pathSizeScale > 32) {
+            throw new Error('Falling slash path values are outside the supported ranges.');
+        }
+        event.path = path;
     }
     const numericValues = [
         ...event.offset, ...event.rotation, ...event.size, event.damage_multiplier,
         event.knockback, event.duration_ticks, event.travel_distance,
         event.player_pitch_x_multiplier, event.player_pitch_z_multiplier, event.render_pitch,
+        event.fall_damage_scale,
         ...(event.movement || [])
     ];
     if (!numericValues.every(Number.isFinite)
@@ -1706,9 +2001,11 @@ function buildProjectileEvent(form, tick) {
         || Math.abs(event.player_pitch_x_multiplier) > 4
         || Math.abs(event.player_pitch_z_multiplier) > 4
         || Math.abs(event.render_pitch) > 180
+        || event.fall_damage_scale < 0 || event.fall_damage_scale > 16
         || event.movement?.some(value => Math.abs(value) > 128)
         || (event.knockback_multiplier !== -1 && Math.abs(event.knockback_multiplier) > 16)
-        || !event.particle || event.particle.length > 128) {
+        || !event.particle || event.particle.length > 128
+        || (event.aim_at_contact && event.trigger !== 'CONTACT')) {
         throw new Error('Flying slash values are outside the supported ranges.');
     }
     return event;
@@ -1734,7 +2031,9 @@ function editSelectedTimelineEvent() {
     const labels = selectedEntries.map((entry, index) => {
         const kind = entry.marker.data.kind === 'projectile' ? 'Flying Slash'
             : entry.marker.data.kind === 'attack' ? 'Hitbox'
-                : entry.marker.data.kind === 'sound' ? 'Sound' : 'Motion';
+                : entry.marker.data.kind === 'sound' ? 'Sound'
+                    : entry.marker.data.kind === 'animation' ? 'Animation Switch'
+                        : entry.marker.data.kind === 'player_effect' ? 'Player Effect' : 'Motion';
         return `${kind} ${index + 1}`;
     });
     Blockbench.showMessageBox({
@@ -1775,7 +2074,6 @@ function importSkillData() {
                 name: definition.name,
                 animation: definition.animation,
                 replace_builtin: definition.replace_builtin ?? true,
-                legacy_fallback: definition.legacy_fallback ?? false,
                 type: definition.type || 'SIMPLE',
                 weapons: definition.weapons || [],
                 cooldown: definition.cooldown ?? 80,
@@ -1783,7 +2081,14 @@ function importSkillData() {
                 duration_ticks: definition.duration_ticks ?? 20,
                 transform_limit_ticks: definition.transform_limit_ticks ?? 20,
                 hidden: definition.hidden ?? false,
+                assignable: definition.assignable ?? true,
+                default_unlocked: definition.default_unlocked ?? false,
+                proficiency_category: definition.proficiency_category ?? '',
+                unlock_proficiency: definition.unlock_proficiency ?? 0,
+                invulnerability_ticks: definition.invulnerability_ticks ?? 0,
+                end_skill_on_ground: definition.end_skill_on_ground ?? false,
                 color: definition.color || '#54D8FF',
+                ...(definition.motion ? { motion: definition.motion } : {}),
                 ...(definition.rush_start_ticks != null ? { rush_start_ticks: definition.rush_start_ticks } : {}),
                 ...(definition.rush_start_animation ? { rush_start_animation: definition.rush_start_animation } : {}),
                 ...(definition.rush_move_animation ? { rush_move_animation: definition.rush_move_animation } : {}),
@@ -1793,6 +2098,9 @@ function importSkillData() {
                 ...(definition.shockwave_ticks != null ? { shockwave_ticks: definition.shockwave_ticks } : {}),
                 ...(definition.hitstop_ticks != null ? { hitstop_ticks: definition.hitstop_ticks } : {})
             };
+            if (definition.legacy_fallback === true) {
+                Blockbench.showQuickMessage('legacy_fallback is no longer supported by the mod and was ignored.', 5000);
+            }
             // Remove existing meta marker first
             const existingMeta = getMarkers(animation).find(e => e.marker.prefix === SWORDSKILL_META_PREFIX);
             if (existingMeta) {
@@ -1844,6 +2152,12 @@ function importSkillData() {
                     knockback_multiplier: proj.knockback_multiplier ?? -1,
                     duration_ticks: proj.duration_ticks ?? 12,
                     travel_distance: proj.travel_distance ?? 16,
+                    fall_damage_scale: proj.fall_damage_scale ?? 0,
+                    single_target: proj.single_target ?? false,
+                    aim_at_contact: proj.aim_at_contact ?? false,
+                    ...(proj.random_group ? { random_group: proj.random_group } : {}),
+                    ...(proj.random_group ? { random_index: proj.random_index ?? 0 } : {}),
+                    ...(proj.path ? { path: proj.path } : {}),
                     ...(proj.movement ? { movement: proj.movement } : {}),
                     particle: proj.particle || 'skill_particle_sword/blue',
                     sound: proj.sound || '',
@@ -1861,7 +2175,10 @@ function importSkillData() {
                     kind: 'motion',
                     forward: mot.forward ?? 0,
                     strafe: mot.strafe ?? 0,
-                    vertical: mot.vertical ?? 0
+                    vertical: mot.vertical ?? 0,
+                    ...(mot.set ? { set: true } : {}),
+                    ...(mot.repeat ? { repeat: true } : {}),
+                    ...(mot.trigger && mot.trigger !== 'TICK' ? { trigger: mot.trigger } : {})
                 });
             }
 
@@ -1872,7 +2189,33 @@ function importSkillData() {
                     kind: 'sound',
                     sound: snd.sound || '',
                     volume: snd.volume ?? 1,
-                    pitch: snd.pitch ?? 1
+                    pitch: snd.pitch ?? 1,
+                    ...(snd.trigger && snd.trigger !== 'TICK' ? { trigger: snd.trigger } : {})
+                });
+            }
+
+            // Write animation switches
+            for (const anim of (definition.animations || [])) {
+                const time = (anim.tick || 0) / 20;
+                addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
+                    kind: 'animation',
+                    animation: anim.animation || '',
+                    trigger: anim.trigger || 'TICK',
+                    ...(anim.random_group ? { random_group: anim.random_group } : {}),
+                    ...(anim.random_group ? { random_index: anim.random_index ?? 0 } : {})
+                });
+            }
+
+            // Write player effects
+            for (const eff of (definition.player_effects || [])) {
+                const time = (eff.tick || 0) / 20;
+                addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
+                    kind: 'player_effect',
+                    effect: eff.effect || '',
+                    duration_ticks: eff.duration_ticks ?? 1,
+                    amplifier: eff.amplifier ?? 0,
+                    show_particles: eff.show_particles ?? false,
+                    trigger: eff.trigger || 'TICK'
                 });
             }
 
@@ -1920,7 +2263,10 @@ function exportSkillData() {
             tick: event.tick,
             forward: event.forward,
             strafe: event.strafe,
-            vertical: event.vertical
+            vertical: event.vertical,
+            ...(event.set ? { set: true } : {}),
+            ...(event.repeat ? { repeat: true } : {}),
+            ...(event.trigger && event.trigger !== 'TICK' ? { trigger: event.trigger } : {})
         }));
         const projectiles = entries.filter(event => event.kind === 'projectile').map(event => ({
             tick: event.tick,
@@ -1940,15 +2286,41 @@ function exportSkillData() {
             knockback_multiplier: event.knockback_multiplier ?? -1,
             duration_ticks: event.duration_ticks,
             travel_distance: event.travel_distance,
+            ...(event.fall_damage_scale ? { fall_damage_scale: event.fall_damage_scale } : {}),
+            ...(event.path ? { path: event.path } : {}),
+            ...(event.random_group ? {
+                random_group: event.random_group,
+                random_index: event.random_index ?? 0
+            } : {}),
+            ...(event.single_target ? { single_target: true } : {}),
+            ...(event.aim_at_contact ? { aim_at_contact: true } : {}),
             ...(event.movement ? { movement: event.movement } : {}),
             particle: event.particle,
             sound: event.sound
         }));
         const sounds = entries.filter(event => event.kind === 'sound').map(event => ({
             tick: event.tick,
+            ...(event.trigger && event.trigger !== 'TICK' ? { trigger: event.trigger } : {}),
             sound: event.sound,
             volume: event.volume,
             pitch: event.pitch
+        }));
+        const animations = entries.filter(event => event.kind === 'animation').map(event => ({
+            tick: event.tick,
+            ...(event.trigger && event.trigger !== 'TICK' ? { trigger: event.trigger } : {}),
+            animation: event.animation,
+            ...(event.random_group ? {
+                random_group: event.random_group,
+                random_index: event.random_index ?? 0
+            } : {})
+        }));
+        const playerEffects = entries.filter(event => event.kind === 'player_effect').map(event => ({
+            tick: event.tick,
+            ...(event.trigger && event.trigger !== 'TICK' ? { trigger: event.trigger } : {}),
+            effect: event.effect,
+            duration_ticks: event.duration_ticks,
+            amplifier: event.amplifier,
+            ...(event.show_particles ? { show_particles: true } : {})
         }));
         const lastEventTick = entries.reduce((latest, event) => Math.max(latest, event.tick), 0);
         const durationTicks = Math.max(Number(metadata.duration_ticks
@@ -1964,7 +2336,6 @@ function exportSkillData() {
             schema_version: 1,
             id: metadata.id ?? 0,
             replace_builtin: Boolean(metadata.replace_builtin),
-            legacy_fallback: Boolean(metadata.legacy_fallback),
             name: metadata.name,
             animation: metadata.animation,
             rush_start_ticks: metadata.rush_start_ticks,
@@ -1979,14 +2350,26 @@ function exportSkillData() {
             duration_ticks: durationTicks,
             transform_limit_ticks: metadata.transform_limit_ticks,
             hidden: metadata.hidden,
+            ...(metadata.assignable === false ? { assignable: false } : {}),
+            ...(metadata.default_unlocked ? { default_unlocked: true } : {}),
+            ...(metadata.proficiency_category
+                ? { proficiency_category: metadata.proficiency_category } : {}),
+            ...(Number(metadata.unlock_proficiency) > 0
+                ? { unlock_proficiency: Number(metadata.unlock_proficiency) } : {}),
+            ...(Number(metadata.invulnerability_ticks) > 0
+                ? { invulnerability_ticks: Number(metadata.invulnerability_ticks) } : {}),
+            ...(metadata.end_skill_on_ground ? { end_skill_on_ground: true } : {}),
             color: metadata.color,
+            ...(metadata.motion ? { motion: metadata.motion } : {}),
             trail_length: metadata.trail_length ?? 1.5,
             shockwave_ticks: metadata.shockwave_ticks ?? 0,
             hitstop_ticks: metadata.hitstop_ticks ?? -1,
             motions,
             hitboxes,
             projectiles,
-            sounds
+            sounds,
+            ...(animations.length ? { animations } : {}),
+            ...(playerEffects.length ? { player_effects: playerEffects } : {})
         };
         Blockbench.export({
             resource_id: 'swordskill:skilldata',

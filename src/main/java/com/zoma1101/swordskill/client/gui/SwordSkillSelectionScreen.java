@@ -15,14 +15,11 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -37,7 +34,6 @@ import java.util.Set;
 import static com.zoma1101.swordskill.client.gui.SaoShapes.fillClipped;
 import static com.zoma1101.swordskill.client.gui.SaoShapes.fillClippedGradient;
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
-import static com.zoma1101.swordskill.item.SampleItemRegistry.UNLOCKITEM;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 @OnlyIn(Dist.CLIENT)
@@ -1236,24 +1232,9 @@ public class SwordSkillSelectionScreen extends Screen {
                 showWarning("gui." + SwordSkill.MOD_ID + ".unlock_proficiency_warning");
                 return;
             }
-            if (player.isCreative()) {
-                PacketDistributor.sendToServer(new RequestUnlockSkillPayload(selectedSkill));
-                triggerFlash(1.0F);
-                return;
-            }
-
-            Inventory inventory = player.getInventory();
-            NonNullList<ItemStack> allItems = NonNullList.create();
-            allItems.addAll(inventory.items);
-            allItems.addAll(inventory.armor);
-            allItems.addAll(inventory.offhand);
-            for (ItemStack itemStack : allItems) {
-                if (itemStack.getItem() == UNLOCKITEM.get()) {
-                    PacketDistributor.sendToServer(new RequestUnlockSkillPayload(selectedSkill));
-                    triggerFlash(1.0F);
-                    return;
-                }
-            }
+            // 条件を満たしていれば解放をリクエスト（結果はサーバーから同期される）
+            PacketDistributor.sendToServer(new RequestUnlockSkillPayload(selectedSkill));
+            triggerFlash(1.0F);
         }
     }
 

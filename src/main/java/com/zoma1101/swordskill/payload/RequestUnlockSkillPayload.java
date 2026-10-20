@@ -1,12 +1,7 @@
 package com.zoma1101.swordskill.payload;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
-import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
-import com.zoma1101.swordskill.item.SampleItemRegistry;
 import com.zoma1101.swordskill.proficiency.ProficiencyManager;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -17,7 +12,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// アイテム消費とスキル解放を一括でリクエストするパケット
+// 熟練度条件を満たしていればスキルを解放するパケット
 public record RequestUnlockSkillPayload(int skillId) implements CustomPacketPayload {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -44,107 +38,54 @@ public record RequestUnlockSkillPayload(int skillId) implements CustomPacketPayl
     }
 
     // サーバーサイドハンドラー
-    // サーバーサイドハンドラー
     public void handle(IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             if (!(ctx.player() instanceof ServerPlayer player)) {
                 return;
             }
 
-            // 0. 熟練度による解放条件（クリエイティブは免除）
             SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
             if (skill == null || !skill.isAssignable()) {
                 LOGGER.warn("Player {} tried to unlock invalid skill {}", player.getName().getString(), skillId);
                 return;
             }
+
+            // 熟練度による解放条件（クリエイティブは免除）
             int requiredProficiency = ProficiencyManager.unlockRequirementOf(skill);
             SkillData.WeaponType category = ProficiencyManager.categoryOf(skill);
-            if (!player.isCreative() && requiredProficiency > 0) {
-                int currentProficiency = ProficiencyManager.getProficiency(player, category);
-                if (currentProficiency < requiredProficiency) {
-                    LOGGER.warn("Player {} tried to unlock skill {} but proficiency {} is below {}",
-                            player.getName().getString(), skillId, currentProficiency, requiredProficiency);
-                    player.displayClientMessage(Component.translatable(
-                            "message." + SwordSkill.MOD_ID + ".unlock.required_proficiency",
-                            Component.translatable(SwordSkill.MOD_ID + ".weapon." + category.name().toLowerCase()),
-                            requiredProficiency, currentProficiency), false);
-                    return;
-                }
+            int currentProficiency = ProficiencyManager.getProficiency(player, category);
+            if (!player.isCreative() && requiredProficiency > 0 && currentProficiency < requiredProficiency) {
+                LOGGER.warn("Player {} tried to unlock skill {} but proficiency {} is below {}",
+                        player.getName().getString(), skillId, currentProficiency, requiredProficiency);
+                player.displayClientMessage(Component.translatable(
+                        "message." + SwordSkill.MOD_ID + ".unlock.required_proficiency",
+                        Component.translatable(SwordSkill.MOD_ID + ".weapon." + category.name().toLowerCase()),
+                        requiredProficiency, currentProficiency), false);
+                return;
             }
 
-            boolean canUnlock = false;
-
-            if (player.isCreative()) {
-                canUnlock = true;
-            } else {
-                // 1. インベントリからアイテムを探して消費する
-                for (int i = 0; i < player.getInventory().getContainerSize(); ++i) {
-                    ItemStack itemStack = player.getInventory().getItem(i);
-
-                    if (itemStack.is(SampleItemRegistry.UNLOCKITEM.get())) {
-                        itemStack.shrink(1);
-                        if (itemStack.isEmpty()) {
-                            player.getInventory().setItem(i, ItemStack.EMPTY);
-                        }
-                        canUnlock = true;
-                        player.getInventory().setChanged(); // インベントリの変更を通知
-                        LOGGER.debug("Consumed unlock item for player {}", player.getName().getString());
-                        break;
-                    }
-                }
+            boolean newlyUnlocked;
+            try {
+                newlyUnlocked = SkillDataFetcher.unlockSkill(player, skillId);
+            } catch (RuntimeException exception) {
+                LOGGER.error("Failed to save unlocked skill {} for player {}",
+                        skillId, player.getName().getString(), exception);
+                return;
             }
 
-            // 2. 消費に成功した場合、またはクリエイティブの場合のみ、スキルを解放する
-            if (canUnlock) {
-                LOGGER.info("Unlocking skill ID {} for player {}", skillId, player.getName().getString());
+            // 解放状態をクライアントへ同期（画面のボタン表示も更新される）
+            int[] unlockedSkills = SkillDataFetcher.getUnlockedSkills(player);
+            List<Integer> skillList = Arrays.stream(unlockedSkills).boxed().collect(Collectors.toList());
+            PacketDistributor.sendToPlayer(player, new SyncUnlockedSkillsPayload(skillList));
 
-                // --- ここから SkillUnlockPayload のロジックを移植 ---
-                try {
-                    JsonObject playerData = DataManager.loadPlayerData(player);
-                    JsonArray unlockedSkillsArray;
+            Component skillName = Component.translatable(SwordSkill.MOD_ID + ".skill." + skill.getName());
+            player.displayClientMessage(Component.translatable(newlyUnlocked
+                    ? "message." + SwordSkill.MOD_ID + ".unlock.success"
+                    : "message." + SwordSkill.MOD_ID + ".unlock.already", skillName), !newlyUnlocked);
 
-                    // 既存データの読み込み
-                    if (playerData.has("unlockedskill")) {
-                        JsonElement unlockedSkillsElement = playerData.get("unlockedskill");
-                        if (unlockedSkillsElement.isJsonArray()) {
-                            unlockedSkillsArray = unlockedSkillsElement.getAsJsonArray();
-                        } else if (unlockedSkillsElement.isJsonPrimitive() && unlockedSkillsElement.getAsJsonPrimitive().isNumber()) {
-                            unlockedSkillsArray = new JsonArray();
-                            unlockedSkillsArray.add(unlockedSkillsElement.getAsInt());
-                        } else {
-                            unlockedSkillsArray = new JsonArray();
-                        }
-                    } else {
-                        unlockedSkillsArray = new JsonArray();
-                    }
-
-                    // 重複チェック
-                    boolean alreadyUnlocked = false;
-                    for (JsonElement element : unlockedSkillsArray) {
-                        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber() && element.getAsInt() == skillId) {
-                            alreadyUnlocked = true;
-                            break;
-                        }
-                    }
-
-                    // 保存処理
-                    if (!alreadyUnlocked) {
-                        unlockedSkillsArray.add(skillId);
-                        playerData.add("unlockedskill", unlockedSkillsArray);
-                        DataManager.savePlayerData(player, playerData);
-                        LOGGER.debug("Unlocked skill {} for player {}", skillId, player.getName().getString());
-
-                        int[] unlockedSkills = SkillDataFetcher.getUnlockedSkills(player);
-                        List<Integer> skillList = Arrays.stream(unlockedSkills).boxed().collect(Collectors.toList());
-                        PacketDistributor.sendToPlayer(player, new SyncUnlockedSkillsPayload(skillList));
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Failed to process unlock skill data for player {}", player.getName().getString(), e);
-                }
-
-
-            } else {
-                LOGGER.warn("Player {} tried to unlock skill {} but unlock item was not found.", player.getName().getString(), skillId);
+            if (newlyUnlocked) {
+                LOGGER.info("Unlocked skill ID {} ({}) for player {}",
+                        skillId, skill.getName(), player.getName().getString());
             }
         });
     }

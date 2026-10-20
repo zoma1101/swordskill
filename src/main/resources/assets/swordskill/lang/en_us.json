@@ -1,4 +1,4 @@
-﻿{
+{
   "key.categories.swordskill" : "SwordSkillMOD",
   "key.categories.swordskill.quick_cast" : "SS QuickCast",
   "key.swordskill.select_ss_key" : "Open Skill Select Screen",
@@ -32,6 +32,8 @@
   "commands.swordskill.proficiency.not_found": "Unknown proficiency category: %s",
   "message.swordskill.proficiency_point": "You gained %s proficiency! Level-ups available: %s",
   "message.swordskill.unlock.required_proficiency": "Requires %s proficiency of %s (currently %s)",
+  "message.swordskill.unlock.success": "Unlocked skill %s.",
+  "message.swordskill.unlock.already": "Skill %s is already unlocked.",
   "message.swordskill.level_up.success": "%s raised to Lv.%s (multiplier x%s)",
   "message.swordskill.level_up.failed": "Could not level up (not enough proficiency points, or already at max level)",
   "message.swordskill.level_up.failed.no_point": "Not enough proficiency points",
@@ -203,7 +205,7 @@
   "swordskill.skill.diastrophism": "Diastrophism",
   "swordskill.skill.mace_impact": "MaceImpact",
 
-  "swordskill.skill.how_to_use.description": "== How to use Sword Skills ==\nSwitch skills with A / D and assign a skill usable with your current weapon\nto a slot. Press the slot's key to activate the skill.\nUse the mouse wheel to turn the pages of this text.\n\n== Unlocking skills ==\nSpend one Skill Orb (found in chests) to unlock a skill.\nSome skills also require a certain proficiency in that weapon category;\nthe Unlock button shows how much you need.\n\n== Proficiency ==\nProficiency is stored per weapon category (one-handed sword, dual swords, axe...).\nDefeating monsters with a skill of a category raises its proficiency.\nEvery 100 proficiency grants one level-up point, and the \"Level Up\" button\nin the selection screen raises one skill of that category by one level.\nSkill levels only affect damage: Lv.1 is x1.00 and Lv.10 is x3.00.\n\n== Planned ==\nCooking, throwing and smithing categories will be added later;\ntheir proficiency will rise when the matching action succeeds.",
+  "swordskill.skill.how_to_use.description": "== How to use Sword Skills ==\nSwitch skills with A / D and assign a skill usable with your current weapon\nto a slot. Press the slot's key to activate the skill.\nUse the mouse wheel to turn the pages of this text.\n\n== Unlocking skills ==\nA skill unlocks once your proficiency in its weapon category reaches the requirement\nshown on the Unlock button. Raise it by defeating monsters with that weapon's skills.\nSkills with a requirement of 0 are unlocked from the start.\n\n== Proficiency ==\nProficiency is stored per weapon category (one-handed sword, dual swords, axe...).\nDefeating monsters with a skill of a category raises its proficiency.\nEvery 100 proficiency grants one level-up point, and the \"Level Up\" button\nin the selection screen raises one skill of that category by one level.\nSkill levels only affect damage: Lv.1 is x1.00 and Lv.10 is x3.00.\n\n== Planned ==\nCooking, throwing and smithing categories will be added later;\ntheir proficiency will rise when the matching action succeeds.",
   "swordskill.skill.slant.description": "A pure downward strike.",
   "swordskill.skill.horizontal.description": "Sweep your sword horizontally, clearing out enemies.",
   "swordskill.skill.vertical.description": "Bring your sword down from above to slay your foes.",

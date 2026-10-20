@@ -87,6 +87,26 @@ public class SkillDataFetcher {
         return changed;
     }
 
+    /**
+     * スキルを解放済みにする。
+     *
+     * @return 新しく解放した場合 {@code true}、既に解放済みなら {@code false}
+     */
+    public static boolean unlockSkill(ServerPlayer player, int skillId) {
+        JsonObject playerData = DataManager.loadPlayerData(player);
+        JsonArray unlockedSkillsArray = readUnlockedArray(playerData);
+        for (JsonElement element : unlockedSkillsArray) {
+            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()
+                    && element.getAsInt() == skillId) {
+                return false;
+            }
+        }
+        unlockedSkillsArray.add(skillId);
+        playerData.add("unlockedskill", unlockedSkillsArray);
+        DataManager.savePlayerData(player, playerData);
+        return true;
+    }
+
     /** {@code unlockedskill} を配列として取り出す（旧形式の単一数値も配列へ変換する）。 */
     private static JsonArray readUnlockedArray(JsonObject playerData) {
         JsonElement element = playerData.get("unlockedskill");

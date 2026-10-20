@@ -1,4 +1,4 @@
-﻿{
+{
   "key.categories.swordskill" : "ソードスキルMOD",
   "key.categories.swordskill.quick_cast" : "ソードスキル即時使用",
   "key.swordskill.select_ss_key" : "ソードスキル選択",
@@ -32,6 +32,8 @@
   "commands.swordskill.proficiency.not_found": "不明な熟練度カテゴリ: %s",
   "message.swordskill.proficiency_point": "%s の熟練度が貯まりました！ レベルアップ可能: %s",
   "message.swordskill.unlock.required_proficiency": "%s の熟練度が %s 必要です（現在 %s）",
+  "message.swordskill.unlock.success": "スキル「%s」を解放しました",
+  "message.swordskill.unlock.already": "スキル「%s」はすでに解放済みです",
   "message.swordskill.level_up.success": "%s を Lv.%s (倍率 ×%s) に強化しました",
   "message.swordskill.level_up.failed": "強化できませんでした（熟練度ポイント不足、または最大レベルです）",
   "message.swordskill.level_up.failed.no_point": "熟練度ポイントが足りません",
@@ -202,7 +204,7 @@
   "swordskill.skill.diastrophism": "ダイアストロフィズム",
   "swordskill.skill.mace_impact": "メイス・インパクト",
 
-  "swordskill.skill.how_to_use.description": "≪ソードスキルの使い方≫\nA / D キーでスキルを切り替え、装備中の武器種で使えるスキルをスロットにセットしよう。\nセットしたスロットのキーを押すとスキルが発動する。ホイールで説明文のページを送れる。\n\n≪スキルの解放≫\nチェストなどで手に入るスキルオーブを1つ消費すると解放できる。\nスキルによっては武器種ごとの熟練度が必要になり、解放ボタンに必要量が表示される。\n足りない場合は熟練度を貯めてから解放しよう。\n\n≪熟練度≫\n熟練度は武器種（片手剣・二刀流・斧など）ごとに貯まる。\nその武器種のスキルでモンスターを撃破すると熟練度が上昇する。\n熟練度が100貯まるごとにレベルアップポイントを1つ獲得し、\n選択画面の「レベルアップ」ボタンでその武器種のスキルを1レベル強化できる。\nスキルレベルはダメージのみに影響し、Lv.1で×1.00、Lv.10で×3.00まで伸びる。\n\n≪今後の予定≫\n料理・投擲・鍛冶など、武器以外のカテゴリの熟練度も追加予定。\nそれぞれの行動に成功したときに熟練度が上昇するようになる。",
+  "swordskill.skill.how_to_use.description": "≪ソードスキルの使い方≫\nA / D キーでスキルを切り替え、装備中の武器種で使えるスキルをスロットにセットしよう。\nセットしたスロットのキーを押すとスキルが発動する。ホイールで説明文のページを送れる。\n\n≪スキルの解放≫\n武器種ごとの熟練度が条件を満たすと解放できる。解放ボタンに必要な熟練度が表示される。\n足りない場合は、その武器種のスキルでモンスターを倒して熟練度を貯めよう。\n必要熟練度が0のスキルは最初から解放されている。\n\n≪熟練度≫\n熟練度は武器種（片手剣・二刀流・斧など）ごとに貯まる。\nその武器種のスキルでモンスターを撃破すると熟練度が上昇する。\n熟練度が100貯まるごとにレベルアップポイントを1つ獲得し、\n選択画面の「レベルアップ」ボタンでその武器種のスキルを1レベル強化できる。\nスキルレベルはダメージのみに影響し、Lv.1で×1.00、Lv.10で×3.00まで伸びる。\n\n≪今後の予定≫\n料理・投擲・鍛冶など、武器以外のカテゴリの熟練度も追加予定。\nそれぞれの行動に成功したときに熟練度が上昇するようになる。",
 
 
   "swordskill.skill.slant.description": "何よりも純粋な振り下ろし",

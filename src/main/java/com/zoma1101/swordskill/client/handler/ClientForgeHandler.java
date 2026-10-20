@@ -12,7 +12,7 @@ import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
-import com.zoma1101.swordskill.payload.RequestUnlockSkillPayload;
+import com.zoma1101.swordskill.payload.CheckSkillUnlockedPayload;
 import com.zoma1101.swordskill.payload.SkillLoadSlotPayload;
 import com.zoma1101.swordskill.payload.SkillRequestPayload;
 import com.zoma1101.swordskill.payload.UseSkillPayload;
@@ -138,7 +138,7 @@ public class ClientForgeHandler {
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
         PacketDistributor.sendToServer(new SkillRequestPayload());
-        PacketDistributor.sendToServer(new RequestUnlockSkillPayload(0)); // アンロック情報の要求
+        PacketDistributor.sendToServer(new CheckSkillUnlockedPayload());
         PacketDistributor.sendToServer(new com.zoma1101.swordskill.payload.RequestSkillLevelsPayload());
         SetWeaponType = true;
     }

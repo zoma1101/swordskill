@@ -9,7 +9,7 @@
 3. 既存skilldataを編集する場合は、**Tools > SwordSkill: Import skilldata JSON** で対象JSONを読み込みます。skilldataの`animation`名と一致するアニメーションがプロジェクト内にあれば自動で選ばれます。一致するアニメーションがなければ、選択中のアニメーションに読み込みます。新規作成する場合は **Tools > SwordSkill: Set Skill Metadata** を実行し、名前や武器タイプなどを設定します。
 4. 攻撃を置きたいフレームに再生ヘッドを移動し、**Tools > SwordSkill: Add Attack at Playhead** を実行します。攻撃判定の有効/無効、判定範囲、ダメージ倍率（通常攻撃力または移動量依存の突進ダメージ）、ノックバック、効果、任意の攻撃音を設定します。RUSHでは **Repeat each tick until a RUSH hit lands** を有効にすると、指定tickから命中するまで毎tick判定します。攻撃音はプリセット一覧から選ぶか、カスタム欄に任意の登録済みサウンドIDを入力できます。カスタム欄に入力した場合はプリセットより優先されます。判定を無効にしても、そのイベントの攻撃音は再生されます。音だけを鳴らす場合は **Add Sound at Playhead** を使用し、サウンドID・音量・ピッチを指定してください。イベントはBlockbench標準の **Effects > Timeline** キーフレームとして表示されます。キーフレームを選択・ドラッグ・削除すると、プレビューとルーラー上端のSwordSkillマーカーも同期します。時刻の編集にはキーフレーム本体をドラッグしてください。ルーラーマーカーはイベント時刻から自動生成される表示用で、直接ドラッグするデータではありません。skilldataへの書き出し時はキーフレーム時刻を20tick/秒の整数tickに変換します。
 5. 再生ヘッドを攻撃または飛ぶ斬撃イベントのtickに合わせるか、Effects > Timelineでイベントキーフレームを選択すると、アニメーション画面に半透明の範囲ボックスが表示されます。飛ぶ斬撃のボックスにはskilldataのサイズと回転も反映されます。ボックスはアニメーション中のbody/rootボーンの移動には追従せず、ルートグループの固定ピボットを基準に表示します。赤・緑・青のハンドルをドラッグして対応する軸のサイズを直接変更できます。同時刻に複数の範囲がある場合は、Effects > Timeline上で編集したいイベントを選択してからサイズを調整してください。オフセット、ダメージ、ノックバックなどはイベントキーフレームを選択して **Edit Selected Event** から編集できます。
-6. 使用者自身に移動を加える場合は、そのフレームで **Tools > SwordSkill: Add Motion at Playhead** を実行します。異なるフレームに複数の移動イベントを置けます。攻撃に結び付かない演出音は **Tools > SwordSkill: Add Sound at Playhead** から追加できます。
+6. 使用者自身に移動を加える場合は、そのフレームで **Tools > SwordSkill: Add Motion at Playhead** を実行します。異なるフレームに複数の移動イベントを置けます。攻撃に結び付かない演出音は **Tools > SwordSkill: Add Sound at Playhead** から追加できます。**Tools > SwordSkill: Add Animation Switch at Playhead** では任意tickにPlayerAnimatorアニメーションを切り替え、**Tools > SwordSkill: Add Player Effect at Playhead** では使用者へポーション効果（落下ダメージ無効など）を付与できます。
 7. 飛ぶ斬撃を追加する場合は、そのフレームで **Tools > SwordSkill: Add Flying Slash at Playhead** を実行します。出現位置、向き、範囲、ダメージ倍率、ダメージ基準（通常攻撃力または移動量を加味した突進ダメージ）、寿命、飛距離、テクスチャ、任意の攻撃音を指定できます。描画は横方向−75°から＋75°まで斬撃トレイルを振り、イベントで指定した角度を加えて表示します。サウンドはsweepなどのプリセットから選ぶか、登録済みIDを入力できます。1イベントで斬撃エフェクトを1つ生成し、同じ対象への重複ヒットを防ぎます。
 Flying Slash preview controls: drag the red, green, and blue rings to rotate around X, Y, and Z. The slash updates live while dragging, and the resulting RXYZ values are shown when you release. Drag the colored box handles to resize it.
 8. Effects > Timeline上のSwordSkillイベントを選び、**Tools > SwordSkill: Edit Selected Event** を使うと設定を編集できます。イベントキーフレームの削除にはBlockbench標準のタイムライン操作を使います。各種マーカーは対応するイベントに合わせて同期されます。
@@ -18,7 +18,40 @@ Flying Slash preview controls: drag the red, green, and blue rings to rotate aro
 11. スキルデータを追加・変更した後、ワールド内で`/reload`を実行します。
 12. ゲーム内では、skilldata式スキルに割り当てた発動キーを長押しし、離すと発動します。チャージ中はアニメーションの0秒時点のポーズを維持し、武器にエンチャントと同じ光沢を表示します。チャージ終了時には元の光沢設定へ戻ります。ビーコンの環境音もチャージ音として鳴ります。チャージ倍率は長押し開始時の`0.75`から上昇し、最大`40`tick（2秒）で`2.0`になります。倍率は攻撃判定と飛ぶ斬撃のダメージに適用されます。horizontal／vertical系列の変形スキルは、チャージ`0–13`tickで通常段、`14–26`tickで`_arc`段、`27–40`tickで`_square`段を選びます。離すときにしゃがんでいると、horizontal系列とvertical系列を切り替えます。チャージ倍率も通常どおり適用されます。この系列以外のskilldata式スキルでは、チャージ時間は従来どおり威力倍率にのみ使われます。組み込みスキルは従来どおりクリックで発動します。
 
-JSONを読み込むと、現在選択中のアニメーションにメタデータとイベントを取り込みます。既にSwordSkillマーカーが存在する場合は確認後に置き換えます。SwordSkill以外のタイムライン指示とアニメーションキーは保持されます。インポートした攻撃・移動・飛ぶ斬撃イベントはタイムライン上で編集でき、再出力したJSONに反映されます。継続時間は **Set Skill Metadata** の **Skill duration (ticks)** から編集できます。`legacy_fallback: true`のJSONでは元のJava処理がイベントより優先されます。イベントを追加・編集、または範囲ボックスを直接リサイズすると、プラグインは自動的にフォールバックを無効にし、データ駆動モードへ切り替えます。旧Java処理に固有の動きも必要な場合は、必要な攻撃・移動イベントをタイムライン上で追加してください。
+JSONを読み込むと、現在選択中のアニメーションにメタデータとイベントを取り込みます。既にSwordSkillマーカーが存在する場合は確認後に置き換えます。SwordSkill以外のタイムライン指示とアニメーションキーは保持されます。インポートした攻撃・移動・飛ぶ斬撃・サウンド・アニメーション切替・プレイヤー効果イベントはタイムライン上で編集でき、再出力したJSONに反映されます。継続時間は **Set Skill Metadata** の **Skill duration (ticks)** から編集できます。
+
+`legacy_fallback`はMOD側で廃止されました（`true`のJSONは読み込みエラーになります）。`legacy_fallback: true`のJSONを読み込んだ場合は警告を表示して無視し、データ駆動イベントのみで動作するJSONとして扱います。旧Java処理に固有の動きが必要な場合は、攻撃・移動・アニメーション切替・プレイヤー効果イベントをタイムライン上で追加してください。
+
+## 現在のskilldataスキーマ対応
+
+**Set Skill Metadata** では次のフィールドを編集できます。
+
+| フィールド | 内容 |
+| --- | --- |
+| `id` / `replace_builtin` | スキルID。`0`かつ`replace_builtin`無効ならMODが空きIDを自動割り当て |
+| `name` / `animation` / `type` / `weapons` | 基本情報 |
+| `cooldown` / `sp_cost` / `duration_ticks` / `transform_limit_ticks` | 発動時間とコスト |
+| `hidden` | 選択画面から隠す |
+| `assignable` | スロットに割り当て可能か（説明エントリ`how_to_use`は無効） |
+| `default_unlocked` | 必要熟練度に関係なくログイン時に自動解放する |
+| `proficiency_category` | 熟練度・解放条件に使うカテゴリ（空欄なら`weapons`の先頭） |
+| `unlock_proficiency` | 解放に必要な熟練度（`0`なら初期解放） |
+| `invulnerability_ticks` | 発動時の無敵tick |
+| `end_skill_on_ground` | 接地でスキルを終了する |
+| `color` / `trail_length` / `shockwave_ticks` / `hitstop_ticks` | 演出 |
+
+イベントは以下の6種類に対応しています。
+
+| イベント | 主なフィールド |
+| --- | --- |
+| Hitbox | `trigger`、`hitbox_enabled`、`offset`、`size`、`damage_multiplier`、`damage_type`、`knockback`、`knockback_multiplier`、`duration_ticks`、`particle`、`sound`、`effects` |
+| Flying Slash | 上記に加えて`rotation`、`player_pitch_*`、`render_pitch`、`travel_distance`、`fall_damage_scale`、`path`、`random_group`/`random_index`、`single_target`、`aim_at_contact` |
+| Motion | `forward`/`strafe`/`vertical`、`set`、`repeat`、`trigger` |
+| Sound | `sound`、`volume`、`pitch`、`trigger` |
+| Animation Switch | `animation`、`trigger`、`random_group`/`random_index` |
+| Player Effect | `effect`、`duration_ticks`、`amplifier`、`show_particles`、`trigger` |
+
+`trigger`は`TICK`（スキル開始からの経過tick）、`CONTACT`（RUSH命中後）、`GROUND`（使用者が接地している間）に対応します。`random_group`を設定したイベントは、同じグループ内で`random_index`が一致するものだけが実行されます。
 
 ## 既存Javaスキルの移行
 
@@ -28,13 +61,13 @@ JSONを読み込むと、現在選択中のアニメーションにメタデー�
 python tools/skilldata/convert_java_skills.py --skills rage_spike sonic_reap --output build/skilldata_rush --force
 ```
 
-通常変換で条件分岐などを安全に移植できないスキルは警告し、`legacy_fallback: true`で元のJavaスキル処理を維持します。生成後はconversion-reportの警告と攻撃範囲を確認してください。Blockbenchで「Keep original Java skill behavior」を無効にすると、元実装ではなくskilldataイベントが実行されます。既存スキルと同じIDを指定するため、JSONをデータパックへ導入すると該当IDのJavaスキルがskilldata版へ置き換わり、スロット設定や解放状態を維持できます。Python 3.10以降を用意し、リポジトリのルートで次を実行してください。
+通常変換で条件分岐などを安全に移植できないスキルは警告します。旧バージョンの`legacy_fallback: true`は現在のMODでは使用できないため、Blockbenchで攻撃・移動イベントを追加してデータ駆動で再現してください。既存スキルと同じIDを指定するため、JSONをデータパックへ導入すると該当IDのJavaスキルがskilldata版へ置き換わり、スロット設定や解放状態を維持できます。Python 3.10以降を用意し、リポジトリのルートで次を実行してください。
 
 ```powershell
 python tools/skilldata/convert_java_skills.py
 ```
 
-既定の出力先は`build/skilldata_migration/`です。JSONには既存ID、名前、タイプ、武器、クールダウン、SP、非表示設定などを移します。突進スキルはPlayerAnimator JSONに`<skill>.start`があればその長さを、なければJSON内の最長アニメーションの長さを`rush_start_ticks`として推定します。`.start`がない場合はレポートの警告を確認し、値とフェーズ用アニメーションsuffixを手動調整してください。対応パターン外の攻撃やJava固有処理は自動移植されず、未変換の処理があるJSONは`legacy_fallback: true`でJava側の処理を維持します。Blockbenchで編集したイベントをゲームに反映するときはフォールバックを無効にしてください。既存の出力ファイルは標準では上書きされません。意図的に上書きする場合のみ`--force`を指定してください。入力先・出力先は`--registry`、`--skills-dir`、`--animations-dir`、`--output`で変更できます。
+既定の出力先は`build/skilldata_migration/`です。JSONには既存ID、名前、タイプ、武器、クールダウン、SP、非表示設定などを移します。突進スキルはPlayerAnimator JSONに`<skill>.start`があればその長さを、なければJSON内の最長アニメーションの長さを`rush_start_ticks`として推定します。`.start`がない場合はレポートの警告を確認し、値とフェーズ用アニメーションsuffixを手動調整してください。対応パターン外の攻撃やJava固有処理は自動移植されません。旧`legacy_fallback`は現在のMODでは使えないため、変換レポートの警告を確認し、Blockbenchで不足分のイベントを追加してください。既存の出力ファイルは標準では上書きされません。意図的に上書きする場合のみ`--force`を指定してください。入力先・出力先は`--registry`、`--skills-dir`、`--animations-dir`、`--output`で変更できます。
 
 ## IDと武器タイプ
 
