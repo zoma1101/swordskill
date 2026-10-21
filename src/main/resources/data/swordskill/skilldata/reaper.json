@@ -36,7 +36,7 @@
       "offset": [
         0.0,
         0.81,
-        0.0
+        0.375
       ],
       "rotation": [
         0.0,
@@ -46,7 +46,7 @@
       "size": [
         0.75,
         0.75,
-        5.0
+        5.75
       ],
       "damage_multiplier": 1.5,
       "damage_type": "RUSH",

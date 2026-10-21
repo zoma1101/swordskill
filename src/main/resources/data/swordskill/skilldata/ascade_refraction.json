@@ -21,7 +21,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -10.0,
@@ -31,7 +31,7 @@
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 0.5,
       "damage_type": "BASE",
@@ -48,7 +48,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -10.0,
@@ -58,7 +58,7 @@
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 0.5,
       "damage_type": "BASE",
@@ -75,7 +75,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -15.0,
@@ -85,7 +85,7 @@
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -102,7 +102,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -15.0,
@@ -112,7 +112,7 @@
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",

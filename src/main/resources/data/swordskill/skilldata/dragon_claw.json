@@ -35,7 +35,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         12.0,
@@ -45,7 +45,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
@@ -62,7 +62,7 @@
       "offset": [
         1.1,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         6.0,
@@ -72,7 +72,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -89,7 +89,7 @@
       "offset": [
         0.5,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -6.0,
@@ -99,7 +99,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -116,7 +116,7 @@
       "offset": [
         -0.1,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -12.0,
@@ -126,7 +126,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -143,7 +143,7 @@
       "offset": [
         0.1,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         6.0,
@@ -153,7 +153,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -170,7 +170,7 @@
       "offset": [
         -0.5,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -6.0,
@@ -180,7 +180,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",
@@ -197,7 +197,7 @@
       "offset": [
         -1.1,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -12.0,
@@ -207,7 +207,7 @@
       "size": [
         4.2,
         3.0,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1.0,
       "damage_type": "BASE",

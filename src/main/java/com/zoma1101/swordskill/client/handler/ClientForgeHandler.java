@@ -54,8 +54,6 @@ import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
 public class ClientForgeHandler {
 
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
-    private static int addSkillIndex = 0;
-    private static Integer transformChainBaseId = null;
     private static Integer lastExecutedSkillId = null;
     private static Integer skillUsedTicks = null;
     private static Integer limitTickMax = 20;
@@ -81,8 +79,6 @@ public class ClientForgeHandler {
         ClientProficiencyHandler.reset(); // 熟練度もリセット
         ClientPlayerLevelHandler.reset(); // プレイヤーレベルもリセット
         cooldowns.clear();
-        addSkillIndex = 0;
-        transformChainBaseId = null;
         lastExecutedSkillId = null;
         skillUsedTicks = null;
         clearSkillCharge(Minecraft.getInstance().player);
@@ -119,8 +115,6 @@ public class ClientForgeHandler {
         if (skillUsedTicks != null) {
             skillUsedTicks++;
             if (skillUsedTicks > limitTickMax) {
-                addSkillIndex = 0;
-                transformChainBaseId = null;
                 lastExecutedSkillId = null;
                 skillUsedTicks = null;
             }
@@ -260,7 +254,7 @@ public class ClientForgeHandler {
 
     private static void ExecuteSkill(int skillID, int coolDownSkillID, int chargeTicks) {
         SkillData skillData = SwordSkillRegistry.SKILLS.get(skillID);
-        if (skillData != null) {
+        if (skillData != null && canAffordSkill(skillData)) {
             Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
             String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
             if (weaponName != null && skillData.getAvailableWeaponTypes().stream()
@@ -291,71 +285,188 @@ public class ClientForgeHandler {
     }
 
     private static void UseSkill(int selectedSkillIndex, int chargeTicks) {
+        UseSkill(selectedSkillIndex, chargeTicks, -1);
+    }
+
+    private static void UseSkill(int selectedSkillIndex, int chargeTicks, int comboNextSkillId) {
         if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size())
             return;
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null)
+            return;
 
-        int currentSkillId = (transformChainBaseId == null ? selectedSkillIndex : transformChainBaseId)
-                + addSkillIndex;
-        SkillData currentSkill = SwordSkillRegistry.SKILLS.get(currentSkillId);
-
-        // 1. クールダウン中でないなら、コンボを開始
-        if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
+        // 1. クールダウン中でないなら、通常発動
+        if (cooldowns.getOrDefault(selectedSkillIndex, 0) <= 0) {
             // 派生先は元スキルからの派生時のみ使用できる（古いスロットデータ対策）
             if (SkillChains.isDerived(selectedSkillIndex)) {
                 return;
             }
             ExecuteSkill(selectedSkillIndex, selectedSkillIndex, chargeTicks);
-            addSkillIndex = 0;
-            transformChainBaseId = null;
             skillUsedTicks = 0;
+            return;
         }
-        // 2. クールダウン中に同じキーが押された場合、直前のスキルからの派生のみ受け付ける
-        else if (lastExecutedSkillId != null && lastExecutedSkillId == currentSkillId
-                && skillUsedTicks != null && skillUsedTicks < limitTickMax && skillUsedTicks >= limitTickMin) {
-            if (currentSkill != null && currentSkill.getType() == TRANSFORM) {
-                int nextSkillId = SkillChains.next(currentSkillId);
 
-                // 次の段がアンロックされているかチェック（コンフィグでアンロック不要ならスルー）
-                boolean isNextUnlocked = nextSkillId >= 0
-                        && (ClientUnlockedSkillsHandler.isUnlocked(nextSkillId)
-                                || (ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get()));
+        // 2. クールダウン中は「直前に実行したスキルの次の段」だけを、受付時間内に限り許可する
+        int nextSkillId = -1;
+        if (isComboWindow() && isSameChain(selectedSkillIndex, lastExecutedSkillId)) {
+            nextSkillId = SkillChains.next(lastExecutedSkillId);
+        } else if (comboNextSkillId >= 0 && isSameChain(selectedSkillIndex, comboNextSkillId)) {
+            // チャージ開始時点では受付中だった派生。長押しで受付時間が過ぎても実行する。
+            nextSkillId = comboNextSkillId;
+        }
+        if (!isNextUnlocked(nextSkillId)
+                || !canAffordSkill(SwordSkillRegistry.SKILLS.get(nextSkillId))) {
+            return;
+        }
+        ExecuteSkill(nextSkillId, selectedSkillIndex, chargeTicks);
+        skillUsedTicks = 0;
+    }
 
-                if (isNextUnlocked) {
-                    addSkillIndex++;
-                    ExecuteSkill(nextSkillId, selectedSkillIndex, chargeTicks);
-                    // 別キーから派生した場合も、派生元チェーンのスロットをクールダウンさせる
-                    int chainBase = transformChainBaseId != null ? transformChainBaseId : selectedSkillIndex;
-                    if (chainBase != selectedSkillIndex) {
-                        SkillData nextSkill = SwordSkillRegistry.SKILLS.get(nextSkillId);
-                        if (nextSkill != null) {
-                            cooldowns.put(chainBase, getCoolDown(nextSkill));
-                        }
-                    }
-                    skillUsedTicks = 0;
-                }
+    /** horizontal / vertical 系のチャージ対象スキルから、元の軸名を取り出す。 */
+    private static String chargeAxisOf(String name) {
+        if (name.equals("horizontal") || name.startsWith("horizontal_")) {
+            return "horizontal";
+        }
+        if (name.equals("vertical") || name.startsWith("vertical_")) {
+            return "vertical";
+        }
+        return null;
+    }
 
-            } else if (currentSkill != null && currentSkill.getType() == TRANSFORM_FINISH) {
-                // フィニッシュ発動後の再入力はリセット
-                addSkillIndex = 0;
-                transformChainBaseId = null;
-                lastExecutedSkillId = null;
-                skillUsedTicks = null;
+    private static boolean isChargeSkill(SkillData skill) {
+        return chargeAxisOf(skill.getName()) != null;
+    }
+
+    /** チャージ時に実際に狙う軸の元スキルID。チャージ対象外なら -1。 */
+    private static int chargeTargetBaseId(SkillData skill, boolean crouching) {
+        String sourceAxis = chargeAxisOf(skill.getName());
+        if (sourceAxis == null) {
+            return -1;
+        }
+        String targetAxis = crouching
+                ? (sourceAxis.equals("horizontal") ? "vertical" : "horizontal")
+                : sourceAxis;
+        return findSkillIdByName(targetAxis);
+    }
+
+    /** 直前スキルの受付時間内かつ、その次の段が存在するか。 */
+    private static boolean isComboWindow() {
+        return lastExecutedSkillId != null && skillUsedTicks != null
+                && skillUsedTicks >= limitTickMin && skillUsedTicks <= limitTickMax
+                && SkillChains.next(lastExecutedSkillId) >= 0;
+    }
+
+    private static boolean isSameChain(int firstSkillId, int secondSkillId) {
+        return firstSkillId >= 0 && secondSkillId >= 0
+                && SkillChains.start(firstSkillId) == SkillChains.start(secondSkillId);
+    }
+
+    private static boolean isNextUnlocked(int skillId) {
+        return skillId >= 0
+                && (ClientUnlockedSkillsHandler.isUnlocked(skillId)
+                        || (ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get()));
+    }
+
+    /**
+     * チャージ開始時点で受付中の派生先。受付外なら -1。
+     * チャージ中に受付時間が過ぎても、開始時に有効だった派生は離したときに実行する。
+     */
+    private static int pendingComboNextSkillId(int selectedSkillIndex) {
+        if (cooldowns.getOrDefault(selectedSkillIndex, 0) <= 0
+                || !isComboWindow() || !isSameChain(selectedSkillIndex, lastExecutedSkillId)) {
+            return -1;
+        }
+        return SkillChains.next(lastExecutedSkillId);
+    }
+
+    private static boolean isWeaponUsable(SkillData skill, Set<SkillData.WeaponType> weaponTypes) {
+        return skill != null && weaponTypes != null && !weaponTypes.isEmpty()
+                && skill.getAvailableWeaponTypes().stream().anyMatch(weaponTypes::contains);
+    }
+
+    /**
+     * クライアントが保持している SP で発動できるか。同期値はサーバーより僅かに遅れるが、
+     * 常にサーバー値以下なので、ここで足りなければサーバーでも必ず拒否される。
+     */
+    private static boolean canAffordSkill(SkillData skill) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (skill == null) {
+            return false;
+        }
+        if (player == null || player.isCreative()) {
+            return true;
+        }
+        return com.zoma1101.swordskill.network.toClient.ClientSPData.get() >= skill.getSpCost();
+    }
+
+    /** SP が足りない段を選んでいたら、同じチェーン内の払える段まで下げる。 */
+    private static SkillData highestAffordableTier(SkillData target) {
+        SkillData candidate = target;
+        while (candidate != null && !canAffordSkill(candidate)) {
+            int parentId = SkillChains.parentOf(candidate.getId());
+            if (parentId < 0) {
+                return null;
             }
+            candidate = SwordSkillRegistry.SKILLS.get(parentId);
         }
+        return candidate;
+    }
+
+    /**
+     * チャージ開始前に、そのスキルが実際に発動できる状態かを判定する。
+     * 発動できないときにチャージ演出（構え・発光・効果音）だけが再生されるのを防ぐ。
+     */
+    private static boolean canStartSkillUse(int selectedSkillIndex, boolean crouching) {
+        if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size()) {
+            return false;
+        }
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null) {
+            return false;
+        }
+        Set<SkillData.WeaponType> weaponTypes = ClientSkillSlotHandler.getCurrentWeaponTypes();
+        if (!isWeaponUsable(selectedSkill, weaponTypes)) {
+            return false;
+        }
+
+        if (cooldowns.getOrDefault(selectedSkillIndex, 0) <= 0) {
+            if (SkillChains.isDerived(selectedSkillIndex)) {
+                return false;
+            }
+            if (!canAffordSkill(selectedSkill)) {
+                return false;
+            }
+            // しゃがみ中のチャージは別軸のスキルを発動するため、その軸のクールダウン・武器種・SPも必要
+            if (isChargeSkill(selectedSkill)) {
+                int targetBaseId = chargeTargetBaseId(selectedSkill, crouching);
+                return targetBaseId < 0
+                        || (cooldowns.getOrDefault(targetBaseId, 0) <= 0
+                                && isWeaponUsable(SwordSkillRegistry.SKILLS.get(targetBaseId), weaponTypes)
+                                && canAffordSkill(SwordSkillRegistry.SKILLS.get(targetBaseId)));
+            }
+            return true;
+        }
+
+        if (!isComboWindow() || !isSameChain(selectedSkillIndex, lastExecutedSkillId)) {
+            return false;
+        }
+        int nextSkillId = SkillChains.next(lastExecutedSkillId);
+        SkillData nextSkill = SwordSkillRegistry.SKILLS.get(nextSkillId);
+        if (!isNextUnlocked(nextSkillId)
+                || !isWeaponUsable(nextSkill, weaponTypes)
+                || !canAffordSkill(nextSkill)) {
+            return false;
+        }
+        // チャージのコンボは同じ軸のチェーンだけを進める
+        return !isChargeSkill(selectedSkill)
+                || isSameChain(selectedSkillIndex, chargeTargetBaseId(selectedSkill, crouching));
     }
 
     private static SkillData getChargeTransformVariant(int selectedSkillId, int chargeTicks, boolean crouching) {
         SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillId);
         if (selectedSkill == null || selectedSkill.getDataDefinition() == null) return null;
-        String name = selectedSkill.getName();
-        String sourceAxis;
-        if (name.equals("horizontal") || name.startsWith("horizontal_")) {
-            sourceAxis = "horizontal";
-        } else if (name.equals("vertical") || name.startsWith("vertical_")) {
-            sourceAxis = "vertical";
-        } else {
-            return null;
-        }
+        String sourceAxis = chargeAxisOf(selectedSkill.getName());
+        if (sourceAxis == null) return null;
 
         String targetAxis = crouching
                 ? (sourceAxis.equals("horizontal") ? "vertical" : "horizontal")
@@ -378,45 +489,65 @@ public class ClientForgeHandler {
     }
 
     private static void UseChargedTransformSkill(int selectedSkillId, int chargeTicks, boolean crouching) {
-        SkillData targetSkill = getChargeTransformVariant(selectedSkillId, chargeTicks, crouching);
+        UseChargedTransformSkill(selectedSkillId, chargeTicks, crouching, -1);
+    }
+
+    private static void UseChargedTransformSkill(int selectedSkillId, int chargeTicks, boolean crouching,
+            int comboNextSkillId) {
+        // チャージ開始時に受付中だった派生は、しゃがみで別軸へ移らず同じ軸のチェーンを進める
+        boolean comboPending = comboNextSkillId >= 0 && isSameChain(selectedSkillId, comboNextSkillId);
+        SkillData targetSkill = getChargeTransformVariant(selectedSkillId, chargeTicks,
+                crouching && !comboPending);
         if (targetSkill == null) {
-            UseSkill(selectedSkillId, chargeTicks);
+            UseSkill(selectedSkillId, chargeTicks, comboNextSkillId);
             return;
         }
 
         int baseSkillId = targetSkill.getName().startsWith("vertical")
                 ? findSkillIdByName("vertical") : findSkillIdByName("horizontal");
         if (baseSkillId < 0) {
-            UseSkill(selectedSkillId, chargeTicks);
+            UseSkill(selectedSkillId, chargeTicks, comboNextSkillId);
             return;
         }
 
         boolean cooldownReady = cooldowns.getOrDefault(selectedSkillId, 0) <= 0
                 && cooldowns.getOrDefault(baseSkillId, 0) <= 0;
-        int activeChainId = transformChainBaseId == null ? selectedSkillId : transformChainBaseId;
-        SkillData activeChainSkill = SwordSkillRegistry.SKILLS.get(activeChainId + addSkillIndex);
-        boolean comboWindowOpen = lastExecutedSkillId != null
-                && lastExecutedSkillId == activeChainId + addSkillIndex
-                && skillUsedTicks != null && skillUsedTicks < limitTickMax
-                && skillUsedTicks >= limitTickMin && activeChainSkill != null
-                && (activeChainSkill.getType() == TRANSFORM || activeChainSkill.getType() == TRANSFORM_FINISH);
-        if (!cooldownReady && !comboWindowOpen) return;
+        boolean comboWindowOpen = isSameChain(selectedSkillId, baseSkillId)
+                && isComboWindow() && isSameChain(selectedSkillId, lastExecutedSkillId);
+        if (!cooldownReady && !comboWindowOpen && !comboPending) return;
+
+        if (comboPending) {
+            SkillData nextSkill = SwordSkillRegistry.SKILLS.get(comboNextSkillId);
+            if (!isNextUnlocked(comboNextSkillId)
+                    || !isWeaponUsable(nextSkill, ClientSkillSlotHandler.getCurrentWeaponTypes())) {
+                return;
+            }
+            // 短押しでも元スキルを再生し直さず、必ず次の段へ進める
+            if (SkillChains.depthOf(targetSkill.getId()) < SkillChains.depthOf(comboNextSkillId)) {
+                targetSkill = nextSkill;
+            }
+        } else if (comboWindowOpen) {
+            int nextSkillId = SkillChains.next(lastExecutedSkillId);
+            SkillData nextSkill = SwordSkillRegistry.SKILLS.get(nextSkillId);
+            if (nextSkillId < 0 || nextSkill == null) return;
+            if (SkillChains.depthOf(targetSkill.getId()) < SkillChains.depthOf(nextSkillId)) {
+                if (!isNextUnlocked(nextSkillId)) return;
+                targetSkill = nextSkill;
+            }
+        }
+
+        // 長押しで選んだ段の SP が足りない場合は、払える段まで下げて発動する
+        targetSkill = highestAffordableTier(targetSkill);
+        if (targetSkill == null) {
+            return;
+        }
 
         ExecuteSkill(targetSkill.getId(), selectedSkillId, chargeTicks);
         // 別のキーからチャージ派生した場合も、派生元チェーンのスロットをクールダウンさせる
         if (baseSkillId != selectedSkillId) {
             cooldowns.put(baseSkillId, getCoolDown(targetSkill));
         }
-        String targetName = targetSkill.getName();
-        if (targetName.endsWith("_square")) {
-            addSkillIndex = 0;
-            transformChainBaseId = null;
-            skillUsedTicks = null;
-        } else {
-            addSkillIndex = targetName.endsWith("_arc") ? 1 : 0;
-            transformChainBaseId = baseSkillId;
-            skillUsedTicks = 0;
-        }
+        skillUsedTicks = 0;
     }
 
     private static int findSkillIdByName(String name) {
@@ -452,6 +583,12 @@ public class ClientForgeHandler {
                         : ClientSkillSlotHandler.getSkillSlotInfo()[key.slot()];
                 SkillData skill = SwordSkillRegistry.SKILLS.get(skillIndex);
                 if (skill != null && skill.getDataDefinition() != null) {
+                    // クールダウン中・派生受付外・武器不一致などで発動できない場合は、
+                    // チャージ演出だけが再生されないようにここで消費する
+                    if (!canStartSkillUse(skillIndex, player.isCrouching())) {
+                        continue;
+                    }
+                    int comboNextSkillId = pendingComboNextSkillId(skillIndex);
                     String animationType = skill.getType() == RUSH ? "start" : "";
                     AnimationUtils.PlayerChargeAnim(player, skillIndex, animationType);
                     ItemStack weapon = player.getMainHandItem();
@@ -462,7 +599,7 @@ public class ClientForgeHandler {
                     SkillChargeSound sound = new SkillChargeSound(player);
                     Minecraft.getInstance().getSoundManager().play(sound);
                     activeSkillCharge = new SkillCharge(key.mapping(), skillIndex, player.tickCount, sound,
-                            weapon, originalGlint);
+                            weapon, originalGlint, comboNextSkillId);
                 } else {
                     UseSkill(skillIndex, 0);
                 }
@@ -474,7 +611,8 @@ public class ClientForgeHandler {
             int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_TICKS,
                     player.tickCount - charge.startTick()));
             clearSkillCharge(player);
-            UseChargedTransformSkill(charge.skillIndex(), chargeTicks, player.isCrouching());
+            UseChargedTransformSkill(charge.skillIndex(), chargeTicks, player.isCrouching(),
+                    charge.comboNextSkillId());
         }
     }
 
@@ -501,7 +639,7 @@ public class ClientForgeHandler {
     }
 
     private record SkillCharge(KeyMapping mapping, int skillIndex, int startTick, SkillChargeSound sound,
-            ItemStack weapon, Boolean originalGlint) {
+            ItemStack weapon, Boolean originalGlint, int comboNextSkillId) {
     }
 
     private static class SkillChargeSound extends AbstractTickableSoundInstance {

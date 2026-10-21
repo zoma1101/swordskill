@@ -23,7 +23,7 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "rotation": [
         -6.0,
@@ -33,7 +33,7 @@
       "size": [
         4.2,
         3.0,
-        1.7
+        2.45
       ],
       "damage_multiplier": 3.5,
       "damage_type": "BASE",

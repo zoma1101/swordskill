@@ -51,11 +51,20 @@ Plugin.register('swordskill_skill_creator', {
     author: 'SwordSkill',
     description: 'Author skill hits, movement, animation switches, player effects, and contact-triggered RUSH combos on an animation timeline.',
     icon: 'sports_martial_arts',
-    version: '2.19.0',
+    version: '2.19.1',
     variant: 'both',
     onload() {
-        migrateLegacyMarkers();
-        initializeSkillPreview();
+        try {
+            migrateLegacyMarkers();
+        } catch (error) {
+            console.error('SwordSkill: failed to migrate legacy timeline markers', error);
+        }
+        try {
+            initializeSkillPreview();
+        } catch (error) {
+            // プレビュー初期化に失敗しても、タイムライン編集アクションは使えるようにする
+            console.error('SwordSkill: failed to initialize the hitbox preview', error);
+        }
         this.actions = [
             new Action('swordskill_setup_metadata', {
                 name: 'SwordSkill: Set Skill Metadata',
@@ -127,6 +136,8 @@ Plugin.register('swordskill_skill_creator', {
         Blockbench.removeListener('undo', previewUndoListener);
         Blockbench.removeListener('redo', previewUndoListener);
         Blockbench.removeListener('finish_edit', previewEditListener);
+        Blockbench.removeListener('update_keyframe_selection', previewEditListener);
+        Blockbench.removeListener('update_selection', previewEditListener);
         destroySkillPreview();
         timelineMarkerSignature = '';
     }
@@ -338,6 +349,14 @@ function getMetadata(animation) {
     return entry?.marker.data || null;
 }
 
+function attachPreviewRoot() {
+    // Canvas.scene はプラグイン読み込み時点でまだ用意されていないことがある。
+    // その場合でも、最初のフレーム更新時にプレビューをシーンへ接続する。
+    if (previewRoot && Canvas.scene && previewRoot.parent !== Canvas.scene) {
+        Canvas.scene.add(previewRoot);
+    }
+}
+
 function initializeSkillPreview() {
     previewRoot = new THREE.Group();
     previewRoot.name = 'SwordSkill Preview';
@@ -366,7 +385,7 @@ function initializeSkillPreview() {
         opacity: 0.95,
         depthTest: false
     }));
-    Canvas.scene.add(previewRoot);
+    attachPreviewRoot();
     previewListener = () => updateSkillPreview();
     previewAnimationListener = () => {
         migrateLegacyMarkers(Animation.selected ? [Animation.selected] : []);
@@ -391,6 +410,10 @@ function initializeSkillPreview() {
         updateSkillPreview(true);
     };
     Blockbench.on('finish_edit', previewEditListener);
+    // 再生を止めた状態でタイムラインのイベントを選択したときも、
+    // その場で当たり判定プレビューを更新する
+    Blockbench.on('update_keyframe_selection', previewEditListener);
+    Blockbench.on('update_selection', previewEditListener);
     bindPreviewCanvas();
     updateSkillPreview(true);
 }
@@ -421,7 +444,7 @@ function bindPreviewCanvas() {
 
 function destroySkillPreview() {
     if (!previewRoot) return;
-    Canvas.scene.remove(previewRoot);
+    Canvas.scene?.remove(previewRoot);
     clearPreviewBoxes();
     previewBoxMaterial?.dispose();
     previewEdgeMaterial?.dispose();
@@ -577,8 +600,17 @@ function createProjectilePreviewPath(event, rotation, color) {
     return path;
 }
 
+function normalizePreviewVector(value, fallback) {
+    if (!Array.isArray(value) || value.length < 3) return [...fallback];
+    return [0, 1, 2].map(index => {
+        const number = Number(value[index]);
+        return Number.isFinite(number) ? number : fallback[index];
+    });
+}
+
 function updateSkillPreview(refreshCanvas = false) {
     if (!previewRoot) return;
+    attachPreviewRoot();
     // Blockbench can create or replace the active preview after plugins load.
     // Keep resize interaction attached to the live canvas instead of capturing
     // whichever preview happened to be selected during onload.
@@ -600,7 +632,10 @@ function updateSkillPreview(refreshCanvas = false) {
     const events = previewEntries.map(({ entry, previewKind }) => ({
         ...entry.marker.data,
         tick: Math.round(entry.time * 20),
-        previewKind
+        previewKind,
+        // 古いマーカーや手編集されたデータでもプレビューが例外で止まらないようにする
+        offset: normalizePreviewVector(entry.marker.data.offset, [0, 1, 0]),
+        size: normalizePreviewVector(entry.marker.data.size, [3, 2, 3])
     }));
     const signature = JSON.stringify({
         animation: animation?.uuid,
@@ -627,7 +662,7 @@ function updateSkillPreview(refreshCanvas = false) {
                 }));
             slash.visible = false;
             slash.renderOrder = 1003;
-            const rotation = (event.rotation || [0, 0, 0])
+            const rotation = normalizePreviewVector(event.rotation, [0, 0, 0])
                 .map(value => THREE.MathUtils.degToRad(Number(value)));
             const path = event.previewKind === 'projectile'
                 ? createProjectilePreviewPath(event, rotation, color)
@@ -667,7 +702,7 @@ function updateSkillPreview(refreshCanvas = false) {
     // Skill offsets are relative to the player's position and look direction,
     // not to an animated body bone. Use the root group's static pivot as the
     // preview anchor, but do not inherit its animated transform.
-    const modelRoot = Project.groups.find(group => !(group.parent instanceof Group));
+    const modelRoot = Project?.groups?.find(group => !(group.parent instanceof Group));
     const rootOrigin = modelRoot?.origin?.map(Number);
     const anchor = rootOrigin?.length === 3 && rootOrigin.every(Number.isFinite)
         ? rootOrigin : [0, 0, 0];
@@ -686,7 +721,8 @@ function updateSkillPreview(refreshCanvas = false) {
         // Minecraft's forward offset is +look; Blockbench's model-front is -Z.
         box.mesh.position.set(anchor[0] + offset[0], anchor[1] + offset[1], anchor[2] - offset[2]);
         if (box.event.previewKind === 'projectile') {
-            const rotation = (box.event.rotation || [0, 0, 0]).map(value => THREE.MathUtils.degToRad(Number(value)));
+            const rotation = normalizePreviewVector(box.event.rotation, [0, 0, 0])
+                .map(value => THREE.MathUtils.degToRad(Number(value)));
             box.mesh.quaternion.setFromEuler(new THREE.Euler(rotation[0], rotation[1], rotation[2], 'XYZ'));
         } else {
             box.mesh.quaternion.identity();
@@ -845,7 +881,7 @@ function moveHitboxResize(event) {
         offset[activeResize.axis] = Math.round((activeResize.initialOffset
             + direction * projectedPixels / activeResize.pixelsPerBlock) * 10) / 10;
         activeResize.box.event.offset = offset;
-        const modelRoot = Project.groups.find(group => !(group.parent instanceof Group));
+        const modelRoot = Project?.groups?.find(group => !(group.parent instanceof Group));
         const rootOrigin = modelRoot?.origin?.map(Number);
         const anchor = rootOrigin?.length === 3 && rootOrigin.every(Number.isFinite)
             ? rootOrigin : [0, 0, 0];

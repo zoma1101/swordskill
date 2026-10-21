@@ -198,6 +198,11 @@ public class ServerEventHandler {
 
             // クライアントへプレイヤーレベルを送る
             PlayerLevelManager.syncToClient(player);
+
+            // ログイン直後の SP を同期する（満タンだと updateSP では同期されないため）
+            PacketDistributor.sendToPlayer(player, new SyncSPPayload(
+                    player.getPersistentData().getDouble("SS_CurrentSP"),
+                    player.getAttributeValue(SwordSkillAttribute.MAX_SP)));
         }
     }
 
@@ -221,6 +226,11 @@ public class ServerEventHandler {
             // プレイヤーレベルの報酬 (最大HP/SP) を再適用する
             PlayerLevelManager.applyRewards(player);
             PlayerLevelManager.syncToClient(player);
+
+            // リスポーン直後の SP を同期する
+            PacketDistributor.sendToPlayer(player, new SyncSPPayload(
+                    player.getPersistentData().getDouble("SS_CurrentSP"),
+                    player.getAttributeValue(SwordSkillAttribute.MAX_SP)));
         }
     }
 

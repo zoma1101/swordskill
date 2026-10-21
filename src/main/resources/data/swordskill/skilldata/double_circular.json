@@ -23,12 +23,12 @@
       "offset": [
         0.0,
         2.43,
-        0.0
+        0.375
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
@@ -44,12 +44,12 @@
       "offset": [
         0.0,
         2.43,
-        0.0
+        0.375
       ],
       "size": [
         0.25,
         0.25,
-        6.0
+        6.75
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
@@ -65,12 +65,12 @@
       "offset": [
         0.0,
         2.43,
-        0.0
+        0.375
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
@@ -86,12 +86,12 @@
       "offset": [
         0.0,
         2.43,
-        0.0
+        0.375
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
