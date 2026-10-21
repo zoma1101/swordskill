@@ -45,13 +45,14 @@ let previewGizmoToolbar = null;
 let previewGizmoMode = 'resize';
 let previewCanvasParentPosition = null;
 let previewGizmoHost = null;
+let previewUpdateInProgress = false;
 
 Plugin.register('swordskill_skill_creator', {
     title: 'SwordSkill Timeline Events',
     author: 'SwordSkill',
     description: 'Author skill hits, movement, animation switches, player effects, and contact-triggered RUSH combos on an animation timeline.',
     icon: 'sports_martial_arts',
-    version: '2.19.1',
+    version: '2.19.2',
     variant: 'both',
     onload() {
         try {
@@ -137,7 +138,6 @@ Plugin.register('swordskill_skill_creator', {
         Blockbench.removeListener('redo', previewUndoListener);
         Blockbench.removeListener('finish_edit', previewEditListener);
         Blockbench.removeListener('update_keyframe_selection', previewEditListener);
-        Blockbench.removeListener('update_selection', previewEditListener);
         destroySkillPreview();
         timelineMarkerSignature = '';
     }
@@ -411,9 +411,10 @@ function initializeSkillPreview() {
     };
     Blockbench.on('finish_edit', previewEditListener);
     // 再生を止めた状態でタイムラインのイベントを選択したときも、
-    // その場で当たり判定プレビューを更新する
+    // その場で当たり判定プレビューを更新する。
+    // 注意: update_selection は Canvas.updateAll() からも発火するため購読しない
+    //（購読すると updateAll → update_selection → updateAll の無限再帰になる）。
     Blockbench.on('update_keyframe_selection', previewEditListener);
-    Blockbench.on('update_selection', previewEditListener);
     bindPreviewCanvas();
     updateSkillPreview(true);
 }
@@ -609,6 +610,21 @@ function normalizePreviewVector(value, fallback) {
 }
 
 function updateSkillPreview(refreshCanvas = false) {
+    // Blockbench のイベント内から Canvas.updateAll() を呼ぶと、同じイベントが
+    // 再発火して無限再帰することがある。再入を防ぎ、例外もイベント外へ漏らさない。
+    if (previewUpdateInProgress) return;
+    previewUpdateInProgress = true;
+    try {
+        updateSkillPreviewInternal(refreshCanvas);
+    } catch (error) {
+        // 1 つの壊れたイベントでモデル読み込みやエディタ全体を止めない
+        console.error('SwordSkill: failed to update the hitbox preview', error);
+    } finally {
+        previewUpdateInProgress = false;
+    }
+}
+
+function updateSkillPreviewInternal(refreshCanvas = false) {
     if (!previewRoot) return;
     attachPreviewRoot();
     // Blockbench can create or replace the active preview after plugins load.
