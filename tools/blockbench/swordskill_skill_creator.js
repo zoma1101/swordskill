@@ -52,7 +52,7 @@ Plugin.register('swordskill_skill_creator', {
     author: 'SwordSkill',
     description: 'Author skill hits, movement, animation switches, player effects, and contact-triggered RUSH combos on an animation timeline.',
     icon: 'sports_martial_arts',
-    version: '2.19.3',
+    version: '2.19.4',
     variant: 'both',
     onload() {
         try {
@@ -173,8 +173,11 @@ function snapSkillTime(time) {
 
 function parseMarker(script) {
     if (typeof script !== 'string') return null;
-    if (script.startsWith(SWORDSKILL_MOLANG_MARKER_PREFIX) && script.endsWith(')')) {
-        const terms = script.slice(SWORDSKILL_MOLANG_MARKER_PREFIX.length, -1).split('+').map(Number);
+    // Older SwordSkill outputs (and Molang statements in general) can end with a
+    // semicolon. Treat it as a statement terminator instead of rejecting the marker.
+    const normalized = script.trim().replace(/;+\s*$/, '');
+    if (normalized.startsWith(SWORDSKILL_MOLANG_MARKER_PREFIX) && normalized.endsWith(')')) {
+        const terms = normalized.slice(SWORDSKILL_MOLANG_MARKER_PREFIX.length, -1).split('+').map(Number);
         if (terms.length < 1 || !Number.isSafeInteger(terms[0]) || terms[0] < 0 || terms[0] > 0xFFFFFF) {
             return null;
         }
@@ -198,9 +201,9 @@ function parseMarker(script) {
         return null;
     }
     for (const prefix of [SWORDSKILL_META_PREFIX, SWORDSKILL_EVENT_PREFIX]) {
-        if (script.startsWith(prefix)) {
+        if (normalized.startsWith(prefix)) {
             try {
-                return { prefix, data: JSON.parse(script.slice(prefix.length)) };
+                return { prefix, data: JSON.parse(normalized.slice(prefix.length)) };
             } catch (error) {
                 console.warn('Invalid SwordSkill timeline marker', error);
                 return null;
@@ -228,8 +231,15 @@ function migrateLegacyMarkers(targetAnimations = Array.isArray(Project?.animatio
         for (const keyframe of animator.timeline) {
             const script = keyframe.data_points?.[0]?.script;
             const marker = parseMarker(script);
-            if (marker && (script.startsWith(SWORDSKILL_META_PREFIX) || script.startsWith(SWORDSKILL_EVENT_PREFIX))) {
-                updates.push({ animation, keyframe, marker });
+            if (!marker || (marker.prefix !== SWORDSKILL_META_PREFIX && marker.prefix !== SWORDSKILL_EVENT_PREFIX)) {
+                continue;
+            }
+            // Only rewrite markers that still use an older encoding (for
+            // example a trailing semicolon) so selecting an animation does not
+            // keep creating no-op undo entries.
+            const encoded = encodeMarker(marker.prefix, marker.data);
+            if (script !== encoded) {
+                updates.push({ animation, keyframe, encoded });
             }
         }
     }
@@ -237,8 +247,8 @@ function migrateLegacyMarkers(targetAnimations = Array.isArray(Project?.animatio
 
     const affectedAnimations = [...new Set(updates.map(update => update.animation))];
     Undo.initEdit({ animations: affectedAnimations });
-    for (const { keyframe, marker } of updates) {
-        keyframe.data_points[0].script = encodeMarker(marker.prefix, marker.data);
+    for (const { keyframe, encoded } of updates) {
+        keyframe.data_points[0].script = encoded;
     }
     Undo.finishEdit('Convert SwordSkill timeline markers to valid Molang', { animations: affectedAnimations });
 }
@@ -366,6 +376,9 @@ function initializeSkillPreview() {
         color: '#54D8FF',
         transparent: true,
         opacity: 0.18,
+        // Large skill hitboxes can enclose the camera. DoubleSide keeps the
+        // translucent volume visible from inside as well as from outside.
+        side: THREE.DoubleSide,
         depthWrite: false,
         depthTest: false
     });
@@ -519,6 +532,21 @@ function createPreviewGizmoToolbar() {
         });
         toolbar.appendChild(button);
     }
+    const fitButton = document.createElement('button');
+    fitButton.type = 'button';
+    fitButton.textContent = '全体';
+    fitButton.title = 'Fit the selected hitbox to view';
+    Object.assign(fitButton.style, {
+        border: '0', borderRadius: '3px', padding: '4px 7px',
+        color: 'inherit', background: 'transparent', cursor: 'pointer'
+    });
+    fitButton.addEventListener('pointerdown', event => event.stopPropagation());
+    fitButton.addEventListener('click', event => {
+        event.stopPropagation();
+        updateSkillPreview(true);
+        focusPreviewOnSelectedHitbox();
+    });
+    toolbar.appendChild(fitButton);
     host.appendChild(toolbar);
     previewGizmoToolbar = toolbar;
 }
@@ -536,6 +564,52 @@ function clearPreviewBoxes() {
         box.rotationHandles.forEach(handle => handle.geometry.dispose());
     }
     previewBoxes = [];
+}
+
+function selectTimelineKeyframe(keyframe, time) {
+    if (!keyframe) return;
+    if (typeof Timeline !== 'undefined' && Array.isArray(Timeline.selected)) {
+        Timeline.selected.forEach(selected => { selected.selected = false; });
+        Timeline.selected.length = 0;
+        keyframe.selected = true;
+        Timeline.selected.push(keyframe);
+    } else {
+        keyframe.selected = true;
+    }
+    if (typeof TickUpdates !== 'undefined') {
+        TickUpdates.keyframe_selection = true;
+    }
+    if (typeof Timeline !== 'undefined' && typeof Timeline.setTime === 'function') {
+        Timeline.setTime(Math.max(0, Number(time) || 0));
+    }
+    if (typeof Animator !== 'undefined' && typeof Animator.preview === 'function') {
+        Animator.preview();
+    }
+}
+
+function focusPreviewOnSelectedHitbox() {
+    if (!previewCamera) return;
+    const box = previewBoxes.find(item => item.entry?.keyframe?.selected && item.mesh.visible)
+        || previewBoxes.find(item => item.mesh.visible)
+        || previewBoxes[0];
+    if (!box) return;
+    const controls = Preview.selected?.controls;
+    if (!controls?.target) return;
+    const center = box.mesh.position.clone();
+    if (box.mesh.geometry && !box.mesh.geometry.boundingSphere) {
+        box.mesh.geometry.computeBoundingSphere();
+    }
+    const radius = Math.max(1, box.mesh.geometry?.boundingSphere?.radius || 1);
+    const direction = previewCamera.position.clone().sub(controls.target);
+    if (direction.lengthSq() < 1e-6) direction.set(1, 0.8, 1);
+    direction.normalize();
+    const fov = THREE.MathUtils.degToRad(Number(previewCamera.fov) || 45);
+    const distance = radius / Math.sin(fov * 0.5) * 1.15;
+    controls.target.copy(center);
+    previewCamera.position.copy(center).add(direction.multiplyScalar(distance));
+    previewCamera.updateProjectionMatrix();
+    controls.update();
+    Canvas.updateAll();
 }
 
 function createSlashPreviewGeometry(size) {
@@ -2176,9 +2250,10 @@ function importSkillData() {
             }
 
             // Write hitboxes
+            const importedPreviewKeyframes = [];
             for (const hb of (definition.hitboxes || [])) {
                 const time = (hb.tick || 0) / 20;
-                addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
+                const keyframe = addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
                     kind: 'attack',
                     trigger: hb.trigger || 'TICK',
                     hitbox_enabled: hb.hitbox_enabled !== false,
@@ -2196,12 +2271,13 @@ function importSkillData() {
                     ...(hb.travel_distance != null ? { travel_distance: hb.travel_distance } : {}),
                     ...(hb.particle ? { particle: hb.particle } : {})
                 });
+                importedPreviewKeyframes.push(keyframe);
             }
 
             // Write projectiles
             for (const proj of (definition.projectiles || [])) {
                 const time = (proj.tick || 0) / 20;
-                addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
+                const keyframe = addTimelineRecord(animation, time, SWORDSKILL_EVENT_PREFIX, {
                     kind: 'projectile',
                     trigger: proj.trigger || 'TICK',
                     offset: proj.offset || [0, 1.2, 2],
@@ -2227,6 +2303,7 @@ function importSkillData() {
                     player_pitch_z_multiplier: proj.player_pitch_z_multiplier ?? 0,
                     render_pitch: proj.render_pitch ?? 0
                 });
+                importedPreviewKeyframes.push(keyframe);
             }
 
             // Write motions
@@ -2281,9 +2358,24 @@ function importSkillData() {
             }
 
             Undo.finishEdit('Import SwordSkill skilldata', { animations: [animation] });
+            const importedTimes = getMarkers(animation)
+                .filter(entry => entry.marker.prefix === SWORDSKILL_EVENT_PREFIX)
+                .map(entry => entry.time);
+            if (importedTimes.length) {
+                animation.setLength(Math.max(Number(animation.length) || 0, ...importedTimes));
+            }
             previewSignature = '';
             timelineMarkerSignature = '';
+            const focusKeyframe = importedPreviewKeyframes[0];
+            if (focusKeyframe) {
+                // Select the first hitbox and move the playhead there so the
+                // preview is visible immediately after importing.
+                selectTimelineKeyframe(focusKeyframe, focusKeyframe.time);
+            }
             updateSkillPreview(true);
+            if (focusKeyframe) {
+                focusPreviewOnSelectedHitbox();
+            }
             Blockbench.showMessageBox({
                 title: 'Import complete',
                 message: `Imported skill "${definition.name}" into the animation timeline.`,
