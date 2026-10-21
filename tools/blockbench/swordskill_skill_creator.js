@@ -52,7 +52,7 @@ Plugin.register('swordskill_skill_creator', {
     author: 'SwordSkill',
     description: 'Author skill hits, movement, animation switches, player effects, and contact-triggered RUSH combos on an animation timeline.',
     icon: 'sports_martial_arts',
-    version: '2.19.2',
+    version: '2.19.3',
     variant: 'both',
     onload() {
         try {
@@ -1954,7 +1954,12 @@ function buildAttackEvent(form, tick, previous = {}) {
             ? Number(form.knockback_multiplier || 0) : -1,
         repeat_while_rushing: Boolean(form.repeat_while_rushing),
         effects,
-        sound: String(form.sound_custom || form.sound_preset || '').trim()
+        sound: String(form.sound_custom || form.sound_preset || '').trim(),
+        // import 時に読み込んだ、UI では編集しない追加フィールドを保持する
+        ...(previous.rotation ? { rotation: previous.rotation } : {}),
+        ...(previous.duration_ticks != null ? { duration_ticks: previous.duration_ticks } : {}),
+        ...(previous.travel_distance != null ? { travel_distance: previous.travel_distance } : {}),
+        ...(previous.particle ? { particle: previous.particle } : {})
     };
 }
 
@@ -2185,7 +2190,11 @@ function importSkillData() {
                     knockback_multiplier: hb.knockback_multiplier ?? -1,
                     repeat_while_rushing: hb.repeat_while_rushing ?? false,
                     effects: hb.effects || [],
-                    sound: hb.sound || ''
+                    sound: hb.sound || '',
+                    ...(hb.rotation ? { rotation: hb.rotation } : {}),
+                    ...(hb.duration_ticks != null ? { duration_ticks: hb.duration_ticks } : {}),
+                    ...(hb.travel_distance != null ? { travel_distance: hb.travel_distance } : {}),
+                    ...(hb.particle ? { particle: hb.particle } : {})
                 });
             }
 
@@ -2309,7 +2318,11 @@ function exportSkillData() {
             knockback_multiplier: event.knockback_multiplier ?? -1,
             repeat_while_rushing: Boolean(event.repeat_while_rushing),
             effects: event.effects || [],
-            sound: String(event.sound || '').trim()
+            sound: String(event.sound || '').trim(),
+            ...(event.rotation ? { rotation: event.rotation } : {}),
+            ...(event.duration_ticks != null ? { duration_ticks: event.duration_ticks } : {}),
+            ...(event.travel_distance != null ? { travel_distance: event.travel_distance } : {}),
+            ...(event.particle ? { particle: event.particle } : {})
         }));
         const motions = entries.filter(event => event.kind === 'motion').map(event => ({
             tick: event.tick,
