@@ -1,0 +1,26 @@
+{
+  "charge": {
+    "sounds": [
+      {
+        "name": "swordskill:charge",
+        "stream": false
+      }
+    ]
+  },
+  "charge_activate": {
+    "sounds": [
+      {
+        "name": "swordskill:charge_activate",
+        "stream": false
+      }
+    ]
+  },
+  "charge_ambient_loop": {
+    "sounds": [
+      {
+        "name": "swordskill:charge_ambient_loop",
+        "stream": false
+      }
+    ]
+  }
+}

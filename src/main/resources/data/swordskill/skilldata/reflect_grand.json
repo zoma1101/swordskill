@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "replace_builtin": false,
+  "name": "reflect_grand",
+  "animation": "reflect_grand",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "COUNTER",
+  "weapons": [
+    "TWO_HANDED_SWORD"
+  ],
+  "cooldown": 120,
+  "sp_cost": 5,
+  "duration_ticks": 18,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#DDFF00",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "counter_damage_cut": 0.5,
+  "counter_damage_scale": 0.02,
+  "counter_max_bonus": 1.0,
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 3,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1.5
+      ],
+      "size": [
+        3,
+        3,
+        4.5
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 9,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1.5
+      ],
+      "size": [
+        3,
+        3,
+        4.5
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 16,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1.5
+      ],
+      "size": [
+        3,
+        3,
+        4.5
+      ],
+      "damage_multiplier": 2,
+      "damage_type": "BASE",
+      "knockback": 1.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "sounds": []
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "replace_builtin": false,
+  "name": "momizi",
+  "animation": "momizi",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "COUNTER",
+  "weapons": [
+    "KATANA"
+  ],
+  "cooldown": 80,
+  "sp_cost": 5,
+  "duration_ticks": 13,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#CC4219",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "counter_damage_cut": 0.5,
+  "counter_damage_scale": 0.02,
+  "counter_max_bonus": 1.0,
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 8,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 2,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "sounds": []
+}

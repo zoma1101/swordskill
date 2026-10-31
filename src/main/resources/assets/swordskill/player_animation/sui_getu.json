@@ -1,0 +1,48 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"sui_getu": {
+			"animation_length": 0.4167,
+			"bones": {
+				"body": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 30, 0]
+						},
+						"0.2917": {
+							"vector": [0, -27.5, 0],
+							"easing": "easeOutExpo"
+						}
+					}
+				},
+				"right_leg": {
+					"rotation": {
+						"0.0": {
+							"vector": [37.5, 0, 32.5]
+						},
+						"0.0417": {
+							"vector": [6.6673, -11.548, 82.8722]
+						},
+						"0.2917": {
+							"vector": [-132.8586, 8.7139, 64.1749],
+							"easing": "easeOutBack"
+						}
+					},
+					"scale": {
+						"0.0": {
+							"vector": [1, 1, 1]
+						},
+						"0.1667": {
+							"vector": [1, 1.6, 1],
+							"easing": "easeOutQuad"
+						},
+						"0.25": {
+							"vector": [1, 1, 1],
+							"easing": "easeOutBounce"
+						}
+					}
+				}
+			}
+		}
+	}
+}

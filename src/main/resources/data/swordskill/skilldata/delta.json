@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "replace_builtin": false,
+  "name": "delta",
+  "animation": "delta",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "SIMPLE",
+  "weapons": [
+    "MACE"
+  ],
+  "cooldown": 60,
+  "sp_cost": 8,
+  "duration_ticks": 9,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#5A00A4",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 2,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        1,
+        2
+      ],
+      "size": [
+        2,
+        3,
+        4
+      ],
+      "damage_multiplier": 1.82,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 40,
+          "amplifier": 1
+        }
+      ],
+      "sound": "minecraft:entity.player.attack.strong"
+    }
+  ],
+  "projectiles": [],
+  "sounds": []
+}

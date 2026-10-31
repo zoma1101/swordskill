@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "replace_builtin": false,
+  "name": "deadly_sins",
+  "animation": "deadly_sins",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD"
+  ],
+  "cooldown": 60,
+  "sp_cost": 8,
+  "duration_ticks": 53,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "motions": [],
+  "hitboxes": [
+    {
+      "tick": 6,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 16,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 18,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 25,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 32,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 38,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 43,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "size": [
+        3,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "projectiles": [],
+  "sounds": []
+}
