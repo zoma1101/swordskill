@@ -46,6 +46,7 @@ let previewGizmoMode = 'resize';
 let previewCanvasParentPosition = null;
 let previewGizmoHost = null;
 let previewUpdateInProgress = false;
+let previewPlayerYawDegrees = 0;
 
 Plugin.register('swordskill_skill_creator', {
     title: 'SwordSkill Timeline Events',
@@ -114,6 +115,24 @@ Plugin.register('swordskill_skill_creator', {
                 description: 'Edit the selected SwordSkill event on the timeline.',
                 icon: 'edit',
                 click: editSelectedTimelineEvent
+            }),
+            new Action('swordskill_set_player_yaw', {
+                name: 'SwordSkill: Set Preview Player Yaw',
+                description: 'Rotate the preview to match the player facing during the skill.',
+                icon: 'explore',
+                click: setPreviewPlayerYaw
+            }),
+            new Action('swordskill_stack_events', {
+                name: 'SwordSkill: Stack Selected Events',
+                description: 'Merge selected event keyframes into one stacked keyframe.',
+                icon: 'layers',
+                click: stackSelectedEvents
+            }),
+            new Action('swordskill_split_events', {
+                name: 'SwordSkill: Split Stacked Events',
+                description: 'Split a stacked keyframe into separate keyframes.',
+                icon: 'call_split',
+                click: splitStackedEvents
             }),
             new Action('swordskill_export_data', {
                 name: 'SwordSkill: Export skilldata JSON',
@@ -809,11 +828,16 @@ function updateSkillPreviewInternal(refreshCanvas = false) {
         box.slash.visible = isProjectile;
         const offset = box.event.offset.map(value => Number(value) * SWORDSKILL_PREVIEW_BLOCK_SIZE);
         // Minecraft's forward offset is +look; Blockbench's model-front is -Z.
-        box.mesh.position.set(anchor[0] + offset[0], anchor[1] + offset[1], anchor[2] - offset[2]);
+        const _pyr = THREE.MathUtils.degToRad(previewPlayerYawDegrees);
+        const _ox = -offset[0];
+        const _oz = -offset[2];
+        const _rx = _ox * Math.cos(_pyr) + _oz * Math.sin(_pyr);
+        const _rz = -_ox * Math.sin(_pyr) + _oz * Math.cos(_pyr);
+        box.mesh.position.set(anchor[0] + _rx, anchor[1] + offset[1], anchor[2] + _rz);
         if (box.event.previewKind === 'projectile') {
             const rotation = normalizePreviewVector(box.event.rotation, [0, 0, 0])
                 .map(value => THREE.MathUtils.degToRad(Number(value)));
-            box.mesh.quaternion.setFromEuler(new THREE.Euler(rotation[0], rotation[1], rotation[2], 'XYZ'));
+            box.mesh.quaternion.setFromEuler(new THREE.Euler(rotation[0], -(rotation[1] + _pyr), rotation[2], 'YXZ'));
         } else {
             box.mesh.quaternion.identity();
         }
@@ -1144,7 +1168,6 @@ function syncSkillTimelineMarkers(animation, eventEntries) {
 function addMarker(animation, time, prefix, data) {
     const animator = effectTimeline(animation, true);
     time = snapSkillTime(time);
-    animator.addToTimeline();
     const keyframe = addTimelineRecord(animation, time, prefix, data);
     animation.setLength(Math.max(animation.length || 0, time));
     animation.selected = true;
@@ -1204,6 +1227,10 @@ function setupSkillMetadata() {
         unlock_proficiency: existing.unlock_proficiency ?? 0,
         invulnerability_ticks: existing.invulnerability_ticks ?? 0,
         end_skill_on_ground: existing.end_skill_on_ground ?? false,
+        chargeable: existing.chargeable ?? true,
+        counter_damage_cut: existing.counter_damage_cut ?? 0.5,
+        counter_damage_scale: existing.counter_damage_scale ?? 0.02,
+        counter_max_bonus: existing.counter_max_bonus ?? 1.0,
         color: existing.color || '#54D8FF',
         trail_length: existing.trail_length ?? 1.5,
         shockwave_ticks: existing.shockwave_ticks ?? 0,
@@ -1258,7 +1285,7 @@ function setupSkillMetadata() {
             type: {
                 label: 'Skill type',
                 type: 'select',
-                options: { SIMPLE: 'SIMPLE', TRANSFORM: 'TRANSFORM', TRANSFORM_FINISH: 'TRANSFORM_FINISH', RUSH: 'RUSH' },
+                options: { SIMPLE: 'SIMPLE', TRANSFORM: 'TRANSFORM', TRANSFORM_FINISH: 'TRANSFORM_FINISH', RUSH: 'RUSH', COUNTER: 'COUNTER (charge: damage cut + power from damage taken)' },
                 value: values.type
             },
             ...weaponFields,
@@ -1334,6 +1361,33 @@ function setupSkillMetadata() {
                 label: 'End the skill when touching the ground',
                 type: 'checkbox',
                 value: values.end_skill_on_ground
+            },
+            chargeable: {
+                label: 'Chargeable (long-press damage multiplier)',
+                type: 'checkbox',
+                value: values.chargeable
+            },
+            counter_damage_cut: {
+                label: 'Counter: damage cut while charging (0-1)',
+                type: 'number',
+                value: values.counter_damage_cut,
+                min: 0,
+                max: 1,
+                step: 0.05
+            },
+            counter_damage_scale: {
+                label: 'Counter: power bonus per damage taken',
+                type: 'number',
+                value: values.counter_damage_scale,
+                min: 0,
+                step: 0.01
+            },
+            counter_max_bonus: {
+                label: 'Counter: maximum power bonus (0 = no cap)',
+                type: 'number',
+                value: values.counter_max_bonus,
+                min: 0,
+                step: 0.1
             },
             color: { label: 'Skill and weapon trail color', type: 'color', value: values.color },
             trail_length: {
@@ -1486,6 +1540,18 @@ function buildMetadata(form, animation) {
     if (!Number.isSafeInteger(invulnerabilityTicks) || invulnerabilityTicks < 0 || invulnerabilityTicks > 1200) {
         throw new Error('Invulnerability ticks must be a whole number from 0 to 1200.');
     }
+    const counterDamageCut = Number(form.counter_damage_cut ?? 0.5);
+    if (!Number.isFinite(counterDamageCut) || counterDamageCut < 0 || counterDamageCut > 1) {
+        throw new Error('Counter damage cut must be between 0 and 1.');
+    }
+    const counterDamageScale = Number(form.counter_damage_scale ?? 0.02);
+    if (!Number.isFinite(counterDamageScale) || counterDamageScale < 0) {
+        throw new Error('Counter damage scale must be 0 or greater.');
+    }
+    const counterMaxBonus = Number(form.counter_max_bonus ?? 1.0);
+    if (!Number.isFinite(counterMaxBonus) || counterMaxBonus < 0) {
+        throw new Error('Counter maximum bonus must be 0 or greater.');
+    }
 
     const metadata = {
         name,
@@ -1509,6 +1575,10 @@ function buildMetadata(form, animation) {
         unlock_proficiency: unlockProficiency,
         invulnerability_ticks: invulnerabilityTicks,
         end_skill_on_ground: Boolean(form.end_skill_on_ground),
+        chargeable: form.chargeable !== false,
+        counter_damage_cut: counterDamageCut,
+        counter_damage_scale: counterDamageScale,
+        counter_max_bonus: counterMaxBonus,
         color: `#${color.toUpperCase()}`,
         trail_length: trailLength,
         shockwave_ticks: shockwaveTicks,
@@ -1545,6 +1615,7 @@ function openTimelineEventDialog(kind, existingEntry = null) {
         low_hp_bonus: 'Bonus damage vs low HP targets',
         magic_bonus: 'Additional magic damage',
         stun: 'Stun (strong movement slowdown)',
+        airborne_launch: 'Launch target into air + movement restriction',
         lifesteal: 'Lifesteal',
         custom: 'Custom registered effect'
     };
@@ -1992,6 +2063,13 @@ function buildAttackEvent(form, tick, previous = {}) {
             duration_ticks: Math.max(1, Math.floor(Number(form.effect_duration || 1))),
             amplifier: Math.max(0, Math.floor(Number(form.effect_amplifier || 0)))
         });
+    } else if (type === 'airborne_launch') {
+        effects.push({
+            type,
+            multiplier: Math.max(0, Number(form.effect_multiplier ?? 1)),
+            duration_ticks: Math.max(1, Math.floor(Number(form.effect_duration || 1))),
+            amplifier: Math.max(0, Math.floor(Number(form.effect_amplifier || 0)))
+        });
     } else if (type !== 'none') {
         effects.push({ type, multiplier: Math.max(0, Number(form.effect_multiplier ?? 1)) });
     }
@@ -2142,6 +2220,100 @@ function buildProjectileEvent(form, tick) {
     return event;
 }
 
+function stackSelectedEvents() {
+    const animation = currentAnimation();
+    if (!animation) return;
+    const selected = getMarkers(animation).filter(entry =>
+        entry.keyframe.selected && entry.marker.prefix === SWORDSKILL_EVENT_PREFIX);
+    const keyframes = [...new Set(selected.map(entry => entry.keyframe))];
+    if (keyframes.length < 2) {
+        Blockbench.showMessageBox({
+            title: 'Stack events',
+            message: 'Select at least two SwordSkill event keyframes to stack.',
+            buttons: ['OK']
+        });
+        return;
+    }
+    Undo.initEdit({ animations: [animation] });
+    const allRecords = [];
+    for (const keyframe of keyframes) {
+        const marker = parseMarker(keyframe.data_points?.[0]?.script);
+        if (marker) allRecords.push(...unpackTimelineMarker(marker));
+    }
+    const targetTime = snapSkillTime(Math.min(...keyframes.map(keyframe => Number(keyframe.time))));
+    for (const keyframe of keyframes) {
+        effectTimeline(animation, false)?.timeline.remove(keyframe);
+    }
+    const animator = effectTimeline(animation, true);
+    const keyframe = animator.addKeyframe({ channel: 'timeline', time: targetTime, script: '' });
+    if (allRecords.length === 1) {
+        keyframe.data_points[0].script = encodeMarker(allRecords[0].prefix, allRecords[0].data);
+    } else if (allRecords.every(record => record.prefix === SWORDSKILL_EVENT_PREFIX)) {
+        keyframe.data_points[0].script = encodeMarker(SWORDSKILL_EVENT_PREFIX, {
+            kind: 'batch', events: allRecords.map(record => record.data)
+        });
+    } else {
+        keyframe.data_points[0].script = encodeMarker(SWORDSKILL_EVENT_PREFIX, {
+            kind: 'bundle', entries: allRecords
+        });
+    }
+    animation.setLength(Math.max(Number(animation.length) || 0, targetTime));
+    animation.selected = true;
+    Undo.finishEdit('Stack SwordSkill events', { animations: [animation] });
+    timelineMarkerSignature = '';
+    updateSkillPreview(true);
+    Timeline.vue?.$forceUpdate?.();
+}
+
+function splitStackedEvents() {
+    const animation = currentAnimation();
+    if (!animation) return;
+    const selected = getMarkers(animation).filter(entry =>
+        entry.keyframe.selected && entry.marker.prefix === SWORDSKILL_EVENT_PREFIX);
+    const keyframes = [...new Set(selected.map(entry => entry.keyframe))];
+    if (keyframes.length !== 1) {
+        Blockbench.showMessageBox({
+            title: 'Split stacked events',
+            message: 'Select exactly one stacked SwordSkill keyframe.',
+            buttons: ['OK']
+        });
+        return;
+    }
+    const keyframe = keyframes[0];
+    const marker = parseMarker(keyframe.data_points?.[0]?.script);
+    const records = marker ? unpackTimelineMarker(marker) : [];
+    if (records.length < 2) {
+        Blockbench.showMessageBox({
+            title: 'Split stacked events',
+            message: 'The selected keyframe does not contain multiple stacked events.',
+            buttons: ['OK']
+        });
+        return;
+    }
+    Undo.initEdit({ animations: [animation] });
+    const baseTime = Number(keyframe.time);
+    effectTimeline(animation, false)?.timeline.remove(keyframe);
+    records.forEach((record, index) => {
+        const time = snapSkillTime(baseTime + index * 0.05);
+        addTimelineRecord(animation, time, record.prefix, record.data);
+    });
+    Undo.finishEdit('Split stacked SwordSkill events', { animations: [animation] });
+    timelineMarkerSignature = '';
+    updateSkillPreview(true);
+    Timeline.vue?.$forceUpdate?.();
+}
+
+function setPreviewPlayerYaw() {
+    const value = prompt('Preview player yaw (degrees, 0 = default facing):', String(previewPlayerYawDegrees));
+    if (value === null) return;
+    const n = Number(value);
+    if (!Number.isFinite(n)) return;
+    previewPlayerYawDegrees = n;
+    previewSignature = '';
+    timelineMarkerSignature = '';
+    updateSkillPreview(true);
+}
+
 function editSelectedTimelineEvent() {
     const animation = currentAnimation();
     if (!animation) return;
@@ -2218,6 +2390,10 @@ function importSkillData() {
                 unlock_proficiency: definition.unlock_proficiency ?? 0,
                 invulnerability_ticks: definition.invulnerability_ticks ?? 0,
                 end_skill_on_ground: definition.end_skill_on_ground ?? false,
+                chargeable: definition.chargeable ?? true,
+                ...(definition.counter_damage_cut != null ? { counter_damage_cut: definition.counter_damage_cut } : {}),
+                ...(definition.counter_damage_scale != null ? { counter_damage_scale: definition.counter_damage_scale } : {}),
+                ...(definition.counter_max_bonus != null ? { counter_max_bonus: definition.counter_max_bonus } : {}),
                 color: definition.color || '#54D8FF',
                 ...(definition.motion ? { motion: definition.motion } : {}),
                 ...(definition.rush_start_ticks != null ? { rush_start_ticks: definition.rush_start_ticks } : {}),
@@ -2516,6 +2692,14 @@ function exportSkillData() {
             ...(Number(metadata.invulnerability_ticks) > 0
                 ? { invulnerability_ticks: Number(metadata.invulnerability_ticks) } : {}),
             ...(metadata.end_skill_on_ground ? { end_skill_on_ground: true } : {}),
+            ...(metadata.chargeable === false ? { chargeable: false } : {}),
+            ...(metadata.type === 'COUNTER'
+                ? {
+                    counter_damage_cut: Number(metadata.counter_damage_cut ?? 0.5),
+                    counter_damage_scale: Number(metadata.counter_damage_scale ?? 0.02),
+                    counter_max_bonus: Number(metadata.counter_max_bonus ?? 1.0)
+                }
+                : {}),
             color: metadata.color,
             ...(metadata.motion ? { motion: metadata.motion } : {}),
             trail_length: metadata.trail_length ?? 1.5,

@@ -20,6 +20,9 @@ public class ClientConfig {
     public static final ModConfigSpec.BooleanValue hitFlash;
     public static final ModConfigSpec.BooleanValue slashDecals;
     public static final ModConfigSpec.DoubleValue sparkDensity;
+    public static final ModConfigSpec.BooleanValue clashSparks;
+    public static final ModConfigSpec.ConfigValue<String> clashAnimation;
+    public static final ModConfigSpec.DoubleValue clawTrailBrightness;
 
     public static final ModConfigSpec.BooleanValue guiDarkTheme;
 
@@ -44,6 +47,20 @@ public class ClientConfig {
                 .define("slashDecals", true);
         sparkDensity = BUILDER.comment("Multiplier for the amount of sparks. 1.0 is the default.")
                 .defineInRange("sparkDensity", 1.0, 0.0, 3.0);
+        clashSparks = BUILDER.comment("Emit sparks while a blade lock (鍔迫り合い) is active.")
+                .define("clashSparks", true);
+        clashAnimation = BUILDER.comment(
+                "Player-animation name played on both players during a blade lock. "
+                        + "Leave empty to keep the current skill pose. The name is resolved as "
+                        + "swordskill:<name> unless a namespace is given.")
+                .define("clashAnimation", "clash_lock");
+        BUILDER.pop();
+
+        BUILDER.push("Trail Settings");
+        clawTrailBrightness = BUILDER.comment(
+                "Brightness multiplier for the triple claw weapon trail (0.0-1.0). "
+                        + "Lower values reduce the excessive glow of claw skills.")
+                .defineInRange("clawTrailBrightness", 0.4, 0.0, 1.0);
         BUILDER.pop();
 
         BUILDER.push("HUD Settings");

@@ -1,43 +1,42 @@
 {
   "schema_version": 1,
   "id": 68,
-  "name": "requiem",
   "replace_builtin": true,
+  "name": "requiem",
   "animation": "requiem",
   "type": "SIMPLE",
   "weapons": [
     "SCYTHE"
   ],
   "cooldown": 210,
-  "sp_cost": 20.0,
+  "sp_cost": 20,
   "duration_ticks": 26,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 100,
   "color": "#B06BFF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [
     {
-      "tick": 18,
-      "forward": 0.0,
-      "strafe": 0.0,
+      "tick": 17,
+      "forward": 0,
+      "strafe": 0,
       "vertical": 0.8
     }
   ],
   "hitboxes": [
     {
-      "tick": 5,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.972,
         2.675
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        145.0
-      ],
       "size": [
-        8.0,
+        8,
         2.5,
         4.75
       ],
@@ -45,53 +44,57 @@
       "damage_type": "BASE",
       "knockback": 0.15,
       "knockback_multiplier": 0.15,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        145
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/purple",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/purple"
     },
     {
-      "tick": 11,
+      "tick": 10,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.972,
         2.675
       ],
-      "rotation": [
-        -14.0,
-        -5.0,
-        -145.0
-      ],
       "size": [
-        8.0,
+        8,
         2.5,
         4.75
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.15,
       "knockback_multiplier": 0.15,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -14,
+        -5,
+        -145
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/purple",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/purple"
     },
     {
-      "tick": 18,
+      "tick": 17,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.972,
         2.675
       ],
-      "rotation": [
-        6.0,
-        -5.0,
-        -90.0
-      ],
       "size": [
-        8.0,
+        8,
         2.5,
         4.75
       ],
@@ -99,38 +102,46 @@
       "damage_type": "BASE",
       "knockback": 0.15,
       "knockback_multiplier": 0.15,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        -5,
+        -90
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/purple",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/purple"
     },
     {
-      "tick": 26,
+      "tick": 25,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.972,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        0.0,
-        0.0
-      ],
       "size": [
-        8.0,
-        2.0,
+        8,
+        2,
         8.75
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        0,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_purple",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_purple"
     }
   ],
   "projectiles": [],

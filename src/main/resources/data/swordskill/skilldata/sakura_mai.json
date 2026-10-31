@@ -1,257 +1,184 @@
 {
   "schema_version": 1,
   "id": 39,
-  "name": "sakura_mai",
-  "default_unlocked": true,
   "replace_builtin": true,
+  "name": "sakura_mai",
   "animation": "sakura_mai",
   "type": "SIMPLE",
   "weapons": [
     "KATANA"
   ],
   "cooldown": 175,
-  "sp_cost": 20.0,
-  "duration_ticks": 63,
+  "sp_cost": 20,
+  "duration_ticks": 20,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "default_unlocked": true,
   "unlock_proficiency": 100,
   "color": "#FF9FD0",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [
     {
-      "tick": 3,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 2,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     },
     {
-      "tick": 6,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 5,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     },
     {
-      "tick": 9,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 8,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     },
     {
-      "tick": 12,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 11,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     },
     {
-      "tick": 15,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 14,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     },
     {
-      "tick": 18,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 21,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 24,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 27,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 30,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 33,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 36,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 39,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 42,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 45,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 48,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 51,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 54,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 57,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 60,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    },
-    {
-      "tick": 63,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 17,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0,
+      "set": true
     }
   ],
   "hitboxes": [
     {
-      "tick": 4,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        135.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 0.8,
       "knockback_multiplier": 0.8,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        135
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_pink",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_pink"
     },
     {
-      "tick": 7,
+      "tick": 6,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        45.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 0.8,
       "knockback_multiplier": 0.8,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        45
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_pink",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_pink"
     },
     {
-      "tick": 14,
+      "tick": 13,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        135.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 0.8,
       "knockback_multiplier": 0.8,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        135
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_pink",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_pink"
     },
     {
-      "tick": 18,
+      "tick": 17,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        45.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 1.2,
       "knockback_multiplier": 1.2,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        45
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_pink",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_pink"
     }
   ],
   "projectiles": [],

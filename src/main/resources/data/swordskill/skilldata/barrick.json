@@ -1,47 +1,43 @@
 {
   "schema_version": 1,
   "id": 64,
-  "name": "barrick",
-  "default_unlocked": true,
   "replace_builtin": true,
+  "name": "barrick",
   "animation": "barrick",
   "type": "SIMPLE",
   "weapons": [
     "SCYTHE"
   ],
   "cooldown": 80,
-  "sp_cost": 8.0,
-  "duration_ticks": 1,
+  "sp_cost": 8,
+  "duration_ticks": 4,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "default_unlocked": true,
   "color": "#FF6B6B",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
+      "tick": 4,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
-        0.375
-      ],
-      "rotation": [
-        -20.0,
-        0.0,
-        175.0
+        2
       ],
       "size": [
-        9.0,
-        3.0,
-        3.75
+        7,
+        3,
+        3
       ],
       "damage_multiplier": 1.75,
       "damage_type": "BASE",
-      "knockback": 0.05,
+      "knockback": 0,
       "knockback_multiplier": 0.05,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/red",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
@@ -51,7 +47,16 @@
           "type": "lifesteal",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -20,
+        0,
+        175
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red"
     }
   ],
   "projectiles": [],

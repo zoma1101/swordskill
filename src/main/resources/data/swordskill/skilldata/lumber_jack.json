@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": 24,
-  "name": "lumber_jack",
   "replace_builtin": true,
+  "name": "lumber_jack",
   "animation": "lumber_jack",
   "type": "SIMPLE",
   "weapons": [
@@ -10,148 +10,219 @@
     "MACE"
   ],
   "cooldown": 250,
-  "sp_cost": 10.0,
+  "sp_cost": 10,
   "duration_ticks": 30,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 100,
   "color": "#77DD77",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
       "tick": 2,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         0.375
       ],
-      "rotation": [
-        -10.0,
-        25.0,
-        45.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.1,
       "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        25,
+        45
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_green",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "axe_particle/simple_green"
     },
     {
-      "tick": 11,
+      "tick": 6,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         0.375
       ],
+      "size": [
+        7.2,
+        3,
+        7.95
+      ],
+      "damage_multiplier": 2,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
       "rotation": [
-        -10.0,
-        45.0,
-        0.0
+        -10,
+        25,
+        45
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_green"
+    },
+    {
+      "tick": 11,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        1.0530000000000002,
+        0.375
       ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
       "knockback": 0.5,
       "knockback_multiplier": 0.5,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        45,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_green",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "axe_particle/simple_green"
     },
     {
       "tick": 17,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         0.375
       ],
-      "rotation": [
-        -10.0,
-        -45.0,
-        0.0
-      ],
       "size": [
-        9.0,
-        2.0,
+        9,
+        2,
         9.75
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
       "knockback": 2.75,
       "knockback_multiplier": 2.75,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        -45,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_green",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "axe_particle/simple_green"
     },
     {
-      "tick": 24,
+      "tick": 22,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         0.375
       ],
-      "rotation": [
-        -10.0,
-        45.0,
-        0.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
       "knockback": 2.75,
       "knockback_multiplier": 2.75,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        45,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_green",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "axe_particle/simple_green"
     },
     {
-      "tick": 29,
+      "tick": 25,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         0.375
       ],
+      "size": [
+        7.2,
+        3,
+        7.95
+      ],
+      "damage_multiplier": 2,
+      "damage_type": "BASE",
+      "knockback": 0.1,
+      "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
       "rotation": [
-        -10.0,
-        -45.0,
-        0.0
+        -10,
+        25,
+        45
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_green"
+    },
+    {
+      "tick": 29,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        1.0530000000000002,
+        0.375
       ],
       "size": [
-        9.0,
-        2.0,
+        9,
+        2,
         9.75
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
       "knockback": 2.75,
       "knockback_multiplier": 2.75,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        -45,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_green",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "axe_particle/simple_green"
     }
   ],
   "projectiles": [],

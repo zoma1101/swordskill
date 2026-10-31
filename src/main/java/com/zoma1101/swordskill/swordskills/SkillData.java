@@ -117,9 +117,34 @@ public class SkillData {
         return dataDefinition == null || dataDefinition.assignable();
     }
 
+    /** チャージ（長押し）でダメージ倍率を上げられるスキルか。 */
+    public boolean isChargeable() {
+        return dataDefinition == null || dataDefinition.chargeable();
+    }
+
     /** スキルスロットに直接セットできるか。派生先は元スキルからのコンボでのみ使用する。 */
     public boolean isSlotAssignable() {
         return isAssignable() && !SkillChains.isDerived(id);
+    }
+
+    /** カウンタースキルか（チャージ中にダメージ軽減 + 被ダメージで威力上昇）。 */
+    public boolean isCounter() {
+        return type == SkillType.COUNTER;
+    }
+
+    /** チャージ中に軽減するダメージ割合 (0.0〜1.0)。 */
+    public double getCounterDamageCut() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterDamageCut();
+    }
+
+    /** 受けたダメージ 1 あたりの威力ボーナス倍率。 */
+    public double getCounterDamageScale() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterDamageScale();
+    }
+
+    /** 被ダメージによる威力ボーナスの上限（0 なら上限なし）。 */
+    public double getCounterMaxBonus() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterMaxBonus();
     }
 
     // ★追加: 熟練度設定用のヘルパーメソッド
@@ -178,6 +203,8 @@ public class SkillData {
         SIMPLE,
         TRANSFORM,
         TRANSFORM_FINISH,
-        RUSH
+        RUSH,
+        /** チャージ中にダメージを軽減し、受けたダメージに応じて威力が上がるカウンタースキル。 */
+        COUNTER
     }
 }

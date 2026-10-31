@@ -42,7 +42,9 @@
       "damage_type": "BASE",
       "knockback": 0.0,
       "knockback_multiplier": -1,
-      "effects": [],
+      "effects": [
+        { "type": "airborne_launch", "multiplier": 1.0, "duration_ticks": 40, "amplifier": 4 }
+      ],
       "sound": "",
       "repeat_while_rushing": true
     }

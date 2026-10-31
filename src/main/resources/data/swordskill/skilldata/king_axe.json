@@ -15,6 +15,8 @@
   "hidden": false,
   "unlock_proficiency": 200,
   "color": "#FFD700",
+  "trail_length": 3.5,
+  "shockwave_ticks": 12,
   "motions": [],
   "hitboxes": [
     {

@@ -42,27 +42,33 @@ import static com.zoma1101.swordskill.data.WeaponTypeUtils.setWeaponType;
 @EventBusSubscriber(modid = SwordSkill.MOD_ID)
 public class ServerEventHandler {
 
-    private static final Map<ServerPlayer, ItemStack> mainHandItems = new HashMap<>();
-    private static final Map<ServerPlayer, ItemStack> offHandItems = new HashMap<>();
+    private static final Map<UUID, ItemStack> mainHandItems = new HashMap<>();
+    private static final Map<UUID, ItemStack> offHandItems = new HashMap<>();
+    /** 最後にクライアントへ送った武器情報。耐久値が減っただけの変化で再送しないための比較用。 */
+    private static final Map<UUID, WeaponData> lastSentWeaponData = new HashMap<>();
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer player) { // 型チェックとキャストを同時に行う
+            UUID playerId = player.getUUID();
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
+            ItemStack cachedMainHand = mainHandItems.get(playerId);
+            ItemStack cachedOffHand = offHandItems.get(playerId);
 
             // プレイヤーが初めてTickされる場合、またはアイテムが変更された場合
-            if (!mainHandItems.containsKey(player) || !offHandItems.containsKey(player) ||
-                    !ItemStack.matches(mainHandItem, mainHandItems.get(player)) ||
-                    !ItemStack.matches(offHandItem, offHandItems.get(player))) {
+            // （ItemStack.matches は耐久値も比較するため、攻撃のたびにここへ入る）
+            if (cachedMainHand == null || cachedOffHand == null
+                    || !ItemStack.matches(mainHandItem, cachedMainHand)
+                    || !ItemStack.matches(offHandItem, cachedOffHand)) {
 
                 setWeaponType(player);
-                sendSkillSlotInfo(player);
-                // SetSlotSkill(); // このメソッドはクライアント側のメソッドのようです。サーバーからは直接呼び出せません。
-                // おそらく、SkillSlotInfoPayload を受け取ったクライアント側で処理すべき内容です。
+                // 耐久値が減っただけなら武器種・武器名は変わらない。
+                // 変わったときだけクライアントへ送り、毎ヒットのファイル読み込みとパケットを避ける。
+                sendSkillSlotInfoIfWeaponChanged(player);
             }
-            mainHandItems.put(player, mainHandItem.copy());
-            offHandItems.put(player, offHandItem.copy());
+            mainHandItems.put(playerId, mainHandItem.copy());
+            offHandItems.put(playerId, offHandItem.copy());
 
             // SP回復 (時間経過)
             if (player.tickCount % 10 == 0) { // 10チック(0.5秒)ごとに同期
@@ -95,6 +101,12 @@ public class ServerEventHandler {
 
     @SubscribeEvent
     public static void onLivingIncomingDamage(LivingIncomingDamageEvent event) {
+        // 鍔迫り合い中の両者間のダメージは無効。決着は自動判定だけで行う。
+        if (event.getSource().getEntity() instanceof net.minecraft.world.entity.LivingEntity clashAttacker
+                && SkillClashManager.isSameClash(clashAttacker.getUUID(), event.getEntity().getUUID())) {
+            event.setCanceled(true);
+            return;
+        }
         // 鍛造武器: 武器記憶（傾向補正・クリティカル）とレベル差補正（与ダメージ）
         if (event.getSource().getEntity() instanceof ServerPlayer attacker) {
             net.minecraft.world.item.ItemStack weapon = attacker.getMainHandItem();
@@ -151,13 +163,30 @@ public class ServerEventHandler {
                 }
             }
         }
+
+        // カウンタースキルのチャージ中は被ダメージを軽減し、実際に受けた分を蓄積する。
+        // 他の補正をすべて適用した最終ダメージに対して軽減をかける。
+        if (event.getEntity() instanceof ServerPlayer counterPlayer
+                && !event.isCanceled()
+                && event.getSource().getEntity() != counterPlayer) {
+            double damageCut = com.zoma1101.swordskill.server.handler.CounterManager
+                    .damageCutOf(counterPlayer.getUUID());
+            if (damageCut > 0.0D) {
+                float reduced = (float) Math.max(0.0D, event.getAmount() * (1.0D - damageCut));
+                com.zoma1101.swordskill.server.handler.CounterManager
+                        .accumulate(counterPlayer.getUUID(), reduced);
+                event.setAmount(reduced);
+            }
+        }
     }
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            mainHandItems.remove(player);
-            offHandItems.remove(player);
+            mainHandItems.remove(player.getUUID());
+            offHandItems.remove(player.getUUID());
+            lastSentWeaponData.remove(player.getUUID());
+            SkillDataFetcher.loadPlayer(player);
             WeaponTypeUtils.setWeaponType(player); // ログイン時に武器タイプを設定
             for (SyncDataSkillsPayload payload : SyncDataSkillsPayload.createBatch(
                     SwordSkillRegistry.getDataDrivenDefinitions())) {
@@ -237,11 +266,14 @@ public class ServerEventHandler {
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            mainHandItems.remove(player);
-            offHandItems.remove(player);
+            mainHandItems.remove(player.getUUID());
+            offHandItems.remove(player.getUUID());
+            lastSentWeaponData.remove(player.getUUID());
+            SkillDataFetcher.unloadPlayer(player.getUUID());
             SkillExecutionManager.skillExecutions.remove(player.getUUID());
-            SkillChainTracker.clear(player);
             DataDrivenSkill.clearPlayerState(player.getUUID());
+            com.zoma1101.swordskill.server.handler.SkillClashManager.forget(player.getUUID());
+            com.zoma1101.swordskill.server.handler.CounterManager.forget(player.getUUID());
             com.zoma1101.swordskill.swordskills.SkillUtils.cleanup(player.getUUID());
             com.zoma1101.swordskill.skilllevel.SkillLevelManager.unloadPlayer(player.getUUID());
             ProficiencyManager.unloadPlayer(player.getUUID());
@@ -252,6 +284,10 @@ public class ServerEventHandler {
     /** スキルでモンスターを撃破したときに熟練度を加算する。 */
     @SubscribeEvent
     public static void onLivingDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        if (event.getEntity() instanceof ServerPlayer dyingPlayer) {
+            com.zoma1101.swordskill.server.handler.SkillClashManager.forget(dyingPlayer.getUUID());
+            com.zoma1101.swordskill.server.handler.CounterManager.forget(dyingPlayer.getUUID());
+        }
         if (event.getSource().getEntity() instanceof ServerPlayer player
                 && event.getEntity() != player) {
             ProficiencyManager.awardForKill(player, event.getEntity());
@@ -293,9 +329,23 @@ public class ServerEventHandler {
                 }
             }
         }
+        // 次回の「武器が変わったか」判定用に、いま送った武器情報を記録する
+        lastSentWeaponData.put(player.getUUID(), WeaponTypeUtils.getWeaponData(player));
         // 修正点: sendToServer から sendToPlayer へ変更
         PacketDistributor.sendToPlayer(player,
                 new SkillSlotInfoPayload(skillIds, currentWeaponName, currentWeaponTypes));
+    }
+
+    /**
+     * 武器種・武器名が前回送信時から変わったときだけスロット情報を送る。
+     * 耐久値が減っただけの ItemStack 変化では何も送らない。
+     */
+    public static void sendSkillSlotInfoIfWeaponChanged(ServerPlayer player) {
+        WeaponData current = WeaponTypeUtils.getWeaponData(player);
+        if (current.equals(lastSentWeaponData.get(player.getUUID()))) {
+            return;
+        }
+        sendSkillSlotInfo(player);
     }
 
     private static final ResourceLocation DUAL_CLAW_SPEED_ID = ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID,

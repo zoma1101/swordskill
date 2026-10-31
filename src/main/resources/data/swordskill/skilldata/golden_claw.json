@@ -1,84 +1,138 @@
 {
   "schema_version": 1,
   "id": 78,
-  "name": "golden_claw",
   "replace_builtin": true,
+  "name": "golden_claw",
   "animation": "golden_claw",
   "type": "SIMPLE",
   "weapons": [
     "CLAW"
   ],
   "cooldown": 225,
-  "sp_cost": 30.0,
-  "duration_ticks": 5,
+  "sp_cost": 30,
+  "duration_ticks": 14,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#FFD700",
-  "motions": [],
-  "hitboxes": [
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "motions": [
     {
-      "tick": 3,
-      "offset": [
-        0.0,
-        1.0530000000000002,
-        0.375
-      ],
-      "rotation": [
-        6.0,
-        5.0,
-        30.0
-      ],
-      "size": [
-        4.2,
-        3.0,
-        2.15
-      ],
-      "damage_multiplier": 1.0,
-      "damage_type": "BASE",
-      "knockback": 0.5,
-      "knockback_multiplier": 0.5,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/gold",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": [
-        {
-          "type": "magic_bonus",
-          "multiplier": 0.25
-        }
-      ]
+      "tick": 4,
+      "forward": 0.1,
+      "strafe": 0,
+      "vertical": 1.5
     },
     {
+      "tick": 8,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
+    },
+    {
+      "tick": 9,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
+    },
+    {
+      "tick": 10,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
+    },
+    {
+      "tick": 12,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
+    },
+    {
+      "tick": 14,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
+    }
+  ],
+  "hitboxes": [
+    {
       "tick": 5,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
-        1.0530000000000002,
-        0.375
-      ],
-      "rotation": [
-        6.0,
-        5.0,
-        150.0
+        0,
+        2,
+        1.5
       ],
       "size": [
-        4.2,
-        3.0,
-        2.15
+        3,
+        5,
+        4
       ],
-      "damage_multiplier": 1.0,
+      "damage_multiplier": 2.15,
       "damage_type": "BASE",
-      "knockback": 0.5,
-      "knockback_multiplier": 0.5,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/gold",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "knockback": 0.75,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "magic_bonus",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 8,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        2,
+        3,
+        2
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.75,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [
+        {
+          "type": "magic_bonus",
+          "multiplier": 0.5
+        }
+      ],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 13,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        2,
+        1.5
+      ],
+      "size": [
+        3,
+        5,
+        4
+      ],
+      "damage_multiplier": 1.25,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [
+        {
+          "type": "magic_bonus",
+          "multiplier": 0.25
+        }
+      ],
+      "sound": "minecraft:entity.player.attack.sweep"
     }
   ],
   "projectiles": [],

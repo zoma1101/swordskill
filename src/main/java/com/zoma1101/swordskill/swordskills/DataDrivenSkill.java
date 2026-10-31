@@ -1,9 +1,11 @@
 package com.zoma1101.swordskill.swordskills;
 
 import com.zoma1101.swordskill.config.ServerConfig;
+import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
 import com.zoma1101.swordskill.payload.SkillShockwavePayload;
 import com.zoma1101.swordskill.server.handler.HitstopManager;
+import com.zoma1101.swordskill.server.handler.SkillClashManager;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -68,6 +70,11 @@ public final class DataDrivenSkill implements ISkill {
 
     private static float getChargeMultiplier(UUID playerId) {
         return CHARGE_MULTIPLIERS.getOrDefault(playerId, 1.0F);
+    }
+
+    /** 他クラス（鍔迫り合いの自動判定など）から現在のチャージ倍率を参照する。 */
+    public static float chargeMultiplierOf(UUID playerId) {
+        return getChargeMultiplier(playerId);
     }
 
     @Override
@@ -226,9 +233,14 @@ public final class DataDrivenSkill implements ISkill {
                     triggerShockwave(player, shockwaveTicks, definition.color());
                 }
                 if (hitbox.hitboxEnabled()) {
-                    if (applyHitbox(level, player, hitbox,
-                            rushCombo == null || rushCombo.useChargeMultiplier(), hitstopTicks, definition.color())
-                            && hitbox.repeatWhileRushing()
+                    boolean hit = applyHitbox(level, player, hitbox,
+                            rushCombo == null || rushCombo.useChargeMultiplier(), hitstopTicks,
+                            definition.color());
+                    // 鍔迫り合いが成立したら、このスキルの残りの判定はすべて打ち切る
+                    if (SkillClashManager.isClashing(player.getUUID())) {
+                        return;
+                    }
+                    if (hit && hitbox.repeatWhileRushing()
                             && definition.type() == SkillData.SkillType.RUSH) {
                         SkillExecutionManager.finishRush(player);
                         return;
@@ -533,6 +545,11 @@ public final class DataDrivenSkill implements ISkill {
                     || Math.abs(relative.dot(forward)) > size[2] * 0.5 + targetRadius) {
                 continue;
             }
+            // スキル実行中のプレイヤーや訓練用マネキンに当たった場合は、まず衝突判定を行う
+            // （ダメージ差が小さければ鍔迫り合い、大きければ火花＋強い側の一方的な勝ち）
+            if (SkillClashManager.tryStartClash(player, target)) {
+                return false;
+            }
             hit |= applyHit(player, target, hitbox, useChargeMultiplier, hitstopTicks, color);
         }
         return hit;
@@ -686,6 +703,23 @@ public final class DataDrivenSkill implements ISkill {
                 target.invulnerableTime = 0;
             }
             case "lifesteal" -> player.heal((float) (damage * effect.multiplier()));
+            case "airborne_launch" -> {
+                if (target instanceof LivingEntity living) {
+                    double mult = Math.max(0.1D, effect.multiplier());
+                    Vec3 away = target.position().subtract(player.position());
+                    double horiz = Math.max(0.1D, away.horizontalDistance());
+                    Vec3 launch = new Vec3(
+                            (away.x / horiz) * 0.6D,
+                            1.5D * mult,
+                            (away.z / horiz) * 0.6D);
+                    living.setDeltaMovement(launch);
+                    living.hurtMarked = true;
+                    int dur = Math.max(1, effect.durationTicks());
+                    int amp = effect.amplifier() > 0 ? effect.amplifier() : 10;
+                    living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, dur, amp));
+                    living.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE, dur + 40, 0));
+                }
+            }
             default -> {
                 if (!SkillHitEffectRegistry.isRegistered(effect.type())) {
                     throw new IllegalStateException("Unregistered skill hit effect: " + effect.type());

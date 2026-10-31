@@ -1,85 +1,92 @@
 {
   "schema_version": 1,
   "id": 66,
-  "name": "reaper_of_death",
   "replace_builtin": true,
+  "name": "reaper_of_death",
   "animation": "reaper_of_death",
   "type": "SIMPLE",
   "weapons": [
     "SCYTHE"
   ],
   "cooldown": 120,
-  "sp_cost": 15.0,
+  "sp_cost": 15,
   "duration_ticks": 12,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 50,
   "color": "#4A4A5A",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 5,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        135.0
-      ],
       "size": [
-        8.0,
-        3.0,
+        8,
+        3,
         4.75
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.1,
       "knockback_multiplier": 0.1,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/black",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
           "multiplier": 2.5
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        5,
+        135
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/black"
     },
     {
-      "tick": 11,
+      "tick": 10,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        -5.0,
-        -15.0
-      ],
       "size": [
-        8.0,
-        3.0,
+        8,
+        3,
         4.75
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/black",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
           "multiplier": 2.5
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        -5,
+        -15
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/black"
     }
   ],
   "projectiles": [],

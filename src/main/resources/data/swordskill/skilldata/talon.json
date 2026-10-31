@@ -1,48 +1,53 @@
 {
   "schema_version": 1,
   "id": 72,
-  "name": "talon",
-  "default_unlocked": true,
   "replace_builtin": true,
+  "name": "talon",
   "animation": "talon",
   "type": "SIMPLE",
   "weapons": [
     "CLAW"
   ],
   "cooldown": 70,
-  "sp_cost": 4.0,
-  "duration_ticks": 1,
+  "sp_cost": 4,
+  "duration_ticks": 4,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "default_unlocked": true,
   "color": "#77DD77",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
+      "tick": 4,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        30.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.75,
       "damage_type": "BASE",
-      "knockback": 0.25,
+      "knockback": 0,
       "knockback_multiplier": 0.25,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        30
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/green",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/green"
     }
   ],
   "projectiles": [],

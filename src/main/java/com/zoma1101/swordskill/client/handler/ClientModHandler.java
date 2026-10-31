@@ -8,6 +8,7 @@ import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.entity.model.AttackEffectModel;
 import com.zoma1101.swordskill.entity.renderer.AttackEffectRenderer;
+import com.zoma1101.swordskill.entity.renderer.SkillMannequinRenderer;
 import com.zoma1101.swordskill.particle.SkillParticles;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,6 +44,7 @@ public class ClientModHandler {
     @SubscribeEvent
     public static void registerRenderer(EntityRenderersEvent.RegisterRenderers event){
         event.registerEntityRenderer(SwordSkill_Entities.ATTACK_EFFECT.get(), AttackEffectRenderer::new);
+        event.registerEntityRenderer(SwordSkill_Entities.SKILL_MANNEQUIN.get(), SkillMannequinRenderer::new);
     }
 
     //スキルエフェクト用の光る粒子

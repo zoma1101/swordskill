@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -97,6 +98,7 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
                     fromAngle, toAngle);
             drawQuad(vertices, pose, core, coreRed, coreGreen, coreBlue, intensity * 0.9F);
         }
+
         poseStack.popPose();
     }
 

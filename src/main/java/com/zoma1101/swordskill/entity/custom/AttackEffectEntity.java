@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.entity.custom;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillTexture;
 import com.zoma1101.swordskill.swordskills.SkillUtils;
+import com.zoma1101.swordskill.server.handler.SkillClashManager;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -91,6 +92,10 @@ public class AttackEffectEntity extends Entity {
         super.tick();
         Movement();
         if (!this.level().isClientSide) {
+            // 飛翔斬撃同士がぶつかったら相殺する
+            if (tryProjectileClash()) {
+                return;
+            }
             if (!hasAppliedDamage) {
                 if (SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
                     applyRayDamage();
@@ -106,6 +111,48 @@ public class AttackEffectEntity extends Entity {
         }
     }
 
+    /**
+     * 別のプレイヤーが撃った飛翔斬撃と交差したら、双方を消して相殺演出を出す。
+     * 同じプレイヤーの複数本（爪の 3 本トレイルなど）や、その場に留まる斬撃は対象外。
+     */
+    private boolean tryProjectileClash() {
+        if (!isFlyingSlash() || getDeltaMovement().lengthSqr() < 1.0E-6D || owner == null) {
+            return false;
+        }
+        AABB area = this.getBoundingBox().inflate(0.75D);
+        for (AttackEffectEntity other : this.level().getEntitiesOfClass(AttackEffectEntity.class, area)) {
+            if (other == this || other.isRemoved() || other.owner == null || other.owner == owner) {
+                continue;
+            }
+            if (!other.isFlyingSlash()) {
+                continue;
+            }
+            if (!other.getBoundingBox().intersects(this.getBoundingBox().inflate(0.35D))) {
+                continue;
+            }
+            SkillClashManager.cancelProjectiles(this, other);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 飛翔斬撃がスキル実行中のプレイヤーや訓練用マネキンに当たった場合、
+     * ダメージではなく鍔迫り合いにする。
+     *
+     * @return 鍔迫り合いを開始してこの飛翔斬撃を消したら true
+     */
+    private boolean tryPlayerClash(LivingEntity entity) {
+        if (!(owner instanceof net.minecraft.server.level.ServerPlayer attacker)) {
+            return false;
+        }
+        if (!SkillClashManager.tryStartClash(attacker, entity)) {
+            return false;
+        }
+        this.discard();
+        return true;
+    }
+
     private void applyDamageAndKnockback() {
         if (!(this.level() instanceof ServerLevel serverLevel))
             return;
@@ -117,6 +164,9 @@ public class AttackEffectEntity extends Entity {
         entities = limitToSingleTarget(entities);
 
         for (LivingEntity entity : entities) {
+            if (tryPlayerClash(entity)) {
+                return;
+            }
             KnowBack(entity);
             ApplyDamage(entity);
             hitEntities.add(entity.getId());
@@ -171,6 +221,9 @@ public class AttackEffectEntity extends Entity {
         hitEntitiesInRange = limitToSingleTarget(hitEntitiesInRange);
 
         for (LivingEntity entity : hitEntitiesInRange) {
+            if (tryPlayerClash(entity)) {
+                return;
+            }
             ApplyDamage(entity);
             if (owner != null) {
                 Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);

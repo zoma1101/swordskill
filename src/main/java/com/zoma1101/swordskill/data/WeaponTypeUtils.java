@@ -99,6 +99,17 @@ public class WeaponTypeUtils {
             if (dualSwordData != null) {
                 return dualSwordData;
             }
+            // 爪武器は両手に爪を持たない限り claws スキルを使用できない
+            if (weaponTypes.contains(SkillData.WeaponType.CLAW)) {
+                weaponTypes.remove(SkillData.WeaponType.CLAW);
+                if (weaponTypes.isEmpty()) {
+                    // 自動判定フォールバック
+                    if (ServerConfig.AUTOWEAPON_SETTING.get()) {
+                        return AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
+                    }
+                    return null;
+                }
+            }
             // 通常武器
             String weaponName = getWeaponName(player.getMainHandItem());
             return new WeaponData(weaponTypes, weaponName);

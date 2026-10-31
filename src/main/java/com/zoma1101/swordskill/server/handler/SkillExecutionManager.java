@@ -20,6 +20,26 @@ public class SkillExecutionManager {
     public static final Map<UUID, SkillExecutionData> skillExecutions = new HashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
 
+    /**
+     * スキル実行インスタンスのキャッシュ。
+     *
+     * <p>{@link ISkill#execute} は状態を引数で受け取る設計で、実装（{@link DataDrivenSkill}）は
+     * フィールドを持たない。毎 tick リフレクションで生成し直す必要はないのでクラスごとに使い回す。</p>
+     */
+    private static final Map<Class<? extends ISkill>, ISkill> SKILL_INSTANCES = new HashMap<>();
+
+    /** スキルクラスのインスタンスを取得する（初回のみリフレクションで生成）。 */
+    public static ISkill skillInstance(SkillData skill) throws ReflectiveOperationException {
+        Class<? extends ISkill> skillClass = skill.getSkillClass();
+        ISkill cached = SKILL_INSTANCES.get(skillClass);
+        if (cached != null) {
+            return cached;
+        }
+        ISkill created = skillClass.getDeclaredConstructor().newInstance();
+        SKILL_INSTANCES.put(skillClass, created);
+        return created;
+    }
+
     public static void startSkillExecution(ServerPlayer player, int skillId, int finalTick, float chargeMultiplier) {
         DataDrivenSkill.clearPlayerState(player.getUUID());
         DataDrivenSkill.setChargeMultiplier(player.getUUID(), chargeMultiplier);
@@ -77,7 +97,9 @@ public class SkillExecutionManager {
             } else {
                 skillExecutions.remove(playerId);
                 DataDrivenSkill.clearPlayerState(playerId);
-                if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH) {
+                // データパック再読み込みでスキルが消えている可能性があるので null を許容する
+                SkillData finishedSkill = SwordSkillRegistry.SKILLS.get(skillExecution.skillId);
+                if (finishedSkill != null && finishedSkill.getType() == SkillData.SkillType.RUSH) {
                     PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
                             new PlayAnimationPayload(player.getId(), 0, ""));
                 }
@@ -169,8 +191,7 @@ public class SkillExecutionManager {
         SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
         if (skill != null) {
             try {
-                ISkill skillInstance = skill.getSkillClass().getDeclaredConstructor().newInstance();
-                skillInstance.execute(level, player, tickCount, skillId);
+                skillInstance(skill).execute(level, player, tickCount, skillId);
             } catch (Exception e) {
                 LOGGER.error("スキル実行中にエラーが発生しました。", e);
             }

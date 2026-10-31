@@ -8,6 +8,7 @@ import com.mojang.math.Axis;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
+import com.zoma1101.swordskill.entity.custom.SkillMannequinEntity;
 import com.zoma1101.swordskill.particle.SkillSparkParticleOptions;
 import com.zoma1101.swordskill.particle.SparkStreakParticleOptions;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -21,7 +22,9 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.core.Direction;
@@ -35,6 +38,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.event.RenderLivingEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -53,20 +57,33 @@ public final class WeaponTrailHandler {
     // 爪武器は1本の手から3本のソードスキルトレイルを発生させる
     private static final int CLAW_TRAIL_COUNT = 3;
     private static final double CLAW_TRAIL_SPREAD = 0.22D;
-    private static final RenderType TRAIL_RENDER_TYPE = RenderType.create(
-            "swordskill_trail",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.QUADS,
-            256,
-            false,
-            true,
-            RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.RENDERTYPE_LIGHTNING_SHADER)
-                    .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                    .setCullState(RenderStateShard.NO_CULL)
-                    .createCompositeState(false));
+    private static final Map<ResourceLocation, RenderType> TRAIL_RENDER_TYPES = new HashMap<>();
+    private static final Map<SkillData.WeaponType, ResourceLocation> TRAIL_TEXTURES = Map.ofEntries(
+            textureMapping(SkillData.WeaponType.ONE_HANDED_SWORD, "one_handed_sword"),
+            textureMapping(SkillData.WeaponType.TWO_HANDED_SWORD, "two_handed_sword"),
+            textureMapping(SkillData.WeaponType.KATANA, "katana"),
+            textureMapping(SkillData.WeaponType.RAPIER, "rapier"),
+            textureMapping(SkillData.WeaponType.DUALSWORD, "dualsword"),
+            textureMapping(SkillData.WeaponType.AXE, "axe"),
+            textureMapping(SkillData.WeaponType.CLAW, "claw"),
+            textureMapping(SkillData.WeaponType.SPEAR, "spear"),
+            textureMapping(SkillData.WeaponType.MACE, "mace"),
+            textureMapping(SkillData.WeaponType.SCYTHE, "scythe"),
+            textureMapping(SkillData.WeaponType.DAGGER, "dagger"));
+    private static final ResourceLocation DEFAULT_TRAIL_TEXTURE = trailTexture("default");
+    /** 武器が複数の武器種に該当する場合のテクスチャ優先順。 */
+    private static final List<SkillData.WeaponType> TRAIL_TEXTURE_PRIORITY = List.of(
+            SkillData.WeaponType.DUALSWORD,
+            SkillData.WeaponType.DAGGER,
+            SkillData.WeaponType.SPEAR,
+            SkillData.WeaponType.RAPIER,
+            SkillData.WeaponType.KATANA,
+            SkillData.WeaponType.CLAW,
+            SkillData.WeaponType.ONE_HANDED_SWORD,
+            SkillData.WeaponType.TWO_HANDED_SWORD,
+            SkillData.WeaponType.AXE,
+            SkillData.WeaponType.MACE,
+            SkillData.WeaponType.SCYTHE);
     private static final Map<TrailKey, ArrayDeque<TrailSample>> TRAILS = new HashMap<>();
     private static final Map<ArmKey, PendingTrail> PENDING_DIRECTIONS = new HashMap<>();
     private static final Map<Integer, Integer> SKILL_COLORS = new HashMap<>();
@@ -78,6 +95,54 @@ public final class WeaponTrailHandler {
     private static ClientLevel observedLevel;
 
     private WeaponTrailHandler() {
+    }
+
+    private static Map.Entry<SkillData.WeaponType, ResourceLocation> textureMapping(
+            SkillData.WeaponType type, String name) {
+        return Map.entry(type, trailTexture(name));
+    }
+
+    private static ResourceLocation trailTexture(String name) {
+        return ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID,
+                "textures/entity/weapon_trail/" + name + ".png");
+    }
+
+    /**
+     * テクスチャ付きトレイルの RenderType。武器種ごとにテクスチャが異なるため
+     * テクスチャごとに生成してキャッシュする。加算混色（LIGHTNING_TRANSPARENCY）
+     * を維持しつつ、NEW_ENTITY フォーマットでテクスチャをサンプルする。
+     */
+    private static RenderType trailRenderType(ResourceLocation texture) {
+        return TRAIL_RENDER_TYPES.computeIfAbsent(texture, tex -> RenderType.create(
+                "swordskill_trail",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setCullState(RenderStateShard.NO_CULL)
+                        .createCompositeState(false)));
+    }
+
+    /** エンティティの武器種から使用するトレイルテクスチャを決める。未知種は default。 */
+    private static ResourceLocation trailTextureFor(LivingEntity entity, HumanoidArm arm) {
+        ItemStack stack = arm == entity.getMainArm() ? entity.getMainHandItem() : entity.getOffhandItem();
+        var detected = WeaponTypeDetector.detectWeaponTypes(stack);
+        for (SkillData.WeaponType type : TRAIL_TEXTURE_PRIORITY) {
+            if (detected.contains(type)) {
+                ResourceLocation texture = TRAIL_TEXTURES.get(type);
+                if (texture != null) {
+                    return texture;
+                }
+            }
+        }
+        return DEFAULT_TRAIL_TEXTURE;
     }
 
     public static void setSkillColor(int entityId, String color) {
@@ -136,15 +201,51 @@ public final class WeaponTrailHandler {
         renderTrails(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), player, now);
     }
 
+    /**
+     * スキルを振っているマネキンの剣からもプレイヤーと同じトレイルを生成する。
+     * playerAnimator はモブに適用されないため、体の追加変形は無しでサンプリングする。
+     */
+    @SubscribeEvent
+    public static void onRenderMannequin(RenderLivingEvent.Post<LivingEntity, ?> event) {
+        if (!(event.getEntity() instanceof SkillMannequinEntity mannequin)) {
+            return;
+        }
+        clearOnLevelChange(Minecraft.getInstance().level);
+        long now = System.nanoTime();
+        if (mannequin.isInvisible() || !MannequinSkillAnimations.isSwinging(mannequin)) {
+            PENDING_DIRECTIONS.keySet().removeIf(key -> key.entityId == mannequin.getId());
+            return;
+        }
+        if (!(event.getRenderer().getModel() instanceof PlayerModel<?> model)) {
+            return;
+        }
+        Vec3 renderOrigin = mannequin.getPosition(event.getPartialTick())
+                .add(event.getRenderer().getRenderOffset(mannequin, event.getPartialTick()));
+        float bodyYaw = Mth.rotLerp(event.getPartialTick(), mannequin.yBodyRotO, mannequin.yBodyRot);
+        HumanoidArm mainArm = mannequin.getMainArm();
+        HumanoidArm offArm = mainArm == HumanoidArm.RIGHT ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+        Vec3f zero = Vec3f.ZERO;
+        Vec3f one = new Vec3f(1.0F, 1.0F, 1.0F);
+        appendPendingTrail(mannequin, model, mainArm, bodyYaw, renderOrigin, zero, zero, one, now);
+        appendPendingTrail(mannequin, model, offArm, bodyYaw, renderOrigin, zero, zero, one, now);
+        PENDING_DIRECTIONS.keySet().removeIf(key -> key.entityId == mannequin.getId());
+        renderTrails(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), mannequin, now);
+    }
+
     /** Captures the actual held-item pose after PlayerAnimator has applied rightItem. */
     public static void captureRenderedItem(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
             boolean leftHand, PoseStack heldItemPose, net.minecraft.world.level.Level level, int seed) {
-        if (!(entity instanceof AbstractClientPlayer player)
-                || !(player instanceof IAnimatedPlayer animatedPlayer)
-                || !animatedPlayer.playerAnimator_getAnimation().isActive()
-                || stack.isEmpty()
+        if (stack.isEmpty()
                 || (context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                         && context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)) {
+            return;
+        }
+        boolean animated = entity instanceof AbstractClientPlayer player
+                && player instanceof IAnimatedPlayer animatedPlayer
+                && animatedPlayer.playerAnimator_getAnimation().isActive();
+        boolean swingingMannequin = entity instanceof SkillMannequinEntity mannequin
+                && MannequinSkillAnimations.isSwinging(mannequin);
+        if (!animated && !swingingMannequin) {
             return;
         }
 
@@ -161,7 +262,8 @@ public final class WeaponTrailHandler {
         if (direction.lengthSquared() < 1.0E-8F) {
             return;
         }
-        float trailLength = (float) (double) TRAIL_LENGTHS.getOrDefault(player.getId(), DEFAULT_TRAIL_LENGTH);
+        int entityId = entity.getId();
+        float trailLength = (float) (double) TRAIL_LENGTHS.getOrDefault(entityId, DEFAULT_TRAIL_LENGTH);
         direction.normalize(trailLength);
 
         Vec3 bladeDirection = new Vec3(direction.x, direction.y, direction.z);
@@ -170,15 +272,15 @@ public final class WeaponTrailHandler {
         Vec3 side = horizontalPerpendicular(unitDirection);
 
         HumanoidArm arm = leftHand ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
-        PENDING_DIRECTIONS.put(new ArmKey(player.getId(), arm),
+        PENDING_DIRECTIONS.put(new ArmKey(entityId, arm),
                 new PendingTrail(bladeDirection, side));
     }
 
-    private static void appendPendingTrail(Player player, PlayerModel<?> model, HumanoidArm arm, float bodyYaw,
+    private static void appendPendingTrail(LivingEntity entity, PlayerModel<?> model, HumanoidArm arm, float bodyYaw,
             Vec3 renderOrigin, Vec3f bodyPosition, Vec3f bodyRotation, Vec3f bodyScale, long now) {
-        ArmKey armKey = new ArmKey(player.getId(), arm);
+        ArmKey armKey = new ArmKey(entity.getId(), arm);
         PendingTrail pending = PENDING_DIRECTIONS.remove(armKey);
-        ItemStack heldItem = arm == player.getMainArm() ? player.getMainHandItem() : player.getOffhandItem();
+        ItemStack heldItem = arm == entity.getMainArm() ? entity.getMainHandItem() : entity.getOffhandItem();
         if (pending == null || heldItem.isEmpty()) {
             return;
         }
@@ -192,13 +294,26 @@ public final class WeaponTrailHandler {
                     : 0.0D;
             Vec3 base = baseWorld.add(pending.side().scale(offsetAmount));
             Vec3 tip = base.add(pending.direction());
-            TrailKey key = new TrailKey(player.getId(), arm, variant);
+            TrailKey key = new TrailKey(entity.getId(), arm, variant);
             ArrayDeque<TrailSample> samples = TRAILS.computeIfAbsent(key, ignored -> new ArrayDeque<>());
             TrailSample last = samples.peekLast();
-            if (last == null || last.base.distanceToSqr(base) + last.tip.distanceToSqr(tip) > 0.0000025) {
+            boolean moved = last == null
+                    || last.base.distanceToSqr(base) + last.tip.distanceToSqr(tip) > 0.0000025;
+            // チャージ中は静止していてもトレイルが見えるように、刃の進行方向と逆側に
+            // 短い合成サンプルを追加してセグメントを生成する
+            if (moved || ClientForgeHandler.isCharging) {
+                if (ClientForgeHandler.isCharging && !moved && last != null) {
+                    Vec3 dir = pending.direction();
+                    double len = dir.length();
+                    if (len > 1.0E-6) {
+                        Vec3 back = dir.scale(-0.4D / len);
+                        samples.addLast(new TrailSample(base.add(back), tip.add(back),
+                                now - 16_000_000L));
+                    }
+                }
                 samples.addLast(new TrailSample(base, tip, now));
                 if (variant == 0 && last != null) {
-                    emitBladeSparks(player, base, tip, tip.subtract(last.tip), now, last.createdAtNanos());
+                    emitBladeSparks(entity, base, tip, tip.subtract(last.tip), now, last.createdAtNanos());
                 }
             }
             pruneSamples(samples, now);
@@ -216,7 +331,7 @@ public final class WeaponTrailHandler {
      * 振っている武器の刃に沿って、トレイルと同色の火花を散らす。
      * 火花の速さは刃先の移動速度（ブロック/秒）から求めるので、振り抜くほど速く流れる。
      */
-    private static void emitBladeSparks(Player player, Vec3 base, Vec3 tip, Vec3 motion, long now,
+    private static void emitBladeSparks(LivingEntity entity, Vec3 base, Vec3 tip, Vec3 motion, long now,
             long previousNanos) {
         boolean coloured = ClientConfig.trailSparks.get();
         boolean streaks = ClientConfig.sparkStreaks.get();
@@ -227,11 +342,11 @@ public final class WeaponTrailHandler {
         if (density <= 0.0D) {
             return;
         }
-        long next = NEXT_BLADE_SPARK_NANOS.getOrDefault(player.getId(), 0L);
+        long next = NEXT_BLADE_SPARK_NANOS.getOrDefault(entity.getId(), 0L);
         if (now < next) {
             return;
         }
-        NEXT_BLADE_SPARK_NANOS.put(player.getId(), now + (long) (BLADE_SPARK_INTERVAL_NANOS / density));
+        NEXT_BLADE_SPARK_NANOS.put(entity.getId(), now + (long) (BLADE_SPARK_INTERVAL_NANOS / density));
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;
@@ -246,7 +361,7 @@ public final class WeaponTrailHandler {
         double elapsedSeconds = Math.max((now - previousNanos) / 1.0E9D, 1.0E-4D);
         double tipSpeed = motion.length() / elapsedSeconds;
         float sparkSpeed = (float) Mth.clamp(0.55D + tipSpeed * 0.08D, 0.55D, 1.60D);
-        int color = saturateColor(SKILL_COLORS.getOrDefault(player.getId(), 0x54D8FF));
+        int color = saturateColor(SKILL_COLORS.getOrDefault(entity.getId(), 0x54D8FF));
 
         if (coloured) {
             int count = Mth.clamp(1 + (random.nextFloat() < density ? 1 : 0), 1, 3);
@@ -424,16 +539,13 @@ public final class WeaponTrailHandler {
     }
 
     private static void renderTrails(PoseStack poseStack, net.minecraft.client.renderer.MultiBufferSource buffers,
-            int packedLight, Player player, long now) {
-        VertexConsumer vertices = buffers.getBuffer(TRAIL_RENDER_TYPE);
+            int packedLight, LivingEntity entity, long now) {
         Matrix4f matrix = poseStack.last().pose();
         Matrix4f inverseMatrix = new Matrix4f(matrix).invert();
-        int skillColor = saturateColor(SKILL_COLORS.getOrDefault(player.getId(), 0x54D8FF));
-        int darkColor = mixWithBlack(skillColor, 0.45F);
-        int brightColor = mixWithWhite(skillColor, 0.4F);
+        int skillColor = saturateColor(SKILL_COLORS.getOrDefault(entity.getId(), 0x54D8FF));
         Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         for (Map.Entry<TrailKey, ArrayDeque<TrailSample>> entry : TRAILS.entrySet()) {
-            if (entry.getKey().entityId != player.getId()) {
+            if (entry.getKey().entityId != entity.getId()) {
                 continue;
             }
             ArrayDeque<TrailSample> samples = entry.getValue();
@@ -442,8 +554,21 @@ public final class WeaponTrailHandler {
                 continue;
             }
 
+            // 爪武器は 3 重トレイルで発光しすぎるため、明るさを設定で抑える
+            HumanoidArm mainArm = entity.getMainArm();
+            ItemStack heldItem = (entry.getKey().arm == mainArm)
+                    ? entity.getMainHandItem() : entity.getOffhandItem();
+            boolean claw = isClawWeapon(heldItem);
+            float clawBrightness = claw ? (float) ClientConfig.clawTrailBrightness.get().doubleValue() : 1.0F;
+
+            // 武器種ごとにテクスチャ（＝RenderType）を選ぶ
+            RenderType renderType = trailRenderType(
+                    trailTextureFor(entity, entry.getKey().arm));
+            VertexConsumer vertices = buffers.getBuffer(renderType);
+
             TrailSample[] points = samples.toArray(TrailSample[]::new);
             int subdivisions = 6;
+            int totalPoints = (points.length - 1) * subdivisions;
             for (int i = 0; i < points.length - 1; i++) {
                 TrailSample p0 = points[Math.max(0, i - 1)];
                 TrailSample p1 = points[i];
@@ -456,12 +581,18 @@ public final class WeaponTrailHandler {
                     TrailSample toSample = interpolate(p0, p1, p2, p3, to);
                     float age = Math.min(1.0F,
                             (now - toSample.createdAtNanos) / (float) TRAIL_LIFETIME_NANOS);
-                    float ageAlpha = (1.0F - age) * (1.0F - age);
-                    float lengthAlpha = (i + to) / (points.length - 1.0F);
-                    float alpha = 0.82F * ageAlpha * lengthAlpha;
+                    // 単色ポリゴン時代より明るく・太く見せるため、減衰を緩めにする
+                    float ageAlpha = (float) Math.pow(1.0F - age, 1.4F);
+                    float lengthT = (i + to) / (points.length - 1.0F);
+                    float lengthAlpha = 0.40F + 0.60F * lengthT;
+                    float alpha = ageAlpha * lengthAlpha * clawBrightness;
                     if (alpha > 0.01F) {
-                        renderRibbonSegment(vertices, matrix, fromSample, toSample, alpha, inverseMatrix,
-                                cameraPosition, darkColor, skillColor, brightColor);
+                        // V はテイル先端(古い側)からトレイルの頭(新しい側)へ 0..1
+                        int k = i * subdivisions + step;
+                        float v0 = k / (float) totalPoints;
+                        float v1 = (k + 1) / (float) totalPoints;
+                        renderRibbonSegment(vertices, matrix, fromSample, toSample, alpha,
+                                inverseMatrix, cameraPosition, skillColor, v0, v1, lengthT);
                     }
                 }
             }
@@ -469,8 +600,7 @@ public final class WeaponTrailHandler {
     }
 
     private static TrailSample interpolate(TrailSample p0, TrailSample p1, TrailSample p2, TrailSample p3,
-            float t) {
-        return new TrailSample(catmullRom(p0.base, p1.base, p2.base, p3.base, t),
+            float t) {        return new TrailSample(catmullRom(p0.base, p1.base, p2.base, p3.base, t),
                 catmullRom(p0.tip, p1.tip, p2.tip, p3.tip, t),
                 p1.createdAtNanos + (long) ((p2.createdAtNanos - p1.createdAtNanos) * t));
     }
@@ -485,68 +615,69 @@ public final class WeaponTrailHandler {
                 .scale(0.5);
     }
 
+    /**
+     * テクスチャ付きリボンを層状に重ねる。
+     * U (0..1) は刃幅の根元→先端、V (v0..v1) はトレイルの弧に沿った方向。
+     * headT はトレイルの根元(古い=0)→頭(新しい=1)。
+     * 頭（刃元付近）だけ狭く白く強く光らせ、その手前に発光色とスキル色の
+     * 中間色を長く残し、尾側はスキル本来の色を濃く見せる。
+     */
     private static void renderRibbonSegment(VertexConsumer vertices, Matrix4f matrix,
-            TrailSample previous, TrailSample current, float alpha, Matrix4f inverseMatrix, Vec3 cameraPosition,
-            int darkColor, int mainColor, int brightColor) {
-        Vec3 oldBase = previous.base;
-        Vec3 oldTip = previous.tip;
-        Vec3 newBase = current.base;
-        Vec3 newTip = current.tip;
+            TrailSample previous, TrailSample current, float alpha, Matrix4f inverseMatrix,
+            Vec3 cameraPosition, int tint, float v0, float v1, float headT) {
+        // 白い発光エリア: 頭のごく狭い範囲だけ（0.84..0.97 で急に立ち上げる）
+        float hot = smoothstep(headT, 0.84F, 0.97F);
+        // 中間色エリア: 立ち上がりは急にして境界をはっきりさせ、その後は長く保つ
+        float mid = smoothstep(headT, 0.62F, 0.72F);
 
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldBase, darkColor, alpha * 0.45F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldTip, mainColor, alpha);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newTip, brightColor, alpha);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newBase, mainColor, alpha * 0.5F);
-
-        Vec3 oldCoreLeft = oldBase.lerp(oldTip, 0.45);
-        Vec3 oldCoreRight = oldBase.lerp(oldTip, 0.55);
-        Vec3 newCoreLeft = newBase.lerp(newTip, 0.45);
-        Vec3 newCoreRight = newBase.lerp(newTip, 0.55);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldCoreLeft, 0xFFFFFF, alpha * 0.85F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldCoreRight, 0xFFFFFF, alpha * 0.85F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newCoreRight, 0xFFFFFF, alpha * 0.85F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newCoreLeft, 0xFFFFFF, alpha * 0.85F);
-
-        Vec3 oldCenterWorld = previous.base.add(previous.tip).scale(0.5);
-        Vec3 newCenterWorld = current.base.add(current.tip).scale(0.5);
-        Vec3 movement = newCenterWorld.subtract(oldCenterWorld);
-        Vec3 bladeDirection = previous.tip.add(current.tip)
-                .subtract(previous.base).subtract(current.base).scale(0.5);
-        Vec3 viewDirection = cameraPosition.subtract(oldCenterWorld.add(newCenterWorld).scale(0.5));
-        double movementLength = movement.length();
-        double bladeLength = bladeDirection.length();
-        if (movementLength < 1.0E-5 || bladeLength < 1.0E-5 || viewDirection.lengthSqr() < 1.0E-8) {
-            return;
-        }
-
-        Vec3 normal = bladeDirection.cross(movement);
-        double facing = normal.lengthSqr() < 1.0E-8
-                ? 0.0
-                : Math.abs(normal.normalize().dot(viewDirection.normalize()));
-        float edgeOnAlpha = 1.0F - smoothstep(0.08F, 0.45F, (float) facing);
-        if (edgeOnAlpha <= 0.01F) {
-            return;
-        }
-
-        Vec3 side = movement.normalize().cross(viewDirection.normalize());
-        if (side.lengthSqr() < 1.0E-8) {
-            side = movement.normalize().cross(new Vec3(0.0, 1.0, 0.0));
-        }
-        if (side.lengthSqr() < 1.0E-8) {
-            side = movement.normalize().cross(new Vec3(1.0, 0.0, 0.0));
-        }
-        side = side.normalize().scale(Math.min(0.18, bladeLength * 0.12));
-
-        float billboardAlpha = alpha * edgeOnAlpha;
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldCenterWorld.subtract(side), mainColor, billboardAlpha * 0.55F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, oldCenterWorld.add(side), brightColor, billboardAlpha * 0.55F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newCenterWorld.add(side), brightColor, billboardAlpha * 0.55F);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, newCenterWorld.subtract(side), mainColor, billboardAlpha * 0.55F);
+        // 色リボン: 尾側ほど本来のスキル色を濃く（白を混ぜない）
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                tint, alpha * (0.55F + 0.45F * (1.0F - mid)), 0.0F, 1.0F, v0, v1);
+        // 中間色: 白とスキル色の間の色合いを長い区間で見せる
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                mixWithWhite(tint, 0.45F), alpha * 0.85F * mid * (1.0F - 0.45F * hot),
+                0.0F, 1.0F, v0, v1);
+        // 白い発光本体: 頭の狭い範囲のみ
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                mixWithWhite(tint, 0.80F), alpha * 0.95F * hot, -0.02F, 1.02F, v0, v1);
+        // 外周グロー: 頭のみ、以前より少し狭く
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                mixWithWhite(tint, 0.15F), alpha * 0.42F * hot, -0.08F, 1.12F, v0, v1);
+        // 白い芯: 頭のみ
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                mixWithWhite(tint, 0.92F), alpha * 0.85F * hot, 0.66F, 1.06F, v0, v1);
     }
 
-    private static float smoothstep(float edge0, float edge1, float value) {
-        float t = Mth.clamp((value - edge0) / (edge1 - edge0), 0.0F, 1.0F);
+    private static float smoothstep(float x, float edge0, float edge1) {
+        float t = Mth.clamp((x - edge0) / (edge1 - edge0), 0.0F, 1.0F);
         return t * t * (3.0F - 2.0F * t);
+    }
+
+    /** 刃の根元→先端を fromFrac..toFrac の範囲に切り出して 1 クワッド描画する。 */
+    private static void emitTrailLayer(VertexConsumer vertices, Matrix4f matrix, Matrix4f inverseMatrix,
+            Vec3 cameraPosition, TrailSample previous, TrailSample current, int tint, float alpha,
+            float fromFrac, float toFrac, float v0, float v1) {
+        Vec3 previousSpan = previous.tip.subtract(previous.base);
+        Vec3 currentSpan = current.tip.subtract(current.base);
+        Vec3 previousBase = previous.base.add(previousSpan.scale(fromFrac));
+        Vec3 previousTip = previous.base.add(previousSpan.scale(toFrac));
+        Vec3 currentBase = current.base.add(currentSpan.scale(fromFrac));
+        Vec3 currentTip = current.base.add(currentSpan.scale(toFrac));
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousBase, tint, alpha, 0.0F, v0);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousTip, tint, alpha, 1.0F, v0);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentTip, tint, alpha, 1.0F, v1);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentBase, tint, alpha, 0.0F, v1);
+    }
+
+    /** 色を白へ寄せる（加算合成の発光を強めるため）。 */
+    private static int mixWithWhite(int color, float amount) {
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+        red = Mth.clamp(Math.round(red + (255 - red) * amount), 0, 255);
+        green = Mth.clamp(Math.round(green + (255 - green) * amount), 0, 255);
+        blue = Mth.clamp(Math.round(blue + (255 - blue) * amount), 0, 255);
+        return (red << 16) | (green << 8) | blue;
     }
 
     public static int saturateColor(int color) {
@@ -560,23 +691,8 @@ public final class WeaponTrailHandler {
         return (red << 16) | (green << 8) | blue;
     }
 
-    private static int mixWithBlack(int color, float amount) {
-        return ((int) (((color >> 16) & 0xFF) * amount) << 16)
-                | ((int) (((color >> 8) & 0xFF) * amount) << 8)
-                | (int) ((color & 0xFF) * amount);
-    }
-
-    private static int mixWithWhite(int color, float amount) {
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-        return ((int) (red + (255 - red) * amount) << 16)
-                | ((int) (green + (255 - green) * amount) << 8)
-                | (int) (blue + (255 - blue) * amount);
-    }
-
     private static void addVertex(VertexConsumer vertices, Matrix4f matrix, Matrix4f inverseMatrix,
-            Vec3 cameraPosition, Vec3 worldPosition, int color, float alpha) {
+            Vec3 cameraPosition, Vec3 worldPosition, int color, float alpha, float u, float v) {
         int red = (color >> 16) & 0xFF;
         int green = (color >> 8) & 0xFF;
         int blue = color & 0xFF;
@@ -585,7 +701,11 @@ public final class WeaponTrailHandler {
         Vector3f localPosition = inverseMatrix.transformPosition(
                 new Vector3f((float) cameraRelative.x, (float) cameraRelative.y, (float) cameraRelative.z));
         vertices.addVertex(matrix, localPosition.x(), localPosition.y(), localPosition.z())
-                .setColor(red, green, blue, vertexAlpha);
+                .setColor(red, green, blue, vertexAlpha)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(0xF000F0)
+                .setNormal(0.0F, 1.0F, 0.0F);
     }
 
     private static void pruneSamples(ArrayDeque<TrailSample> samples, long now) {

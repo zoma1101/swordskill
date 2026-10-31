@@ -26,6 +26,8 @@ public class PayloadRegistryHandler {
         LOGGER.info("Registering network payloads for {}", SwordSkill.MOD_ID);
 
         registrar.playToServer(UseSkillPayload.TYPE, UseSkillPayload.STREAM_CODEC, UseSkillPayload::handle);
+        registrar.playToServer(CounterChargePayload.TYPE, CounterChargePayload.STREAM_CODEC,
+                CounterChargePayload::handle);
         registrar.playToServer(SkillRequestPayload.TYPE, SkillRequestPayload.STREAM_CODEC, SkillRequestPayload::handle);
         registrar.playToServer(SkillLoadSlotPayload.TYPE, SkillLoadSlotPayload.STREAM_CODEC,
                 SkillLoadSlotPayload::handle);
@@ -70,6 +72,8 @@ public class PayloadRegistryHandler {
                 SkillShockwavePayload::handleClient);
         registrar.playToClient(SkillHitEffectPayload.TYPE, SkillHitEffectPayload.STREAM_CODEC,
                 SkillHitEffectPayload::handleClient);
+        registrar.playToClient(SkillClashPayload.TYPE, SkillClashPayload.STREAM_CODEC,
+                SkillClashPayload::handleClient);
         registrar.playToClient(SyncSmithingDefsPayload.TYPE, SyncSmithingDefsPayload.STREAM_CODEC,
                 SyncSmithingDefsPayload::handleClient);
 

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "id": 7,
-  "name": "vertical_square",
   "replace_builtin": true,
+  "name": "vertical_square",
   "animation": "vertical_square",
   "type": "TRANSFORM_FINISH",
   "weapons": [
@@ -11,174 +11,115 @@
     "DUALSWORD"
   ],
   "cooldown": 240,
-  "sp_cost": 15.0,
-  "duration_ticks": 7,
+  "sp_cost": 15,
+  "duration_ticks": 14,
   "transform_limit_ticks": 20,
   "hidden": true,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
-      "offset": [
-        0.8,
-        0.81,
-        2.375
-      ],
-      "rotation": [
-        -6.0,
-        0.0,
-        -45.0
-      ],
-      "size": [
-        3.7,
-        1.5,
-        1.75
-      ],
-      "damage_multiplier": 0.5,
-      "damage_type": "BASE",
-      "knockback": 0.1,
-      "knockback_multiplier": 0.1,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
-    },
-    {
       "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        -0.8,
+        0,
+        1.215,
+        2
+      ],
+      "size": [
+        7.2,
+        3,
+        2.4
+      ],
+      "damage_multiplier": 1.75,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 8,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        1.215,
+        2
+      ],
+      "size": [
+        7.2,
+        3,
+        2.4
+      ],
+      "damage_multiplier": 1.5,
+      "damage_type": "BASE",
+      "knockback": 0.05,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 12,
+      "hitbox_enabled": true,
+      "offset": [
+        0.8,
         0.81,
         2.375
       ],
-      "rotation": [
-        -6.0,
-        0.0,
-        45.0
-      ],
       "size": [
         3.7,
-        1.5,
+        3,
         1.75
       ],
       "damage_multiplier": 0.5,
       "damage_type": "BASE",
-      "knockback": 0.1,
+      "knockback": 0,
       "knockback_multiplier": 0.1,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
+      "repeat_while_rushing": false,
+      "effects": [],
       "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
-    },
-    {
-      "tick": 5,
-      "offset": [
-        0.8,
-        2.1060000000000003,
-        2.375
-      ],
       "rotation": [
-        -6.0,
-        0.0,
-        45.0
+        -6,
+        0,
+        -45
       ],
-      "size": [
-        3.7,
-        1.5,
-        1.75
-      ],
-      "damage_multiplier": 3.5,
-      "damage_type": "BASE",
-      "knockback": 0.75,
-      "knockback_multiplier": 0.75,
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/blue"
     },
     {
-      "tick": 5,
-      "offset": [
-        0.8,
-        0.81,
-        2.375
-      ],
-      "rotation": [
-        -6.0,
-        0.0,
-        -45.0
-      ],
-      "size": [
-        3.7,
-        1.5,
-        1.75
-      ],
-      "damage_multiplier": 3.5,
-      "damage_type": "BASE",
-      "knockback": 0.75,
-      "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
-      "sound": "",
-      "effects": []
-    },
-    {
-      "tick": 5,
-      "offset": [
-        -0.8,
-        2.1060000000000003,
-        2.375
-      ],
-      "rotation": [
-        -6.0,
-        0.0,
-        -45.0
-      ],
-      "size": [
-        3.7,
-        1.5,
-        1.75
-      ],
-      "damage_multiplier": 3.5,
-      "damage_type": "BASE",
-      "knockback": 0.75,
-      "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
-      "sound": "",
-      "effects": []
-    },
-    {
-      "tick": 5,
+      "tick": 14,
+      "hitbox_enabled": true,
       "offset": [
         -0.8,
         0.81,
         2.375
       ],
-      "rotation": [
-        -6.0,
-        0.0,
-        45.0
-      ],
       "size": [
         3.7,
-        1.5,
+        3,
         1.75
       ],
-      "damage_multiplier": 3.5,
+      "damage_multiplier": 0.5,
       "damage_type": "BASE",
-      "knockback": 0.75,
-      "knockback_multiplier": 0.75,
+      "knockback": 0,
+      "knockback_multiplier": 0.1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -6,
+        0,
+        45
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/blue",
-      "sound": "",
-      "effects": []
+      "particle": "skill_particle_sword/blue"
     }
   ],
   "projectiles": [],

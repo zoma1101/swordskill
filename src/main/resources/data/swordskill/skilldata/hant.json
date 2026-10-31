@@ -1,101 +1,110 @@
 {
   "schema_version": 1,
   "id": 73,
-  "name": "hant",
   "replace_builtin": true,
+  "name": "hant",
   "animation": "hant",
   "type": "TRANSFORM",
   "weapons": [
     "CLAW"
   ],
   "cooldown": 140,
-  "sp_cost": 6.0,
-  "duration_ticks": 1,
+  "sp_cost": 6,
+  "duration_ticks": 3,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#77DD77",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
         0.5,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        70.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        70
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/green",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "skill_particle_sword/green"
     },
     {
-      "tick": 1,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -6.0,
-        5.0,
-        70.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "",
+      "rotation": [
+        -6,
+        5,
+        70
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/green",
-      "sound": "",
-      "effects": []
+      "particle": "skill_particle_sword/green"
     },
     {
-      "tick": 1,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
         -0.5,
         1.215,
         0.375
       ],
-      "rotation": [
-        -12.0,
-        5.0,
-        70.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "",
+      "rotation": [
+        -12,
+        5,
+        70
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/green",
-      "sound": "",
-      "effects": []
+      "particle": "skill_particle_sword/green"
     }
   ],
   "projectiles": [],

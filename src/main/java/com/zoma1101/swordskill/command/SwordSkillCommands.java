@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,6 +12,8 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
+import com.zoma1101.swordskill.entity.SwordSkill_Entities;
+import com.zoma1101.swordskill.entity.custom.SkillMannequinEntity;
 import com.zoma1101.swordskill.payload.SyncUnlockedSkillsPayload;
 import com.zoma1101.swordskill.proficiency.ProficiencyManager;
 import com.zoma1101.swordskill.playerlevel.PlayerLevelManager;
@@ -25,11 +28,14 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +64,19 @@ public class SwordSkillCommands {
 
         dispatcher.register(Commands.literal("swordskill")
                 .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("mannequin")
+                        .executes(context -> spawnMannequin(context, 1.0F, ""))
+                        .then(Commands.literal("skill")
+                                .then(skillNameArgument()
+                                        .executes(context -> setMannequinSkill(context,
+                                                StringArgumentType.getString(context, "skill_name")))))
+                        .then(Commands.argument("clash_ratio", DoubleArgumentType.doubleArg(0.0, 4.0))
+                                .executes(context -> spawnMannequin(context,
+                                        (float) DoubleArgumentType.getDouble(context, "clash_ratio"), ""))
+                                .then(skillNameArgument()
+                                        .executes(context -> spawnMannequin(context,
+                                                (float) DoubleArgumentType.getDouble(context, "clash_ratio"),
+                                                StringArgumentType.getString(context, "skill_name"))))))
                 .then(Commands.literal("proficiency")
                         .then(Commands.literal("get")
                                 .then(Commands.argument("targets", EntityArgument.players())
@@ -212,6 +231,94 @@ public class SwordSkillCommands {
             value = SwordSkill.MOD_ID + ":" + value;
         }
         return ResourceLocation.tryParse(value);
+    }
+
+    /**
+     * 鍔迫り合いの実装テスト用マネキンを、実行者（コマンドブロックならその位置）の前に出す。
+     *
+     * @param clashRatio 押し込み力の倍率。スキル未設定なら 1.0 で相手と同等（鍔迫り合い）、
+     *                   0 で鍔迫り合い無効。
+     * @param skillName  常時使用させるソードスキル名。空文字・"none" で未設定。
+     */
+    private static int spawnMannequin(CommandContext<CommandSourceStack> context, float clashRatio,
+            String skillName) {
+        CommandSourceStack source = context.getSource();
+        SkillData skill = resolveMannequinSkill(skillName);
+        if (skill == null && !isNoSkill(skillName)) {
+            source.sendFailure(Component.translatable("commands.swordskill.mannequin.unknown_skill", skillName));
+            return 0;
+        }
+        ServerLevel level = source.getLevel();
+        Vec3 position = source.getPosition();
+        Vec3 look = source.getEntity() != null
+                ? source.getEntity().getLookAngle()
+                : new Vec3(0.0D, 0.0D, 1.0D);
+        Vec3 horizontal = new Vec3(look.x, 0.0D, look.z);
+        if (horizontal.lengthSqr() < 1.0E-4D) {
+            horizontal = new Vec3(0.0D, 0.0D, 1.0D);
+        }
+        horizontal = horizontal.normalize();
+        SkillMannequinEntity mannequin = SwordSkill_Entities.SKILL_MANNEQUIN.get().create(level);
+        if (mannequin == null) {
+            source.sendFailure(Component.translatable("commands.swordskill.mannequin.failed"));
+            return 0;
+        }
+        double x = position.x + horizontal.x * 2.0D;
+        double z = position.z + horizontal.z * 2.0D;
+        mannequin.moveTo(x, position.y, z, source.getRotation().y + 180.0F, 0.0F);
+        mannequin.setClashRatio(clashRatio);
+        mannequin.setSkillId(skill == null ? "" : skill.getName());
+        mannequin.setPersistenceRequired();
+        level.addFreshEntity(mannequin);
+        source.sendSuccess(() -> Component.translatable("commands.swordskill.mannequin.spawned",
+                String.format("%.2f", clashRatio)), false);
+        return 1;
+    }
+
+    /**
+     * 16 ブロック以内で最も近いマネキンの常時使用スキルを設定する。
+     * {@code none} を渡すと解除。
+     */
+    private static int setMannequinSkill(CommandContext<CommandSourceStack> context, String skillName) {
+        CommandSourceStack source = context.getSource();
+        SkillData skill = resolveMannequinSkill(skillName);
+        if (skill == null && !isNoSkill(skillName)) {
+            source.sendFailure(Component.translatable("commands.swordskill.mannequin.unknown_skill", skillName));
+            return 0;
+        }
+        Vec3 position = source.getPosition();
+        AABB area = new AABB(position, position).inflate(16.0D);
+        SkillMannequinEntity nearest = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (SkillMannequinEntity mannequin : source.getLevel()
+                .getEntitiesOfClass(SkillMannequinEntity.class, area)) {
+            double distance = mannequin.position().distanceToSqr(position);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                nearest = mannequin;
+            }
+        }
+        if (nearest == null) {
+            source.sendFailure(Component.translatable("commands.swordskill.mannequin.not_found"));
+            return 0;
+        }
+        nearest.setSkillId(skill == null ? "" : skill.getName());
+        if (skill == null) {
+            source.sendSuccess(() -> Component.translatable(
+                    "commands.swordskill.mannequin.skill_cleared"), false);
+        } else {
+            source.sendSuccess(() -> Component.translatable(
+                    "commands.swordskill.mannequin.skill_set", skill.getName()), false);
+        }
+        return 1;
+    }
+
+    private static SkillData resolveMannequinSkill(String skillName) {
+        return isNoSkill(skillName) ? null : findSkill(skillName);
+    }
+
+    private static boolean isNoSkill(String skillName) {
+        return skillName == null || skillName.isBlank() || skillName.equalsIgnoreCase("none");
     }
 
     private static int forgeCreate(CommandContext<CommandSourceStack> context, Collection<ServerPlayer> targets,
@@ -700,6 +807,8 @@ public class SwordSkillCommands {
                     unlockedSkillsArray.add(skillId);
                     playerData.add("unlockedskill", unlockedSkillsArray);
                     DataManager.savePlayerData(player, playerData);
+                    // 直接書き換えたのでキャッシュを捨てる
+                    SkillDataFetcher.invalidate(player);
 
                     // --- クライアント同期 ---
                     int[] unlockedSkills = SkillDataFetcher.getUnlockedSkills(player);

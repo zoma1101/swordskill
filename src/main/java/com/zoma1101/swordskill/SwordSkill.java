@@ -16,6 +16,7 @@ import com.zoma1101.swordskill.payload.SyncSmithingDefsPayload;
 import com.zoma1101.swordskill.smithing.SmithingDataLoader;
 import com.zoma1101.swordskill.smithing.SmithingDefinitions;
 import com.zoma1101.swordskill.smithing.SmithingRegistry;
+import com.zoma1101.swordskill.sounds.SwordSkillSounds;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -34,7 +35,7 @@ import static net.neoforged.neoforge.common.NeoForge.EVENT_BUS;
 @Mod(SwordSkill.MOD_ID)
 public class SwordSkill {
     public static final String MOD_ID = "swordskill";
-    public static final String PROTOCOL_VERSION = "10";
+    public static final String PROTOCOL_VERSION = "13";
 
     public SwordSkill(IEventBus modEventBus, ModContainer container) {
         SwordSkill_Entities.register(modEventBus);
@@ -47,6 +48,7 @@ public class SwordSkill {
         SwordSkillAttribute.register(modEventBus);
         EffectRegistry.register(modEventBus);
         SkillParticles.register(modEventBus);
+        SwordSkillSounds.register(modEventBus);
         EVENT_BUS.addListener(this::onAddReloadListener);
     }
 
@@ -71,6 +73,8 @@ public class SwordSkill {
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             SkillExecutionManager.handleSkillExecution(event.getServer().getLevel(player.level().dimension()), player);
         }
+        // 鍔迫り合いの固定と勝敗確定
+        com.zoma1101.swordskill.server.handler.SkillClashManager.tick(event.getServer());
     }
 
     private void onAddReloadListener(AddReloadListenerEvent event) {

@@ -1,11 +1,14 @@
 package com.zoma1101.swordskill.payload;
 
 import com.zoma1101.swordskill.SwordSkill;
-import com.zoma1101.swordskill.server.handler.SkillChainTracker;
+
+import com.zoma1101.swordskill.server.handler.CounterManager;
+import com.zoma1101.swordskill.server.handler.SkillClashManager;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.swordskills.ISkill;
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillChains;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.FriendlyByteBuf;
@@ -27,7 +30,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import static com.zoma1101.swordskill.config.ServerConfig.UnlockedSkill;
 import static com.zoma1101.swordskill.data.SkillDataFetcher.isSkillUnlocked;
 
-public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) implements CustomPacketPayload {
+public record UseSkillPayload(int skillId, int chargeTicks) implements CustomPacketPayload {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public static final Type<UseSkillPayload> TYPE = new Type<>(
@@ -36,11 +39,16 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
     public static final ResourceLocation SKILL_SLOT_DISPLAY_LAYER = ResourceLocation
             .fromNamespaceAndPath(SwordSkill.MOD_ID, "skill_slot_display");
 
+    /**
+     * スキルIDとチャージ tick のみを送る。
+     *
+     * <p>実行時間（finalTick）は以前クライアントから受け取っていたが、値は常にサーバー側の
+     * {@link SkillData#getFinalTick()} と同じため、サーバーで解決するようにした。
+     * ペイロードが軽くなるうえ、クライアントが実行時間を偽装できなくなる。</p>
+     */
     public static final StreamCodec<FriendlyByteBuf, UseSkillPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
+            ByteBufCodecs.VAR_INT,
             UseSkillPayload::skillId,
-            ByteBufCodecs.INT,
-            UseSkillPayload::finalTick,
             ByteBufCodecs.VAR_INT,
             UseSkillPayload::chargeTicks,
             UseSkillPayload::new);
@@ -56,6 +64,10 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 LOGGER.warn("Received UseSkillPayload from non-ServerPlayer: {}", ctx.player().getName().getString());
                 return;
             }
+            // 鍔迫り合い中は新しいスキルを受け付けない
+            if (SkillClashManager.isClashing(player.getUUID())) {
+                return;
+            }
             if (msg.chargeTicks() < 0 || msg.chargeTicks() > DataDrivenSkill.MAX_CHARGE_TICKS) {
                 LOGGER.warn("Player {} sent invalid skill charge duration {}.",
                         player.getName().getString(), msg.chargeTicks());
@@ -68,10 +80,22 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 return;
             }
 
+            // 爪スキルは両手に爪を持たない限り使用できない（サーバー側でも検証）
+            if (skill.getAvailableWeaponTypes().contains(SkillData.WeaponType.CLAW)
+                    && !WeaponTypeUtils.getWeaponType(player).contains(SkillData.WeaponType.CLAW)) {
+                LOGGER.debug("Player {} tried to use claw skill {} without dual claw. Ignored.",
+                        player.getName().getString(), msg.skillId());
+                return;
+            }
+
+            // チャージ不可スキルはチャージ時間を無視する
+            boolean chargeable = skill.isChargeable();
+            int chargeTicks = chargeable ? msg.chargeTicks() : 0;
+
             boolean derived = SkillChains.isDerived(msg.skillId());
-            // 派生先は元スキルからのコンボ時のみ受け付ける（チャージによる派生は chargeTicks > 0 で許可）
-            if (derived && msg.chargeTicks() == 0 && !SkillChainTracker.canAdvance(player, msg.skillId())) {
-                LOGGER.debug("Player {} tried to use derived skill {} outside of a combo window. Ignored.",
+            // 派生先はチャージによる派生（chargeTicks > 0）時のみ受け付ける
+            if (derived && chargeTicks == 0) {
+                LOGGER.debug("Player {} tried to use derived skill {} without charge. Ignored.",
                         player.getName().getString(), msg.skillId());
                 return;
             }
@@ -80,9 +104,7 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 int runningSkillId = SkillExecutionManager.getRunningSkillId(player);
                 SkillData runningSkill = SwordSkillRegistry.SKILLS.get(runningSkillId);
 
-                boolean isCombo = runningSkill != null
-                        && runningSkill.getType() == SkillData.SkillType.TRANSFORM
-                        && SkillChains.next(runningSkillId) == msg.skillId();
+                boolean isCombo = false;
 
                 if (!isCombo) {
                     LOGGER.debug("Player {} tried to use skill {} while skill {} is active. Ignored.",
@@ -91,8 +113,11 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                 }
             }
 
-            if (isSkillUnlocked(player, msg.skillId()) || player.gameMode.isCreative()
-                    || !UnlockedSkill.get()) {
+            // 解放チェックは「解放機能が有効なときだけ」評価する。
+            // 以前は isSkillUnlocked を先に評価していたため、解放を無効にしていても
+            // 発動のたびにプレイヤーデータを読み込んでいた。
+            if (player.gameMode.isCreative() || !UnlockedSkill.get()
+                    || isSkillUnlocked(player, msg.skillId())) {
                 // SP チェック
                 if (!player.gameMode.isCreative()) {
                     double currentSP = player.getPersistentData().getDouble("SS_CurrentSP");
@@ -109,19 +134,25 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
                             player.getAttributeValue(SwordSkillAttribute.MAX_SP)));
                 }
 
-                // コンボ成立を記録し、派生時はチャイム音を鳴らす
-                SkillChainTracker.record(player, msg.skillId());
+                // 派生時はチャイム音を鳴らす
                 if (derived) {
                     float pitch = 1.2F + 0.1F * SkillChains.depthOf(msg.skillId());
                     player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                             SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.7F, pitch);
                 }
 
-                if (msg.finalTick() == 0) {
-                    executeSkill(player, skill, msg.chargeTicks());
+                // 実行時間はサーバー側の定義から決める（クライアントの申告値は使わない）
+                int finalTick = skill.getFinalTick();
+                // カウンタースキルはチャージ中に受けたダメージに応じて威力を上乗せする
+                float powerMultiplier = chargeable ? DataDrivenSkill.chargeMultiplier(chargeTicks) : 1.0F;
+                if (skill.isCounter()) {
+                    powerMultiplier *= CounterManager.consumeMultiplier(player.getUUID());
+                }
+                if (finalTick <= 0) {
+                    executeSkill(player, skill, powerMultiplier);
                 } else {
-                    SkillExecutionManager.startSkillExecution(player, msg.skillId(), msg.finalTick(),
-                            DataDrivenSkill.chargeMultiplier(msg.chargeTicks()));
+                    SkillExecutionManager.startSkillExecution(player, msg.skillId(), finalTick,
+                            powerMultiplier);
                 }
             } else {
                 LOGGER.warn("Player {} attempted to use locked skill ID {}.", player.getName().getString(),
@@ -130,11 +161,11 @@ public record UseSkillPayload(int skillId, int finalTick, int chargeTicks) imple
         });
     }
 
-    private static void executeSkill(ServerPlayer player, SkillData skill, int chargeTicks) {
+    private static void executeSkill(ServerPlayer player, SkillData skill, float powerMultiplier) {
         DataDrivenSkill.clearPlayerState(player.getUUID());
-        DataDrivenSkill.setChargeMultiplier(player.getUUID(), DataDrivenSkill.chargeMultiplier(chargeTicks));
+        DataDrivenSkill.setChargeMultiplier(player.getUUID(), powerMultiplier);
         try {
-            ISkill skillInstance = skill.getSkillClass().getDeclaredConstructor().newInstance();
+            ISkill skillInstance = SkillExecutionManager.skillInstance(skill);
             skillInstance.execute(player.level(), player, 0, skill.getId());
             LOGGER.info("Executing skill {} (ID: {}) for player {}", skill.getName(), skill.getId(),
                     player.getName().getString());

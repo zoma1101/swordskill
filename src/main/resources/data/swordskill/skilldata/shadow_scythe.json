@@ -1,70 +1,72 @@
 {
   "schema_version": 1,
   "id": 67,
-  "name": "shadow_scythe",
   "replace_builtin": true,
+  "name": "shadow_scythe",
   "animation": "shadow_scythe",
   "type": "SIMPLE",
   "weapons": [
     "SCYTHE"
   ],
   "cooldown": 160,
-  "sp_cost": 25.0,
+  "sp_cost": 25,
   "duration_ticks": 7,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#B06BFF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [],
   "projectiles": [
     {
       "tick": 3,
       "offset": [
-        0.0,
+        0,
         1.215,
-        0.0
+        0
       ],
       "rotation": [
-        -5.0,
-        0.0,
-        135.0
+        -5,
+        0,
+        -135
       ],
       "size": [
-        8.0,
-        3.0,
-        4.0
+        8,
+        3,
+        4
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
-      "knockback": 0.1,
+      "knockback": 0,
       "knockback_multiplier": 0.1,
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/purple",
-      "sound": "minecraft:entity.player.attack.sweep",
       "movement": [
-        0.0,
-        0.0,
-        20.0
+        0,
+        0,
+        20
       ],
-      "effects": []
+      "particle": "skill_particle_sword/purple",
+      "sound": "minecraft:entity.player.attack.sweep"
     },
     {
       "tick": 7,
       "offset": [
-        0.0,
+        0,
         1.215,
-        0.0
+        0
       ],
       "rotation": [
-        -5.0,
-        0.0,
-        -15.0
+        -5,
+        0,
+        -15
       ],
       "size": [
-        8.0,
-        3.0,
-        4.0
+        8,
+        3,
+        4
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
@@ -72,14 +74,13 @@
       "knockback_multiplier": 0.75,
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "skill_particle_sword/purple",
-      "sound": "minecraft:entity.player.attack.sweep",
       "movement": [
-        0.0,
-        0.0,
-        20.0
+        0,
+        0,
+        20
       ],
-      "effects": []
+      "particle": "skill_particle_sword/purple",
+      "sound": "minecraft:entity.player.attack.sweep"
     }
   ],
   "sounds": []

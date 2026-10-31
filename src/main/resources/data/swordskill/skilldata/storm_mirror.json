@@ -19,13 +19,25 @@
       "tick": 1,
       "forward": 4.0,
       "strafe": 0.0,
-      "vertical": 0.0
+      "vertical": 0.0,
+      "set": true
     },
     {
       "tick": 5,
       "forward": 0.0,
       "strafe": 0.0,
-      "vertical": 0.0
+      "vertical": 0.0,
+      "set": true
+    }
+  ],
+  "animations": [
+    {
+      "tick": 1,
+      "animation": "move"
+    },
+    {
+      "tick": 3,
+      "animation": "finish"
     }
   ],
   "hitboxes": [

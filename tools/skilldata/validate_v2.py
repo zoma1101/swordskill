@@ -9,12 +9,12 @@ import re
 import sys
 from pathlib import Path
 
-VALID_TYPES = {"SIMPLE", "RUSH", "TRANSFORM", "TRANSFORM_FINISH"}
+VALID_TYPES = {"SIMPLE", "RUSH", "TRANSFORM", "TRANSFORM_FINISH", "COUNTER"}
 VALID_WEAPONS = {
     "ONE_HANDED_SWORD", "TWO_HANDED_SWORD", "KATANA", "AXE", "RAPIER", "CLAW",
     "SPEAR", "MACE", "SCYTHE", "DAGGER", "DUALSWORD",
 }
-VALID_EFFECTS = {"undead_bonus", "stun", "lifesteal", "low_hp_bonus", "magic_bonus"}
+VALID_EFFECTS = {"undead_bonus", "stun", "lifesteal", "low_hp_bonus", "magic_bonus", "airborne_launch"}
 SOUND_ID_RE = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 
 
@@ -87,6 +87,19 @@ def validate(path: Path, problems: list[str]) -> dict:
     color = data.get("color", "")
     if not re.fullmatch(r"#[0-9a-fA-F]{6}", str(color)):
         fail(name, "color", f"#RRGGBB形式でない: {color}", problems)
+
+    if skill_type == "COUNTER":
+        cut = data.get("counter_damage_cut", 0.5)
+        if not isinstance(cut, (int, float)) or isinstance(cut, bool) or not (0 <= cut <= 1):
+            fail(name, "counter_damage_cut", f"範囲外: {cut}", problems)
+        scale = data.get("counter_damage_scale", 0.02)
+        if not isinstance(scale, (int, float)) or isinstance(scale, bool) \
+                or not math.isfinite(scale) or scale < 0:
+            fail(name, "counter_damage_scale", f"不正: {scale}", problems)
+        max_bonus = data.get("counter_max_bonus", 1.0)
+        if not isinstance(max_bonus, (int, float)) or isinstance(max_bonus, bool) \
+                or not math.isfinite(max_bonus) or max_bonus < 0:
+            fail(name, "counter_max_bonus", f"不正: {max_bonus}", problems)
 
     def check_tick(value: int, label: str, upper: int | None = None) -> bool:
         top = duration if upper is None else upper

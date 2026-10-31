@@ -24,6 +24,18 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue proficiencyPerKill;
     public static final ModConfigSpec.BooleanValue proficiencyFromMonstersOnly;
 
+    public static final ModConfigSpec.BooleanValue clashEnabled;
+    public static final ModConfigSpec.IntValue clashLockTicks;
+    public static final ModConfigSpec.DoubleValue clashRange;
+    public static final ModConfigSpec.DoubleValue clashFacingDegrees;
+    public static final ModConfigSpec.DoubleValue clashLockThreshold;
+    public static final ModConfigSpec.DoubleValue clashDrawThreshold;
+    public static final ModConfigSpec.DoubleValue clashRandomness;
+    public static final ModConfigSpec.DoubleValue clashKnockback;
+    public static final ModConfigSpec.IntValue clashStunTicks;
+    public static final ModConfigSpec.IntValue clashCooldownTicks;
+    public static final ModConfigSpec.BooleanValue clashCancelProjectiles;
+
     public static final ModConfigSpec.BooleanValue levelSystemEnabled;
     public static final ModConfigSpec.IntValue playerLevelMax;
     public static final ModConfigSpec.DoubleValue levelXpBase;
@@ -118,6 +130,46 @@ public class ServerConfig {
                 "Only hostile monsters (MobCategory.MONSTER) grant proficiency when defeated. "
                         + "Set to false to also gain proficiency from animals and other mobs.")
                 .define("proficiencyFromMonstersOnly", true);
+        BUILDER.pop();
+
+        BUILDER.push("Skill Clash Settings");
+        clashEnabled = BUILDER.comment(
+                "Enable sword-skill clashes. Player-vs-player clashes become a blade lock "
+                        + "(鍔迫り合い), projectiles cancel each other, and mobs are never locked.")
+                .define("clashEnabled", true);
+        clashLockTicks = BUILDER.comment(
+                "Duration of a blade lock in ticks. The winner is decided automatically at the end. "
+                        + "0 resolves the clash immediately.")
+                .defineInRange("clashLockTicks", 2, 0, 200);
+        clashRange = BUILDER.comment("Maximum distance (blocks) at which two skills can clash.")
+                .defineInRange("clashRange", 3.5, 0.5, 16.0);
+        clashFacingDegrees = BUILDER.comment(
+                "Total facing cone (degrees) required for a blade lock. Both players must look at each other "
+                        + "within half of this angle.")
+                .defineInRange("clashFacingDegrees", 120.0, 10.0, 180.0);
+        clashLockThreshold = BUILDER.comment(
+                "Relative power difference below which two skills lock blades (0.15 = 15%). "
+                        + "With a larger difference, metal sparks fly and the stronger skill wins outright: "
+                        + "the weaker skill is cancelled and the stronger one keeps its damage.")
+                .defineInRange("clashLockThreshold", 0.15, 0.0, 1.0);
+        clashDrawThreshold = BUILDER.comment(
+                "Within a blade lock, relative power difference below which the result is a draw (0.05 = 5%).")
+                .defineInRange("clashDrawThreshold", 0.05, 0.0, 1.0);
+        clashRandomness = BUILDER.comment(
+                "Random power swing applied to each side of an automatic clash (0.05 = +/-5%). "
+                        + "0 keeps the result fully deterministic.")
+                .defineInRange("clashRandomness", 0.0, 0.0, 0.5);
+        clashKnockback = BUILDER.comment("Horizontal knockback applied to the loser of a blade lock.")
+                .defineInRange("clashKnockback", 1.1, 0.0, 8.0);
+        clashStunTicks = BUILDER.comment(
+                "Slowness/weakness duration applied to the loser of a blade lock.")
+                .defineInRange("clashStunTicks", 15, 0, 400);
+        clashCooldownTicks = BUILDER.comment(
+                "Ticks after a resolved clash during which the same players cannot clash again.")
+                .defineInRange("clashCooldownTicks", 60, 0, 1200);
+        clashCancelProjectiles = BUILDER.comment(
+                "Flying slashes from different owners cancel each other when they collide.")
+                .define("clashCancelProjectiles", true);
         BUILDER.pop();
 
         BUILDER.push("Player Level Settings");

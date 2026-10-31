@@ -7,6 +7,7 @@ import com.zoma1101.swordskill.client.handler.ClientSkillLevelHandler;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.handler.ClientTickHandler;
 import com.zoma1101.swordskill.client.handler.SkillHitEffectHandler;
+import com.zoma1101.swordskill.client.handler.SkillClashHandler;
 import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.swordskills.SkillData;
@@ -158,6 +159,53 @@ public class Hud_Registry {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), (alpha << 24) | 0xFFFFFF);
+            RenderSystem.disableBlend();
+        });
+
+        final ResourceLocation CLASH_LAYER = ResourceLocation
+                .fromNamespaceAndPath(SwordSkill.MOD_ID, "skill_clash");
+
+        // 鍔迫り合い中の押し込みゲージ（自動判定の残り時間を表示する）
+        event.registerAboveAll(CLASH_LAYER, (guiGraphics, partialTick) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.options.hideGui || !SkillClashHandler.isActive()) {
+                return;
+            }
+            int screenWidth = guiGraphics.guiWidth();
+            int screenHeight = guiGraphics.guiHeight();
+            int barWidth = 160;
+            int barHeight = 6;
+            int barX = (screenWidth - barWidth) / 2;
+            int barY = screenHeight / 2 + 40;
+            float progress = SkillClashHandler.getProgress();
+            int half = barWidth / 2;
+            int filled = (int) (half * progress);
+
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+
+            // 背景と外枠
+            guiGraphics.fill(barX - 2, barY - 2, barX + barWidth + 2, barY + barHeight + 2, 0xA0000000);
+            guiGraphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0x60000000);
+
+            // 左右から中央へ伸びる押し込みバー
+            int colorA = 0xFF000000 | SkillClashHandler.getColorA();
+            int colorB = 0xFF000000 | SkillClashHandler.getColorB();
+            if (filled > 0) {
+                guiGraphics.fill(barX, barY, barX + filled, barY + barHeight, colorA);
+                guiGraphics.fill(barX + barWidth - filled, barY, barX + barWidth, barY + barHeight, colorB);
+            }
+
+            // 中央のぶつかり合う線（残り時間で明滅）
+            int flash = (int) (0.55F + 0.45F * Mth.sin(progress * 30.0F));
+            int centerColor = (Mth.clamp(flash, 0, 255) << 24) | 0xFFFFFF;
+            guiGraphics.fill(barX + half - 1, barY - 3, barX + half + 1, barY + barHeight + 3, centerColor);
+
+            Component label = Component.translatable("gui." + SwordSkill.MOD_ID + ".clash");
+            int textWidth = mc.font.width(label);
+            guiGraphics.drawString(mc.font, label, (screenWidth - textWidth) / 2, barY - 14,
+                    0xFFFFE0A0, true);
+
             RenderSystem.disableBlend();
         });
     }

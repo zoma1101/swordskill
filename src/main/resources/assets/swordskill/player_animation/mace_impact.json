@@ -289,7 +289,7 @@
 				"body": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0],
+							"vector": [15, 0, 0],
 							"easing": "linear"
 						},
 						"0.1667": {
@@ -301,7 +301,7 @@
 				"head": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0],
+							"vector": [12.5, 0, 0],
 							"easing": "linear"
 						},
 						"0.1667": {
@@ -313,17 +313,13 @@
 				"right_arm": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0],
+							"vector": [60, 0, 0],
 							"easing": "linear"
 						},
 						"0.125": {
 							"vector": [-217.5, 0, 0],
 							"easing": "linear"
 						}
-					},
-					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
 					}
 				},
 				"left_arm": {

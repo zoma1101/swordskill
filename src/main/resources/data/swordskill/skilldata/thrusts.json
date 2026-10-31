@@ -1,48 +1,53 @@
 {
   "schema_version": 1,
   "id": 27,
-  "name": "thrusts",
-  "default_unlocked": true,
   "replace_builtin": true,
+  "name": "thrusts",
   "animation": "thrusts",
   "type": "SIMPLE",
   "weapons": [
     "SPEAR"
   ],
   "cooldown": 100,
-  "sp_cost": 8.0,
-  "duration_ticks": 1,
+  "sp_cost": 8,
+  "duration_ticks": 5,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "default_unlocked": true,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
+      "tick": 5,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.81,
         0.375
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        30.0
       ],
       "size": [
         0.35,
         0.35,
         7.75
       ],
-      "damage_multiplier": 3.0,
+      "damage_multiplier": 3.25,
       "damage_type": "BASE",
-      "knockback": 0.7,
+      "knockback": 0,
       "knockback_multiplier": 0.7,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        0,
+        0,
+        30
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "spear_particle/simple_blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "spear_particle/simple_blue"
     }
   ],
   "projectiles": [],

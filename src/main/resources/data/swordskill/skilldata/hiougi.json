@@ -1,106 +1,109 @@
 {
   "schema_version": 1,
   "id": 43,
-  "name": "hiougi",
   "replace_builtin": true,
+  "name": "hiougi",
   "animation": "hiougi",
   "type": "SIMPLE",
   "weapons": [
     "KATANA"
   ],
   "cooldown": 300,
-  "sp_cost": 50.0,
+  "sp_cost": 50,
   "duration_ticks": 16,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 150,
   "color": "#FF6B6B",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [
     {
-      "tick": 6,
+      "tick": 4,
       "forward": 0.3,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "strafe": 0,
+      "vertical": 0
     },
     {
-      "tick": 10,
+      "tick": 8,
       "forward": 0.3,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "strafe": 0,
+      "vertical": 0
     },
     {
-      "tick": 16,
-      "forward": 1.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "tick": 14,
+      "forward": 1,
+      "strafe": 0,
+      "vertical": 0
     }
   ],
   "hitboxes": [
     {
-      "tick": 6,
+      "tick": 4,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -10.0,
-        5.0,
-        45.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
       "knockback": 0.2,
       "knockback_multiplier": 0.2,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -10,
+        5,
+        45
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_red",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_red"
     },
     {
-      "tick": 10,
+      "tick": 8,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        10.0,
-        5.0,
-        135.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         7.95
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
       "knockback": 0.2,
       "knockback_multiplier": 0.2,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        10,
+        5,
+        135
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "axe_particle/simple_red",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "axe_particle/simple_red"
     },
     {
-      "tick": 16,
+      "tick": 14,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        0.0
       ],
       "size": [
         0.75,
@@ -111,11 +114,17 @@
       "damage_type": "BASE",
       "knockback": 0.5,
       "knockback_multiplier": 0.5,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "spear_particle/simple_softred",
-      "sound": "minecraft:entity.player.attack.strong",
-      "effects": []
+      "particle": "spear_particle/simple_softred"
     }
   ],
   "projectiles": [],

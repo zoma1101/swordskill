@@ -1,87 +1,94 @@
 {
   "schema_version": 1,
   "id": 81,
-  "name": "double_creep",
   "replace_builtin": true,
+  "name": "double_creep",
   "animation": "double_creep",
   "type": "SIMPLE",
   "weapons": [
     "MACE"
   ],
   "cooldown": 100,
-  "sp_cost": 20.0,
+  "sp_cost": 20,
   "duration_ticks": 10,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 100,
   "color": "#77DD77",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 3,
+      "tick": 1,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -14.0,
-        5.0,
-        -172.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         3.15
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
       "knockback": 0.1,
       "knockback_multiplier": 0.1,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "mace_particle/green",
-      "sound": "minecraft:entity.player.attack.strong",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "stun",
           "duration_ticks": 100,
           "amplifier": 1
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -14,
+        5,
+        -172
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/green"
     },
     {
-      "tick": 10,
+      "tick": 8,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        -35.0,
-        -60.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         3.15
       ],
       "damage_multiplier": 2.5,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "mace_particle/green",
-      "sound": "minecraft:entity.player.attack.strong",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "stun",
           "duration_ticks": 100,
           "amplifier": 1
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        6,
+        -35,
+        -60
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/green"
     }
   ],
   "projectiles": [],

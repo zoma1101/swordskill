@@ -248,8 +248,9 @@ public class SkillUtils {
     private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
 
     public static void SwingArm(ServerPlayer player) {
-        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)
-                || Objects.requireNonNull(WeaponTypeUtils.getWeaponName(player)).contains("dual_claw")) {
+        String weaponName = WeaponTypeUtils.getWeaponName(player);
+        if (WeaponTypeUtils.getWeaponType(player).contains(SkillData.WeaponType.DUALSWORD)
+                || (weaponName != null && weaponName.contains("dual_claw"))) {
             UUID playerId = player.getUUID();
             boolean isSwingRight = swingRight.getOrDefault(playerId, true); // 初期値は右手振り
 

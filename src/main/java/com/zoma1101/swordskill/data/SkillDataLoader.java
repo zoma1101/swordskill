@@ -214,6 +214,18 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("invulnerability_ticks is outside the supported range");
         }
 
+        // --- カウンタースキル -------------------------------------------
+        // チャージ中に受けるダメージの軽減率と、被ダメージ 1 あたりの威力ボーナス。
+        boolean counter = type == SkillData.SkillType.COUNTER;
+        double counterDamageCut = GsonHelper.getAsDouble(json, "counter_damage_cut", counter ? 0.5D : 0.0D);
+        double counterDamageScale = GsonHelper.getAsDouble(json, "counter_damage_scale", counter ? 0.02D : 0.0D);
+        double counterMaxBonus = GsonHelper.getAsDouble(json, "counter_max_bonus", counter ? 1.0D : 0.0D);
+        if (!Double.isFinite(counterDamageCut) || counterDamageCut < 0.0D || counterDamageCut > 1.0D
+                || !Double.isFinite(counterDamageScale) || counterDamageScale < 0.0D || counterDamageScale > 100.0D
+                || !Double.isFinite(counterMaxBonus) || counterMaxBonus < 0.0D || counterMaxBonus > 100.0D) {
+            throw new JsonParseException("counter_damage_cut/counter_damage_scale/counter_max_bonus is outside the supported range");
+        }
+
         return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
@@ -227,7 +239,9 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 proficiencyCategory, unlockProficiency, assignable,
                 animations, playerEffects, invulnerabilityTicks,
                 GsonHelper.getAsBoolean(json, "end_skill_on_ground", false),
-                GsonHelper.getAsBoolean(json, "default_unlocked", false));
+                GsonHelper.getAsBoolean(json, "default_unlocked", false),
+                GsonHelper.getAsBoolean(json, "chargeable", true),
+                counterDamageCut, counterDamageScale, counterMaxBonus);
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,
@@ -515,6 +529,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             JsonObject effect = GsonHelper.convertToJsonObject(element, "effect");
             String type = GsonHelper.getAsString(effect, "type");
             if (!type.equals("undead_bonus") && !type.equals("stun") && !type.equals("lifesteal")
+                    && !type.equals("magic_bonus") && !type.equals("airborne_launch")
                     && !SkillHitEffectRegistry.isRegistered(type)) {
                 throw new JsonParseException("Unknown hit effect '" + type
                         + "'. Register it in SkillHitEffectRegistry before using it.");

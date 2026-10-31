@@ -37,7 +37,11 @@ public record DataSkillDefinition(
         List<PlayerEffectEvent> playerEffects,
         int invulnerabilityTicks,
         boolean endSkillOnGround,
-        boolean defaultUnlocked) {
+        boolean defaultUnlocked,
+        boolean chargeable,
+        double counterDamageCut,
+        double counterDamageScale,
+        double counterMaxBonus) {
     public DataSkillDefinition {
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
@@ -59,6 +63,9 @@ public record DataSkillDefinition(
         hitstopTicks = Math.max(-1, hitstopTicks);
         // null なら「先頭の武器種」が熟練度カテゴリとして使われる
         unlockProficiency = Math.max(0, unlockProficiency);
+        counterDamageCut = Math.max(0.0D, Math.min(1.0D, counterDamageCut));
+        counterDamageScale = Math.max(0.0D, counterDamageScale);
+        counterMaxBonus = Math.max(0.0D, counterMaxBonus);
     }
 
     /** ID だけ差し替えた複製を返す（自動採番用）。 */
@@ -67,7 +74,8 @@ public record DataSkillDefinition(
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
-                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked);
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus);
     }
 
     /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
@@ -76,7 +84,8 @@ public record DataSkillDefinition(
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,
-                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked);
+                assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus);
     }
 
     public record Motion(double forward, double strafe, double vertical) {

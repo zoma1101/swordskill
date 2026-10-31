@@ -1,5 +1,8 @@
 package com.zoma1101.swordskill.client.handler;
 
+import com.zoma1101.swordskill.AnimationUtils;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.payload.SkillRequestPayload;
 import com.zoma1101.swordskill.payload.SkillSelectionPayload;
@@ -24,6 +27,8 @@ public class ClientTickHandler {
 
     private static ItemStack previousMainHandItem = ItemStack.EMPTY;
     private static ItemStack previousOffHandItem = ItemStack.EMPTY;
+
+    private static int lowSpeedTicks = 0;
 
     private static int selectedSlot = 0;
     @OnlyIn(Dist.CLIENT)
@@ -65,7 +70,42 @@ public class ClientTickHandler {
             if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
                 SetSlotSkill();
             }
-            
+
+            if (AnimationUtils.isRushMoveActive()) {
+                int skillId = AnimationUtils.getRushMoveSkillId();
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+                boolean hasTickHorizontal = false;
+                if (skill != null && skill.getDataDefinition() != null) {
+                    var def = skill.getDataDefinition();
+                    if (def.motion() != null && (def.motion().forward() != 0.0 || def.motion().strafe() != 0.0)) {
+                        hasTickHorizontal = true;
+                    }
+                    for (var m : def.motions()) {
+                        if ("TICK".equals(m.trigger()) && (m.forward() != 0.0 || m.strafe() != 0.0)) {
+                            hasTickHorizontal = true;
+                            break;
+                        }
+                    }
+                }
+                if (!hasTickHorizontal) {
+                    lowSpeedTicks = 0;
+                } else {
+                    double hSpeedSq = player.getDeltaMovement().horizontalDistanceSqr();
+                    if (hSpeedSq < 0.01D) {
+                        lowSpeedTicks++;
+                        if (lowSpeedTicks >= 3) {
+                            AnimationUtils.StopPlayerAnimation(player);
+                            AnimationUtils.setRushMoveActive(false);
+                            lowSpeedTicks = 0;
+                        }
+                    } else {
+                        lowSpeedTicks = 0;
+                    }
+                }
+            } else {
+                lowSpeedTicks = 0;
+            }
+
             previousMainHandItem = mainHandItem.copy();
             previousOffHandItem = offHandItem.copy();
         }
@@ -85,5 +125,13 @@ public class ClientTickHandler {
                 PacketDistributor.sendToServer(new SkillRequestPayload());
             }
         }
+    }
+
+    /** ログアウト時に状態を破棄する。 */
+    public static void reset() {
+        lowSpeedTicks = 0;
+        selectedSlot = 0;
+        previousMainHandItem = ItemStack.EMPTY;
+        previousOffHandItem = ItemStack.EMPTY;
     }
 }

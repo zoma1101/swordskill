@@ -1,32 +1,31 @@
 {
   "schema_version": 1,
   "id": 50,
-  "name": "parallel_sting",
   "replace_builtin": true,
+  "name": "parallel_sting",
   "animation": "parallel_sting",
   "type": "SIMPLE",
   "weapons": [
     "RAPIER"
   ],
   "cooldown": 120,
-  "sp_cost": 10.0,
+  "sp_cost": 10,
   "duration_ticks": 10,
   "transform_limit_ticks": 20,
   "hidden": false,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 4,
+      "tick": 2,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         3.272777
-      ],
-      "rotation": [
-        -7.0,
-        0.0,
-        30.0
       ],
       "size": [
         0.25,
@@ -37,23 +36,25 @@
       "damage_type": "BASE",
       "knockback": 0.25,
       "knockback_multiplier": 0.25,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -7,
+        0,
+        30
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "spear_particle/simple_blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "spear_particle/simple_blue"
     },
     {
-      "tick": 10,
+      "tick": 6,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.0530000000000002,
         3.367692
-      ],
-      "rotation": [
-        9.0,
-        0.0,
-        30.0
       ],
       "size": [
         0.25,
@@ -64,11 +65,17 @@
       "damage_type": "BASE",
       "knockback": 0.5,
       "knockback_multiplier": 0.5,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        9,
+        0,
+        30
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "spear_particle/simple_blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "spear_particle/simple_blue"
     }
   ],
   "projectiles": [],

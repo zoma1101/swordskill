@@ -1,53 +1,53 @@
 {
   "schema_version": 1,
   "id": 77,
-  "name": "beast_claw",
   "replace_builtin": true,
+  "name": "beast_claw",
   "animation": "beast_claw",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
   "type": "SIMPLE",
   "weapons": [
     "CLAW"
   ],
   "cooldown": 200,
-  "sp_cost": 20.0,
+  "sp_cost": 20,
   "duration_ticks": 9,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#FF6B6B",
+  "color": "#B90000",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [
     {
-      "tick": 9,
+      "tick": 8,
       "forward": 0.75,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "strafe": 0,
+      "vertical": 0
     }
   ],
   "hitboxes": [
     {
       "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        40.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/red",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
@@ -57,33 +57,35 @@
           "type": "lifesteal",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        40
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red"
     },
     {
-      "tick": 4,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        140.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/red",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
@@ -93,33 +95,35 @@
           "type": "lifesteal",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        140
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red"
     },
     {
-      "tick": 7,
+      "tick": 6,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        5.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/red",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
@@ -129,33 +133,35 @@
           "type": "lifesteal",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        5
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red"
     },
     {
-      "tick": 9,
+      "tick": 8,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        5.0,
-        175.0
-      ],
       "size": [
         4.2,
-        3.0,
+        3,
         2.15
       ],
       "damage_multiplier": 0.8,
       "damage_type": "BASE",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "skill_particle_sword/red",
-      "sound": "minecraft:entity.player.attack.sweep",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "undead_bonus",
@@ -165,7 +171,16 @@
           "type": "lifesteal",
           "multiplier": 0.25
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        6,
+        5,
+        175
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/red"
     }
   ],
   "projectiles": [],

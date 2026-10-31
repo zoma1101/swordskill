@@ -1,127 +1,136 @@
 {
   "schema_version": 1,
   "id": 83,
-  "name": "diastrophism",
   "replace_builtin": true,
+  "name": "diastrophism",
   "animation": "diastrophism",
   "type": "SIMPLE",
   "weapons": [
     "MACE"
   ],
   "cooldown": 240,
-  "sp_cost": 30.0,
+  "sp_cost": 30,
   "duration_ticks": 18,
   "transform_limit_ticks": 20,
   "hidden": false,
   "unlock_proficiency": 100,
   "color": "#B06BFF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [
     {
-      "tick": 18,
+      "tick": 16,
       "forward": -1.5,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "strafe": 0,
+      "vertical": 0
     }
   ],
   "hitboxes": [
     {
-      "tick": 5,
+      "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -10.0,
-        5.0,
-        135.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         3.15
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.1,
       "knockback_multiplier": 0.1,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "mace_particle/purple",
-      "sound": "minecraft:entity.player.attack.strong",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "stun",
           "duration_ticks": 100,
           "amplifier": 1
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -10,
+        5,
+        135
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple"
     },
     {
-      "tick": 11,
+      "tick": 9,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        6.0,
-        -5.0,
-        45.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         3.15
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "mace_particle/purple",
-      "sound": "minecraft:entity.player.attack.strong",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "stun",
           "duration_ticks": 100,
           "amplifier": 1
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        6,
+        -5,
+        45
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple"
     },
     {
-      "tick": 18,
+      "tick": 16,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
         0.375
       ],
-      "rotation": [
-        -15.0,
-        -5.0,
-        174.0
-      ],
       "size": [
         7.2,
-        3.0,
+        3,
         3.15
       ],
-      "damage_multiplier": 2.0,
+      "damage_multiplier": 2,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "duration_ticks": 12,
-      "travel_distance": 0,
-      "particle": "mace_particle/purple",
-      "sound": "minecraft:entity.player.attack.strong",
+      "repeat_while_rushing": false,
       "effects": [
         {
           "type": "stun",
           "duration_ticks": 100,
           "amplifier": 1
         }
-      ]
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -15,
+        -5,
+        174
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/purple"
     }
   ],
   "projectiles": [],
