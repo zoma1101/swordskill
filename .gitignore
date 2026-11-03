@@ -115,5 +115,8 @@ gradle-app.setting
 run/
 runs/
 
+# ローカル開発用ツール（公開しない）
+tools/
+
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
