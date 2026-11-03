@@ -1,12 +1,12 @@
 {
   "skills": {
-    "blood_finisher": 50,
-    "excite": 0,
+    "grand_upper": 35,
+    "excite": 40,
     "excite_line": 75,
-    "excite_triangle": 150,
-    "king_axe": 200,
-    "lumber_jack": 150,
-    "grand_upper": 50,
-    "ryuuko_souhaku": 250
+    "blood_finisher": 145,
+    "king_axe": 160,
+    "ryuuko_souhaku": 235,
+    "lumber_jack": 305,
+    "excite_triangle": 500
   }
 }

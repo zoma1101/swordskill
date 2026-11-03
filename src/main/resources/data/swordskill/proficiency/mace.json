@@ -1,9 +1,10 @@
 {
   "skills": {
-    "grand": 0,
-    "double_creep": 20,
-    "hammer_down": 50,
-    "diastrophism": 100,
-    "mace_impact": 200
+    "grand": 140,
+    "mace_impact": 140,
+    "delta": 155,
+    "hammer_down": 285,
+    "double_creep": 390,
+    "diastrophism": 500
   }
 }
