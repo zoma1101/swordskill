@@ -2,6 +2,8 @@ package com.zoma1101.swordskill.server.handler;
 
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.payload.HitstopPayload;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -76,7 +78,18 @@ public final class HitstopManager {
             }
             Vec3 motion = entity.getDeltaMovement();
             entity.setDeltaMovement(0.0D, Math.min(0.0D, motion.y), 0.0D);
+            // 停止中はダメージを受けたときの赤い外見を維持する
+            entity.hurtTime = Math.max(entity.hurtTime, freeze.ticks + 1);
             entity.hurtMarked = true;
+            if (entity.level() instanceof ServerLevel serverLevel) {
+                ClientboundHurtAnimationPacket hurtPacket =
+                        new ClientboundHurtAnimationPacket(entity.getId(), entity.getYRot());
+                for (ServerPlayer sp : serverLevel.getServer().getPlayerList().getPlayers()) {
+                    if (sp.level() == serverLevel && sp.distanceToSqr(entity) < 4096.0D) {
+                        sp.connection.send(hurtPacket);
+                    }
+                }
+            }
             if (--freeze.ticks <= 0) {
                 if (freeze.pendingKnockback != null) {
                     entity.setDeltaMovement(freeze.pendingKnockback);

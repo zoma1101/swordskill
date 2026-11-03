@@ -15,7 +15,7 @@
   "duration_ticks": 16,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
+  "color": "#77DD77",
   "motions": [
     {
       "tick": 1,
@@ -42,8 +42,9 @@
       "damage_type": "BASE",
       "knockback": 0.0,
       "knockback_multiplier": -1,
+      "hitstop_ticks": 0,
       "effects": [
-        { "type": "airborne_launch", "multiplier": 1.0, "duration_ticks": 40, "amplifier": 4 }
+        { "type": "airborne_launch", "multiplier": 1.0, "duration_ticks": 100, "amplifier": 1 }
       ],
       "sound": "",
       "repeat_while_rushing": true

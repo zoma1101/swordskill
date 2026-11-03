@@ -710,13 +710,14 @@ public final class DataDrivenSkill implements ISkill {
                     double horiz = Math.max(0.1D, away.horizontalDistance());
                     Vec3 launch = new Vec3(
                             (away.x / horiz) * 0.6D,
-                            1.5D * mult,
+                            4.5D * mult,
                             (away.z / horiz) * 0.6D);
                     living.setDeltaMovement(launch);
-                    living.hurtMarked = true;
+                    // 位置を直接変更してクライアントに確実に伝える
+                    living.teleportTo(living.getX(), living.getY() + 4.5D, living.getZ());
                     int dur = Math.max(1, effect.durationTicks());
-                    int amp = effect.amplifier() > 0 ? effect.amplifier() : 10;
-                    living.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, dur, amp));
+                    int amp = effect.amplifier() > 0 ? effect.amplifier() : 1;
+                    living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, dur, amp));
                     living.addEffect(new MobEffectInstance(EffectRegistry.NO_FALL_DAMAGE, dur + 40, 0));
                 }
             }

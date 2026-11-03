@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill;
 
+import com.zoma1101.swordskill.client.ClientConfigScreen;
 import com.zoma1101.swordskill.config.ClientConfig;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDataLoader;
@@ -25,6 +26,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -43,6 +45,10 @@ public class SwordSkill {
         EVENT_BUS.register(this);
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
         container.registerConfig(ModConfig.Type.COMMON, ServerConfig.SPEC);
+        if (FMLEnvironment.dist.isClient()) {
+            // Mods 一覧の「Config」から設定画面を開けるようにする（クライアント専用クラス）
+            ClientConfigScreen.register(container);
+        }
         SampleItemRegistry.register(modEventBus);
         SmithingRegistry.register(modEventBus);
         SwordSkillAttribute.register(modEventBus);

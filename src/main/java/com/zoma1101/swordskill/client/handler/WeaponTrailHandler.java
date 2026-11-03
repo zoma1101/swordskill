@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.config.ClientConfig;
+import com.zoma1101.swordskill.config.ClientConfig.TrailRenderMode;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.entity.custom.SkillMannequinEntity;
 import com.zoma1101.swordskill.particle.SkillSparkParticleOptions;
@@ -45,6 +46,7 @@ import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +59,10 @@ public final class WeaponTrailHandler {
     // 爪武器は1本の手から3本のソードスキルトレイルを発生させる
     private static final int CLAW_TRAIL_COUNT = 3;
     private static final double CLAW_TRAIL_SPREAD = 0.22D;
-    private static final Map<ResourceLocation, RenderType> TRAIL_RENDER_TYPES = new HashMap<>();
+    private static final Map<TrailRenderMode, Map<ResourceLocation, RenderType>> TRAIL_RENDER_TYPES =
+        new EnumMap<>(TrailRenderMode.class);
+    private static final Map<TrailRenderMode, Map<ResourceLocation, RenderType>> TRAIL_DEPTH_TYPES =
+        new EnumMap<>(TrailRenderMode.class);
     private static final Map<SkillData.WeaponType, ResourceLocation> TRAIL_TEXTURES = Map.ofEntries(
             textureMapping(SkillData.WeaponType.ONE_HANDED_SWORD, "one_handed_sword"),
             textureMapping(SkillData.WeaponType.TWO_HANDED_SWORD, "two_handed_sword"),
@@ -93,8 +98,48 @@ public final class WeaponTrailHandler {
     private static final long BLADE_SPARK_INTERVAL_NANOS = 80_000_000L;
     private static final Map<Integer, Long> NEXT_BLADE_SPARK_NANOS = new HashMap<>();
     private static ClientLevel observedLevel;
+    private static boolean irisShadowLookupDone;
+    private static Object irisApiInstance;
+    private static java.lang.reflect.Method irisShadowPassMethod;
 
     private WeaponTrailHandler() {
+    }
+
+    /**
+     * Iris のシャドウパス中かどうか。シャドウパスはライト視点の行列で描画されるため、
+     * そこでトレイルのサンプルを記録・描画するとメインパスの行列と混ざって
+     * スパイク状・ギザギザの形状になる。Iris が無い場合は常に false。
+     */
+    private static boolean isShadowPass() {
+        if (!irisShadowLookupDone) {
+            irisShadowLookupDone = true;
+            String[] candidates = {
+                    "net.irisshaders.iris.api.v0.IrisApi",
+                    "net.irisshaders.iris.api.IrisApi"
+            };
+            for (String name : candidates) {
+                try {
+                    Class<?> clazz = Class.forName(name);
+                    Object instance = clazz.getMethod("getInstance").invoke(null);
+                    irisShadowPassMethod = clazz.getMethod("isRenderingShadowPass");
+                    irisApiInstance = instance;
+                    break;
+                } catch (Throwable ignored) {
+                    // Iris が無い / API が異なる場合は候補を続ける
+                }
+            }
+        }
+        if (irisApiInstance == null || irisShadowPassMethod == null) {
+            return false;
+        }
+        try {
+            Object result = irisShadowPassMethod.invoke(irisApiInstance);
+            return result instanceof Boolean b && b;
+        } catch (Throwable ignored) {
+            irisApiInstance = null;
+            irisShadowPassMethod = null;
+            return false;
+        }
     }
 
     private static Map.Entry<SkillData.WeaponType, ResourceLocation> textureMapping(
@@ -108,26 +153,80 @@ public final class WeaponTrailHandler {
     }
 
     /**
-     * テクスチャ付きトレイルの RenderType。武器種ごとにテクスチャが異なるため
-     * テクスチャごとに生成してキャッシュする。加算混色（LIGHTNING_TRANSPARENCY）
-     * を維持しつつ、NEW_ENTITY フォーマットでテクスチャをサンプルする。
+     * トレイルの色用 RenderType。
+     *
+     * <p>Iris 系シェーダーパック（BSL / Photon / Solas / Bliss / Complementary）は
+     * 遅延レンダリングの Gバッファ＋ブルームを使うため、エミッシブ＋加算合成の
+     * 明るすぎるジオメトリは白飛び・スパイク状ブルームとして破綻する。
+     * また加算合成は明るい空に埋もれて見えなくなる。</p>
+     *
+     * <p>色パスは深度を書き込まない。振りの折り返し地点ではトレイルが自分自身と
+     * 重なるため、深度を書くとZファイトして点滅する。深度は別パス
+     * （{@link #trailDepthType(ResourceLocation)}）で書き、Photon 等が
+     * depth==1.0 の空で上書きするのを防ぐ。</p>
      */
     private static RenderType trailRenderType(ResourceLocation texture) {
-        return TRAIL_RENDER_TYPES.computeIfAbsent(texture, tex -> RenderType.create(
-                "swordskill_trail",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
-                        .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
-                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setCullState(RenderStateShard.NO_CULL)
-                        .createCompositeState(false)));
+        return trailType(TRAIL_RENDER_TYPES, texture, false);
+    }
+
+    /** 深度だけを書き込むパス。色は書かないので描画順の影響を受けない。 */
+    private static RenderType trailDepthType(ResourceLocation texture) {
+        return trailType(TRAIL_DEPTH_TYPES, texture, true);
+    }
+
+    private static RenderType trailType(Map<TrailRenderMode, Map<ResourceLocation, RenderType>> cache,
+            ResourceLocation texture, boolean depthOnly) {
+        TrailRenderMode mode = ClientConfig.trailRenderMode.get();
+        Map<ResourceLocation, RenderType> byMode = cache.computeIfAbsent(
+                mode, m -> new HashMap<>());
+        return byMode.computeIfAbsent(texture, tex -> {
+            RenderType.CompositeState.CompositeStateBuilder state = RenderType.CompositeState.builder()
+                    .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setWriteMaskState(depthOnly
+                            ? RenderStateShard.DEPTH_WRITE
+                            : RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    // entity_translucent / emissive シェーダーは Sampler2(ライトマップ) と
+                    // Sampler1(オーバーレイ) を参照する。これらを有効にしないと
+                    // 未バインドのテクスチャをサンプルしてしまい、バニラ（シェーダー無し）で
+                    // 色が黒くなる（overlayColor が (0,0,0,0) → mix で黒になる）。
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
+                    .setOverlayState(RenderStateShard.OVERLAY);
+            if (depthOnly) {
+                state.setTransparencyState(RenderStateShard.NO_TRANSPARENCY);
+            }
+            switch (mode) {
+                case ADDITIVE -> {
+                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
+                    if (!depthOnly) {
+                        state.setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY);
+                    }
+                }
+                case EMISSIVE -> {
+                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
+                    if (!depthOnly) {
+                        state.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
+                    }
+                }
+                default -> {
+                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER);
+                    if (!depthOnly) {
+                        state.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
+                    }
+                }
+            }
+            return RenderType.create(
+                    depthOnly ? "swordskill_trail_depth" : "swordskill_trail",
+                    DefaultVertexFormat.NEW_ENTITY,
+                    VertexFormat.Mode.QUADS,
+                    16384,
+                    false,
+                    // 提出順（尾→頭）で描画順を固定し、カメラ移動での並び替えによる
+                    // ちらつきを防ぐ
+                    false,
+                    state.createCompositeState(false));
+        });
     }
 
     /** エンティティの武器種から使用するトレイルテクスチャを決める。未知種は default。 */
@@ -168,6 +267,11 @@ public final class WeaponTrailHandler {
 
     @SubscribeEvent
     public static void onRenderPlayer(RenderPlayerEvent.Post event) {
+        // Iris のシャドウパスはライト視点の行列で発火する。ここで記録・描画すると
+        // メインパスのサンプルと混ざってスパイク状・ギザギザの形状になるためスキップする。
+        if (isShadowPass()) {
+            return;
+        }
         if (!(event.getEntity() instanceof AbstractClientPlayer player)) {
             return;
         }
@@ -207,6 +311,10 @@ public final class WeaponTrailHandler {
      */
     @SubscribeEvent
     public static void onRenderMannequin(RenderLivingEvent.Post<LivingEntity, ?> event) {
+        // シャドウパスではライト視点の行列になるため記録・描画しない
+        if (isShadowPass()) {
+            return;
+        }
         if (!(event.getEntity() instanceof SkillMannequinEntity mannequin)) {
             return;
         }
@@ -235,6 +343,10 @@ public final class WeaponTrailHandler {
     /** Captures the actual held-item pose after PlayerAnimator has applied rightItem. */
     public static void captureRenderedItem(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
             boolean leftHand, PoseStack heldItemPose, net.minecraft.world.level.Level level, int seed) {
+        // シャドウパスでは heldItemPose がライト視点になり、刃の向きが壊れるため記録しない
+        if (isShadowPass()) {
+            return;
+        }
         if (stack.isEmpty()
                 || (context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                         && context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)) {
@@ -560,92 +672,125 @@ public final class WeaponTrailHandler {
                     ? entity.getMainHandItem() : entity.getOffhandItem();
             boolean claw = isClawWeapon(heldItem);
             float clawBrightness = claw ? (float) ClientConfig.clawTrailBrightness.get().doubleValue() : 1.0F;
+            float trailOpacity = (float) ClientConfig.trailOpacity.get().doubleValue();
+            float trailGlow = (float) ClientConfig.trailGlow.get().doubleValue();
+            // 加算モードでは層が重なって白飛びしやすいため、強度を設定で抑える
+            float modeScale = 1.0F;
+            if (ClientConfig.trailRenderMode.get() == TrailRenderMode.ADDITIVE) {
+                modeScale = (float) ClientConfig.trailAdditiveIntensity.get().doubleValue();
+            }
 
             // 武器種ごとにテクスチャ（＝RenderType）を選ぶ
-            RenderType renderType = trailRenderType(
-                    trailTextureFor(entity, entry.getKey().arm));
-            VertexConsumer vertices = buffers.getBuffer(renderType);
-
+            ResourceLocation trailTexture = trailTextureFor(entity, entry.getKey().arm);
             TrailSample[] points = samples.toArray(TrailSample[]::new);
             int subdivisions = 6;
-            int totalPoints = (points.length - 1) * subdivisions;
-            for (int i = 0; i < points.length - 1; i++) {
-                TrailSample p0 = points[Math.max(0, i - 1)];
-                TrailSample p1 = points[i];
-                TrailSample p2 = points[i + 1];
-                TrailSample p3 = points[Math.min(points.length - 1, i + 2)];
-                for (int step = 0; step < subdivisions; step++) {
-                    float from = step / (float) subdivisions;
-                    float to = (step + 1) / (float) subdivisions;
-                    TrailSample fromSample = interpolate(p0, p1, p2, p3, from);
-                    TrailSample toSample = interpolate(p0, p1, p2, p3, to);
-                    float age = Math.min(1.0F,
-                            (now - toSample.createdAtNanos) / (float) TRAIL_LIFETIME_NANOS);
-                    // 単色ポリゴン時代より明るく・太く見せるため、減衰を緩めにする
-                    float ageAlpha = (float) Math.pow(1.0F - age, 1.4F);
-                    float lengthT = (i + to) / (points.length - 1.0F);
-                    float lengthAlpha = 0.40F + 0.60F * lengthT;
-                    float alpha = ageAlpha * lengthAlpha * clawBrightness;
-                    if (alpha > 0.01F) {
-                        // V はテイル先端(古い側)からトレイルの頭(新しい側)へ 0..1
-                        int k = i * subdivisions + step;
-                        float v0 = k / (float) totalPoints;
-                        float v1 = (k + 1) / (float) totalPoints;
-                        renderRibbonSegment(vertices, matrix, fromSample, toSample, alpha,
-                                inverseMatrix, cameraPosition, skillColor, v0, v1, lengthT);
-                    }
+
+            // 1) 色パス（深度書き込みなし）。折り返しで自分自身と重なってもZファイトしない。
+            // 2) 深度パス（色なし）。Photon 等が depth==1.0 の空で上書きするのを防ぐ。
+            // getBuffer は別 RenderType を要求した時点で前のバッファを描画するため、
+            // 必ず「色 → 深度」の順に積む。
+            VertexConsumer colorVertices = buffers.getBuffer(trailRenderType(trailTexture));
+            emitTrailSegments(colorVertices, points, subdivisions, matrix, inverseMatrix,
+                    cameraPosition, skillColor, now, clawBrightness, trailOpacity, modeScale, trailGlow);
+            VertexConsumer depthVertices = buffers.getBuffer(trailDepthType(trailTexture));
+            emitTrailSegments(depthVertices, points, subdivisions, matrix, inverseMatrix,
+                    cameraPosition, skillColor, now, clawBrightness, trailOpacity, modeScale, trailGlow);
+        }
+    }
+
+    private static void emitTrailSegments(VertexConsumer vertices, TrailSample[] points, int subdivisions,
+            Matrix4f matrix, Matrix4f inverseMatrix, Vec3 cameraPosition, int skillColor, long now,
+            float clawBrightness, float trailOpacity, float modeScale, float trailGlow) {
+        int totalPoints = (points.length - 1) * subdivisions;
+        for (int i = 0; i < points.length - 1; i++) {
+            TrailSample p0 = points[Math.max(0, i - 1)];
+            TrailSample p1 = points[i];
+            TrailSample p2 = points[i + 1];
+            TrailSample p3 = points[Math.min(points.length - 1, i + 2)];
+            for (int step = 0; step < subdivisions; step++) {
+                float from = step / (float) subdivisions;
+                float to = (step + 1) / (float) subdivisions;
+                TrailSample fromSample = interpolate(p0, p1, p2, p3, from);
+                TrailSample toSample = interpolate(p0, p1, p2, p3, to);
+                float age = Math.min(1.0F,
+                        (now - toSample.createdAtNanos) / (float) TRAIL_LIFETIME_NANOS);
+                // 1枚描きになったぶん、以前のレイヤー合成より減衰を緩めて明るさを保つ
+                float ageAlpha = (float) Math.pow(1.0F - age, 0.8F);
+                float lengthT = (i + to) / (points.length - 1.0F);
+                float lengthAlpha = 0.70F + 0.30F * lengthT;
+                float alpha = ageAlpha * lengthAlpha * clawBrightness * trailOpacity * modeScale;
+                if (alpha > 0.01F) {
+                    // V はテイル先端(古い側)からトレイルの頭(新しい側)へ 0..1
+                    int k = i * subdivisions + step;
+                    float v0 = k / (float) totalPoints;
+                    float v1 = (k + 1) / (float) totalPoints;
+                    renderRibbonSegment(vertices, matrix, fromSample, toSample, alpha,
+                            inverseMatrix, cameraPosition, skillColor, v0, v1, lengthT,
+                            trailGlow);
                 }
             }
         }
     }
 
     private static TrailSample interpolate(TrailSample p0, TrailSample p1, TrailSample p2, TrailSample p3,
-            float t) {        return new TrailSample(catmullRom(p0.base, p1.base, p2.base, p3.base, t),
-                catmullRom(p0.tip, p1.tip, p2.tip, p3.tip, t),
+            float t) {
+        // 求心Catmull-Rom(alpha=0.5)。フレーム間隔が不均一でもループや尖り(ギザギザ)が出ない。
+        // base と tip で同じノット列を使い、刃幅が崩れないようにする。
+        double t0 = 0.0;
+        double t1 = t0 + knot(p0, p1);
+        double t2 = t1 + knot(p1, p2);
+        double t3 = t2 + knot(p2, p3);
+        double tt = t1 + (t2 - t1) * t;
+        Vec3 base = centripetal(p0.base, p1.base, p2.base, p3.base, t0, t1, t2, t3, tt);
+        Vec3 tip = centripetal(p0.tip, p1.tip, p2.tip, p3.tip, t0, t1, t2, t3, tt);
+        return new TrailSample(base, tip,
                 p1.createdAtNanos + (long) ((p2.createdAtNanos - p1.createdAtNanos) * t));
     }
 
-    private static Vec3 catmullRom(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3, float t) {
-        double t2 = t * t;
-        double t3 = t2 * t;
-        return p1.scale(2.0)
-                .add(p2.subtract(p0).scale(t))
-                .add(p0.scale(2.0).subtract(p1.scale(5.0)).add(p2.scale(4.0)).subtract(p3).scale(t2))
-                .add(p3.subtract(p0).add(p1.scale(3.0)).subtract(p2.scale(3.0)).scale(t3))
-                .scale(0.5);
+    /** 求心パラメータのノット間隔（距離の平方根。0 は最小値でガード）。 */
+    private static double knot(TrailSample a, TrailSample b) {
+        double d = 0.5 * (a.base.distanceTo(b.base) + a.tip.distanceTo(b.tip));
+        return Math.max(1.0E-4, Math.sqrt(d));
+    }
+
+    private static Vec3 centripetal(Vec3 p0, Vec3 p1, Vec3 p2, Vec3 p3,
+            double t0, double t1, double t2, double t3, double t) {
+        Vec3 a1 = p0.lerp(p1, (t - t0) / (t1 - t0));
+        Vec3 a2 = p1.lerp(p2, (t - t1) / (t2 - t1));
+        Vec3 a3 = p2.lerp(p3, (t - t2) / (t3 - t2));
+        Vec3 b1 = a1.lerp(a2, (t - t0) / (t2 - t0));
+        Vec3 b2 = a2.lerp(a3, (t - t1) / (t3 - t1));
+        return b1.lerp(b2, (t - t1) / (t2 - t1));
     }
 
     /**
-     * テクスチャ付きリボンを層状に重ねる。
+     * テクスチャ付きリボンを1枚で描く。
      * U (0..1) は刃幅の根元→先端、V (v0..v1) はトレイルの弧に沿った方向。
      * headT はトレイルの根元(古い=0)→頭(新しい=1)。
-     * 頭（刃元付近）だけ狭く白く強く光らせ、その手前に発光色とスキル色の
-     * 中間色を長く残し、尾側はスキル本来の色を濃く見せる。
+     * 頭（刃元付近）だけ白く強く光らせ、尾側はスキル本来の色を濃く見せる。
+     *
+     * <p>以前は同じ平面に5枚のレイヤー（本体／中間色／芯／外周グロー／白芯）を
+     * 重ねていたが、深度を書き込む半透明描画ではレイヤー同士がZファイトし、
+     * 上辺のギザギザや内部の黒い亀裂として現れる。発光は1枚の頂点色
+     * （スキル色→白へのグラデーション）で表現して重なりを無くす。</p>
      */
     private static void renderRibbonSegment(VertexConsumer vertices, Matrix4f matrix,
             TrailSample previous, TrailSample current, float alpha, Matrix4f inverseMatrix,
-            Vec3 cameraPosition, int tint, float v0, float v1, float headT) {
-        // 白い発光エリア: 頭のごく狭い範囲だけ（0.84..0.97 で急に立ち上げる）
+            Vec3 cameraPosition, int tint, float v0, float v1, float headT,
+            float glow) {
+        // 白い発光エリア: 頭のごく狭い範囲だけ
         float hot = smoothstep(headT, 0.84F, 0.97F);
-        // 中間色エリア: 立ち上がりは急にして境界をはっきりさせ、その後は長く保つ
+        // 中間色エリア: 頭に向かってスキル色から白へ寄せる
         float mid = smoothstep(headT, 0.62F, 0.72F);
 
-        // 色リボン: 尾側ほど本来のスキル色を濃く（白を混ぜない）
+        // 発光の強さ(glow): 白さと不透明度をスケール
+        // 1枚描きでは尾側まで白を混ぜないと暗く見えるため、全体に白を載せる
+        float whiteAmount = Mth.clamp((0.22F + 0.28F * mid + 0.50F * hot) * glow, 0.0F, 1.0F);
+        int color = mixWithWhite(tint, whiteAmount);
+        float alphaScale = Mth.clamp(0.95F + 0.05F * glow, 0.0F, 1.0F);
+
         emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                tint, alpha * (0.55F + 0.45F * (1.0F - mid)), 0.0F, 1.0F, v0, v1);
-        // 中間色: 白とスキル色の間の色合いを長い区間で見せる
-        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                mixWithWhite(tint, 0.45F), alpha * 0.85F * mid * (1.0F - 0.45F * hot),
-                0.0F, 1.0F, v0, v1);
-        // 白い発光本体: 頭の狭い範囲のみ
-        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                mixWithWhite(tint, 0.80F), alpha * 0.95F * hot, -0.02F, 1.02F, v0, v1);
-        // 外周グロー: 頭のみ、以前より少し狭く
-        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                mixWithWhite(tint, 0.15F), alpha * 0.42F * hot, -0.08F, 1.12F, v0, v1);
-        // 白い芯: 頭のみ
-        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                mixWithWhite(tint, 0.92F), alpha * 0.85F * hot, 0.66F, 1.06F, v0, v1);
+                color, alpha * alphaScale, 0.0F, 1.0F, v0, v1);
     }
 
     private static float smoothstep(float x, float edge0, float edge1) {

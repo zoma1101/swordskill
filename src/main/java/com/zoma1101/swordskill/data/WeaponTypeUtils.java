@@ -100,13 +100,10 @@ public class WeaponTypeUtils {
                 return dualSwordData;
             }
             // 爪武器は両手に爪を持たない限り claws スキルを使用できない
+            // 片手の爪を片手剣として自動判定してしまうのを防ぐため、フォールバックせず null を返す
             if (weaponTypes.contains(SkillData.WeaponType.CLAW)) {
                 weaponTypes.remove(SkillData.WeaponType.CLAW);
                 if (weaponTypes.isEmpty()) {
-                    // 自動判定フォールバック
-                    if (ServerConfig.AUTOWEAPON_SETTING.get()) {
-                        return AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
-                    }
                     return null;
                 }
             }
