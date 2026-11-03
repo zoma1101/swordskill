@@ -44,7 +44,12 @@
       "knockback_multiplier": -1,
       "hitstop_ticks": 0,
       "effects": [
-        { "type": "airborne_launch", "multiplier": 1.0, "duration_ticks": 100, "amplifier": 1 }
+        {
+          "type": "airborne_launch",
+          "multiplier": 1.0,
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
       ],
       "sound": "",
       "repeat_while_rushing": true
@@ -55,5 +60,6 @@
   "rush_start_ticks": 5,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
-  "rush_finish_animation": "finish"
+  "rush_finish_animation": "finish",
+  "unlock_proficiency": 35
 }

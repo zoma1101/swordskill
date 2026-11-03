@@ -13,7 +13,7 @@
   "duration_ticks": 16,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "unlock_proficiency": 150,
+  "unlock_proficiency": 450,
   "color": "#54D8FF",
   "trail_length": 1.5,
   "shockwave_ticks": 0,

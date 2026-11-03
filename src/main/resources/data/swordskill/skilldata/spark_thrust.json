@@ -15,7 +15,7 @@
   "transform_limit_ticks": 20,
   "hidden": false,
   "default_unlocked": true,
-  "unlock_proficiency": 150,
+  "unlock_proficiency": 180,
   "color": "#54D8FF",
   "trail_length": 1.5,
   "shockwave_ticks": 0,

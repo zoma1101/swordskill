@@ -114,5 +114,6 @@
       "sound": "minecraft:entity.player.attack.sweep"
     }
   ],
-  "sounds": []
+  "sounds": [],
+  "unlock_proficiency": 180
 }

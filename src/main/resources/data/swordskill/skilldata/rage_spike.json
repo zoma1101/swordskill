@@ -51,5 +51,6 @@
   "rush_start_ticks": 5,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
-  "rush_finish_animation": "finish"
+  "rush_finish_animation": "finish",
+  "unlock_proficiency": 55
 }

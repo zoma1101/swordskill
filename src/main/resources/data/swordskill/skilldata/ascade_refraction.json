@@ -79,5 +79,6 @@
     }
   ],
   "projectiles": [],
-  "sounds": []
+  "sounds": [],
+  "unlock_proficiency": 45
 }

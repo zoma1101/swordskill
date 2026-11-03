@@ -241,5 +241,6 @@
       "sound": ""
     }
   ],
-  "sounds": []
+  "sounds": [],
+  "unlock_proficiency": 500
 }
