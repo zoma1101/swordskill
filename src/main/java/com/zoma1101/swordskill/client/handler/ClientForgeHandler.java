@@ -21,10 +21,10 @@ import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.KeyMapping;
 
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -95,6 +95,18 @@ public class ClientForgeHandler {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
+
+        // チャージ中に武器スロット／武器そのものが変わったら、その時点でキャンセルする。
+        // 旧実装のように ItemStack の参照を保持し続けると復元先がズレるため。
+        if (activeSkillCharge != null
+                && (player.getInventory().selected != activeSkillCharge.weaponSlot()
+                        || player.getMainHandItem().getItem() != activeSkillCharge.weaponItem())) {
+            clearSkillCharge(player);
+        }
+        if (activeSkillCharge == null) {
+            isCharging = false;
+            chargingItemColor = -1;
+        }
 
         updateCooldowns();
 
@@ -563,10 +575,8 @@ public class ClientForgeHandler {
                         PacketDistributor.sendToServer(new CounterChargePayload(skillIndex, true));
                     }
                     ItemStack weapon = player.getMainHandItem();
-                    Boolean originalGlint = weapon.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
-                    if (!weapon.isEmpty()) {
-                        weapon.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-                    }
+                    // グリントは描画時に付与する（ItemStack のコンポーネントを書き換えない）。
+                    // 書き換え方式だとキャンセル時に復元漏れが起き、光が残ることがある。
                     // スキル色も保持（将来的な直接着色用）
                     if (skill.getDataDefinition() != null) {
                         String hex = skill.getDataDefinition().color();
@@ -580,7 +590,7 @@ public class ClientForgeHandler {
                     }
                     isCharging = true;
                     activeSkillCharge = new SkillCharge(key.mapping(), skillIndex, player.tickCount,
-                            weapon, null, -1);
+                            player.getInventory().selected, weapon.getItem(), -1);
                 } else {
                     UseSkill(skillIndex, 0);
                 }
@@ -606,14 +616,6 @@ public class ClientForgeHandler {
             PacketDistributor.sendToServer(new CounterChargePayload(activeSkillCharge.skillIndex(), false));
         }
         isCharging = false;
-        ItemStack weapon = activeSkillCharge.weapon();
-        if (!weapon.isEmpty()) {
-            if (activeSkillCharge.originalGlint() == null) {
-                weapon.remove(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
-            } else {
-                weapon.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, activeSkillCharge.originalGlint());
-            }
-        }
         chargingItemColor = -1;
         if (player != null) {
             AnimationUtils.StopPlayerAnimation(player);
@@ -621,11 +623,26 @@ public class ClientForgeHandler {
         activeSkillCharge = null;
     }
 
+    /**
+     * チャージ中グリントの描画判定。ItemStack のコンポーネントを書き換えないため、
+     * キャンセル時に消し忘れて武器へ残ることはない。
+     */
+    public static boolean shouldRenderChargeGlint(ItemStack stack) {
+        if (!isCharging || activeSkillCharge == null) {
+            return false;
+        }
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null
+                && player.getInventory().selected == activeSkillCharge.weaponSlot()
+                && stack == player.getMainHandItem()
+                && stack.getItem() == activeSkillCharge.weaponItem();
+    }
+
     private record SkillUseKey(KeyMapping mapping, int slot) {
     }
 
     private record SkillCharge(KeyMapping mapping, int skillIndex, int startTick,
-            ItemStack weapon, Boolean originalGlint, int comboNextSkillId) {
+            int weaponSlot, Item weaponItem, int comboNextSkillId) {
     }
 
     static int getCoolDown(SkillData skillData) {

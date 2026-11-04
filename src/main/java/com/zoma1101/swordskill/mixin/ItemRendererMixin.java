@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
@@ -76,5 +77,16 @@ public abstract class ItemRendererMixin {
             return;
         }
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    /**
+     * チャージ中の武器だけにグリントを付与する。ItemStack のコンポーネントを
+     * 書き換えないため、チャージをキャンセルしても光が残らない。
+     */
+    @Redirect(
+            method = "render(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IILnet/minecraft/client/resources/model/BakedModel;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;hasFoil()Z"))
+    private boolean swordskill$chargeGlint(ItemStack itemStack) {
+        return itemStack.hasFoil() || ClientForgeHandler.shouldRenderChargeGlint(itemStack);
     }
 }
