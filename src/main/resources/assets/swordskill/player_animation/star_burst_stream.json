@@ -291,7 +291,7 @@
 				"body": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 20, 0],
+							"vector": [0, 0, 0],
 							"easing": "linear"
 						},
 						"0.0833": {
