@@ -68,7 +68,7 @@ public record UseSkillPayload(int skillId, int chargeTicks) implements CustomPac
             if (SkillClashManager.isClashing(player.getUUID())) {
                 return;
             }
-            if (msg.chargeTicks() < 0 || msg.chargeTicks() > DataDrivenSkill.MAX_CHARGE_TICKS) {
+            if (msg.chargeTicks() < 0 || msg.chargeTicks() > DataDrivenSkill.MAX_CHARGE_DURATION_TICKS) {
                 LOGGER.warn("Player {} sent invalid skill charge duration {}.",
                         player.getName().getString(), msg.chargeTicks());
                 return;

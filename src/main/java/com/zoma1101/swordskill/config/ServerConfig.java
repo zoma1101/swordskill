@@ -35,6 +35,7 @@ public class ServerConfig {
     public static final ModConfigSpec.IntValue clashStunTicks;
     public static final ModConfigSpec.IntValue clashCooldownTicks;
     public static final ModConfigSpec.BooleanValue clashCancelProjectiles;
+    public static final ModConfigSpec.BooleanValue skillBreaksProjectiles;
 
     public static final ModConfigSpec.BooleanValue levelSystemEnabled;
     public static final ModConfigSpec.IntValue playerLevelMax;
@@ -170,6 +171,13 @@ public class ServerConfig {
         clashCancelProjectiles = BUILDER.comment(
                 "Flying slashes from different owners cancel each other when they collide.")
                 .define("clashCancelProjectiles", true);
+        BUILDER.pop();
+
+        BUILDER.push("Projectile Settings");
+        skillBreaksProjectiles = BUILDER.comment(
+                "Sword skills destroy arrows, fireballs and other flying projectiles that enter the skill hitbox. "
+                        + "Projectiles fired by the skill user are ignored. Works for vanilla and most modded projectiles.")
+                .define("skillBreaksProjectiles", true);
         BUILDER.pop();
 
         BUILDER.push("Player Level Settings");

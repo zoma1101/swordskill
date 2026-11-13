@@ -28,6 +28,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class DataDrivenSkill implements ISkill {
     public static final int MAX_CHARGE_TICKS = 40;
+    /**
+     * チャージを保持できる最大 tick 数（13秒）。
+     *
+     * <p>ダメージ倍率の上限は {@link #MAX_CHARGE_TICKS} のままなので、
+     * 2秒を超えてチャージしても倍率は増えない（＝ダメージ上限は変わらない）。</p>
+     */
+    public static final int MAX_CHARGE_DURATION_TICKS = 260;
     private static final float MIN_CHARGE_MULTIPLIER = 0.75F;
     private static final float MAX_CHARGE_MULTIPLIER = 2.0F;
     private static final float MIN_CHARGE_MULTIPLIER_PER_LEVEL = 0.0F;
@@ -46,6 +53,7 @@ public final class DataDrivenSkill implements ISkill {
     private static final Map<UUID, Vec3> SKILL_START_POS = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> PEAK_Y = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> PREV_ON_GROUND = new ConcurrentHashMap<>();
+    private static final Map<UUID, Integer> GROUND_TRIGGER_TICKS = new ConcurrentHashMap<>();
     private static final Map<UUID, Map<String, Integer>> RANDOM_CHOICES = new ConcurrentHashMap<>();
     private static final java.util.Random RANDOM = new java.util.Random();
 
@@ -110,6 +118,9 @@ public final class DataDrivenSkill implements ISkill {
         boolean previousOnGround = PREV_ON_GROUND.getOrDefault(playerId, true);
         boolean groundTriggered = player.onGround() && !previousOnGround;
         PREV_ON_GROUND.put(playerId, player.onGround());
+        if (groundTriggered) {
+            GROUND_TRIGGER_TICKS.put(playerId, tick);
+        }
         int invulnerability = definition.rushCombo() == null
                 ? definition.invulnerabilityTicks()
                 : Math.max(definition.invulnerabilityTicks(), definition.rushCombo().invulnerabilityTicks());
@@ -151,6 +162,11 @@ public final class DataDrivenSkill implements ISkill {
                 player.invulnerableTime = rushCombo.invulnerabilityTicks();
                 previousCenter = currentCenter;
             }
+            if (tick > 1) {
+                // 突進の通り道にある飛翔体も切り払う
+                SkillProjectileBreaker.destroyAlong(level, player, previousCenter, currentCenter,
+                        rushCombo.contactRadius());
+            }
             if (contactTick < 0 && tick <= rushCombo.latestContactTick()) {
                 // 高速移動でも取りこぼさないよう、前tickからの線分で接触を判定する
                 AABB searchArea = new AABB(previousCenter, currentCenter).inflate(rushCombo.searchRadius());
@@ -184,6 +200,29 @@ public final class DataDrivenSkill implements ISkill {
                 SkillExecutionManager.changeRushPhase(player, "finish");
             }
             RUSH_PREVIOUS_POS.put(player.getUUID(), currentCenter);
+        }
+
+        // 飛翔体（矢・魔法弾など）の削除判定は、攻撃判定の前後1tickまで広げる。
+        // 1tickで判定の箱を通り抜けてしまう高速な飛翔体を取りこぼさないため。
+        for (int index = 0; index < definition.hitboxes().size(); index++) {
+            DataSkillDefinition.Hitbox hitbox = definition.hitboxes().get(index);
+            if (!hitbox.hitboxEnabled()) {
+                continue;
+            }
+            boolean inWindow;
+            if (hitbox.trigger().equals("GROUND")) {
+                // 着地トリガーは着地tickとその翌tickで判定する（着地前のtickは予測できないため）
+                int groundTick = GROUND_TRIGGER_TICKS.getOrDefault(playerId, Integer.MIN_VALUE);
+                inWindow = groundTick >= hitbox.tick()
+                        && (tick == groundTick || tick == groundTick + 1);
+            } else {
+                boolean contactTriggered = hitbox.trigger().equals("CONTACT") && contactTick >= 0;
+                int triggerTick = contactTriggered ? contactTick + hitbox.tick() : hitbox.tick();
+                inWindow = Math.abs(tick - triggerTick) <= 1;
+            }
+            if (inWindow) {
+                destroyProjectilesInHitbox(level, player, hitbox);
+            }
         }
 
         // 接地・接触で動くモーション（突進の跳ね返りなど）
@@ -378,6 +417,7 @@ public final class DataDrivenSkill implements ISkill {
         SKILL_START_POS.remove(playerId);
         PEAK_Y.remove(playerId);
         PREV_ON_GROUND.remove(playerId);
+        GROUND_TRIGGER_TICKS.remove(playerId);
         RANDOM_CHOICES.remove(playerId);
     }
 
@@ -535,6 +575,16 @@ public final class DataDrivenSkill implements ISkill {
         double range = Math.max(size[0], Math.max(size[1], size[2])) + 2.0;
         AABB searchArea = new AABB(center, center).inflate(range);
 
+        // 当たり判定に入った飛翔体（矢・魔法弾など）を破壊する。見た目の判定に合わせて
+        // 生体と同じ「向き付きの箱」でチェックする。
+        SkillProjectileBreaker.destroyIn(level, player, searchArea, projectile -> {
+            Vec3 relative = projectile.getBoundingBox().getCenter().subtract(center);
+            double projectileRadius = Math.max(projectile.getBbWidth(), projectile.getBbHeight()) * 0.5D;
+            return Math.abs(relative.dot(right)) <= size[0] * 0.5D + projectileRadius
+                    && Math.abs(relative.dot(up)) <= size[1] * 0.5D + projectileRadius
+                    && Math.abs(relative.dot(forward)) <= size[2] * 0.5D + projectileRadius;
+        });
+
         boolean hit = false;
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, searchArea,
                 entity -> SkillUtils.SkillTargetEntity(entity, player))) {
@@ -553,6 +603,34 @@ public final class DataDrivenSkill implements ISkill {
             hit |= applyHit(player, target, hitbox, useChargeMultiplier, hitstopTicks, color);
         }
         return hit;
+    }
+
+    /**
+     * ヒットボックス内の飛翔体（矢・魔法弾など）だけを破壊する。ダメージは与えない。
+     *
+     * <p>攻撃判定の前後1tickで呼ぶことで、1tickの間に判定の箱を通り抜けてしまう
+     * 高速な飛翔体も取りこぼさないようにする。</p>
+     */
+    private static void destroyProjectilesInHitbox(Level level, ServerPlayer player,
+            DataSkillDefinition.Hitbox hitbox) {
+        Vec3 forward = player.getLookAngle().normalize();
+        Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 up = right.cross(forward).normalize();
+        double[] offset = hitbox.offset();
+        double[] size = hitbox.size();
+        Vec3 center = player.position()
+                .add(right.scale(offset[0]))
+                .add(up.scale(offset[1]))
+                .add(forward.scale(offset[2]));
+        double range = Math.max(size[0], Math.max(size[1], size[2])) + 2.0;
+        AABB searchArea = new AABB(center, center).inflate(range);
+        SkillProjectileBreaker.destroyIn(level, player, searchArea, projectile -> {
+            Vec3 relative = projectile.getBoundingBox().getCenter().subtract(center);
+            double projectileRadius = Math.max(projectile.getBbWidth(), projectile.getBbHeight()) * 0.5D;
+            return Math.abs(relative.dot(right)) <= size[0] * 0.5D + projectileRadius
+                    && Math.abs(relative.dot(up)) <= size[1] * 0.5D + projectileRadius
+                    && Math.abs(relative.dot(forward)) <= size[2] * 0.5D + projectileRadius;
+        });
     }
 
     /** ヒットボックスの形から攻撃の傾向を推定する（武器記憶用）。 */

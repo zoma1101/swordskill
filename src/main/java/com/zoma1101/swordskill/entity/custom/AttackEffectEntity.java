@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.entity.custom;
 
 import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
+import com.zoma1101.swordskill.swordskills.SkillProjectileBreaker;
 import com.zoma1101.swordskill.swordskills.SkillTexture;
 import com.zoma1101.swordskill.swordskills.SkillUtils;
 import com.zoma1101.swordskill.server.handler.SkillClashManager;
@@ -90,8 +91,14 @@ public class AttackEffectEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
+        Vec3 previousPos = this.position();
         Movement();
         if (!this.level().isClientSide) {
+            if (!this.isRemoved() && this.isFlyingSlash()) {
+                // 飛翔斬撃の通り道にある矢・魔法弾などを切り払う
+                SkillProjectileBreaker.destroyAlong(this.level(), this.owner, previousPos, this.position(),
+                        Math.max(this.getBbWidth(), this.getBbHeight()) * 0.5D + 0.3D);
+            }
             // 飛翔斬撃同士がぶつかったら相殺する
             if (tryProjectileClash()) {
                 return;

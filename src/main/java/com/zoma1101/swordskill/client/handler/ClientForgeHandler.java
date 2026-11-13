@@ -8,6 +8,7 @@ import com.zoma1101.swordskill.client.gui.ProficiencyOverviewScreen;
 import com.zoma1101.swordskill.client.gui.StatusScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
 import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.client.sound.ChargeSoundInstance;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
@@ -20,6 +21,7 @@ import com.zoma1101.swordskill.payload.UseSkillPayload;
 import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
+import com.zoma1101.swordskill.sounds.SwordSkillSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.KeyMapping;
@@ -60,6 +62,9 @@ public class ClientForgeHandler {
 
     /** 現在スキルをチャージ中かどうか。 */
     public static boolean isCharging = false;
+
+    /** チャージ中に回し続けるループサウンド（終了時は自ら or {@link #clearSkillCharge} が停止する）。 */
+    private static ChargeSoundInstance chargeLoopSound;
 
     /** スキル使用キー（-1 = 選択中のスロット、0〜4 = 固定スロット）。 */
     private static final SkillUseKey[] SKILL_KEYS = {
@@ -591,6 +596,7 @@ public class ClientForgeHandler {
                     isCharging = true;
                     activeSkillCharge = new SkillCharge(key.mapping(), skillIndex, player.tickCount,
                             player.getInventory().selected, weapon.getItem(), -1);
+                    startChargeSounds();
                 } else {
                     UseSkill(skillIndex, 0);
                 }
@@ -599,7 +605,7 @@ public class ClientForgeHandler {
 
         if (activeSkillCharge != null && !activeSkillCharge.mapping().isDown()) {
             SkillCharge charge = activeSkillCharge;
-            int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_TICKS,
+            int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_DURATION_TICKS,
                     player.tickCount - charge.startTick()));
             clearSkillCharge(player);
             UseChargedTransformSkill(charge.skillIndex(), chargeTicks, player.isCrouching(),
@@ -608,6 +614,7 @@ public class ClientForgeHandler {
     }
 
     private static void clearSkillCharge(LocalPlayer player) {
+        stopChargeSounds();
         if (activeSkillCharge == null) {
             return;
         }
@@ -621,6 +628,34 @@ public class ClientForgeHandler {
             AnimationUtils.StopPlayerAnimation(player);
         }
         activeSkillCharge = null;
+    }
+
+    /**
+     * チャージ開始時のサウンド。チャージ中ずっと鳴り続けるループ音を再生する。
+     *
+     * <p>ループ音は {@link ChargeSoundInstance} が {@link #isCharging} を見て自ら停止する。</p>
+     */
+    private static void startChargeSounds() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getSoundManager() == null) {
+            return;
+        }
+        stopChargeSounds(); // 二重再生の防止
+        chargeLoopSound = new ChargeSoundInstance(SwordSkillSounds.CHARGE.get(), 1.0F, 1.0F);
+        minecraft.getSoundManager().play(chargeLoopSound);
+    }
+
+    /** チャージ中のループ音を即時停止する（キャンセル・発動・ログアウト時）。 */
+    private static void stopChargeSounds() {
+        if (chargeLoopSound == null) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getSoundManager() != null) {
+            minecraft.getSoundManager().stop(chargeLoopSound);
+        }
+        chargeLoopSound.stopNow();
+        chargeLoopSound = null;
     }
 
     /**
