@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 34,
+  "id": "ascade_refraction",
+  "legacy_id": 34,
   "replace_builtin": true,
   "name": "ascade_refraction",
   "animation": "ascade_refraction",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 36,
+  "id": "star_burst_stream",
+  "legacy_id": 36,
   "name": "star_burst_stream",
   "replace_builtin": true,
   "animation": "star_burst_stream",

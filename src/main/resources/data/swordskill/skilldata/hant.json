@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 73,
+  "id": "hant",
+  "legacy_id": 73,
   "replace_builtin": true,
   "name": "hant",
   "animation": "hant",

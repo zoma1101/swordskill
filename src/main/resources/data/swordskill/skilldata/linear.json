@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 49,
+  "id": "linear",
+  "legacy_id": 49,
   "name": "linear",
   "replace_builtin": true,
   "animation": "linear",

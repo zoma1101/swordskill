@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 78,
+  "id": "golden_claw",
+  "legacy_id": 78,
   "replace_builtin": true,
   "name": "golden_claw",
   "animation": "golden_claw",

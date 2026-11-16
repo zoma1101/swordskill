@@ -1,9 +1,14 @@
 {
   "schema_version": 1,
-  "id": 64,
-  "replace_builtin": true,
+  "id": "barrick",
+  "legacy_id": 64,
   "name": "barrick",
+  "replace_builtin": true,
   "animation": "barrick",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
   "type": "SIMPLE",
   "weapons": [
     "SCYTHE"
@@ -14,10 +19,14 @@
   "transform_limit_ticks": 20,
   "hidden": false,
   "default_unlocked": true,
-  "color": "#FF6B6B",
-  "trail_length": 1.5,
+  "color": "#C60000",
+  "trail_length": 2,
   "shockwave_ticks": 0,
   "hitstop_ticks": -1,
+  "player_pitch_affected": true,
+  "yaw_limit_degrees": 0,
+  "pitch_limit_degrees": 0,
+  "ground_impact_strength": 0,
   "motions": [],
   "hitboxes": [
     {
@@ -60,6 +69,5 @@
     }
   ],
   "projectiles": [],
-  "sounds": [],
-  "unlock_proficiency": 55
+  "sounds": []
 }

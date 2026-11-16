@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 72,
+  "id": "talon",
+  "legacy_id": 72,
   "replace_builtin": true,
   "name": "talon",
   "animation": "talon",

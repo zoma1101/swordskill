@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 32,
+  "id": "falling_star",
+  "legacy_id": 32,
   "name": "falling_star",
   "replace_builtin": true,
   "animation": "falling_star",

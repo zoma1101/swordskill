@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 45,
+  "id": "aban_rash",
+  "legacy_id": 45,
   "name": "aban_rash",
   "replace_builtin": true,
   "animation": "aban_rash",

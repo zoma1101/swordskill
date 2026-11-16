@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 59,
+  "id": "face_liner",
+  "legacy_id": 59,
   "replace_builtin": true,
   "name": "face_liner",
   "animation": "face_liner",

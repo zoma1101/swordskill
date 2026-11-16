@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 82,
+  "id": "hammer_down",
+  "legacy_id": 82,
   "replace_builtin": true,
   "name": "hammer_down",
   "animation": "hammer_down",

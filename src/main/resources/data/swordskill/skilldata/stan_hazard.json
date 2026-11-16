@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 47,
+  "id": "stan_hazard",
+  "legacy_id": 47,
   "replace_builtin": true,
   "name": "stan_hazard",
   "animation": "stan_hazard",

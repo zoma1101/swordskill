@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 21,
+  "id": "excite_line",
+  "legacy_id": 21,
   "replace_builtin": true,
   "name": "excite_line",
   "animation": "excite_line",

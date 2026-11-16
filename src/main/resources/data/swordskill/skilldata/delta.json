@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 0,
+  "id": "delta",
+  "legacy_id": 0,
   "replace_builtin": false,
   "name": "delta",
   "animation": "delta",

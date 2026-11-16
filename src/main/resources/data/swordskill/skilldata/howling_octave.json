@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 14,
+  "id": "howling_octave",
+  "legacy_id": 14,
   "name": "howling_octave",
   "replace_builtin": true,
   "animation": "howling_octave",

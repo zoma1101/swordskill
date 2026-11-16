@@ -53,19 +53,33 @@ public class SkillDataFetcher {
     private static Set<Integer> readUnlockedSet(JsonObject playerData) {
         Set<Integer> unlocked = new LinkedHashSet<>();
         for (JsonElement element : readUnlockedArray(playerData)) {
-            if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            if (!element.isJsonPrimitive()) {
+                continue;
+            }
+            if (element.getAsJsonPrimitive().isNumber()) {
+                // 旧形式の数値 ID は名前へ変換して内部 ID として扱う
                 unlocked.add(element.getAsInt());
+            } else if (element.getAsJsonPrimitive().isString()) {
+                int id = SwordSkillRegistry.intIdOf(element.getAsString());
+                if (id >= 0) {
+                    unlocked.add(id);
+                }
             }
         }
         return unlocked;
     }
 
-    /** 解放済み ID を保存する。 */
+    /** 解放済み ID をスキルID（文字列）で保存する。 */
     private static void writeUnlocked(ServerPlayer player, Set<Integer> unlocked) {
         JsonObject playerData = DataManager.loadPlayerData(player);
         JsonArray array = new JsonArray();
         for (int skillId : unlocked) {
-            array.add(skillId);
+            String skillIdName = SwordSkillRegistry.idOf(skillId);
+            if (skillIdName != null) {
+                array.add(skillIdName);
+            } else {
+                array.add(skillId);
+            }
         }
         playerData.add("unlockedskill", array);
         DataManager.savePlayerData(player, playerData);

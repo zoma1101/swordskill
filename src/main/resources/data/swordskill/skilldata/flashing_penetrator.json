@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 57,
+  "id": "flashing_penetrator",
+  "legacy_id": 57,
   "name": "flashing_penetrator",
   "replace_builtin": true,
   "animation": "flashing_penetrator",

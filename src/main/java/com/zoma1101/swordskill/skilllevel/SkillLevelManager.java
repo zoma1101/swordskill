@@ -6,6 +6,7 @@ import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.payload.SyncSkillLevelsPayload;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
@@ -72,7 +73,13 @@ public final class SkillLevelManager {
             JsonObject stored = playerData.getAsJsonObject(STORAGE_KEY);
             for (Map.Entry<String, JsonElement> entry : stored.entrySet()) {
                 try {
-                    int skillId = Integer.parseInt(entry.getKey());
+                    int skillId;
+                    try {
+                        // 旧形式の数値キーはそのまま内部 ID として扱う
+                        skillId = Integer.parseInt(entry.getKey());
+                    } catch (NumberFormatException exception) {
+                        skillId = SwordSkillRegistry.intIdOf(entry.getKey());
+                    }
                     int level = entry.getValue().getAsInt();
                     if (skillId >= 0 && level > 1) {
                         result.put(skillId, level);
@@ -127,7 +134,8 @@ public final class SkillLevelManager {
         JsonObject playerData = DataManager.loadPlayerData(player);
         JsonObject stored = new JsonObject();
         for (Map.Entry<Integer, Integer> entry : playerLevels.entrySet()) {
-            stored.addProperty(Integer.toString(entry.getKey()), entry.getValue());
+            String skillName = SwordSkillRegistry.idOf(entry.getKey());
+            stored.addProperty(skillName != null ? skillName : Integer.toString(entry.getKey()), entry.getValue());
         }
         playerData.add(STORAGE_KEY, stored);
         DataManager.savePlayerData(player, playerData);

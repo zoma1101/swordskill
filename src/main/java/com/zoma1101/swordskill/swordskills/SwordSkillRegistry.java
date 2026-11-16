@@ -25,6 +25,9 @@ public final class SwordSkillRegistry {
     /** ID → スキル。データ定義の読み込みで作り直される。 */
     public static final Map<Integer, SkillData> SKILLS = new LinkedHashMap<>();
 
+    /** スキルID（文字列） → スキル。旧数値 ID は内部互換として残す。 */
+    public static final Map<String, SkillData> SKILLS_BY_ID = new LinkedHashMap<>();
+
     /**
      * Java 実装として登録されたスキル。データ定義は同じ ID を
      * {@code replace_builtin: true} で上書きできる。
@@ -52,6 +55,7 @@ public final class SwordSkillRegistry {
         }
         JAVA_SKILLS.put(skill.getId(), skill);
         SKILLS.put(skill.getId(), skill);
+        SKILLS_BY_ID.put(skill.getName(), skill);
     }
 
     /** 登録済みの Java スキル（読み取り専用）。 */
@@ -67,28 +71,44 @@ public final class SwordSkillRegistry {
     public static synchronized void replaceDataDrivenSkills(Collection<DataSkillDefinition> definitions) {
         Objects.requireNonNull(definitions, "definitions");
         List<DataSkillDefinition> ordered = definitions.stream()
-                .sorted(Comparator.comparingInt(DataSkillDefinition::id))
+                .sorted(Comparator.comparingInt(DataSkillDefinition::legacyId)
+                        .thenComparing(DataSkillDefinition::id))
                 .toList();
 
         Map<Integer, DataSkillDefinition> resolved = new LinkedHashMap<>();
         Set<Integer> usedIds = new HashSet<>();
+        Set<String> usedNames = new HashSet<>();
         List<DataSkillDefinition> autoIdDefinitions = new ArrayList<>();
         for (DataSkillDefinition definition : ordered) {
-            if (definition.id() < 0) {
-                throw new IllegalArgumentException("Invalid data skill ID: " + definition.id());
+            if (definition.id().isBlank() || definition.legacyId() < 0) {
+                throw new IllegalArgumentException("Invalid data skill id: " + definition.id());
             }
-            if (definition.id() == 0 && !definition.replaceBuiltin()) {
+            if (!usedNames.add(definition.id())) {
+                throw new IllegalArgumentException("Duplicate data skill id: " + definition.id());
+            }
+            int intId = definition.legacyId();
+            if (intId <= 0 && definition.replaceBuiltin()) {
+                // 旧 Java スキルを名前で置き換える場合はその内部 ID を引き継ぐ
+                for (SkillData javaSkill : JAVA_SKILLS.values()) {
+                    if (javaSkill.getName().equals(definition.id())) {
+                        intId = javaSkill.getId();
+                        break;
+                    }
+                }
+            }
+            if (intId > 0) {
+                if (!usedIds.add(intId)) {
+                    throw new IllegalArgumentException("Duplicate legacy skill ID: " + intId
+                            + " (" + definition.id() + ")");
+                }
+                if (JAVA_SKILLS.containsKey(intId) && !definition.replaceBuiltin()) {
+                    throw new IllegalArgumentException("Skill ID " + definition.id()
+                            + " conflicts with a Java skill; set replace_builtin=true to override it");
+                }
+                resolved.put(intId, definition.withLegacyId(intId));
+            } else {
                 autoIdDefinitions.add(definition);
-                continue;
             }
-            if (!usedIds.add(definition.id())) {
-                throw new IllegalArgumentException("Duplicate data skill ID: " + definition.id());
-            }
-            if (JAVA_SKILLS.containsKey(definition.id()) && !definition.replaceBuiltin()) {
-                throw new IllegalArgumentException("Data skill ID " + definition.id()
-                        + " conflicts with a Java skill; set replace_builtin=true to override it");
-            }
-            resolved.put(definition.id(), definition);
         }
 
         int nextAvailableId = 0;
@@ -98,7 +118,7 @@ public final class SwordSkillRegistry {
             }
             int assignedId = nextAvailableId++;
             usedIds.add(assignedId);
-            resolved.put(assignedId, definition.withId(assignedId));
+            resolved.put(assignedId, definition.withLegacyId(assignedId));
         }
 
         Map<Integer, SkillData> rebuilt = new LinkedHashMap<>(JAVA_SKILLS);
@@ -110,16 +130,37 @@ public final class SwordSkillRegistry {
             int highestId = rebuilt.keySet().stream().mapToInt(Integer::intValue).max().orElse(-1);
             if (rebuilt.size() != highestId + 1) {
                 throw new IllegalArgumentException("Skill IDs must be contiguous from 0; found IDs " + rebuilt.keySet()
-                        + ". 追加スキルは id を省略すると自動採番されます");
+                        + ". 新規スキルは id にスキル名を指定すると自動採番されます");
             }
         }
 
         SKILLS.clear();
         SKILLS.putAll(rebuilt);
+        SKILLS_BY_ID.clear();
+        for (SkillData skill : rebuilt.values()) {
+            SKILLS_BY_ID.put(skill.getName(), skill);
+        }
+    }
+
+    /** スキルID（文字列）でスキルを取得する。 */
+    public static SkillData get(String skillId) {
+        return skillId == null ? null : SKILLS_BY_ID.get(skillId);
+    }
+
+    /** 内部の数値 ID からスキルID（文字列）を取得する。 */
+    public static String idOf(int intId) {
+        SkillData skill = SKILLS.get(intId);
+        return skill == null ? null : skill.getName();
+    }
+
+    /** スキルID（文字列）から内部の数値 ID を取得する。見つからなければ -1。 */
+    public static int intIdOf(String skillId) {
+        SkillData skill = get(skillId);
+        return skill == null ? -1 : skill.getId();
     }
 
     private static SkillData createDataSkill(DataSkillDefinition definition) {
-        return new SkillData(definition.id(), definition.name(), definition.cooldown(), definition.spCost(),
+        return new SkillData(definition.legacyId(), definition.name(), definition.cooldown(), definition.spCost(),
                 definition.type(), DataDrivenSkill.class, definition.weapons(), definition.hidden(),
                 definition.durationTicks(), definition.transformLimitTicks(), definition);
     }

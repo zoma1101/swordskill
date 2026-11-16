@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 7,
+  "id": "vertical_square",
+  "legacy_id": 7,
   "replace_builtin": true,
   "name": "vertical_square",
   "animation": "vertical_square",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 20,
+  "id": "excite",
+  "legacy_id": 20,
   "replace_builtin": true,
   "name": "excite",
   "animation": "excite",

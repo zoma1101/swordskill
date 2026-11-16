@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 6,
+  "id": "vertical_arc",
+  "legacy_id": 6,
   "replace_builtin": true,
   "name": "vertical_arc",
   "animation": "vertical_arc",

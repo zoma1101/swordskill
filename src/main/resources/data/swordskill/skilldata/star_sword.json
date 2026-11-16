@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 16,
+  "id": "star_sword",
+  "legacy_id": 16,
   "replace_builtin": true,
   "name": "star_sword",
   "animation": "star_sword",

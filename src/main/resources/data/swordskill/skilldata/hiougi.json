@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 43,
+  "id": "hiougi",
+  "legacy_id": 43,
   "replace_builtin": true,
   "name": "hiougi",
   "animation": "hiougi",

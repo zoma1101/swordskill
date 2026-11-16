@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 35,
+  "id": "double_circular",
+  "legacy_id": 35,
   "replace_builtin": true,
   "name": "double_circular",
   "animation": "double_circular",

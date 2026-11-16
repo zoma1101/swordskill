@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 76,
+  "id": "dragon_claw",
+  "legacy_id": 76,
   "replace_builtin": true,
   "name": "dragon_claw",
   "animation": "dragon_claw",

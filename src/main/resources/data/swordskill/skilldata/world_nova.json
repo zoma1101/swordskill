@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 17,
+  "id": "world_nova",
+  "legacy_id": 17,
   "replace_builtin": true,
   "name": "world_nova",
   "animation": "world_nova",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 83,
+  "id": "diastrophism",
+  "legacy_id": 83,
   "replace_builtin": true,
   "name": "diastrophism",
   "animation": "diastrophism",

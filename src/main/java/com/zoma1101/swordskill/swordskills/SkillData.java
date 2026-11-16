@@ -60,6 +60,11 @@ public class SkillData {
         return name;
     }
 
+    /** 正式なスキルID（文字列）。旧数値 ID は {@link #getId()}。 */
+    public String getSkillId() {
+        return name;
+    }
+
     public ResourceLocation getIconTexture() {
         return iconTexture;
     }

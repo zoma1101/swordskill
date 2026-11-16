@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 56,
+  "id": "shooting_star",
+  "legacy_id": 56,
   "name": "shooting_star",
   "replace_builtin": true,
   "animation": "shooting_star",

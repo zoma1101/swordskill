@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 11,
+  "id": "rage_spike",
+  "legacy_id": 11,
   "name": "rage_spike",
   "replace_builtin": true,
   "animation": "rage_spike",

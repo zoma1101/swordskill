@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 10,
+  "id": "holy_cross_brade",
+  "legacy_id": 10,
   "name": "holy_cross_brade",
   "replace_builtin": true,
   "animation": "holy_cross_brade",

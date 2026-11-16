@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 37,
+  "id": "the_eclipse",
+  "legacy_id": 37,
   "name": "the_eclipse",
   "replace_builtin": true,
   "animation": "the_eclipse",

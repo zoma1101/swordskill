@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 39,
+  "id": "sakura_mai",
+  "legacy_id": 39,
   "replace_builtin": true,
   "name": "sakura_mai",
   "animation": "sakura_mai",

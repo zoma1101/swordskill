@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 50,
+  "id": "parallel_sting",
+  "legacy_id": 50,
   "replace_builtin": true,
   "name": "parallel_sting",
   "animation": "parallel_sting",

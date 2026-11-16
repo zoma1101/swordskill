@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 28,
+  "id": "spinning_spear",
+  "legacy_id": 28,
   "replace_builtin": true,
   "name": "spinning_spear",
   "animation": "spinning_spear",

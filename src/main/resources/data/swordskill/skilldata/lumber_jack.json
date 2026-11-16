@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 24,
+  "id": "lumber_jack",
+  "legacy_id": 24,
   "replace_builtin": true,
   "name": "lumber_jack",
   "animation": "lumber_jack",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 22,
+  "id": "excite_triangle",
+  "legacy_id": 22,
   "replace_builtin": true,
   "name": "excite_triangle",
   "animation": "excite_triangle",

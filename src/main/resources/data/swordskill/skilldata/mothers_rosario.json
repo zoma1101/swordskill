@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 55,
+  "id": "mothers_rosario",
+  "legacy_id": 55,
   "name": "mothers_rosario",
   "replace_builtin": true,
   "animation": "mothers_rosario",

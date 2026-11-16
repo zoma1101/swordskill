@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 27,
+  "id": "thrusts",
+  "legacy_id": 27,
   "replace_builtin": true,
   "name": "thrusts",
   "animation": "thrusts",

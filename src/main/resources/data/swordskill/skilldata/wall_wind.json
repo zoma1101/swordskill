@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 18,
+  "id": "wall_wind",
+  "legacy_id": 18,
   "replace_builtin": true,
   "name": "wall_wind",
   "animation": "wall_wind",

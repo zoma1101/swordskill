@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 67,
+  "id": "shadow_scythe",
+  "legacy_id": 67,
   "replace_builtin": true,
   "name": "shadow_scythe",
   "animation": "shadow_scythe",

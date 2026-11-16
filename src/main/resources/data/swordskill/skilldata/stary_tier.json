@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 54,
+  "id": "stary_tier",
+  "legacy_id": 54,
   "name": "stary_tier",
   "replace_builtin": true,
   "animation": "stary_tier",

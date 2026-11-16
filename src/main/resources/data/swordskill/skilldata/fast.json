@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 79,
+  "id": "fast",
+  "legacy_id": 79,
   "name": "fast",
   "replace_builtin": true,
   "animation": "fast",

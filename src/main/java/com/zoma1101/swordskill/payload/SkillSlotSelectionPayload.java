@@ -108,7 +108,9 @@ public record SkillSlotSelectionPayload(int skillId, int slotIndex, String weapo
 
                 // スロットインデックスが配列の範囲内か確認
                 if (msg.slotIndex() >= 0 && msg.slotIndex() < skillSlot.size()) {
-                    skillSlot.set(msg.slotIndex(), new JsonPrimitive(msg.skillId()));
+                    String skillName = SwordSkillRegistry.idOf(msg.skillId());
+                    skillSlot.set(msg.slotIndex(),
+                            skillName != null ? new JsonPrimitive(skillName) : new JsonPrimitive(msg.skillId()));
                     LOGGER.debug("Set skill {} to slot {} for weapon '{}' for player {}",
                             msg.skillId(), msg.slotIndex(), msg.weaponName(), player.getName().getString());
 

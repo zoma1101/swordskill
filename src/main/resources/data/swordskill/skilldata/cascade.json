@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 44,
+  "id": "cascade",
+  "legacy_id": 44,
   "replace_builtin": true,
   "name": "cascade",
   "animation": "cascade",

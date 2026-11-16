@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 26,
+  "id": "ryuuko_souhaku",
+  "legacy_id": 26,
   "replace_builtin": true,
   "name": "ryuuko_souhaku",
   "animation": "ryuuko_souhaku",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 84,
+  "id": "mace_impact",
+  "legacy_id": 84,
   "name": "mace_impact",
   "replace_builtin": true,
   "animation": "mace_impact",

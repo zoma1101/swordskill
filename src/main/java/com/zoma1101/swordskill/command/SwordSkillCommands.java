@@ -794,17 +794,30 @@ public class SwordSkillCommands {
                     unlockedSkillsArray = new JsonArray();
                 }
 
-                // 重複チェック
+                String skillIdName = SwordSkillRegistry.idOf(skillId);
+                // 重複チェック（旧数値IDと新スキルIDの両方を見る）
                 boolean alreadyUnlocked = false;
                 for (JsonElement element : unlockedSkillsArray) {
-                    if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber() && element.getAsInt() == skillId) {
+                    if (!element.isJsonPrimitive()) {
+                        continue;
+                    }
+                    if (element.getAsJsonPrimitive().isNumber() && element.getAsInt() == skillId) {
+                        alreadyUnlocked = true;
+                        break;
+                    }
+                    if (element.getAsJsonPrimitive().isString() && skillIdName != null
+                            && skillIdName.equals(element.getAsString())) {
                         alreadyUnlocked = true;
                         break;
                     }
                 }
 
                 if (!alreadyUnlocked) {
-                    unlockedSkillsArray.add(skillId);
+                    if (skillIdName != null) {
+                        unlockedSkillsArray.add(skillIdName);
+                    } else {
+                        unlockedSkillsArray.add(skillId);
+                    }
                     playerData.add("unlockedskill", unlockedSkillsArray);
                     DataManager.savePlayerData(player, playerData);
                     // 直接書き換えたのでキャッシュを捨てる

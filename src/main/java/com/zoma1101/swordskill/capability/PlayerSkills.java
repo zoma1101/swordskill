@@ -1,5 +1,6 @@
 package com.zoma1101.swordskill.capability;
 
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -135,6 +136,10 @@ public class PlayerSkills {
         for (Integer id : unlockedSkills) {
             CompoundTag tag = new CompoundTag();
             tag.putInt("id", id);
+            String skillId = SwordSkillRegistry.idOf(id);
+            if (skillId != null) {
+                tag.putString("skill_id", skillId);
+            }
             list.add(tag);
         }
         nbt.put("UnlockedSkills", list);
@@ -160,7 +165,16 @@ public class PlayerSkills {
         if (nbt.contains("UnlockedSkills")) {
             ListTag list = nbt.getList("UnlockedSkills", Tag.TAG_COMPOUND);
             for (int i = 0; i < list.size(); i++) {
-                unlockedSkills.add(list.getCompound(i).getInt("id"));
+                CompoundTag entry = list.getCompound(i);
+                int id;
+                if (entry.contains("skill_id", Tag.TAG_STRING)) {
+                    id = SwordSkillRegistry.intIdOf(entry.getString("skill_id"));
+                } else {
+                    id = entry.getInt("id");
+                }
+                if (id >= 0) {
+                    unlockedSkills.add(id);
+                }
             }
         }
 

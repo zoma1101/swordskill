@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 71,
+  "id": "judgment",
+  "legacy_id": 71,
   "replace_builtin": true,
   "name": "judgment",
   "animation": "judgment",

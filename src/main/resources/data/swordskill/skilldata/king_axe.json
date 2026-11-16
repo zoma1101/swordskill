@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 23,
+  "id": "king_axe",
+  "legacy_id": 23,
   "name": "king_axe",
   "replace_builtin": true,
   "animation": "king_axe",

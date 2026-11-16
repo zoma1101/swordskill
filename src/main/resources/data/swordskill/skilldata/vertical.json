@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 5,
+  "id": "vertical",
+  "legacy_id": 5,
   "name": "vertical",
   "replace_builtin": true,
   "animation": "vertical",

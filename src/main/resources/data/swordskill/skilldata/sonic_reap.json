@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 12,
+  "id": "sonic_reap",
+  "legacy_id": 12,
   "name": "sonic_reap",
   "replace_builtin": true,
   "animation": "sonic_reap",

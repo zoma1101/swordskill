@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 81,
+  "id": "double_creep",
+  "legacy_id": 81,
   "replace_builtin": true,
   "name": "double_creep",
   "animation": "double_creep",

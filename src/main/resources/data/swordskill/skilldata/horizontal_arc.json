@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 3,
+  "id": "horizontal_arc",
+  "legacy_id": 3,
   "replace_builtin": true,
   "name": "horizontal_arc",
   "animation": "horizontal_arc",

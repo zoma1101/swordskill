@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 48,
+  "id": "slash_blade",
+  "legacy_id": 48,
   "name": "slash_blade",
   "replace_builtin": true,
   "animation": "slash_blade",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 63,
+  "id": "kodati",
+  "legacy_id": 63,
   "replace_builtin": true,
   "name": "kodati",
   "animation": "kodati",

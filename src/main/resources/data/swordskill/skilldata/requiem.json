@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 68,
+  "id": "requiem",
+  "legacy_id": 68,
   "replace_builtin": true,
   "name": "requiem",
   "animation": "requiem",

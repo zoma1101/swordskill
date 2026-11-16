@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 42,
+  "id": "gengetu",
+  "legacy_id": 42,
   "name": "gengetu",
   "replace_builtin": true,
   "animation": "gengetu",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 46,
+  "id": "cyclone",
+  "legacy_id": 46,
   "replace_builtin": true,
   "name": "cyclone",
   "animation": "cyclone",

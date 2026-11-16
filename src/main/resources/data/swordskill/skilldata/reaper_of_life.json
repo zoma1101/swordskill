@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 65,
+  "id": "reaper_of_life",
+  "legacy_id": 65,
   "replace_builtin": true,
   "name": "reaper_of_life",
   "animation": "reaper_of_life",

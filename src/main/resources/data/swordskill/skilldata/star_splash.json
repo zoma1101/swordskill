@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 53,
+  "id": "star_splash",
+  "legacy_id": 53,
   "name": "star_splash",
   "replace_builtin": true,
   "animation": "star_splash",

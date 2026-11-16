@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 0,
+  "id": "cygnus_onslaught",
+  "legacy_id": 0,
   "replace_builtin": false,
   "name": "cygnus_onslaught",
   "animation": "cygnus_onslaught",

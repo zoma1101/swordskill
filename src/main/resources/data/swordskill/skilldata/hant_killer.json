@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 74,
+  "id": "hant_killer",
+  "legacy_id": 74,
   "name": "hant_killer",
   "replace_builtin": true,
   "animation": "hant_killer",

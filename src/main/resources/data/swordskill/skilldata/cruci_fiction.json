@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 52,
+  "id": "cruci_fiction",
+  "legacy_id": 52,
   "replace_builtin": true,
   "name": "cruci_fiction",
   "animation": "cruci_fiction",

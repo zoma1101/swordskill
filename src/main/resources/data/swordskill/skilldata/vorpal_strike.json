@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 15,
+  "id": "vorpal_strike",
+  "legacy_id": 15,
   "name": "vorpal_strike",
   "replace_builtin": true,
   "animation": "vorpal_strike",

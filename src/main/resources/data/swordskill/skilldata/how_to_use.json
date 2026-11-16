@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 0,
+  "id": "how_to_use",
+  "legacy_id": 0,
   "name": "how_to_use",
   "replace_builtin": true,
   "animation": "how_to_use",

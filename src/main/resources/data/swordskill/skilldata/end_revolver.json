@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 33,
+  "id": "end_revolver",
+  "legacy_id": 33,
   "name": "end_revolver",
   "default_unlocked": true,
   "replace_builtin": true,

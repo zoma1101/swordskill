@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 8,
+  "id": "x_break",
+  "legacy_id": 8,
   "name": "x_break",
   "replace_builtin": true,
   "animation": "x_break",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 69,
+  "id": "storm",
+  "legacy_id": 69,
   "replace_builtin": true,
   "name": "storm",
   "animation": "storm",

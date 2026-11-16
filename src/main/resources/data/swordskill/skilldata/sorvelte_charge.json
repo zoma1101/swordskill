@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 30,
+  "id": "sorvelte_charge",
+  "legacy_id": 30,
   "name": "sorvelte_charge",
   "replace_builtin": true,
   "animation": "sorvelte_charge",

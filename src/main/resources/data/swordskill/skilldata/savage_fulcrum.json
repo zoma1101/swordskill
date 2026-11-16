@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 13,
+  "id": "savage_fulcrum",
+  "legacy_id": 13,
   "replace_builtin": true,
   "name": "savage_fulcrum",
   "animation": "savage_fulcrum",

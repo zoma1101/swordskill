@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 58,
+  "id": "canine",
+  "legacy_id": 58,
   "replace_builtin": true,
   "name": "canine",
   "animation": "canine",

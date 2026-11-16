@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 1,
+  "id": "slant",
+  "legacy_id": 1,
   "name": "slant",
   "replace_builtin": true,
   "animation": "slant",

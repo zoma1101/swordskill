@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 29,
+  "id": "spark_thrust",
+  "legacy_id": 29,
   "replace_builtin": true,
   "name": "spark_thrust",
   "animation": "spark_thrust",

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 31,
+  "id": "longlonglong",
+  "legacy_id": 31,
   "name": "longlonglong",
   "replace_builtin": true,
   "animation": "longlonglong",

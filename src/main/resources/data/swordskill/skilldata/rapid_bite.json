@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 61,
+  "id": "rapid_bite",
+  "legacy_id": 61,
   "name": "rapid_bite",
   "replace_builtin": true,
   "animation": "rapid_bite",

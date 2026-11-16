@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 51,
+  "id": "quadraple_pain",
+  "legacy_id": 51,
   "replace_builtin": true,
   "name": "quadraple_pain",
   "animation": "quadraple_pain",

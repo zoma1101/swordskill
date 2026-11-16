@@ -5,7 +5,8 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 
 public record DataSkillDefinition(
-        int id,
+        String id,
+        int legacyId,
         String name,
         int cooldown,
         double spCost,
@@ -44,6 +45,9 @@ public record DataSkillDefinition(
         double counterMaxBonus,
         double groundImpactStrength) {
     public DataSkillDefinition {
+        id = (id == null || id.isBlank()) ? "" : id.trim();
+        name = (name == null || name.isBlank()) ? id : name.trim();
+        legacyId = Math.max(0, legacyId);
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
         motions = motions == null ? List.of() : List.copyOf(motions);
@@ -71,9 +75,9 @@ public record DataSkillDefinition(
                 : Math.max(0.0D, Math.min(4.0D, groundImpactStrength));
     }
 
-    /** ID だけ差し替えた複製を返す（自動採番用）。 */
-    public DataSkillDefinition withId(int newId) {
-        return new DataSkillDefinition(newId, name, cooldown, spCost, type, weapons, hidden, durationTicks,
+    /** 旧数値 ID だけ差し替えた複製を返す（自動採番用）。 */
+    public DataSkillDefinition withLegacyId(int newLegacyId) {
+        return new DataSkillDefinition(id, newLegacyId, name, cooldown, spCost, type, weapons, hidden, durationTicks,
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
@@ -83,7 +87,7 @@ public record DataSkillDefinition(
 
     /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
     public DataSkillDefinition withUnlockProficiency(int newUnlockProficiency) {
-        return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons, hidden, durationTicks,
+        return new DataSkillDefinition(id, legacyId, name, cooldown, spCost, type, weapons, hidden, durationTicks,
                 transformLimitTicks, animation, color, motion, motions, hitboxes, projectiles, sounds,
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,

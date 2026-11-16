@@ -4,6 +4,7 @@ import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.config.ServerConfig;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.data.DataManager;
@@ -320,8 +321,14 @@ public class ServerEventHandler {
             if (skillSlot != null) {
                 int limit = Math.min(skillSlot.size(), skillIds.length);
                 for (int i = 0; i < limit; i++) {
-                    if (skillSlot.get(i) != null && !skillSlot.get(i).isJsonNull()) {
-                        int skillId = skillSlot.get(i).getAsInt();
+                    JsonElement element = skillSlot.get(i);
+                    if (element != null && !element.isJsonNull() && element.isJsonPrimitive()) {
+                        int skillId;
+                        if (element.getAsJsonPrimitive().isNumber()) {
+                            skillId = element.getAsInt();
+                        } else {
+                            skillId = SwordSkillRegistry.intIdOf(element.getAsString());
+                        }
                         SkillData assigned = SwordSkillRegistry.SKILLS.get(skillId);
                         // 派生先や説明用エントリはスロットに残っていても無効として扱う
                         skillIds[i] = (assigned != null && assigned.isSlotAssignable()) ? skillId : -1;

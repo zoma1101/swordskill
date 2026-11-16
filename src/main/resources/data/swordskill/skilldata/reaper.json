@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 38,
+  "id": "reaper",
+  "legacy_id": 38,
   "replace_builtin": true,
   "name": "reaper",
   "animation": "reaper",

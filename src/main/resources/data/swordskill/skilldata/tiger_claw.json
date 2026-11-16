@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 75,
+  "id": "tiger_claw",
+  "legacy_id": 75,
   "name": "tiger_claw",
   "replace_builtin": true,
   "animation": "tiger_claw",

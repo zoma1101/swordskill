@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 80,
+  "id": "grand",
+  "legacy_id": 80,
   "replace_builtin": true,
   "name": "grand",
   "animation": "grand",

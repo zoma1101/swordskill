@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 41,
+  "id": "tumuzi_guruma",
+  "legacy_id": 41,
   "replace_builtin": true,
   "name": "tumuzi_guruma",
   "animation": "tumuzi_guruma",

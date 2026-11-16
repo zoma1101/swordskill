@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 19,
+  "id": "blood_finisher",
+  "legacy_id": 19,
   "name": "blood_finisher",
   "replace_builtin": true,
   "animation": "blood_finisher",

@@ -113,15 +113,25 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
         if (version != 1) {
             throw new JsonParseException("Unsupported schema_version: " + version);
         }
-        int id = GsonHelper.getAsInt(json, "id");
+        // id は文字列（スキルID）が正式。旧形式の数値 id / legacy_id も読み込める。
+        String id;
+        int legacyId = 0;
+        JsonElement idElement = json.get("id");
+        if (idElement != null && idElement.isJsonPrimitive() && idElement.getAsJsonPrimitive().isNumber()) {
+            legacyId = idElement.getAsInt();
+            id = GsonHelper.getAsString(json, "name", resourceId.getPath());
+        } else if (idElement != null && !idElement.isJsonNull()) {
+            id = idElement.getAsString().trim();
+            legacyId = GsonHelper.getAsInt(json, "legacy_id", 0);
+        } else {
+            id = GsonHelper.getAsString(json, "name", resourceId.getPath());
+            legacyId = GsonHelper.getAsInt(json, "legacy_id", 0);
+        }
         boolean replaceBuiltin = GsonHelper.getAsBoolean(json, "replace_builtin", false);
-        if (id < 0) {
-            throw new JsonParseException("id must be 0 (auto-assign) or a positive skill ID");
+        if (legacyId < 0 || !id.matches("[a-z0-9_]+")) {
+            throw new JsonParseException("id must be a lowercase skill name; legacy_id must be 0 or positive");
         }
-        String name = GsonHelper.getAsString(json, "name", resourceId.getPath());
-        if (!name.matches("[a-z0-9_]+")) {
-            throw new JsonParseException("name must use lowercase letters, digits, and underscores");
-        }
+        String name = id;
         int cooldown = GsonHelper.getAsInt(json, "cooldown", 0);
         double spCost = GsonHelper.getAsDouble(json, "sp_cost", 0);
         int duration = GsonHelper.getAsInt(json, "duration_ticks", 1);
@@ -233,7 +243,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("ground_impact_strength is outside the supported range");
         }
 
-        return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons,
+        return new DataSkillDefinition(id, legacyId, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
                 GsonHelper.getAsString(json, "animation", name), color, motion, motions, hitboxes, projectiles,

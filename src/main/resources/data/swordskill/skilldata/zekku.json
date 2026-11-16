@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 40,
+  "id": "zekku",
+  "legacy_id": 40,
   "replace_builtin": true,
   "name": "zekku",
   "animation": "zekku",

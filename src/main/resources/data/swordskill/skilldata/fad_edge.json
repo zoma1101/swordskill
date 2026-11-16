@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 60,
+  "id": "fad_edge",
+  "legacy_id": 60,
   "replace_builtin": true,
   "name": "fad_edge",
   "animation": "fad_edge",

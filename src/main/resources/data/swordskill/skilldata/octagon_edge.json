@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 62,
+  "id": "octagon_edge",
+  "legacy_id": 62,
   "replace_builtin": true,
   "name": "octagon_edge",
   "animation": "octagon_edge",

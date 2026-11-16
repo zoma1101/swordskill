@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "id": 9,
+  "id": "sharp_neil",
+  "legacy_id": 9,
   "name": "sharp_neil",
   "replace_builtin": true,
   "animation": "sharp_neil",
