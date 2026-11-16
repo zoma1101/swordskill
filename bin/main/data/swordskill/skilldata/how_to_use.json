@@ -18,22 +18,16 @@
     "DUALSWORD",
     "MACE"
   ],
-  "cooldown": 100,
+  "cooldown": 0,
   "sp_cost": 0.0,
-  "duration_ticks": 5,
+  "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "assignable": false,
   "color": "#54D8FF",
   "motions": [],
   "hitboxes": [],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": [],
+  "unlock_proficiency": 0
 }

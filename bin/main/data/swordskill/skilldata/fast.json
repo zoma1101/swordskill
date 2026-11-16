@@ -13,84 +13,56 @@
   "duration_ticks": 10,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#33FF66",
-  "motions": [
-    {
-      "tick": 1,
-      "forward": 5.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    }
-  ],
+  "unlock_proficiency": 110,
+  "color": "#77DD77",
+  "motions": [],
   "hitboxes": [
     {
-      "tick": 1,
+      "tick": 0,
+      "trigger": "CONTACT",
       "hitbox_enabled": true,
       "offset": [
         0.0,
-        1.25,
-        1.5
+        1.0,
+        0.375
       ],
       "size": [
-        2.5,
-        2.0,
-        2.5
-      ],
-      "damage_multiplier": 0.8,
-      "damage_type": "BASE",
-      "knockback": 0.95,
-      "knockback_multiplier": -1.0,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep",
-      "trigger": "TICK",
-      "repeat_while_rushing": false
-    }
-  ],
-  "projectiles": [
-    {
-      "tick": 1,
-      "offset": [
-        0.0,
-        1.25,
-        2.0
-      ],
-      "rotation": [
-        0.0,
         5.0,
-        70.0
-      ],
-      "size": [
-        4.2,
         3.0,
-        1.4
+        12.75
       ],
-      "damage_multiplier": 0.8,
-      "damage_type": "BASE",
-      "knockback": 0.95,
-      "knockback_multiplier": -1.0,
-      "duration_ticks": 12,
-      "particle": "skill_particle_sword/green",
-      "travel_distance": 2.5,
-      "horizontal": false,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "trigger": "TICK",
-      "movement": null,
-      "player_pitch_x_multiplier": 1.0,
-      "player_pitch_z_multiplier": 0.0,
-      "render_pitch": 0.0
+      "damage_multiplier": 3.6,
+      "damage_type": "RUSH",
+      "knockback": 0.0,
+      "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
     }
   ],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ],
-  "rush_start_ticks": 10,
+  "projectiles": [],
+  "sounds": [],
+  "rush_start_ticks": 1,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
-  "rush_finish_animation": "finish"
+  "rush_finish_animation": "finish",
+  "rush_combo": {
+    "start_motion": {
+      "forward": 5.0,
+      "strafe": 0.0,
+      "vertical": -2.0,
+      "pitch_limit_degrees": 0
+    },
+    "use_charge_multiplier": false,
+    "invulnerability_ticks": 10,
+    "contact_search_radius": 8.0,
+    "contact_radius": 1.5,
+    "contact_motion": {
+      "forward": -1.5
+    },
+    "latest_contact_tick": 8,
+    "no_contact_timeout_tick": 10,
+    "contact_animation_offset": 1,
+    "finish_contact_offset": 2
+  }
 }

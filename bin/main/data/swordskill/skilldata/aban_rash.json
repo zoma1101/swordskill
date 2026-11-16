@@ -13,11 +13,18 @@
   "duration_ticks": 7,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#FF3344",
+  "unlock_proficiency": 105,
+  "color": "#FF6B6B",
   "motions": [
     {
       "tick": 1,
       "forward": 5.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    {
+      "tick": 7,
+      "forward": 0.0,
       "strafe": 0.0,
       "vertical": 0.0
     }
@@ -53,16 +60,9 @@
         0.0,
         0.0,
         12.0
-      ]
+      ],
+      "effects": []
     }
   ],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": []
 }

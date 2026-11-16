@@ -230,6 +230,10 @@
   "swordskill.skill.cygnus_onslaught": "シグナス・オンスロート",
   "swordskill.skill.dual_gravity": "デュアル・グラビティ",
   "swordskill.skill.delta": "デルタ",
+  "swordskill.skill.polish": "ポリッシュ",
+  "swordskill.skill.wheel": "ホイール",
+  "swordskill.skill.air_spark": "エア・スパーク",
+  "swordskill.skill.star_vortex": "スターボルテックス",
 
   "swordskill.skill.how_to_use.description": "≪ソードスキルの使い方≫\nA / D キーでスキルを切り替え、装備中の武器種で使えるスキルをスロットにセットしよう。\nセットしたスロットのキーを押すとスキルが発動する。ホイールで説明文のページを送れる。\n\n≪スキルの解放≫\n武器種ごとの熟練度が条件を満たすと解放できる。解放ボタンに必要な熟練度が表示される。\n足りない場合は、その武器種のスキルでモンスターを倒して熟練度を貯めよう。\n必要熟練度が0のスキルは最初から解放されている。\n\n≪熟練度≫\n熟練度は武器種（片手剣・二刀流・斧など）ごとに貯まる。\nその武器種のスキルでモンスターを撃破すると熟練度が上昇する。\n熟練度が100貯まるごとにレベルアップポイントを1つ獲得し、\n選択画面の「レベルアップ」ボタンでその武器種のスキルを1レベル強化できる。\nスキルレベルはダメージのみに影響し、Lv.1で×1.00、Lv.10で×3.00まで伸びる。\n\n≪今後の予定≫\n料理・投擲・鍛冶など、武器以外のカテゴリの熟練度も追加予定。\nそれぞれの行動に成功したときに熟練度が上昇するようになる。",
 
@@ -315,6 +319,7 @@
   "swordskill.skill.mace_impact.description": "頭上に飛び上がり、着地したときに落下したブロック分増幅させた大ダメージを与える。\n打撃を与えた相手に移動速度低下を与える",
 
 
+
   "swordskill.skill.deadly_sins.description": "片手剣７連撃スキル。縦横様々な連撃を放つ",
   "swordskill.skill.snake_bite.description": "片手剣２連撃スキル。",
   "swordskill.skill.tatikiri.description": "刀２連撃スキル。身を引き相手の弱点を搔っ切る",
@@ -324,6 +329,10 @@
   "swordskill.skill.cygnus_onslaught.description": "飛び上がりクロス型に斬撃を放つ",
   "swordskill.skill.dual_gravity.description": "二刀流で敵を上空へ吹き飛ばす",
   "swordskill.skill.delta.description": "メイス単発垂直打撃。命中した相手は移動阻害がかかる",
+  "swordskill.skill.polish.description": "相手の懐に飛び込み短剣で急所を傷つける突進系単発ソードスキル。移動阻害効果を持つ",
+  "swordskill.skill.wheel.description": "身体全身を使い空中で２回転する空中ソードスキル。地上で発動することはできない",
+  "swordskill.skill.air_spark.description": "敵を足元から切り上げるソードスキル",
+  "swordskill.skill.star_vortex.description": "星の字を描いて敵に飛び込むソードスキル",
 
   "swordskill.weapon.one_handed_sword": "片手剣",
   "swordskill.weapon.rapier": "レイピア",

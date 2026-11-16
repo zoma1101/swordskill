@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -63,6 +64,7 @@ public final class WeaponTrailHandler {
         new EnumMap<>(TrailRenderMode.class);
     private static final Map<TrailRenderMode, Map<ResourceLocation, RenderType>> TRAIL_DEPTH_TYPES =
         new EnumMap<>(TrailRenderMode.class);
+    private static final Map<ResourceLocation, RenderType> TRAIL_GLOW_TYPES = new HashMap<>();
     private static final Map<SkillData.WeaponType, ResourceLocation> TRAIL_TEXTURES = Map.ofEntries(
             textureMapping(SkillData.WeaponType.ONE_HANDED_SWORD, "one_handed_sword"),
             textureMapping(SkillData.WeaponType.TWO_HANDED_SWORD, "two_handed_sword"),
@@ -101,6 +103,7 @@ public final class WeaponTrailHandler {
     private static boolean irisShadowLookupDone;
     private static Object irisApiInstance;
     private static java.lang.reflect.Method irisShadowPassMethod;
+    private static java.lang.reflect.Method irisShaderPackMethod;
 
     private WeaponTrailHandler() {
     }
@@ -123,6 +126,12 @@ public final class WeaponTrailHandler {
                     Object instance = clazz.getMethod("getInstance").invoke(null);
                     irisShadowPassMethod = clazz.getMethod("isRenderingShadowPass");
                     irisApiInstance = instance;
+                    try {
+                        irisShaderPackMethod = clazz.getMethod("isShaderPackInUse");
+                    } catch (NoSuchMethodException ignored) {
+                        // 古い Iris API。深度パスは安全側（無効）に倒す。
+                        irisShaderPackMethod = null;
+                    }
                     break;
                 } catch (Throwable ignored) {
                     // Iris が無い / API が異なる場合は候補を続ける
@@ -138,6 +147,24 @@ public final class WeaponTrailHandler {
         } catch (Throwable ignored) {
             irisApiInstance = null;
             irisShadowPassMethod = null;
+            irisShaderPackMethod = null;
+            return false;
+        }
+    }
+
+    /**
+     * シェーダーパックが実際に有効かどうか。無効時は深度パスを完全に省略する。
+     * （深度パスは Photon 等の遅延レンダリング対策で、バニラでは他のトレイルを
+     * 隠してしまうだけなので不要。）
+     */
+    private static boolean isShaderPackActive() {
+        if (irisApiInstance == null || irisShaderPackMethod == null) {
+            return false;
+        }
+        try {
+            Object result = irisShaderPackMethod.invoke(irisApiInstance);
+            return result instanceof Boolean b && b;
+        } catch (Throwable ignored) {
             return false;
         }
     }
@@ -155,18 +182,40 @@ public final class WeaponTrailHandler {
     /**
      * トレイルの色用 RenderType。
      *
-     * <p>Iris 系シェーダーパック（BSL / Photon / Solas / Bliss / Complementary）は
-     * 遅延レンダリングの Gバッファ＋ブルームを使うため、エミッシブ＋加算合成の
-     * 明るすぎるジオメトリは白飛び・スパイク状ブルームとして破綻する。
-     * また加算合成は明るい空に埋もれて見えなくなる。</p>
+     * <p>本体は常に通常の半透明合成で描く。加算合成だけで色を乗せると、明るい空では
+     * 青チャンネルが先に飽和し、水色が緑寄りに転ぶ。ADDITIVE モードでは本体を
+     * 半透明で描いた上に、白寄りの加算グロー
+     * （{@link #trailGlowType(ResourceLocation)}）を重ねて明るさを補う。</p>
      *
      * <p>色パスは深度を書き込まない。振りの折り返し地点ではトレイルが自分自身と
-     * 重なるため、深度を書くとZファイトして点滅する。深度は別パス
-     * （{@link #trailDepthType(ResourceLocation)}）で書き、Photon 等が
-     * depth==1.0 の空で上書きするのを防ぐ。</p>
+     * 重なるため、深度を書くとZファイトして点滅する。Photon 等の遅延レンダリング
+     * 対策の深度パス（{@link #trailDepthType(ResourceLocation)}）は、同じ
+     * エンティティの全カラーパスを描いた後にまとめて実行する。シェーダーパックが
+     * 無効なら深度パス自体を省略する。</p>
      */
     private static RenderType trailRenderType(ResourceLocation texture) {
         return trailType(TRAIL_RENDER_TYPES, texture, false);
+    }
+
+    /**
+     * ADDITIVE モード用の加算グロー。本体は半透明で色を保ち、このパスだけを
+     * 白寄りの色で加算する。水色をそのまま加算すると空の青が先に飽和して
+     * 緑寄りに見えるため、色相の変化を抑える。
+     */
+    private static RenderType trailGlowType(ResourceLocation texture) {
+        return TRAIL_GLOW_TYPES.computeIfAbsent(texture, tex -> {
+            RenderType.CompositeState.CompositeStateBuilder state = RenderType.CompositeState.builder()
+                    .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .setLightmapState(RenderStateShard.LIGHTMAP)
+                    .setOverlayState(RenderStateShard.OVERLAY)
+                    .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                    .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY);
+            return RenderType.create("swordskill_trail_glow", DefaultVertexFormat.NEW_ENTITY,
+                    VertexFormat.Mode.QUADS, 16384, false, false, state.createCompositeState(false));
+        });
     }
 
     /** 深度だけを書き込むパス。色は書かないので描画順の影響を受けない。 */
@@ -195,26 +244,13 @@ public final class WeaponTrailHandler {
                     .setOverlayState(RenderStateShard.OVERLAY);
             if (depthOnly) {
                 state.setTransparencyState(RenderStateShard.NO_TRANSPARENCY);
-            }
-            switch (mode) {
-                case ADDITIVE -> {
-                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
-                    if (!depthOnly) {
-                        state.setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY);
-                    }
-                }
-                case EMISSIVE -> {
-                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
-                    if (!depthOnly) {
-                        state.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
-                    }
-                }
-                default -> {
-                    state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER);
-                    if (!depthOnly) {
-                        state.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
-                    }
-                }
+                state.setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
+            } else {
+                // 本体は常に通常の半透明合成。加算は別パス（trailGlowType）で行う。
+                state.setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY);
+                state.setShaderState(mode == TrailRenderMode.TRANSLUCENT
+                        ? RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER
+                        : RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER);
             }
             return RenderType.create(
                     depthOnly ? "swordskill_trail_depth" : "swordskill_trail",
@@ -650,12 +686,23 @@ public final class WeaponTrailHandler {
         return new BladeAxis(base, direction);
     }
 
-    private static void renderTrails(PoseStack poseStack, net.minecraft.client.renderer.MultiBufferSource buffers,
+    private static void renderTrails(PoseStack poseStack, MultiBufferSource buffers,
             int packedLight, LivingEntity entity, long now) {
         Matrix4f matrix = poseStack.last().pose();
         Matrix4f inverseMatrix = new Matrix4f(matrix).invert();
         int skillColor = saturateColor(SKILL_COLORS.getOrDefault(entity.getId(), 0x54D8FF));
         Vec3 cameraPosition = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        TrailRenderMode mode = ClientConfig.trailRenderMode.get();
+        float trailOpacity = (float) ClientConfig.trailOpacity.get().doubleValue();
+        float trailGlow = (float) ClientConfig.trailGlow.get().doubleValue();
+        // ADDITIVE は本体を少し透かし、重なった奥のトレイルも見えるようにする。
+        float bodyOpacity = trailOpacity * (mode == TrailRenderMode.ADDITIVE ? 0.80F : 1.0F);
+        // 加算グローの強さ。ADDITIVE 以外では使わない。
+        float glowStrength = mode == TrailRenderMode.ADDITIVE
+                ? (float) ClientConfig.trailAdditiveIntensity.get().doubleValue()
+                : 1.0F;
+
+        List<TrailDraw> draws = new ArrayList<>();
         for (Map.Entry<TrailKey, ArrayDeque<TrailSample>> entry : TRAILS.entrySet()) {
             if (entry.getKey().entityId != entity.getId()) {
                 continue;
@@ -672,35 +719,52 @@ public final class WeaponTrailHandler {
                     ? entity.getMainHandItem() : entity.getOffhandItem();
             boolean claw = isClawWeapon(heldItem);
             float clawBrightness = claw ? (float) ClientConfig.clawTrailBrightness.get().doubleValue() : 1.0F;
-            float trailOpacity = (float) ClientConfig.trailOpacity.get().doubleValue();
-            float trailGlow = (float) ClientConfig.trailGlow.get().doubleValue();
-            // 加算モードでは層が重なって白飛びしやすいため、強度を設定で抑える
-            float modeScale = 1.0F;
-            if (ClientConfig.trailRenderMode.get() == TrailRenderMode.ADDITIVE) {
-                modeScale = (float) ClientConfig.trailAdditiveIntensity.get().doubleValue();
-            }
-
-            // 武器種ごとにテクスチャ（＝RenderType）を選ぶ
             ResourceLocation trailTexture = trailTextureFor(entity, entry.getKey().arm);
             TrailSample[] points = samples.toArray(TrailSample[]::new);
-            int subdivisions = 6;
+            draws.add(new TrailDraw(points, trailTexture, skillColor, clawBrightness));
+        }
+        if (draws.isEmpty()) {
+            return;
+        }
 
-            // 1) 色パス（深度書き込みなし）。折り返しで自分自身と重なってもZファイトしない。
-            // 2) 深度パス（色なし）。Photon 等が depth==1.0 の空で上書きするのを防ぐ。
-            // getBuffer は別 RenderType を要求した時点で前のバッファを描画するため、
-            // 必ず「色 → 深度」の順に積む。
-            VertexConsumer colorVertices = buffers.getBuffer(trailRenderType(trailTexture));
-            emitTrailSegments(colorVertices, points, subdivisions, matrix, inverseMatrix,
-                    cameraPosition, skillColor, now, clawBrightness, trailOpacity, modeScale, trailGlow);
-            VertexConsumer depthVertices = buffers.getBuffer(trailDepthType(trailTexture));
-            emitTrailSegments(depthVertices, points, subdivisions, matrix, inverseMatrix,
-                    cameraPosition, skillColor, now, clawBrightness, trailOpacity, modeScale, trailGlow);
+        int subdivisions = 6;
+        // 1) 本体。常に通常の半透明合成で描く（色相を保つ）。
+        for (TrailDraw draw : draws) {
+            VertexConsumer vertices = buffers.getBuffer(trailRenderType(draw.texture()));
+            emitTrailSegments(vertices, draw.points(), subdivisions, matrix, inverseMatrix,
+                    cameraPosition, draw.color(), now, draw.clawBrightness(), bodyOpacity,
+                    1.0F, trailGlow, false);
+        }
+
+        // 2) ADDITIVE のみ、白寄りの加算グローを重ねる。
+        //    水色をそのまま加算すると空の青が先に飽和して緑寄りになるため、
+        //    本体の色相は半透明パスに任せ、ここでは明るさだけを足す。
+        if (mode == TrailRenderMode.ADDITIVE) {
+            for (TrailDraw draw : draws) {
+                VertexConsumer vertices = buffers.getBuffer(trailGlowType(draw.texture()));
+                emitTrailSegments(vertices, draw.points(), subdivisions, matrix, inverseMatrix,
+                        cameraPosition, draw.color(), now, draw.clawBrightness(), trailOpacity,
+                        glowStrength, trailGlow, true);
+            }
+        }
+
+        // 3) 深度パスは同じエンティティの全カラーパスより後にまとめて書く。
+        //    先に深度を書くと、後から描くメイン/オフハンドのトレイルが深度テストで
+        //    隠れてしまう。シェーダーパック無効時は不要なので省略する。
+        if (isShaderPackActive()) {
+            for (TrailDraw draw : draws) {
+                VertexConsumer vertices = buffers.getBuffer(trailDepthType(draw.texture()));
+                emitTrailSegments(vertices, draw.points(), subdivisions, matrix, inverseMatrix,
+                        cameraPosition, draw.color(), now, draw.clawBrightness(), trailOpacity,
+                        1.0F, trailGlow, false);
+            }
         }
     }
 
     private static void emitTrailSegments(VertexConsumer vertices, TrailSample[] points, int subdivisions,
             Matrix4f matrix, Matrix4f inverseMatrix, Vec3 cameraPosition, int skillColor, long now,
-            float clawBrightness, float trailOpacity, float modeScale, float trailGlow) {
+            float clawBrightness, float trailOpacity, float modeScale, float trailGlow,
+            boolean glowPass) {
         int totalPoints = (points.length - 1) * subdivisions;
         for (int i = 0; i < points.length - 1; i++) {
             TrailSample p0 = points[Math.max(0, i - 1)];
@@ -718,7 +782,10 @@ public final class WeaponTrailHandler {
                 float ageAlpha = (float) Math.pow(1.0F - age, 0.8F);
                 float lengthT = (i + to) / (points.length - 1.0F);
                 float lengthAlpha = 0.70F + 0.30F * lengthT;
-                float alpha = ageAlpha * lengthAlpha * clawBrightness * trailOpacity * modeScale;
+                float alpha = ageAlpha * lengthAlpha * clawBrightness * trailOpacity;
+                if (glowPass) {
+                    alpha *= 0.35F * modeScale;
+                }
                 if (alpha > 0.01F) {
                     // V はテイル先端(古い側)からトレイルの頭(新しい側)へ 0..1
                     int k = i * subdivisions + step;
@@ -726,7 +793,7 @@ public final class WeaponTrailHandler {
                     float v1 = (k + 1) / (float) totalPoints;
                     renderRibbonSegment(vertices, matrix, fromSample, toSample, alpha,
                             inverseMatrix, cameraPosition, skillColor, v0, v1, lengthT,
-                            trailGlow);
+                            trailGlow, glowPass);
                 }
             }
         }
@@ -777,7 +844,14 @@ public final class WeaponTrailHandler {
     private static void renderRibbonSegment(VertexConsumer vertices, Matrix4f matrix,
             TrailSample previous, TrailSample current, float alpha, Matrix4f inverseMatrix,
             Vec3 cameraPosition, int tint, float v0, float v1, float headT,
-            float glow) {
+            float glow, boolean glowPass) {
+        if (glowPass) {
+            // 加算グローは白寄りにして、青チャンネルの早期飽和による色相ズレを防ぐ。
+            emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                    mixWithWhite(tint, 0.65F), alpha, 0.0F, 1.0F, v0, v1);
+            return;
+        }
+
         // 白い発光エリア: 頭のごく狭い範囲だけ
         float hot = smoothstep(headT, 0.84F, 0.97F);
         // 中間色エリア: 頭に向かってスキル色から白へ寄せる
@@ -826,14 +900,52 @@ public final class WeaponTrailHandler {
     }
 
     public static int saturateColor(int color) {
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-        int gray = (red + green + blue) / 3;
-        red = Mth.clamp((int) (gray + (red - gray) * 1.35F), 0, 255);
-        green = Mth.clamp((int) (gray + (green - gray) * 1.35F), 0, 255);
-        blue = Mth.clamp((int) (gray + (blue - gray) * 1.35F), 0, 255);
-        return (red << 16) | (green << 8) | blue;
+        float red = ((color >> 16) & 0xFF) / 255.0F;
+        float green = ((color >> 8) & 0xFF) / 255.0F;
+        float blue = (color & 0xFF) / 255.0F;
+
+        float max = Math.max(red, Math.max(green, blue));
+        float min = Math.min(red, Math.min(green, blue));
+        float delta = max - min;
+        if (delta < 1.0E-5F) {
+            return color;
+        }
+
+        // 色相を維持したまま彩度だけを上げる。RGB の各成分を個別に押し上げると
+        // 青が 255 で頭打ちになり、水色が緑寄りに転ぶことがある。
+        float hue;
+        if (max == red) {
+            hue = ((green - blue) / delta) % 6.0F;
+        } else if (max == green) {
+            hue = (blue - red) / delta + 2.0F;
+        } else {
+            hue = (red - green) / delta + 4.0F;
+        }
+        hue /= 6.0F;
+        if (hue < 0.0F) {
+            hue += 1.0F;
+        }
+
+        float saturation = Math.min(1.0F, (delta / max) * 1.15F);
+        float value = max;
+        float chroma = value * saturation;
+        float second = chroma * (1.0F - Math.abs((hue * 6.0F) % 2.0F - 1.0F));
+        float match = value - chroma;
+        float outRed;
+        float outGreen;
+        float outBlue;
+        switch ((int) (hue * 6.0F) % 6) {
+            case 0 -> { outRed = chroma; outGreen = second; outBlue = 0.0F; }
+            case 1 -> { outRed = second; outGreen = chroma; outBlue = 0.0F; }
+            case 2 -> { outRed = 0.0F; outGreen = chroma; outBlue = second; }
+            case 3 -> { outRed = 0.0F; outGreen = second; outBlue = chroma; }
+            case 4 -> { outRed = second; outGreen = 0.0F; outBlue = chroma; }
+            default -> { outRed = chroma; outGreen = 0.0F; outBlue = second; }
+        }
+        int outR = Mth.clamp(Math.round((outRed + match) * 255.0F), 0, 255);
+        int outG = Mth.clamp(Math.round((outGreen + match) * 255.0F), 0, 255);
+        int outB = Mth.clamp(Math.round((outBlue + match) * 255.0F), 0, 255);
+        return (outR << 16) | (outG << 8) | outB;
     }
 
     private static void addVertex(VertexConsumer vertices, Matrix4f matrix, Matrix4f inverseMatrix,
@@ -868,6 +980,10 @@ public final class WeaponTrailHandler {
             NEXT_BLADE_SPARK_NANOS.clear();
             observedLevel = currentLevel;
         }
+    }
+
+    private record TrailDraw(TrailSample[] points, ResourceLocation texture, int color,
+            float clawBrightness) {
     }
 
     private record ArmKey(int entityId, HumanoidArm arm) {

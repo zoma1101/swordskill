@@ -83,6 +83,7 @@
     }
   ],
   "end_skill_on_ground": true,
+  "ground_impact_strength": 1.0,
   "sounds": [
     {
       "tick": 0,

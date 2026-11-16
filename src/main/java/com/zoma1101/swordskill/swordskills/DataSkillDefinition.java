@@ -41,7 +41,8 @@ public record DataSkillDefinition(
         boolean chargeable,
         double counterDamageCut,
         double counterDamageScale,
-        double counterMaxBonus) {
+        double counterMaxBonus,
+        double groundImpactStrength) {
     public DataSkillDefinition {
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
@@ -66,6 +67,8 @@ public record DataSkillDefinition(
         counterDamageCut = Math.max(0.0D, Math.min(1.0D, counterDamageCut));
         counterDamageScale = Math.max(0.0D, counterDamageScale);
         counterMaxBonus = Math.max(0.0D, counterMaxBonus);
+        groundImpactStrength = !Double.isFinite(groundImpactStrength) ? 0.0D
+                : Math.max(0.0D, Math.min(4.0D, groundImpactStrength));
     }
 
     /** ID だけ差し替えた複製を返す（自動採番用）。 */
@@ -75,7 +78,7 @@ public record DataSkillDefinition(
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
                 assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
-                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus);
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
     }
 
     /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
@@ -85,7 +88,7 @@ public record DataSkillDefinition(
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,
                 assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
-                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus);
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
     }
 
     public record Motion(double forward, double strafe, double vertical) {
@@ -163,7 +166,12 @@ public record DataSkillDefinition(
             String randomGroup,
             int randomIndex,
             boolean singleTarget,
-            boolean aimAtContact) {
+            boolean aimAtContact,
+            double yawLimitDegrees,
+            double pitchLimitDegrees,
+            boolean playerPitchAffected,
+            double renderScale,
+            int spawnHoldTicks) {
         public ProjectileEvent {
             offset = offset.clone();
             rotation = rotation.clone();
@@ -174,6 +182,10 @@ public record DataSkillDefinition(
             sound = sound == null ? "" : sound;
             trigger = trigger == null ? "TICK" : trigger;
             randomGroup = randomGroup == null ? "" : randomGroup;
+            yawLimitDegrees = Math.max(0.0D, Math.min(360.0D, yawLimitDegrees));
+            pitchLimitDegrees = Math.max(0.0D, Math.min(180.0D, pitchLimitDegrees));
+            renderScale = Double.isFinite(renderScale) ? Math.max(0.05D, Math.min(10.0D, renderScale)) : 1.0D;
+            spawnHoldTicks = Math.max(0, Math.min(1200, spawnHoldTicks));
         }
     }
 

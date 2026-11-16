@@ -10,9 +10,10 @@
   ],
   "cooldown": 200,
   "sp_cost": 30.0,
-  "duration_ticks": 15,
+  "duration_ticks": 14,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "unlock_proficiency": 165,
   "color": "#54D8FF",
   "motions": [
     {
@@ -22,18 +23,32 @@
       "vertical": 0.0
     }
   ],
-  "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
+  "hitboxes": [
     {
       "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
+      "hitbox_enabled": true,
+      "offset": [
+        0.0,
+        1.134,
+        0.375
+      ],
+      "size": [
+        0.5,
+        0.5,
+        6.75
+      ],
+      "damage_multiplier": 4.0,
+      "damage_type": "RUSH",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "effects": [],
+      "sound": "",
+      "repeat_while_rushing": true
     }
   ],
-  "rush_start_ticks": 15,
+  "projectiles": [],
+  "sounds": [],
+  "rush_start_ticks": 5,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
   "rush_finish_animation": "finish"

@@ -1,85 +1,56 @@
 {
   "schema_version": 1,
   "id": 58,
-  "name": "canine",
   "replace_builtin": true,
+  "name": "canine",
   "animation": "canine",
   "type": "SIMPLE",
   "weapons": [
     "DAGGER"
   ],
   "cooldown": 60,
-  "sp_cost": 6.0,
-  "duration_ticks": 5,
+  "sp_cost": 6,
+  "duration_ticks": 1,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "default_unlocked": true,
+  "unlock_proficiency": 160,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
       "tick": 1,
       "hitbox_enabled": true,
       "offset": [
-        0.0,
-        1.25,
-        1.5
+        0,
+        1.215,
+        0.375
       ],
       "size": [
         2.5,
-        2.0,
-        2.5
+        3,
+        3
       ],
-      "damage_multiplier": 0.9,
+      "damage_multiplier": 3.5,
       "damage_type": "BASE",
-      "knockback": 0.95,
-      "knockback_multiplier": -1.0,
+      "knockback": 0,
+      "knockback_multiplier": 0.5,
+      "repeat_while_rushing": false,
       "effects": [],
       "sound": "minecraft:entity.player.attack.sweep",
-      "trigger": "TICK",
-      "repeat_while_rushing": false
-    }
-  ],
-  "projectiles": [
-    {
-      "tick": 1,
-      "offset": [
-        0.0,
-        1.25,
-        2.0
-      ],
       "rotation": [
-        0.0,
-        5.0,
-        70.0
+        -6,
+        0,
+        -45
       ],
-      "size": [
-        4.2,
-        3.0,
-        1.4
-      ],
-      "damage_multiplier": 0.9,
-      "damage_type": "BASE",
-      "knockback": 0.95,
-      "knockback_multiplier": -1.0,
       "duration_ticks": 12,
-      "particle": "skill_particle_sword/blue",
-      "travel_distance": 2.5,
-      "horizontal": false,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "trigger": "TICK",
-      "movement": null,
-      "player_pitch_x_multiplier": 1.0,
-      "player_pitch_z_multiplier": 0.0,
-      "render_pitch": 0.0
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue"
     }
   ],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "projectiles": [],
+  "sounds": []
 }

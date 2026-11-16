@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": 0,
+  "replace_builtin": false,
+  "name": "star_vortex",
+  "animation": "star_vortex",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
+  "type": "SIMPLE",
+  "weapons": [
+    "ONE_HANDED_SWORD",
+    "KATANA"
+  ],
+  "cooldown": 200,
+  "sp_cost": 10,
+  "duration_ticks": 55,
+  "transform_limit_ticks": 20,
+  "hidden": false,
+  "color": "#F5E100",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "player_pitch_affected": true,
+  "yaw_limit_degrees": 0,
+  "pitch_limit_degrees": 0,
+  "ground_impact_strength": 0,
+  "motions": [
+    {
+      "tick": 14,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 2
+    },
+    {
+      "tick": 23,
+      "forward": 2,
+      "strafe": 0,
+      "vertical": -1.5
+    },
+    {
+      "tick": 32,
+      "forward": 0,
+      "strafe": 0,
+      "vertical": -2
+    }
+  ],
+  "hitboxes": [
+    {
+      "tick": 4,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1
+      ],
+      "size": [
+        3,
+        3,
+        3.5
+      ],
+      "damage_multiplier": 0.95,
+      "damage_type": "BASE",
+      "knockback": 0.2,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 8,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1
+      ],
+      "size": [
+        3,
+        3,
+        3.5
+      ],
+      "damage_multiplier": 1.25,
+      "damage_type": "BASE",
+      "knockback": 0.2,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 15,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        1
+      ],
+      "size": [
+        3,
+        4,
+        3
+      ],
+      "damage_multiplier": 0.95,
+      "damage_type": "BASE",
+      "knockback": 0.2,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 44,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 1.85,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": ""
+    },
+    {
+      "tick": 48,
+      "hitbox_enabled": true,
+      "offset": [
+        0,
+        0,
+        0
+      ],
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 1.85,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": ""
+    }
+  ],
+  "projectiles": [
+    {
+      "tick": 53,
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "rotation": [
+        -5,
+        0,
+        0
+      ],
+      "render_scale": 2,
+      "spawn_hold_ticks": 3,
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "duration_ticks": 20,
+      "travel_distance": 4,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 53,
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "rotation": [
+        -5,
+        72,
+        0
+      ],
+      "render_scale": 2,
+      "spawn_hold_ticks": 3,
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "duration_ticks": 20,
+      "travel_distance": 4,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 53,
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "rotation": [
+        -5,
+        144,
+        0
+      ],
+      "render_scale": 2,
+      "spawn_hold_ticks": 3,
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "duration_ticks": 20,
+      "travel_distance": 4,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 53,
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "rotation": [
+        -5,
+        216,
+        0
+      ],
+      "render_scale": 2,
+      "spawn_hold_ticks": 3,
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "duration_ticks": 20,
+      "travel_distance": 4,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep"
+    },
+    {
+      "tick": 53,
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "rotation": [
+        -5,
+        288,
+        0
+      ],
+      "render_scale": 2,
+      "spawn_hold_ticks": 3,
+      "size": [
+        4,
+        3,
+        4
+      ],
+      "damage_multiplier": 0.75,
+      "damage_type": "BASE",
+      "knockback": 0.25,
+      "knockback_multiplier": -1,
+      "duration_ticks": 20,
+      "travel_distance": 4,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep"
+    }
+  ],
+  "sounds": [],
+  "player_effects": [
+    {
+      "tick": 23,
+      "effect": "swordskill:no_fall_damage",
+      "duration_ticks": 100,
+      "amplifier": 0
+    }
+  ]
+}

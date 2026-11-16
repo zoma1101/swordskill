@@ -13,27 +13,70 @@
   "duration_ticks": 200,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#33FF66",
-  "motions": [
+  "unlock_proficiency": 160,
+  "color": "#77DD77",
+  "motions": [],
+  "hitboxes": [],
+  "projectiles": [
     {
-      "tick": 1,
-      "forward": 1.5,
-      "strafe": 0.0,
-      "vertical": 1.5
+      "tick": 0,
+      "trigger": "CONTACT",
+      "offset": [
+        0.0,
+        0.9,
+        2.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        30.0
+      ],
+      "player_pitch_x_multiplier": -1.0,
+      "size": [
+        1.6,
+        1.6,
+        9.0
+      ],
+      "damage_multiplier": 3.5,
+      "damage_type": "RUSH",
+      "knockback": 0.5,
+      "knockback_multiplier": 0.5,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_green",
+      "aim_at_contact": true,
+      "single_target": true,
+      "movement": [
+        0.0,
+        0.0,
+        0.0
+      ]
     }
   ],
-  "hitboxes": [],
-  "projectiles": [],
-  "legacy_fallback": false,
+  "player_effects": [
+    {
+      "tick": 1,
+      "effect": "swordskill:no_fall_damage",
+      "duration_ticks": 150
+    },
+    {
+      "tick": 0,
+      "trigger": "CONTACT",
+      "effect": "swordskill:no_fall_damage",
+      "duration_ticks": 100
+    }
+  ],
+  "end_skill_on_ground": true,
   "sounds": [
     {
-      "tick": 1,
+      "tick": 0,
+      "trigger": "CONTACT",
       "sound": "minecraft:entity.player.attack.sweep",
       "volume": 1.0,
-      "pitch": 1.0
+      "pitch": 1.47
     }
   ],
-  "rush_start_ticks": 1,
+  "rush_start_ticks": 3,
   "rush_start_animation": "start",
   "rush_move_animation": "move",
   "rush_finish_animation": "finish",
@@ -41,17 +84,21 @@
     "start_motion": {
       "forward": 1.5,
       "strafe": 0.0,
-      "vertical": 1.5
+      "vertical": 1.5,
+      "pitch_limit_degrees": 90.0
     },
-    "pitch_limit_degrees": 45.0,
-    "search_radius": 8.0,
-    "contact_radius": 3.0,
-    "latest_contact_tick": 30,
-    "no_contact_timeout_tick": 30,
-    "contact_motion_forward": 1.25,
+    "use_charge_multiplier": true,
     "invulnerability_ticks": 35,
-    "contact_animation_offset": 0,
-    "finish_contact_offset": 1,
-    "use_charge_multiplier": false
+    "contact_search_radius": 8.0,
+    "contact_radius": 2.5,
+    "contact_motion": {
+      "forward": -1.0,
+      "strafe": 0.0,
+      "vertical": 0.0
+    },
+    "latest_contact_tick": 190,
+    "no_contact_timeout_tick": 191,
+    "contact_animation_offset": 1,
+    "finish_contact_offset": 3
   }
 }

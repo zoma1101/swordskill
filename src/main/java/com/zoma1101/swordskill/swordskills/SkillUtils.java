@@ -78,22 +78,72 @@ public class SkillUtils {
     public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             double travelDistance, double renderPitch, int skillColor) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, renderPitch, skillColor, 1.0D);
+    }
+
+    /** 見た目サイズを個別倍率で指定できる飛翔斬撃。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor, double renderScale) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** 見た目サイズとスポーン後の停止tickを指定できる飛翔斬撃。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor, double renderScale, int spawnHoldTicks) {
         return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
-                null, true, travelDistance, renderPitch, skillColor);
+                null, true, travelDistance, renderPitch, skillColor, renderScale, spawnHoldTicks);
     }
 
     /** トレイル色と同じ色で飛び道具（移動ベクトル指定）を出す版。生成したエンティティを返す。 */
     public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
             double travelDistance, Vec3 movement, double renderPitch, int skillColor) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, movement, renderPitch, skillColor, 1.0D);
+    }
+
+    /** 見た目サイズを個別倍率で指定できる飛翔斬撃（移動ベクトル指定）。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor, double renderScale) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, movement, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** 見た目サイズとスポーン後の停止tickを指定できる飛翔斬撃（移動ベクトル指定）。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor, double renderScale,
+            int spawnHoldTicks) {
         return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
-                movement, true, travelDistance, renderPitch, skillColor);
+                movement, true, travelDistance, renderPitch, skillColor, renderScale, spawnHoldTicks);
+    }
+
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, skillColor, 1.0D, 0);
     }
 
     /** クライアント側では生成しないため null を返す。 */
     private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
             LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
-            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor) {
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor,
+            double renderScale) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** クライアント側では生成しないため null を返す。 */
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor,
+            double renderScale, int spawnHoldTicks) {
         if (!level.isClientSide) {
             AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
             effect.setPos(position.x, position.y, position.z); // 位置を設定
@@ -106,6 +156,8 @@ public class SkillUtils {
             effect.setDamage(damage); // ダメージ設定
             effect.setKnockbackStrength(knockback); // ノックバック設定
             effect.setEffectRadius(size); // 範囲設定
+            effect.setRenderScale((float) renderScale);
+            effect.setSpawnHoldTicks(spawnHoldTicks);
             effect.setSkillParticle(skillParticle);
             effect.setSkillColor(skillColor);
             effect.setDuration(duration);
@@ -142,6 +194,8 @@ public class SkillUtils {
                     rightEffect.setDamage(damage * 0.8);
                     rightEffect.setKnockbackStrength(knockback);
                     rightEffect.setEffectRadius(size);
+                    rightEffect.setRenderScale((float) renderScale);
+                    rightEffect.setSpawnHoldTicks(spawnHoldTicks);
                     rightEffect.setSkillParticle(skillParticle);
                     rightEffect.setSkillColor(skillColor);
                     rightEffect.setDuration(duration);
@@ -168,6 +222,8 @@ public class SkillUtils {
                     leftEffect.setDamage(damage * 0.8);
                     leftEffect.setKnockbackStrength(knockback);
                     leftEffect.setEffectRadius(size);
+                    leftEffect.setRenderScale((float) renderScale);
+                    leftEffect.setSpawnHoldTicks(spawnHoldTicks);
                     leftEffect.setSkillParticle(skillParticle);
                     leftEffect.setSkillColor(skillColor);
                     leftEffect.setDuration(duration);

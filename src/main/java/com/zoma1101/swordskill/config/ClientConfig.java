@@ -43,6 +43,8 @@ public class ClientConfig {
     public static final ModConfigSpec.DoubleValue trailOpacity;
     public static final ModConfigSpec.EnumValue<TrailRenderMode> trailRenderMode;
     public static final ModConfigSpec.DoubleValue trailAdditiveIntensity;
+    public static final ModConfigSpec.DoubleValue groundImpactShakeStrength;
+    public static final ModConfigSpec.BooleanValue groundImpactBlockShake;
 
     public static final ModConfigSpec.BooleanValue guiDarkTheme;
 
@@ -92,13 +94,24 @@ public class ClientConfig {
         trailRenderMode = BUILDER.comment(
                 "How the weapon trail is blended.",
                 "TRANSLUCENT: normal alpha blending (stable default).",
-                "ADDITIVE: additive glow. Visible even over the sky, but bloom-heavy shader packs may blow it out.",
+                "ADDITIVE: translucent colored body plus an additive white glow. Keeps the skill hue stable and stays visible over the sky.",
                 "EMISSIVE: self-lit (ignores the light map) with normal alpha blending. Shader packs may treat it as an emissive surface.")
                 .defineEnum("trailRenderMode", TrailRenderMode.TRANSLUCENT);
         trailAdditiveIntensity = BUILDER.comment(
                 "Brightness multiplier applied only in ADDITIVE mode (0.05-2.0). " +
                         "Lower it if the trail blows out.")
                 .defineInRange("trailAdditiveIntensity", 1.0, 0.05, 2.0);
+        BUILDER.pop();
+
+        BUILDER.push("Impact Settings");
+        groundImpactShakeStrength = BUILDER.comment(
+                "Strength of the ground-impact effect for skills such as Mace Impact (0.0-3.0). " +
+                        "0 disables the camera shake, block shake and dust ring.")
+                .defineInRange("groundImpactShakeStrength", 1.0, 0.0, 3.0);
+        groundImpactBlockShake = BUILDER.comment(
+                "Jitter the actual surface blocks around a ground impact. Disable this to keep only " +
+                        "the camera shake and dust.")
+                .define("groundImpactBlockShake", true);
         BUILDER.pop();
 
         BUILDER.push("HUD Settings");

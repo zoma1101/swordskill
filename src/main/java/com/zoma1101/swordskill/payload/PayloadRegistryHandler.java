@@ -70,6 +70,8 @@ public class PayloadRegistryHandler {
         registrar.playToClient(HitstopPayload.TYPE, HitstopPayload.STREAM_CODEC, HitstopPayload::handleClient);
         registrar.playToClient(SkillShockwavePayload.TYPE, SkillShockwavePayload.STREAM_CODEC,
                 SkillShockwavePayload::handleClient);
+        registrar.playToClient(GroundImpactPayload.TYPE, GroundImpactPayload.STREAM_CODEC,
+                GroundImpactPayload::handleClient);
         registrar.playToClient(SkillHitEffectPayload.TYPE, SkillHitEffectPayload.STREAM_CODEC,
                 SkillHitEffectPayload::handleClient);
         registrar.playToClient(SkillClashPayload.TYPE, SkillClashPayload.STREAM_CODEC,

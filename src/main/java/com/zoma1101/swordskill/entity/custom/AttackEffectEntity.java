@@ -48,11 +48,17 @@ public class AttackEffectEntity extends Entity {
             .defineId(AttackEffectEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<Integer> SKILL_COLOR = SynchedEntityData
             .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> RENDER_SCALE = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> SPAWN_HOLD_TICKS = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DURATION = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
 
     private double damage = 4.0f; // ダメージ量
     private double knockbackStrength = 0.5; // ノックバック強さ
-    private int duration = 15; // 生存時間 (tick)
     private LivingEntity owner;
+    private int movementTick = 0;
     private final List<Integer> hitEntities = new ArrayList<>();
     private boolean singleTarget = false; // 命中対象を最も近い 1 体だけにする（サーバー側のみ）
 
@@ -84,6 +90,9 @@ public class AttackEffectEntity extends Entity {
         builder.define(EFFECT_RADIUS_Z, 2f);
         builder.define(SKILL_PARTICLE, "skill_particle");
         builder.define(SKILL_COLOR, 0x54D8FF);
+        builder.define(RENDER_SCALE, 1.0f);
+        builder.define(SPAWN_HOLD_TICKS, 0);
+        builder.define(DURATION, 15);
     }
 
     private boolean hasAppliedDamage = false;
@@ -113,7 +122,7 @@ public class AttackEffectEntity extends Entity {
             }
 
         }
-        if (this.tickCount >= duration) {
+        if (this.tickCount >= this.getDurationTicks() + this.getSpawnHoldTicks()) {
             this.discard();
         }
     }
@@ -306,7 +315,7 @@ public class AttackEffectEntity extends Entity {
     protected void readAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
         this.damage = compound.getDouble("Damage");
         this.knockbackStrength = compound.getDouble("Knockback");
-        this.duration = compound.getInt("Duration");
+        setDuration(compound.getInt("Duration"));
         this.tickCount = compound.getInt("TickCount");
         if (compound.contains("SkillParticle")) {
             this.setSkillParticle(compound.getString("SkillParticle"));
@@ -335,7 +344,7 @@ public class AttackEffectEntity extends Entity {
     protected void addAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
         compound.putDouble("Damage", this.damage);
         compound.putDouble("Knockback", this.knockbackStrength);
-        compound.putInt("Duration", this.duration);
+        compound.putInt("Duration", this.getDurationTicks());
         compound.putInt("TickCount", this.tickCount);
         compound.putString("SkillParticle", this.getSkillParticle());
         compound.putFloat("RotationZ", this.getRotation());
@@ -363,30 +372,55 @@ public class AttackEffectEntity extends Entity {
         this.entityData.set(EFFECT_RADIUS_Z, effectRadius.z);
     }
 
+    /** 見た目だけを拡大・縮小する倍率（当たり判定には影響しない）。 */
+    public void setRenderScale(float renderScale) {
+        this.entityData.set(RENDER_SCALE, Math.max(0.05f, Math.min(10.0f, renderScale)));
+    }
+
+    public float getRenderScale() {
+        return this.entityData.get(RENDER_SCALE);
+    }
+
     public void setDuration(int duration) {
-        this.duration = duration;
+        this.entityData.set(DURATION, Math.max(1, Math.min(1200, duration)));
+    }
+
+    public int getDurationTicks() {
+        return this.entityData.get(DURATION);
+    }
+
+    /** スポーン後、指定 tick 数の間は移動せずその場に留める。 */
+    public void setSpawnHoldTicks(int spawnHoldTicks) {
+        this.entityData.set(SPAWN_HOLD_TICKS, Math.max(0, Math.min(1200, spawnHoldTicks)));
+    }
+
+    public int getSpawnHoldTicks() {
+        return this.entityData.get(SPAWN_HOLD_TICKS);
     }
 
     public void setMovement(Vec3 movement) {
         Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
-        Vec3 velocity = direction.scale(movement.z / duration);
+        int durationTicks = Math.max(1, this.getDurationTicks());
+        Vec3 velocity = direction.scale(movement.z / durationTicks);
 
         // 視点から見て上方向への移動
         Vec3 upDirection = new Vec3(0, 1, 0).yRot((float) Math.toRadians(-this.getYRot()));
-        Vec3 upVelocity = upDirection.scale(movement.y / duration);
+        Vec3 upVelocity = upDirection.scale(movement.y / durationTicks);
 
         // 視点から見て右方向への移動
         Vec3 rightDirection = direction.cross(new Vec3(0, 1, 0)).normalize();
-        Vec3 rightVelocity = rightDirection.scale(movement.x / duration);
+        Vec3 rightVelocity = rightDirection.scale(movement.x / durationTicks);
         // 全ての移動ベクトルを加算
-        setDeltaMovement(velocity.add(upVelocity).add(rightVelocity).scale(0.8f));
+        Vec3 finalVelocity = velocity.add(upVelocity).add(rightVelocity).scale(0.8f);
+        setDeltaMovement(finalVelocity);
     }
 
     public void setTravelDistance(double travelDistance) {
         Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
-        double ticks = Math.max(1, duration);
+        double ticks = Math.max(1, this.getDurationTicks());
         double totalTravelFactor = (1.0 - Math.pow(0.99, ticks)) / 0.01;
-        setDeltaMovement(direction.scale(travelDistance / totalTravelFactor));
+        Vec3 finalVelocity = direction.scale(travelDistance / totalTravelFactor);
+        setDeltaMovement(finalVelocity);
     }
 
     public void setSkillParticle(String skillParticle) {
@@ -433,6 +467,11 @@ public class AttackEffectEntity extends Entity {
     }
 
     private void Movement() {
+        this.movementTick++;
+        // スポーン直後は速度を保持したまま、その場で停止する。
+        if (this.movementTick <= this.getSpawnHoldTicks()) {
+            return;
+        }
         Vec3 vec3 = getDeltaMovement();
         double d2 = this.getX() + vec3.x;
         double d0 = this.getY() + vec3.y;

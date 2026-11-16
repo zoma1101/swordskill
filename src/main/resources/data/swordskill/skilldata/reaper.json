@@ -1,9 +1,13 @@
 {
   "schema_version": 1,
   "id": 38,
-  "name": "reaper",
   "replace_builtin": true,
+  "name": "reaper",
   "animation": "reaper",
+  "rush_start_ticks": 5,
+  "rush_start_animation": "start",
+  "rush_move_animation": "move",
+  "rush_finish_animation": "finish",
   "type": "SIMPLE",
   "weapons": [
     "ONE_HANDED_SWORD",
@@ -11,37 +15,42 @@
     "DAGGER"
   ],
   "cooldown": 100,
-  "sp_cost": 6.0,
+  "sp_cost": 6,
   "duration_ticks": 5,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "proficiency_category": "KATANA",
+  "unlock_proficiency": 60,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "player_pitch_affected": true,
+  "yaw_limit_degrees": 0,
+  "pitch_limit_degrees": 0,
+  "ground_impact_strength": 0,
   "motions": [
     {
       "tick": 3,
-      "forward": 5.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "forward": 5,
+      "strafe": 0,
+      "vertical": 0
     },
     {
       "tick": 5,
-      "forward": 0.0,
-      "strafe": 0.0,
-      "vertical": 0.0
+      "forward": 0,
+      "strafe": 0,
+      "vertical": 0
     }
   ],
   "hitboxes": [
     {
       "tick": 3,
+      "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         0.81,
         0.375
-      ],
-      "rotation": [
-        0.0,
-        0.0,
-        40.0
       ],
       "size": [
         0.75,
@@ -52,14 +61,19 @@
       "damage_type": "RUSH",
       "knockback": 0.95,
       "knockback_multiplier": 0.95,
+      "repeat_while_rushing": false,
+      "effects": [],
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        0,
+        0,
+        40
+      ],
       "duration_ticks": 12,
       "travel_distance": 0,
-      "particle": "spear_particle/simple_blue",
-      "sound": "minecraft:entity.player.attack.sweep",
-      "effects": []
+      "particle": "spear_particle/simple_blue"
     }
   ],
   "projectiles": [],
-  "sounds": [],
-  "unlock_proficiency": 60
+  "sounds": []
 }

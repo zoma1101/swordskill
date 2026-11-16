@@ -13,65 +13,91 @@
   "duration_ticks": 10,
   "transform_limit_ticks": 20,
   "hidden": true,
-  "color": "#AA33FF",
+  "color": "#B06BFF",
   "motions": [
     {
       "tick": 1,
       "forward": 4.0,
       "strafe": 0.0,
-      "vertical": 0.0
+      "vertical": 0.0,
+      "set": true
+    },
+    {
+      "tick": 5,
+      "forward": 0.0,
+      "strafe": 0.0,
+      "vertical": 0.0,
+      "set": true
+    }
+  ],
+  "animations": [
+    {
+      "tick": 1,
+      "animation": "move"
+    },
+    {
+      "tick": 3,
+      "animation": "finish"
     }
   ],
   "hitboxes": [
     {
       "tick": 5,
-      "hitbox_enabled": true,
       "offset": [
         0.0,
         1.215,
+        0.375
+      ],
+      "rotation": [
+        -10.0,
+        0.0,
         0.0
       ],
       "size": [
         7.2,
         3.0,
-        7.2
+        7.95
       ],
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
       "knockback": 0.3,
       "knockback_multiplier": 0.3,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_purple",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
     },
     {
       "tick": 7,
-      "hitbox_enabled": true,
       "offset": [
         0.0,
         1.215,
+        0.375
+      ],
+      "rotation": [
+        -10.0,
+        180.0,
         0.0
       ],
       "size": [
         7.2,
         3.0,
-        7.2
+        7.95
       ],
       "damage_multiplier": 2.0,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "axe_particle/simple_purple",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "player_pitch_x_multiplier": -2.0,
+      "effects": []
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": [],
+  "unlock_proficiency": 115
 }

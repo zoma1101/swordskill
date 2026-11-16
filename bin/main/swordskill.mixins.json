@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "sword_skill.refmap.json",
   "mixins": [
+    "BlockDisplayAccessor",
+    "DisplayAccessor"
   ],
   "client": [
+    "CameraMixin",
     "ItemRendererMixin"
   ],
   "injectors": {

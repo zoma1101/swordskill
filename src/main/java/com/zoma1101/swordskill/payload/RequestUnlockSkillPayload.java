@@ -51,8 +51,8 @@ public record RequestUnlockSkillPayload(int skillId) implements CustomPacketPayl
             }
 
             // 熟練度による解放条件（クリエイティブは免除）
-            int requiredProficiency = ProficiencyManager.unlockRequirementOf(skill);
-            SkillData.WeaponType category = ProficiencyManager.categoryOf(skill);
+            int requiredProficiency = ProficiencyManager.unlockRequirementOf(player, skill);
+            SkillData.WeaponType category = ProficiencyManager.categoryOf(player, skill);
             int currentProficiency = ProficiencyManager.getProficiency(player, category);
             if (!player.isCreative() && requiredProficiency > 0 && currentProficiency < requiredProficiency) {
                 LOGGER.warn("Player {} tried to unlock skill {} but proficiency {} is below {}",

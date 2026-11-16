@@ -9,6 +9,7 @@
     "ONE_HANDED_SWORD",
     "RAPIER"
   ],
+  "proficiency_category": "RAPIER",
   "cooldown": 80,
   "sp_cost": 6.0,
   "duration_ticks": 1,

@@ -15,58 +15,65 @@
   "duration_ticks": 6,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "unlock_proficiency": 125,
   "color": "#54D8FF",
   "motions": [],
   "hitboxes": [
     {
       "tick": 1,
-      "hitbox_enabled": true,
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        135.0
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 0.1,
       "knockback_multiplier": 0.1,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
     },
     {
       "tick": 5,
-      "hitbox_enabled": true,
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
+      ],
+      "rotation": [
+        -6.0,
+        0.0,
+        45.0
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 0.75,
       "knockback_multiplier": 0.75,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": []
 }

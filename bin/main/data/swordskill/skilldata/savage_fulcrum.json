@@ -2,7 +2,6 @@
   "schema_version": 1,
   "id": 13,
   "replace_builtin": true,
-  "legacy_fallback": false,
   "name": "savage_fulcrum",
   "animation": "savage_fulcrum",
   "type": "SIMPLE",
@@ -11,25 +10,29 @@
     "DUALSWORD"
   ],
   "cooldown": 100,
-  "sp_cost": 15,
+  "sp_cost": 6,
   "duration_ticks": 20,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "unlock_proficiency": 215,
   "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
   "motions": [],
   "hitboxes": [
     {
-      "tick": 4,
+      "tick": 3,
       "hitbox_enabled": true,
       "offset": [
         0,
-        0.405,
-        0
+        1.215,
+        2.375
       ],
       "size": [
         7.2,
         3,
-        1.4
+        2.15
       ],
       "damage_multiplier": 1,
       "damage_type": "BASE",
@@ -37,20 +40,28 @@
       "knockback_multiplier": 0.1,
       "repeat_while_rushing": false,
       "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        -15,
+        0,
+        9
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue"
     },
     {
-      "tick": 7,
+      "tick": 6,
       "hitbox_enabled": true,
       "offset": [
         0,
         0.405,
-        0
+        2.375
       ],
       "size": [
         0.5,
         0.5,
-        5
+        5.75
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
@@ -58,20 +69,28 @@
       "knockback_multiplier": 0.1,
       "repeat_while_rushing": false,
       "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        0,
+        0,
+        30
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "spear_particle/simple_blue"
     },
     {
       "tick": 9,
       "hitbox_enabled": true,
       "offset": [
         0,
-        0.405,
-        0
+        1.215,
+        2.375
       ],
       "size": [
         7.2,
         3,
-        1.4
+        2.15
       ],
       "damage_multiplier": 3,
       "damage_type": "BASE",
@@ -79,16 +98,17 @@
       "knockback_multiplier": 0.75,
       "repeat_while_rushing": false,
       "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "sound": "minecraft:entity.player.attack.sweep",
+      "rotation": [
+        0,
+        15,
+        -90
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/blue"
     }
   ],
   "projectiles": [],
-  "sounds": [
-    {
-      "tick": 4,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1,
-      "pitch": 1
-    }
-  ]
+  "sounds": []
 }

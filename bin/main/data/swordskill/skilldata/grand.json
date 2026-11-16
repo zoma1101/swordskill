@@ -1,57 +1,62 @@
 {
   "schema_version": 1,
   "id": 80,
-  "name": "grand",
   "replace_builtin": true,
+  "name": "grand",
   "animation": "grand",
   "type": "SIMPLE",
   "weapons": [
     "MACE"
   ],
   "cooldown": 75,
-  "sp_cost": 10.0,
-  "duration_ticks": 5,
+  "sp_cost": 10,
+  "duration_ticks": 3,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#33FF66",
-  "motions": [
-    {
-      "tick": 1,
-      "forward": 3.0,
-      "strafe": 0.0,
-      "vertical": 0.0
-    }
-  ],
+  "default_unlocked": true,
+  "color": "#54D8FF",
+  "trail_length": 1.5,
+  "shockwave_ticks": 0,
+  "hitstop_ticks": -1,
+  "motions": [],
   "hitboxes": [
     {
-      "tick": 0,
+      "tick": 3,
       "hitbox_enabled": true,
       "offset": [
-        0.0,
+        0,
         1.215,
-        0.0
+        0.375
       ],
       "size": [
         7.2,
-        3.0,
-        2.4
+        3,
+        3.15
       ],
       "damage_multiplier": 1.5,
       "damage_type": "BASE",
       "knockback": 1.2,
       "knockback_multiplier": 1.2,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "repeat_while_rushing": false,
+      "effects": [
+        {
+          "type": "stun",
+          "duration_ticks": 100,
+          "amplifier": 1
+        }
+      ],
+      "sound": "minecraft:entity.player.attack.strong",
+      "rotation": [
+        -20,
+        0,
+        175
+      ],
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "mace_particle/blue"
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": [],
+  "unlock_proficiency": 140
 }

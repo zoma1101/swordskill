@@ -2,6 +2,7 @@
   "schema_version": 1,
   "id": 33,
   "name": "end_revolver",
+  "default_unlocked": true,
   "replace_builtin": true,
   "animation": "end_revolver",
   "type": "SIMPLE",
@@ -13,38 +14,38 @@
   "duration_ticks": 5,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#54D8FF",
+  "unlock_proficiency": 40,
+  "color": "#7FA8FF",
   "motions": [],
   "hitboxes": [
     {
       "tick": 3,
-      "hitbox_enabled": true,
       "offset": [
         0.0,
         0.81,
+        0.375
+      ],
+      "rotation": [
+        0.0,
+        0.0,
         0.0
       ],
       "size": [
         8.0,
         2.0,
-        8.0
+        8.75
       ],
       "damage_multiplier": 2.25,
       "damage_type": "BASE",
       "knockback": 1.5,
       "knockback_multiplier": 1.5,
-      "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep"
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "particle": "skill_particle_sword/roll_blue",
+      "sound": "minecraft:entity.player.attack.sweep",
+      "effects": []
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": []
 }

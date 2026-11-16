@@ -15,6 +15,7 @@
   "duration_ticks": 35,
   "transform_limit_ticks": 20,
   "hidden": false,
+  "unlock_proficiency": 75,
   "color": "#54D8FF",
   "motions": [
     {
@@ -31,32 +32,24 @@
       "offset": [
         0.0,
         1.215,
-        0.0
+        0.375
       ],
       "size": [
         7.2,
         3.0,
-        2.4
+        3.15
       ],
       "damage_multiplier": 2.0,
       "damage_type": "RUSH",
       "knockback": 1.0,
       "knockback_multiplier": 1.0,
       "effects": [],
-      "sound": "minecraft:entity.player.attack.sweep",
+      "sound": "",
       "repeat_while_rushing": true
     }
   ],
   "projectiles": [],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ],
+  "sounds": [],
   "rush_start_ticks": 5,
   "rush_start_animation": "start",
   "rush_move_animation": "move",

@@ -3,9 +3,11 @@ package com.zoma1101.swordskill.client.gui;
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.handler.ClientProficiencyHandler;
 import com.zoma1101.swordskill.client.handler.ClientSkillLevelHandler;
+import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
 import com.zoma1101.swordskill.client.handler.ClientUnlockedSkillsHandler;
 import com.zoma1101.swordskill.payload.CheckSkillUnlockedPayload;
 import com.zoma1101.swordskill.payload.RequestSkillLevelsPayload;
+import com.zoma1101.swordskill.swordskills.ProficiencyRules;
 import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -91,12 +93,15 @@ public class ProficiencyOverviewScreen extends Screen {
         // テーマ切替（右上）
         addRenderableWidget(SaoTheme.toggleButton(panelRight() - 26, panelTop() + 4, 20, this::rebuildWidgets));
 
-        int buttonWidth = 110;
         int gap = 8;
-        int buttonY = panelBottom() - 24;
+        int buttonY = panelBottom() - (compact() ? 22 : 24);
+        // 画面幅が狭いときはパネル内に収まるようボタン幅を縮める。
+        int availableWidth = panelRight() - panelLeft() - 16;
         if (com.zoma1101.swordskill.SwordSkillFeatures.STATUS_SCREEN) {
+            int buttonWidth = Math.min(110, Math.max(48, (availableWidth - gap) / 2));
             int totalWidth = buttonWidth * 2 + gap;
-            int buttonX = width / 2 - totalWidth / 2;
+            int buttonX = Math.max(panelLeft() + 4, Math.min(width / 2 - totalWidth / 2,
+                    panelRight() - 4 - totalWidth));
             addRenderableWidget(SaoButton.of(
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".status_back"),
                     () -> Minecraft.getInstance().setScreen(new StatusScreen()),
@@ -107,10 +112,13 @@ public class ProficiencyOverviewScreen extends Screen {
                     buttonX + buttonWidth + gap, buttonY, buttonWidth, 20, SaoTheme.dark()));
         } else {
             // ステータス画面が無効なリリースでは「閉じる」だけを中央に置く
+            int buttonWidth = Math.min(110, Math.max(40, availableWidth));
+            int buttonX = Math.max(panelLeft() + 4, Math.min(width / 2 - buttonWidth / 2,
+                    panelRight() - 4 - buttonWidth));
             addRenderableWidget(SaoButton.of(
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_close"),
                     this::onClose,
-                    width / 2 - buttonWidth / 2, buttonY, buttonWidth, 20, SaoTheme.dark()));
+                    buttonX, buttonY, buttonWidth, 20, SaoTheme.dark()));
         }
     }
 
@@ -118,52 +126,65 @@ public class ProficiencyOverviewScreen extends Screen {
     // レイアウト
     // ==================================================================
 
+    /** 低解像度（GUI スケールが大きい）ときは余白と行間を詰める。 */
+    private boolean compact() {
+        return width < 360 || height < 220;
+    }
+
+    private int padding() {
+        return compact() ? 6 : PAD;
+    }
+
     private int panelLeft() {
-        return PAD;
+        return padding();
     }
 
     private int panelTop() {
-        return PAD;
+        return padding();
     }
 
     private int panelRight() {
-        return width - PAD;
+        return width - padding();
     }
 
     private int panelBottom() {
-        return height - PAD;
+        return height - padding();
     }
 
     private int contentTop() {
-        return panelTop() + 46;
+        return panelTop() + (compact() ? 36 : 46);
     }
 
     private int headerY() {
-        return panelTop() + 22;
+        return panelTop() + (compact() ? 16 : 22);
     }
 
     private int summaryY() {
-        return panelTop() + 33;
+        return panelTop() + (compact() ? 27 : 33);
     }
 
     private int contentBottom() {
-        return panelBottom() - 32;
+        int bottom = panelBottom() - (compact() ? 26 : 32);
+        return Math.max(contentTop() + 4, bottom);
     }
 
     private int leftX() {
-        return panelLeft() + 10;
+        return panelLeft() + (compact() ? 7 : 10);
     }
 
     private int leftWidth() {
-        return Mth.clamp((panelRight() - panelLeft()) / 3, 96, 150);
+        int panelWidth = panelRight() - panelLeft();
+        int min = compact() ? 68 : 96;
+        int max = compact() ? 120 : 150;
+        return Mth.clamp((panelWidth - 16) / 3, min, max);
     }
 
     private int rightX() {
-        return leftX() + leftWidth() + 14;
+        return leftX() + leftWidth() + (compact() ? 8 : 14);
     }
 
     private int rightWidth() {
-        return Math.max(40, panelRight() - 12 - rightX());
+        return Math.max(24, panelRight() - 12 - rightX());
     }
 
     private int categoryRowY(int index) {
@@ -325,6 +346,15 @@ public class ProficiencyOverviewScreen extends Screen {
         int gutter = maxScroll > 0 ? SCROLLBAR_GUTTER : 2;
         int stateRight = rightX() + rightWidth() - gutter;
         guiGraphics.enableScissor(rightX(), contentTop(), rightX() + rightWidth(), contentBottom());
+        // 接続線はスキル表示より先に描画し、アイコン・文字の背後に回す。
+        for (int index = 0; index < skills.size(); index++) {
+            SkillData skill = skills.get(index);
+            int parentIndex = derivedParentIndex(skills, skill);
+            int depth = parentIndex >= 0 ? SkillChains.depthOf(skill.getId()) : 0;
+            if (depth > 0) {
+                drawDerivedConnector(guiGraphics, skillRowY(parentIndex), skillRowY(index), depth);
+            }
+        }
         for (int index = 0; index < skills.size(); index++) {
             int rowY = skillRowY(index);
             if (rowY + SKILL_ROW < contentTop() || rowY > contentBottom()) {
@@ -338,9 +368,6 @@ public class ProficiencyOverviewScreen extends Screen {
             int depth = parentIndex >= 0 ? SkillChains.depthOf(skill.getId()) : 0;
             int indent = depth * DERIVED_INDENT;
             int iconX = rightX() + indent;
-            if (depth > 0) {
-                drawDerivedConnector(guiGraphics, skillRowY(parentIndex), rowY, depth);
-            }
 
             ResourceLocation icon = skill.getIconTexture();
             guiGraphics.blit(icon, iconX, rowY, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
@@ -357,8 +384,12 @@ public class ProficiencyOverviewScreen extends Screen {
                 state = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_unlocked");
                 stateColor = SaoTheme.textDim();
             } else {
+                int baseRequired = skill.getUnlockProficiency();
+                int required = baseRequired > 0
+                        && ProficiencyRules.isCrossCategory(skill, ClientSkillSlotHandler.getCurrentWeaponTypes())
+                                ? ProficiencyRules.scale(baseRequired) : baseRequired;
                 state = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_locked",
-                        skill.getUnlockProficiency());
+                        required);
                 stateColor = SaoTheme.textLocked();
             }
 

@@ -48,6 +48,8 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
         float age = entity.tickCount + partialTicks;
         float sweepProgress = Mth.clamp(age / 6.0F, 0.0F, 1.0F);
         Vector3f size = entity.getEffectRadius();
+        // 見た目のみ拡大（当たり判定は size のまま）
+        size.mul(entity.getRenderScale());
 
         // Draw a persistent, emissive crescent behind the moving slash head.
         renderSlashTrail(entity, poseStack, bufferSource, size, age, sweepProgress);
@@ -92,11 +94,20 @@ public class AttackEffectRenderer extends EntityRenderer<AttackEffectEntity> {
             float fromAngle = Mth.lerp(from, -75.0F, endAngle);
             float toAngle = Mth.lerp(to, -75.0F, endAngle);
             float intensity = fade * (0.35F + 0.65F * to);
+            // 元の見た目を保ちつつ、横から見たときだけ少し厚みが見えるように
+            // 薄い 2 層目を 1 枚だけ追加する
             Vec3[] outer = arcStrip(radiusX, radiusY, thickness, z, fromAngle, toAngle);
             drawQuad(vertices, pose, outer, red, green, blue, intensity * 0.18F);
             Vec3[] core = arcStrip(radiusX, radiusY, thickness * 0.28F, z - 0.005F,
                     fromAngle, toAngle);
             drawQuad(vertices, pose, core, coreRed, coreGreen, coreBlue, intensity * 0.9F);
+
+            Vec3[] outer2 = arcStrip(radiusX, radiusY, thickness, z + thickness * 0.35F,
+                    fromAngle, toAngle);
+            drawQuad(vertices, pose, outer2, red, green, blue, intensity * 0.07F);
+            Vec3[] core2 = arcStrip(radiusX, radiusY, thickness * 0.28F, z + thickness * 0.35F - 0.005F,
+                    fromAngle, toAngle);
+            drawQuad(vertices, pose, core2, coreRed, coreGreen, coreBlue, intensity * 0.35F);
         }
 
         poseStack.popPose();

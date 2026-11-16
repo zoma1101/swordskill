@@ -13,7 +13,7 @@
   "duration_ticks": 22,
   "transform_limit_ticks": 20,
   "hidden": false,
-  "color": "#FF3344",
+  "color": "#FF6B6B",
   "motions": [],
   "hitboxes": [],
   "projectiles": [
@@ -46,16 +46,10 @@
         0.0,
         0.0,
         60.0
-      ]
+      ],
+      "effects": []
     }
   ],
-  "legacy_fallback": false,
-  "sounds": [
-    {
-      "tick": 1,
-      "sound": "minecraft:entity.player.attack.sweep",
-      "volume": 1.0,
-      "pitch": 1.0
-    }
-  ]
+  "sounds": [],
+  "unlock_proficiency": 85
 }

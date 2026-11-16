@@ -50,10 +50,12 @@ public class StatusScreen extends Screen {
         // テーマ切替（右上）
         addRenderableWidget(SaoTheme.toggleButton(panelRight() - 26, panelTop() + 4, 20, this::rebuildWidgets));
 
-        int navWidth = 110;
         int gap = 8;
+        int availableWidth = panelRight() - panelLeft() - 16;
+        int navWidth = Math.min(110, Math.max(48, (availableWidth - gap) / 2));
         int totalWidth = navWidth * 2 + gap;
-        int navX = width / 2 - totalWidth / 2;
+        int navX = Math.max(panelLeft() + 4, Math.min(width / 2 - totalWidth / 2,
+                panelRight() - 4 - totalWidth));
         int navY = panelBottom() - 26;
 
         addRenderableWidget(SaoButton.of(
@@ -80,23 +82,32 @@ public class StatusScreen extends Screen {
     // ==================================================================
 
     private int panelLeft() {
-        return PAD;
+        return padding();
     }
 
     private int panelTop() {
-        return PAD;
+        return padding();
     }
 
     private int panelRight() {
-        return width - PAD;
+        return width - padding();
     }
 
     private int panelBottom() {
-        return height - PAD;
+        return height - padding();
+    }
+
+    /** 低解像度（GUI スケールが大きい）ときは余白と行間を詰める。 */
+    private boolean compact() {
+        return width < 360 || height < 220;
+    }
+
+    private int padding() {
+        return compact() ? 6 : PAD;
     }
 
     private int leftX() {
-        return panelLeft() + 14;
+        return panelLeft() + (compact() ? 8 : 14);
     }
 
     /** 割り振り欄と戦闘ステータス欄の境界。 */
@@ -105,23 +116,43 @@ public class StatusScreen extends Screen {
     }
 
     private int contentTop() {
-        return panelTop() + 70;
+        return panelTop() + (compact() ? 58 : 70);
+    }
+
+    private int statRowHeight() {
+        return compact() ? 30 : STAT_ROW;
     }
 
     private int statRowY(int index) {
-        return contentTop() + 6 + index * STAT_ROW;
+        return contentTop() + (compact() ? 4 : 6) + index * statRowHeight();
     }
 
     private int plusButtonX() {
-        return midX() - 8 - 26;
+        return midX() - (compact() ? 6 : 8) - 26;
     }
 
     private int summaryX() {
-        return midX() + 10;
+        return midX() + (compact() ? 8 : 10);
     }
 
     private int summaryRowY(int index) {
-        return contentTop() + 18 + index * SUMMARY_ROW;
+        return contentTop() + (compact() ? 12 : 18) + index * SUMMARY_ROW;
+    }
+
+    private int levelLineY() {
+        return panelTop() + (compact() ? 18 : 24);
+    }
+
+    private int xpBarY() {
+        return panelTop() + (compact() ? 32 : 38);
+    }
+
+    private int pointsY() {
+        return panelTop() + (compact() ? 46 : 52);
+    }
+
+    private int headerSeparatorY() {
+        return panelTop() + (compact() ? 56 : 66);
     }
 
     // ==================================================================
@@ -175,12 +206,14 @@ public class StatusScreen extends Screen {
                     ClientPlayerLevelHandler.getLevel(), ClientPlayerLevelHandler.getMaxLevel(),
                     ClientPlayerLevelHandler.getXp(), ClientPlayerLevelHandler.getXpToNext());
         }
-        SaoTheme.drawCentered(guiGraphics, font, line, width / 2, panelTop() + 24, SaoTheme.accent());
+        SaoTheme.drawCentered(guiGraphics, font, line, width / 2, levelLineY(), SaoTheme.accent());
 
         // XP バー
-        int barWidth = Mth.clamp((panelRight() - panelLeft()) / 2, 140, 260);
+        int panelWidth = panelRight() - panelLeft();
+        int barWidth = Mth.clamp(panelWidth / 2, compact() ? 80 : 140, 260);
+        barWidth = Math.min(barWidth, Math.max(40, panelWidth - 16));
         int barX = width / 2 - barWidth / 2;
-        int barY = panelTop() + 38;
+        int barY = xpBarY();
         guiGraphics.fill(barX - 1, barY - 1, barX + barWidth + 1, barY + 5, SaoTheme.barBackground());
         float progress = !hasData || ClientPlayerLevelHandler.isMaxLevel() ? 1.0F
                 : Mth.clamp((float) ClientPlayerLevelHandler.getXp()
@@ -192,10 +225,10 @@ public class StatusScreen extends Screen {
 
         Component points = Component.translatable("gui." + SwordSkill.MOD_ID + ".status_points",
                 available, ClientPlayerLevelHandler.getSpentPoints(), ClientPlayerLevelHandler.getTotalPoints());
-        SaoTheme.drawCentered(guiGraphics, font, points, width / 2, panelTop() + 52,
+        SaoTheme.drawCentered(guiGraphics, font, points, width / 2, pointsY(),
                 available > 0 ? SaoTheme.positive() : SaoTheme.textDim());
 
-        guiGraphics.fill(panelLeft() + 8, panelTop() + 66, panelRight() - 8, panelTop() + 67, SaoTheme.separator());
+        guiGraphics.fill(panelLeft() + 8, headerSeparatorY(), panelRight() - 8, headerSeparatorY() + 1, SaoTheme.separator());
     }
 
     private void drawStats(GuiGraphics guiGraphics, boolean hasData) {
@@ -206,7 +239,7 @@ public class StatusScreen extends Screen {
 
             Component name = type.displayName();
             Component valueText = Component.literal(Integer.toString(hasData ? ClientPlayerLevelHandler.getStat(type) : 0));
-            int valueX = leftX() + 46;
+            int valueX = leftX() + (compact() ? 22 : 46);
             guiGraphics.drawString(font, name, leftX(), rowY,
                     hasData ? SaoTheme.textPrimary() : SaoTheme.textDim(), false);
             guiGraphics.drawString(font, valueText, valueX, rowY, SaoTheme.accent(), false);
@@ -215,7 +248,8 @@ public class StatusScreen extends Screen {
                     font.plainSubstrByWidth(statEffect(type, hasData).getString(), Math.max(8, textLimit - leftX())),
                     leftX(), rowY + 11, SaoTheme.textDim(), false);
 
-            guiGraphics.fill(panelLeft() + 8, rowY + STAT_ROW - 10, midX() - 4, rowY + STAT_ROW - 9, SaoTheme.separator());
+            guiGraphics.fill(panelLeft() + 8, rowY + statRowHeight() - 10, midX() - 4,
+                    rowY + statRowHeight() - 9, SaoTheme.separator());
         }
 
         // 中央の区切り線

@@ -19,10 +19,15 @@
   "duration_ticks": 9,
   "transform_limit_ticks": 15,
   "hidden": false,
+  "proficiency_category": "AXE",
   "color": "#ADFF00",
   "trail_length": 1.5,
   "shockwave_ticks": 0,
   "hitstop_ticks": -1,
+  "player_pitch_affected": true,
+  "yaw_limit_degrees": 0,
+  "pitch_limit_degrees": 0,
+  "ground_impact_strength": 0,
   "motions": [],
   "hitboxes": [
     {
@@ -69,6 +74,5 @@
     }
   ],
   "projectiles": [],
-  "sounds": [],
-  "unlock_proficiency": 165
+  "sounds": []
 }

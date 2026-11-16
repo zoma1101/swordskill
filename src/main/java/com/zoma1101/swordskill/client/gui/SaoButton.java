@@ -11,6 +11,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * スキル選択画面の SAO 風パネルに合わせたボタン。
  *
@@ -27,40 +30,88 @@ public class SaoButton extends Button {
     private static final int CORNER_CUT = 4;
     /** 枠の太さ（px）。 */
     private static final int FRAME = 2;
-    /** アイコンボタン用テクスチャの実寸。 */
-    private static final int ICON_TEXTURE_SIZE = 32;
+    /** アイコンボタン用テクスチャの既定実寸（theme_toggle_*.png は 22x22）。 */
+    private static final int DEFAULT_ICON_TEXTURE_SIZE = 22;
 
     private final boolean dark;
     @Nullable
     private final ResourceLocation background;
+    /** アイコンテクスチャの実寸。ボタンサイズとは独立して全面をサンプリングする。 */
+    private final int iconTextureWidth;
+    private final int iconTextureHeight;
     /** 文字が入りきらないときのツールチップを一度だけ設定するためのフラグ。 */
     private boolean clippedTooltipSet;
 
     private SaoButton(int x, int y, int width, int height, Component message, OnPress onPress, boolean dark,
-            @Nullable ResourceLocation background) {
+            @Nullable ResourceLocation background, int iconTextureWidth, int iconTextureHeight) {
         super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
         this.dark = dark;
         this.background = background;
+        this.iconTextureWidth = iconTextureWidth;
+        this.iconTextureHeight = iconTextureHeight;
     }
 
     /** テキスト付きの通常ボタン。 */
     public static SaoButton of(Component message, Runnable action, int x, int y, int width, int height, boolean dark) {
-        return new SaoButton(x, y, width, height, message, button -> action.run(), dark, null);
+        return new SaoButton(x, y, width, height, message, button -> action.run(), dark, null, 0, 0);
     }
 
-    /** テクスチャを全面に描くアイコンボタン。{@code texture} は 32x32 を想定。 */
+    /** テクスチャを全面に描くアイコンボタン。テクスチャ実寸は PNG ヘッダから取得する。 */
     public static SaoButton icon(Component tooltip, ResourceLocation texture, Runnable action, int x, int y, int size,
             boolean dark) {
-        SaoButton button = new SaoButton(x, y, size, size, Component.empty(), b -> action.run(), dark, texture);
+        int[] textureSize = iconTextureSize(texture);
+        return icon(tooltip, texture, action, x, y, size, dark, textureSize[0], textureSize[1]);
+    }
+
+    /** テクスチャ実寸を明示するアイコンボタン。 */
+    public static SaoButton icon(Component tooltip, ResourceLocation texture, Runnable action, int x, int y, int size,
+            boolean dark, int textureWidth, int textureHeight) {
+        SaoButton button = new SaoButton(x, y, size, size, Component.empty(), b -> action.run(), dark, texture,
+                Math.max(1, textureWidth), Math.max(1, textureHeight));
         button.setTooltip(Tooltip.create(tooltip));
         return button;
+    }
+
+    /**
+     * アイコンテクスチャの実寸を PNG ヘッダ（IHDR）から読む。
+     *
+     * <p>テーマアイコンは 22x22 / 32x32 の両方があり得るため、ボタンサイズとは別に
+     * テクスチャ全体の実寸を渡す必要がある。読めない場合は既定サイズにフォールバックする。</p>
+     */
+    private static int[] iconTextureSize(ResourceLocation texture) {
+        try {
+            var resource = Minecraft.getInstance().getResourceManager().getResource(texture);
+            if (resource.isPresent()) {
+                try (InputStream in = resource.get().open()) {
+                    byte[] header = in.readNBytes(24);
+                    if (header.length >= 24
+                            && (header[0] & 0xFF) == 0x89
+                            && header[1] == 'P'
+                            && header[2] == 'N'
+                            && header[3] == 'G') {
+                        int width = ((header[16] & 0xFF) << 24) | ((header[17] & 0xFF) << 16)
+                                | ((header[18] & 0xFF) << 8) | (header[19] & 0xFF);
+                        int height = ((header[20] & 0xFF) << 24) | ((header[21] & 0xFF) << 16)
+                                | ((header[22] & 0xFF) << 8) | (header[23] & 0xFF);
+                        if (width > 0 && height > 0) {
+                            return new int[] {width, height};
+                        }
+                    }
+                }
+            }
+        } catch (IOException | RuntimeException ignored) {
+            // リソースが読めない場合は既定サイズで描画する
+        }
+        return new int[] {DEFAULT_ICON_TEXTURE_SIZE, DEFAULT_ICON_TEXTURE_SIZE};
     }
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (background != null) {
-            guiGraphics.blit(background, getX(), getY(), 0, 0, getWidth(), getHeight(), ICON_TEXTURE_SIZE,
-                    ICON_TEXTURE_SIZE);
+            // テクスチャ全体をボタンサイズへ拡縮する。uWidth/vWidth を実寸にしないと
+            // 左上の一部だけが切り出されてアイコンが見切れる。
+            guiGraphics.blit(background, getX(), getY(), getWidth(), getHeight(), 0, 0,
+                    iconTextureWidth, iconTextureHeight, iconTextureWidth, iconTextureHeight);
             if (isHoveredOrFocused()) {
                 guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(),
                         dark ? 0x2238CFFF : 0x22C06A18);

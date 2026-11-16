@@ -231,6 +231,10 @@
   "swordskill.skill.cygnus_onslaught": "Cygnus Onslaught",
   "swordskill.skill.dual_gravity": "Dual Gravity",
   "swordskill.skill.delta": "Delta",
+  "swordskill.skill.polish": "Polish",
+  "swordskill.skill.wheel": "Wheel",
+  "swordskill.skill.air_spark": "Air Spark",
+  "swordskill.skill.star_vortex": "Star Vortex",
 
   "swordskill.skill.how_to_use.description": "== How to use Sword Skills ==\nSwitch skills with A / D and assign a skill usable with your current weapon\nto a slot. Press the slot's key to activate the skill.\nUse the mouse wheel to turn the pages of this text.\n\n== Unlocking skills ==\nA skill unlocks once your proficiency in its weapon category reaches the requirement\nshown on the Unlock button. Raise it by defeating monsters with that weapon's skills.\nSkills with a requirement of 0 are unlocked from the start.\n\n== Proficiency ==\nProficiency is stored per weapon category (one-handed sword, dual swords, axe...).\nDefeating monsters with a skill of a category raises its proficiency.\nEvery 100 proficiency grants one level-up point, and the \"Level Up\" button\nin the selection screen raises one skill of that category by one level.\nSkill levels only affect damage: Lv.1 is x1.00 and Lv.10 is x3.00.\n\n== Planned ==\nCooking, throwing and smithing categories will be added later;\ntheir proficiency will rise when the matching action succeeds.",
   "swordskill.skill.slant.description": "A pure downward strike.",
@@ -322,7 +326,10 @@
   "swordskill.skill.cygnus_onslaught.description": "Leaps into the air and unleashes cross-shaped slashes.",
   "swordskill.skill.dual_gravity.description": "Launches the enemy into the air with a powerful dual-wielding attack.",
   "swordskill.skill.delta.description": "A single-hit vertical mace strike. Enemies hit by this attack suffer a movement impairment effect.",
-
+  "swordskill.skill.polish.description": "A single-hit charging sword skill that lunges toward the enemy and strikes a vital point with a dagger. Inflicts a movement impairment effect.",
+  "swordskill.skill.wheel.description": "An aerial sword skill that uses the entire body to perform two full rotations in midair. Cannot be activated while on the ground.",
+  "swordskill.skill.air_spark.description": "A sword skill that launches the enemy upward with a rising slash.",
+  "swordskill.skill.star_vortex.description": "A sword skill that lunges at the enemy while tracing a star-shaped pattern.",
 
   "swordskill.weapon.one_handed_sword": "One-Handed Sword",
   "swordskill.weapon.rapier": "Rapier",

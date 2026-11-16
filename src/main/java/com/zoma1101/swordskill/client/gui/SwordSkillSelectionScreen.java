@@ -8,6 +8,7 @@ import com.zoma1101.swordskill.client.handler.ClientTickHandler;
 import com.zoma1101.swordskill.client.screen.Keybindings;
 import com.zoma1101.swordskill.payload.*;
 import com.zoma1101.swordskill.swordskills.DataSkillDefinition;
+import com.zoma1101.swordskill.swordskills.ProficiencyRules;
 import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
@@ -393,8 +394,7 @@ public class SwordSkillSelectionScreen extends Screen {
                     buttonX, layout.diamondTop() - 24 * row, buttonWidth, 20, isDark()));
         } else if (layout.canLevelUp()) {
             SkillData selected = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
-            int points = ClientProficiencyHandler.getAvailablePoints(
-                    selected == null ? null : selected.getProficiencyCategory());
+            int points = ClientProficiencyHandler.getAvailablePoints(effectiveCategory(selected));
             addRenderableWidget(SaoButton.of(
                     Component.translatable("gui." + SwordSkill.MOD_ID + ".level_up", points),
                     this::levelUpSelectedSkill,
@@ -402,13 +402,27 @@ public class SwordSkillSelectionScreen extends Screen {
         }
     }
 
+    /** 装備武器を考慮した実効カテゴリ。 */
+    private SkillData.WeaponType effectiveCategory(SkillData skill) {
+        return ProficiencyRules.effectiveCategory(skill, ClientSkillSlotHandler.getCurrentWeaponTypes());
+    }
+
+    /** 装備武器を考慮した解放必要熟練度（別カテゴリは 1.5 倍）。 */
+    private int unlockRequirement(SkillData skill) {
+        int base = skill == null ? 0 : skill.getUnlockProficiency();
+        if (base <= 0 || !ProficiencyRules.isCrossCategory(skill, ClientSkillSlotHandler.getCurrentWeaponTypes())) {
+            return base;
+        }
+        return ProficiencyRules.scale(base);
+    }
+
     /** 解放ボタンのラベル。熟練度が足りないときは必要量と現在値を出す。 */
     private Component unlockButtonLabel(SkillData skill) {
-        int required = skill == null ? 0 : skill.getUnlockProficiency();
+        int required = unlockRequirement(skill);
         if (required <= 0) {
             return Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock");
         }
-        SkillData.WeaponType category = skill.getProficiencyCategory();
+        SkillData.WeaponType category = effectiveCategory(skill);
         int current = ClientProficiencyHandler.getProficiency(category);
         if (current >= required) {
             return Component.translatable("gui." + SwordSkill.MOD_ID + ".unlock");
@@ -481,7 +495,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-        drawSlotDiamonds(guiGraphics, layout, fade, isAssignable(skill) && layout.canAssign());
+        drawSlotSquares(guiGraphics, layout, fade, isAssignable(skill) && layout.canAssign());
 
         // --- ツールチップ ---
         if (tooltip != null) {
@@ -648,16 +662,17 @@ public class SwordSkillSelectionScreen extends Screen {
             int y = layout.tabY();
             boolean active = activeFilter == type;
             boolean equipped = activeFilter == null && weaponType != null && weaponType.contains(type);
+            // 装備による自動選択も手動クリックと同じ強調表示にする
+            boolean highlighted = active || equipped;
             boolean hover = mouseX >= x - 2 && mouseX < x + iconSize + 2
                     && mouseY >= y - 2 && mouseY < y + iconSize + 2;
 
-            int background = active ? (isDark() ? 0x6648DFFF : 0x2EC06A18)
-                    : equipped ? (isDark() ? 0x3338CFFF : 0x1AC06A18)
-                            : (isDark() ? 0x22000000 : 0x22000000);
+            int background = highlighted ? (isDark() ? 0x6648DFFF : 0x2EC06A18)
+                    : (isDark() ? 0x22000000 : 0x22000000);
             guiGraphics.fill(x - 2, y - 2, x + iconSize + 2, y + iconSize + 2, fade(background, fade));
             // texWidth/texHeight に描画サイズを渡すことで、16x16 のアイコンを iconSize に拡大縮小する
             guiGraphics.blit(getWeaponIconTexture(type), x, y, 0, 0, iconSize, iconSize, iconSize, iconSize);
-            if (active) {
+            if (highlighted) {
                 guiGraphics.fill(x - 2, y + iconSize + 2, x + iconSize + 2, y + iconSize + 3,
                         fade(isDark() ? 0xFF5ADFFF : 0xFFC06A18, fade));
             }
@@ -1119,12 +1134,11 @@ public class SwordSkillSelectionScreen extends Screen {
     }
 
     // ==================================================================
-    // スロット（ひし形パネル）
+    // スロット（正方形パネル）
     // ==================================================================
 
-    private void drawSlotDiamonds(GuiGraphics guiGraphics, Layout layout, float fade, boolean assignable) {
+    private void drawSlotSquares(GuiGraphics guiGraphics, Layout layout, float fade, boolean assignable) {
         int size = layout.diamondSize();
-        int radius = size / 2;
         int step = size + SLOT_DIAMOND_GAP;
         int total = SLOT_COUNT * step - SLOT_DIAMOND_GAP;
         int startX = width / 2 - total / 2;
@@ -1135,8 +1149,7 @@ public class SwordSkillSelectionScreen extends Screen {
 
         for (int slot = 0; slot < SLOT_COUNT; slot++) {
             int x = startX + slot * step;
-            int centerX = x + radius;
-            int centerY = top + radius;
+            int y = top;
             int skillId = slot < currentSkillIds.length ? currentSkillIds[slot] : -1;
             SkillData assignedSkill = SwordSkillRegistry.SKILLS.get(skillId);
             boolean hover = hoveredSlot == slot;
@@ -1144,37 +1157,24 @@ public class SwordSkillSelectionScreen extends Screen {
 
             int frame;
             if (!assignable) {
-                // 装備武器種と合わないスキルを選んでいる間はセット不可であることを示す
                 frame = fade(isDark() ? 0x66999999 : 0x99888888, fade);
             } else if (hover || active) {
                 frame = fade(isDark() ? 0xFF7FEFFF : 0xFFC06A18, fade);
             } else {
                 frame = fade(isDark() ? 0x885ADFFF : 0x88000000, fade);
             }
-            fillDiamond(guiGraphics, centerX, centerY, radius, frame);
-            fillDiamond(guiGraphics, centerX, centerY, radius - 1,
+            guiGraphics.fill(x, y, x + size, y + size, frame);
+            guiGraphics.fill(x + 1, y + 1, x + size - 1, y + size - 1,
                     fade(isDark() ? 0xE6101114 : 0xE6FFFFFF, fade));
             if (assignedSkill != null) {
-                // ひし形の内接正方形サイズ（= radius）で描くと角がはみ出さない
-                drawSkillIcon(guiGraphics, assignedSkill, centerX - radius / 2, centerY - radius / 2, radius);
+                // 正方形内にアイコンを描く（少し余白を持たせる）
+                int iconSize = Math.max(8, size - 4);
+                drawSkillIcon(guiGraphics, assignedSkill, x + 2, y + 2, iconSize);
             }
             // スロット番号
+            int centerY = y + size / 2;
             drawSmallString(guiGraphics, Component.literal(Integer.toString(slot + 1)), x - 8, centerY - 4,
                     fade(isDark() ? 0xFF999999 : 0xFF777777, fade));
-        }
-    }
-
-    /** ひし形を1pxずつ塗る。 */
-    private void fillDiamond(GuiGraphics guiGraphics, int centerX, int centerY, int radius, int color) {
-        if (radius <= 0) {
-            return;
-        }
-        for (int dy = -radius; dy <= radius; dy++) {
-            int half = radius - Math.abs(dy);
-            if (half <= 0) {
-                continue;
-            }
-            guiGraphics.fill(centerX - half, centerY + dy, centerX + half + 1, centerY + dy + 1, color);
         }
     }
 
@@ -1316,7 +1316,7 @@ public class SwordSkillSelectionScreen extends Screen {
         if (UnlockedSkill.get() && !unlockedSkills.contains(skill.getId())) {
             return false;
         }
-        if (ClientProficiencyHandler.getAvailablePoints(skill.getProficiencyCategory()) <= 0) {
+        if (ClientProficiencyHandler.getAvailablePoints(effectiveCategory(skill)) <= 0) {
             return false;
         }
         return ClientSkillLevelHandler.getLevel(skill.getId()) < ClientSkillLevelHandler.getMaxLevel();
@@ -1335,8 +1335,8 @@ public class SwordSkillSelectionScreen extends Screen {
 
     /** 解放に必要な熟練度を満たしているか。 */
     private boolean proficiencyUnlockMet(SkillData skill) {
-        int required = skill == null ? 0 : skill.getUnlockProficiency();
-        return required <= 0 || ClientProficiencyHandler.getProficiency(skill.getProficiencyCategory()) >= required;
+        int required = unlockRequirement(skill);
+        return required <= 0 || ClientProficiencyHandler.getProficiency(effectiveCategory(skill)) >= required;
     }
 
     /** TRANSFORM チェーンの終端（TRANSFORM_FINISH）のインデックス。 */

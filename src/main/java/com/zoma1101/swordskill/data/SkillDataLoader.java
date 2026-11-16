@@ -226,6 +226,13 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("counter_damage_cut/counter_damage_scale/counter_max_bonus is outside the supported range");
         }
 
+        // --- 着地衝撃 -----------------------------------------------
+        // 0 より大きいと、GROUND トリガーの着地時に地面の揺れと土煙をクライアントへ送る。
+        double groundImpactStrength = GsonHelper.getAsDouble(json, "ground_impact_strength", 0.0D);
+        if (!Double.isFinite(groundImpactStrength) || groundImpactStrength < 0.0D || groundImpactStrength > 4.0D) {
+            throw new JsonParseException("ground_impact_strength is outside the supported range");
+        }
+
         return new DataSkillDefinition(id, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
@@ -241,7 +248,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsBoolean(json, "end_skill_on_ground", false),
                 GsonHelper.getAsBoolean(json, "default_unlocked", false),
                 GsonHelper.getAsBoolean(json, "chargeable", true),
-                counterDamageCut, counterDamageScale, counterMaxBonus);
+                counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,
@@ -364,7 +371,12 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     projectile, "player_pitch_x_multiplier", 0);
             double playerPitchZMultiplier = GsonHelper.getAsDouble(
                     projectile, "player_pitch_z_multiplier", 0);
-            double renderPitch = GsonHelper.getAsDouble(projectile, "render_pitch", 0);
+            boolean playerPitchAffected = GsonHelper.getAsBoolean(projectile, "player_pitch_affected", true);
+              double yawLimitDegrees = GsonHelper.getAsDouble(projectile, "yaw_limit_degrees", 0.0D);
+              double pitchLimitDegrees = GsonHelper.getAsDouble(projectile, "pitch_limit_degrees", 0.0D);
+              double renderScale = GsonHelper.getAsDouble(projectile, "render_scale", 1.0D);
+              int spawnHoldTicks = GsonHelper.getAsInt(projectile, "spawn_hold_ticks", 0);
+              double renderPitch = GsonHelper.getAsDouble(projectile, "render_pitch", 0);
             boolean horizontal = GsonHelper.getAsBoolean(projectile, "horizontal", false);
             double[] size = readVector(GsonHelper.getAsJsonArray(projectile, "size"), "size");
             double damageMultiplier = GsonHelper.getAsDouble(projectile, "damage_multiplier", 1);
@@ -385,6 +397,8 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     || !Double.isFinite(playerPitchZMultiplier) || Math.abs(playerPitchZMultiplier) > 4
                     || !Double.isFinite(renderPitch)
                     || renderPitch < -180 || renderPitch > 180 || !allFinite(size)
+                    || !Double.isFinite(renderScale) || renderScale < 0.05 || renderScale > 10
+                    || spawnHoldTicks < 0 || spawnHoldTicks > 1200
                     || damageMultiplier < 0 || !Double.isFinite(damageMultiplier)
                     || (!damageType.equals("BASE") && !damageType.equals("RUSH"))
                     || Math.abs(knockback) > 16 || !Double.isFinite(knockback)
@@ -426,7 +440,8 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                     damageMultiplier, damageType, knockback, knockbackMultiplier,
                     projectileDuration, particle, travelDistance,
                     movement, sound, trigger, fallDamageScale, path, randomGroup, randomIndex,
-                    singleTarget, aimAtContact));
+                    singleTarget, aimAtContact, yawLimitDegrees, pitchLimitDegrees, playerPitchAffected,
+                    renderScale, spawnHoldTicks));
         }
         return projectiles;
     }

@@ -3,6 +3,7 @@ package com.zoma1101.swordskill.swordskills;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
+import com.zoma1101.swordskill.payload.GroundImpactPayload;
 import com.zoma1101.swordskill.payload.SkillShockwavePayload;
 import com.zoma1101.swordskill.server.handler.HitstopManager;
 import com.zoma1101.swordskill.server.handler.SkillClashManager;
@@ -10,6 +11,7 @@ import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -120,6 +122,7 @@ public final class DataDrivenSkill implements ISkill {
         PREV_ON_GROUND.put(playerId, player.onGround());
         if (groundTriggered) {
             GROUND_TRIGGER_TICKS.put(playerId, tick);
+            triggerGroundImpact(player, definition);
         }
         int invulnerability = definition.rushCombo() == null
                 ? definition.invulnerabilityTicks()
@@ -442,9 +445,24 @@ public final class DataDrivenSkill implements ISkill {
         double[] size = projectile.size().clone();
         double playerPitch = player.getXRot();
         double yaw = rotation[1];
+        double yawLimit = projectile.yawLimitDegrees();
+        if (yawLimit > 0.0D) {
+            double relativeYaw = Mth.wrapDegrees(yaw - player.getYRot());
+            relativeYaw = Mth.clamp(relativeYaw, -yawLimit, yawLimit);
+            yaw = player.getYRot() + relativeYaw;
+        }
+        double pitchXMultiplier = projectile.playerPitchAffected()
+                ? projectile.playerPitchXMultiplier() : 0.0D;
+        double pitchZMultiplier = projectile.playerPitchAffected()
+                ? projectile.playerPitchZMultiplier() : 0.0D;
+        double pitchContribution = playerPitch * pitchXMultiplier;
+        double pitchLimit = projectile.pitchLimitDegrees();
+        if (pitchLimit > 0.0D) {
+            pitchContribution = Mth.clamp(pitchContribution, -pitchLimit, pitchLimit);
+        }
         double pitch = projectile.horizontal() ? -playerPitch
-                : rotation[0] + playerPitch * projectile.playerPitchXMultiplier();
-        double roll = rotation[2] + playerPitch * projectile.playerPitchZMultiplier();
+                : rotation[0] + pitchContribution;
+        double roll = rotation[2] + playerPitch * pitchZMultiplier;
         double damageMultiplier = projectile.damageMultiplier();
         Vec3 spawnPosition = player.position()
                 .add(right.scale(offset[0]))
@@ -526,14 +544,15 @@ public final class DataDrivenSkill implements ISkill {
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback,
                     projectile.durationTicks(), projectile.particle(), projectile.travelDistance(),
-                    projectile.renderPitch(), skillColor);
+                    projectile.renderPitch(), skillColor, projectile.renderScale(),
+                    projectile.spawnHoldTicks());
         } else {
             effect = SkillUtils.spawnFlyingSlash(level, spawnPosition,
                     new Vec3(pitch, yaw, roll),
                     new org.joml.Vector3f((float) size[0], (float) size[1], (float) size[2]),
                     player, damage, knockback, projectile.durationTicks(),
                     projectile.particle(), projectile.travelDistance(), movement, projectile.renderPitch(),
-                    skillColor);
+                    skillColor, projectile.renderScale(), projectile.spawnHoldTicks());
         }
         if (effect != null && projectile.singleTarget()) {
             effect.setSingleTarget(true);
@@ -742,6 +761,21 @@ public final class DataDrivenSkill implements ISkill {
         }
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
                 new SkillShockwavePayload(player.getId(), shockwaveTicks, color == null ? "" : color));
+    }
+
+    /**
+     * 着地衝撃の地面揺れ・土煙を、近くのクライアントへ通知する。
+     * {@code ground_impact_strength} が 0 のスキルでは何もしない。
+     */
+    private static void triggerGroundImpact(ServerPlayer player, DataSkillDefinition definition) {
+        double strength = definition.groundImpactStrength();
+        if (strength <= 0.0D) {
+            return;
+        }
+        PacketDistributor.sendToPlayersNear(player.serverLevel(), null,
+                player.getX(), player.getY(), player.getZ(), 40.0D,
+                new GroundImpactPayload(player.getX(), player.getY(), player.getZ(),
+                        (float) strength, parseColor(definition.color())));
     }
 
     private static void playAttackSound(Level level, ServerPlayer player, String soundId) {

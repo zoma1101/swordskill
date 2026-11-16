@@ -6,9 +6,11 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.data.SkillDataFetcher;
+import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.payload.SyncProficiencyPayload;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
+import com.zoma1101.swordskill.swordskills.ProficiencyRules;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.chat.Component;
@@ -41,9 +43,12 @@ public final class ProficiencyManager {
 
     public static final String PROFICIENCY_KEY = "proficiencies";
     public static final String SPENT_KEY = "proficiency_spent";
+    /** レベルアップで消費した熟練度の実数値（1.5 倍の端数を保持するため）。 */
+    public static final String SPENT_PROF_KEY = "proficiency_spent_raw";
 
     private static final Map<UUID, Map<SkillData.WeaponType, Integer>> PROFICIENCY = new HashMap<>();
     private static final Map<UUID, Map<SkillData.WeaponType, Integer>> SPENT = new HashMap<>();
+    private static final Map<UUID, Map<SkillData.WeaponType, Integer>> SPENT_PROF = new HashMap<>();
 
     private ProficiencyManager() {
     }
@@ -75,6 +80,28 @@ public final class ProficiencyManager {
         return skill == null ? 0 : skill.getUnlockProficiency();
     }
 
+    /** 装備武器を考慮した実効カテゴリ。 */
+    public static SkillData.WeaponType categoryOf(ServerPlayer player, SkillData skill) {
+        return ProficiencyRules.effectiveCategory(skill, WeaponTypeUtils.getWeaponType(player));
+    }
+
+    /** 別カテゴリのスキルを装備武器で使うときは 1.5 倍の熟練度が必要。 */
+    public static boolean isCrossCategory(ServerPlayer player, SkillData skill) {
+        return ProficiencyRules.isCrossCategory(skill, WeaponTypeUtils.getWeaponType(player));
+    }
+
+    /** プレイヤーと装備武器を考慮した解放必要熟練度。 */
+    public static int unlockRequirementOf(ServerPlayer player, SkillData skill) {
+        int base = unlockRequirementOf(skill);
+        return base > 0 && isCrossCategory(player, skill) ? ProficiencyRules.scale(base) : base;
+    }
+
+    /** レベルアップ1回に必要な熟練度。別カテゴリなら 1.5 倍（既定 100 → 150）。 */
+    public static int levelUpCost(ServerPlayer player, SkillData skill) {
+        int base = pointsPerLevel();
+        return isCrossCategory(player, skill) ? ProficiencyRules.scale(base) : base;
+    }
+
     // --- キャッシュ -----------------------------------------------------
 
     private static Map<SkillData.WeaponType, Integer> mapOf(UUID playerId,
@@ -86,19 +113,28 @@ public final class ProficiencyManager {
         return mapOf(player.getUUID(), PROFICIENCY);
     }
 
-    private static Map<SkillData.WeaponType, Integer> spentMap(ServerPlayer player) {
-        return mapOf(player.getUUID(), SPENT);
+    private static Map<SkillData.WeaponType, Integer> spentProfMap(ServerPlayer player) {
+        return mapOf(player.getUUID(), SPENT_PROF);
     }
 
     /** ディスクから読み込む。 */
     public static void loadPlayer(ServerPlayer player) {
         Map<SkillData.WeaponType, Integer> proficiency = new EnumMap<>(SkillData.WeaponType.class);
         Map<SkillData.WeaponType, Integer> spent = new EnumMap<>(SkillData.WeaponType.class);
+        Map<SkillData.WeaponType, Integer> spentProf = new EnumMap<>(SkillData.WeaponType.class);
         JsonObject playerData = DataManager.loadPlayerData(player);
         readInto(playerData, PROFICIENCY_KEY, proficiency);
         readInto(playerData, SPENT_KEY, spent);
+        readInto(playerData, SPENT_PROF_KEY, spentProf);
+        if (!playerData.has(SPENT_PROF_KEY)) {
+            // 旧セーブは消費ポイント数だけが残っているので熟練度に換算する
+            for (Map.Entry<SkillData.WeaponType, Integer> entry : spent.entrySet()) {
+                spentProf.put(entry.getKey(), entry.getValue() * pointsPerLevel());
+            }
+        }
         PROFICIENCY.put(player.getUUID(), proficiency);
         SPENT.put(player.getUUID(), spent);
+        SPENT_PROF.put(player.getUUID(), spentProf);
     }
 
     private static void readInto(JsonObject playerData, String key, Map<SkillData.WeaponType, Integer> target) {
@@ -137,12 +173,19 @@ public final class ProficiencyManager {
     public static void unloadPlayer(UUID playerId) {
         PROFICIENCY.remove(playerId);
         SPENT.remove(playerId);
+        SPENT_PROF.remove(playerId);
     }
 
     private static void save(ServerPlayer player) {
         JsonObject playerData = DataManager.loadPlayerData(player);
         playerData.add(PROFICIENCY_KEY, toJson(proficiencyMap(player)));
-        playerData.add(SPENT_KEY, toJson(spentMap(player)));
+        Map<SkillData.WeaponType, Integer> spentPoints = new EnumMap<>(SkillData.WeaponType.class);
+        for (Map.Entry<SkillData.WeaponType, Integer> entry : spentProfMap(player).entrySet()) {
+            spentPoints.put(entry.getKey(), entry.getValue() / Math.max(1, pointsPerLevel()));
+        }
+        SPENT.put(player.getUUID(), spentPoints);
+        playerData.add(SPENT_KEY, toJson(spentPoints));
+        playerData.add(SPENT_PROF_KEY, toJson(spentProfMap(player)));
         DataManager.savePlayerData(player, playerData);
     }
 
@@ -169,18 +212,27 @@ public final class ProficiencyManager {
         if (category == null || category == SkillData.WeaponType.NONE) {
             return 0;
         }
-        return spentMap(player).getOrDefault(category, 0);
+        return spentProfMap(player).getOrDefault(category, 0) / Math.max(1, pointsPerLevel());
     }
 
-    /** 使えるレベルアップポイント（獲得済み - 使用済み）。 */
+    /** レベルアップに使える熟練度（消費済みを差し引いた実数値）。 */
+    public static int getAvailableProficiency(ServerPlayer player, SkillData.WeaponType category) {
+        if (category == null || category == SkillData.WeaponType.NONE) {
+            return 0;
+        }
+        int earned = getProficiency(player, category);
+        int used = spentProfMap(player).getOrDefault(category, 0);
+        return Math.max(0, earned - used);
+    }
+
+    /** 使えるレベルアップポイント（表示用）。 */
     public static int getAvailablePoints(ServerPlayer player, SkillData.WeaponType category) {
-        int earned = getProficiency(player, category) / pointsPerLevel();
-        return Math.max(0, earned - getSpentPoints(player, category));
+        return getAvailableProficiency(player, category) / Math.max(1, pointsPerLevel());
     }
 
-    /** 次のレベルアップポイントまでの進捗（0 〜 pointsPerLevel-1）。 */
+    /** 次のレベルアップまでの進捗（0 〜 pointsPerLevel-1）。 */
     public static int getProgress(ServerPlayer player, SkillData.WeaponType category) {
-        return getProficiency(player, category) % pointsPerLevel();
+        return getAvailableProficiency(player, category) % Math.max(1, pointsPerLevel());
     }
 
     /** 熟練度を加算する。戻り値は加算後の値。 */
@@ -247,11 +299,12 @@ public final class ProficiencyManager {
         if (ServerConfig.UnlockedSkill.get() && !SkillDataFetcher.isSkillUnlocked(player, skill.getId())) {
             return LevelUpResult.NOT_UNLOCKED;
         }
-        SkillData.WeaponType category = categoryOf(skill);
+        SkillData.WeaponType category = categoryOf(player, skill);
         if (category == SkillData.WeaponType.NONE) {
             return LevelUpResult.NO_SKILL;
         }
-        if (getAvailablePoints(player, category) <= 0) {
+        int cost = levelUpCost(player, skill);
+        if (getAvailableProficiency(player, category) < cost) {
             return LevelUpResult.NO_POINT;
         }
         int current = SkillLevelManager.getLevel(player, skill.getId());
@@ -259,13 +312,13 @@ public final class ProficiencyManager {
             return LevelUpResult.MAX_LEVEL;
         }
         SkillLevelManager.setLevel(player, skill.getId(), current + 1);
-        spendPoint(player, category);
+        spendProficiency(player, category, cost);
         return LevelUpResult.SUCCESS;
     }
 
-    private static void spendPoint(ServerPlayer player, SkillData.WeaponType category) {
-        Map<SkillData.WeaponType, Integer> spent = spentMap(player);
-        spent.put(category, spent.getOrDefault(category, 0) + 1);
+    private static void spendProficiency(ServerPlayer player, SkillData.WeaponType category, int amount) {
+        Map<SkillData.WeaponType, Integer> spent = spentProfMap(player);
+        spent.put(category, spent.getOrDefault(category, 0) + amount);
         save(player);
     }
 
@@ -281,7 +334,9 @@ public final class ProficiencyManager {
                 && killed.getType().getCategory() != MobCategory.MONSTER) {
             return;
         }
-        SkillData.WeaponType category = categoryOf(SkillExecutionManager.getRunningSkillId(player));
+        SkillData usedSkill = SwordSkillRegistry.SKILLS.get(SkillExecutionManager.getRunningSkillId(player));
+        // 別カテゴリのスキルを装備武器で使っている場合は、その武器側のカテゴリに熟練度が入る
+        SkillData.WeaponType category = categoryOf(player, usedSkill);
         if (category == SkillData.WeaponType.NONE) {
             return;
         }
@@ -297,7 +352,8 @@ public final class ProficiencyManager {
     /** クライアント表示用の同期パケットを組み立てる。0 のカテゴリは省略する。 */
     public static SyncProficiencyPayload buildSyncPayload(ServerPlayer player) {
         Map<SkillData.WeaponType, Integer> values = proficiencyMap(player);
-        Map<SkillData.WeaponType, Integer> spent = spentMap(player);
+        Map<SkillData.WeaponType, Integer> spent = spentProfMap(player);
+        int perLevel = Math.max(1, pointsPerLevel());
         int count = 0;
         for (SkillData.WeaponType category : SkillData.WeaponType.values()) {
             if (category == SkillData.WeaponType.NONE) {
@@ -322,7 +378,7 @@ public final class ProficiencyManager {
             }
             categories[index] = category.name();
             proficiencies[index] = value;
-            spentPoints[index] = used;
+            spentPoints[index] = used / perLevel;
             index++;
         }
         return new SyncProficiencyPayload(categories, proficiencies, spentPoints, pointsPerLevel());
