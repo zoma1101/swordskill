@@ -152,6 +152,11 @@ public class SkillData {
         return dataDefinition == null ? 0.0D : dataDefinition.counterMaxBonus();
     }
 
+    /** 発動に必要な「足元から地面までの高さ」（ブロック）。0 なら条件なし。 */
+    public double getMinAirHeight() {
+        return dataDefinition == null ? 0.0D : dataDefinition.minAirHeight();
+    }
+
     // ★追加: 熟練度設定用のヘルパーメソッド
     @SuppressWarnings("unchecked")
     public void setRequiredProficiency(String weaponType, int amount) {

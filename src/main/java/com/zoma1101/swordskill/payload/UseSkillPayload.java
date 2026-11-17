@@ -11,6 +11,8 @@ import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -86,6 +88,33 @@ public record UseSkillPayload(int skillId, int chargeTicks) implements CustomPac
                 LOGGER.debug("Player {} tried to use claw skill {} without dual claw. Ignored.",
                         player.getName().getString(), msg.skillId());
                 return;
+            }
+
+            // 空中発動条件（JSON の min_air_height）。足元から真下の地面までの高さで判定する。
+            // Heightmap は頭上の屋根を拾ってしまうことがあるため、足元から下へ走査する。
+            double minAirHeight = skill.getMinAirHeight();
+            if (minAirHeight > 0.0D) {
+                int feetBlockY = player.getBlockY();
+                int minWorldY = player.level().dimensionType().minY();
+                BlockPos.MutableBlockPos below = new BlockPos.MutableBlockPos(
+                        player.getBlockX(), feetBlockY - 1, player.getBlockZ());
+                int groundTopY = minWorldY;
+                for (int y = feetBlockY - 1; y >= minWorldY; y--) {
+                    below.setY(y);
+                    var state = player.level().getBlockState(below);
+                    if (!state.isAir() && state.blocksMotion()) {
+                        groundTopY = y + 1;
+                        break;
+                    }
+                }
+                double airHeight = player.getY() - groundTopY;
+                if (airHeight < minAirHeight) {
+                    LOGGER.debug("Player {} tried to use aerial skill {} at height {} (< {}). Ignored.",
+                            player.getName().getString(), msg.skillId(), airHeight, minAirHeight);
+                    player.sendSystemMessage(Component.translatable(
+                            "swordskill.skill.air_requirement", String.format("%.1f", minAirHeight)));
+                    return;
+                }
             }
 
             // チャージ不可スキルはチャージ時間を無視する

@@ -247,6 +247,13 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
             throw new JsonParseException("ground_impact_strength is outside the supported range");
         }
 
+        // --- 空中発動条件 -----------------------------------------------
+        // 0 なら条件なし。wheel など「地面から N ブロック以上離れていないと使えない」 skill 用。
+        double minAirHeight = GsonHelper.getAsDouble(json, "min_air_height", 0.0D);
+        if (!Double.isFinite(minAirHeight) || minAirHeight < 0.0D || minAirHeight > 256.0D) {
+            throw new JsonParseException("min_air_height is outside the supported range (0-256)");
+        }
+
         return new DataSkillDefinition(id, legacyId, name, cooldown, spCost, type, weapons,
                 GsonHelper.getAsBoolean(json, "hidden", false), duration,
                 GsonHelper.getAsInt(json, "transform_limit_ticks", 20),
@@ -262,7 +269,7 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
                 GsonHelper.getAsBoolean(json, "end_skill_on_ground", false),
                 GsonHelper.getAsBoolean(json, "default_unlocked", false),
                 GsonHelper.getAsBoolean(json, "chargeable", true),
-                counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
+                counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength, minAirHeight);
     }
 
     private static DataSkillDefinition.RushCombo parseRushCombo(JsonObject json, SkillData.SkillType type,

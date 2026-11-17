@@ -12,6 +12,7 @@
   "weapons": [
     "AXE"
   ],
+  "min_air_height": 2.0,
   "cooldown": 150,
   "sp_cost": 15,
   "duration_ticks": 9,

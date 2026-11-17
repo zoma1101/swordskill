@@ -135,6 +135,7 @@
 
 
   "swordskill.skill.how_to_use": "Guide",
+  "swordskill.skill.air_requirement": "This skill requires at least %s blocks above the ground.",
   "swordskill.skill.slant": "Slant",
   "swordskill.skill.horizontal": "Horizontal",
   "swordskill.skill.horizontal_arc": "Horizontal Arc",
@@ -327,7 +328,7 @@
   "swordskill.skill.dual_gravity.description": "Launches the enemy into the air with a powerful dual-wielding attack.",
   "swordskill.skill.delta.description": "A single-hit vertical mace strike. Enemies hit by this attack suffer a movement impairment effect.",
   "swordskill.skill.polish.description": "A single-hit charging sword skill that lunges toward the enemy and strikes a vital point with a dagger. Inflicts a movement impairment effect.",
-  "swordskill.skill.wheel.description": "An aerial sword skill that uses the entire body to perform two full rotations in midair. Cannot be activated while on the ground.",
+  "swordskill.skill.wheel.description": "An aerial sword skill that uses the entire body to perform two full rotations in midair. Requires at least 2 blocks above the ground.",
   "swordskill.skill.air_spark.description": "A sword skill that launches the enemy upward with a rising slash.",
   "swordskill.skill.star_vortex.description": "A sword skill that lunges at the enemy while tracing a star-shaped pattern.",
 

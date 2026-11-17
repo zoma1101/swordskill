@@ -43,7 +43,9 @@ public record DataSkillDefinition(
         double counterDamageCut,
         double counterDamageScale,
         double counterMaxBonus,
-        double groundImpactStrength) {
+        double groundImpactStrength,
+        /** 発動に必要な「足元から地面までの高さ」（ブロック）。0 なら条件なし。 */
+        double minAirHeight) {
     public DataSkillDefinition {
         id = (id == null || id.isBlank()) ? "" : id.trim();
         name = (name == null || name.isBlank()) ? id : name.trim();
@@ -73,6 +75,7 @@ public record DataSkillDefinition(
         counterMaxBonus = Math.max(0.0D, counterMaxBonus);
         groundImpactStrength = !Double.isFinite(groundImpactStrength) ? 0.0D
                 : Math.max(0.0D, Math.min(4.0D, groundImpactStrength));
+        minAirHeight = !Double.isFinite(minAirHeight) ? 0.0D : Math.max(0.0D, Math.min(256.0D, minAirHeight));
     }
 
     /** 旧数値 ID だけ差し替えた複製を返す（自動採番用）。 */
@@ -82,7 +85,8 @@ public record DataSkillDefinition(
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, unlockProficiency,
                 assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
-                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength,
+                minAirHeight);
     }
 
     /** 修得に必要な熟練度だけ差し替えた複製を返す（データパック上書き用）。 */
@@ -92,7 +96,8 @@ public record DataSkillDefinition(
                 replaceBuiltin, rushStartTicks, rushStartAnimation, rushMoveAnimation, rushFinishAnimation,
                 rushCombo, trailLength, shockwaveTicks, hitstopTicks, proficiencyCategory, newUnlockProficiency,
                 assignable, animations, playerEffects, invulnerabilityTicks, endSkillOnGround, defaultUnlocked,
-                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength);
+                chargeable, counterDamageCut, counterDamageScale, counterMaxBonus, groundImpactStrength,
+                minAirHeight);
     }
 
     public record Motion(double forward, double strafe, double vertical) {

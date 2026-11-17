@@ -134,6 +134,7 @@
   "gui.swordskill.setting.hud.move_scale": "移動量: %s",
 
   "swordskill.skill.how_to_use": "説明",
+  "swordskill.skill.air_requirement": "このスキルは地面から%sブロック以上離れていないと発動できない",
   "swordskill.skill.slant": "スラント",
   "swordskill.skill.horizontal": "ホリゾンタル",
   "swordskill.skill.horizontal_arc": "ホリゾンタル・アーク",
@@ -330,7 +331,7 @@
   "swordskill.skill.dual_gravity.description": "二刀流で敵を上空へ吹き飛ばす",
   "swordskill.skill.delta.description": "メイス単発垂直打撃。命中した相手は移動阻害がかかる",
   "swordskill.skill.polish.description": "相手の懐に飛び込み短剣で急所を傷つける突進系単発ソードスキル。移動阻害効果を持つ",
-  "swordskill.skill.wheel.description": "身体全身を使い空中で２回転する空中ソードスキル。地上で発動することはできない",
+  "swordskill.skill.wheel.description": "身体全身を使い空中で２回転する空中ソードスキル。地面から2ブロック以上離れていないと発動できない",
   "swordskill.skill.air_spark.description": "敵を足元から切り上げるソードスキル",
   "swordskill.skill.star_vortex.description": "星の字を描いて敵に飛び込むソードスキル",
 
