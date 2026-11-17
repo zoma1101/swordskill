@@ -14,9 +14,6 @@
 							"vector": [32.23543, 55.68422, 27.5122],
 							"easing": "linear"
 						}
-					},
-					"position": {
-						"vector": ["linear", "linear", "linear"]
 					}
 				},
 				"head": {
