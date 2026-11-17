@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "feeling_focus",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "feeling_focus",
   "animation": "feeling_focus",

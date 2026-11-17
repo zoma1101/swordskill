@@ -4,7 +4,9 @@ import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillProjectileBreaker;
 import com.zoma1101.swordskill.swordskills.SkillTexture;
 import com.zoma1101.swordskill.swordskills.SkillUtils;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
 import com.zoma1101.swordskill.server.handler.SkillClashManager;
+import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -58,6 +60,7 @@ public class AttackEffectEntity extends Entity {
     private double damage = 4.0f; // ダメージ量
     private double knockbackStrength = 0.5; // ノックバック強さ
     private LivingEntity owner;
+    private int skillId = -1;
     private int movementTick = 0;
     private final List<Integer> hitEntities = new ArrayList<>();
     private boolean singleTarget = false; // 命中対象を最も近い 1 体だけにする（サーバー側のみ）
@@ -255,6 +258,12 @@ public class AttackEffectEntity extends Entity {
     }
 
     private void ApplyDamage(LivingEntity entity) {
+        // 致死ダメージの LivingDeathEvent は hurt() の中で発火するため、どのダメージ経路よりも先にマーカーを付ける
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            ProficiencyManager.markSwordSkillHit(serverPlayer, entity,
+                    skillId >= 0 ? skillId : SkillExecutionManager.getRunningSkillId(serverPlayer));
+        }
+
         float DamagePer = 1;
 
         if (Objects.equals(this.getSkillParticle(), YellowSkillTexture())
@@ -337,6 +346,9 @@ public class AttackEffectEntity extends Entity {
                 this.owner = (LivingEntity) ownerEntity;
             }
         }
+        if (compound.contains("SkillId")) {
+            this.skillId = compound.getInt("SkillId");
+        }
         this.hasAppliedDamage = compound.getBoolean("HasAppliedDamage");
     }
 
@@ -353,6 +365,7 @@ public class AttackEffectEntity extends Entity {
         compound.putFloat("RadiusY", this.entityData.get(EFFECT_RADIUS_Y));
         compound.putFloat("RadiusZ", this.entityData.get(EFFECT_RADIUS_Z));
         compound.putBoolean("HasAppliedDamage", this.hasAppliedDamage);
+        compound.putInt("SkillId", this.skillId);
         if (this.owner != null) {
             compound.putUUID("OwnerUUID", this.owner.getUUID());
         }
@@ -441,6 +454,17 @@ public class AttackEffectEntity extends Entity {
 
     public void setOwner(LivingEntity owner) {
         this.owner = owner;
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            this.skillId = SkillExecutionManager.getRunningSkillId(serverPlayer);
+        }
+    }
+
+    public int getSkillId() {
+        return this.skillId;
+    }
+
+    public void setSkillId(int skillId) {
+        this.skillId = skillId;
     }
 
     public float getRotation() {

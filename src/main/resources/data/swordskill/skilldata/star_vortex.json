@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "star_vortex",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "star_vortex",
   "animation": "star_vortex",

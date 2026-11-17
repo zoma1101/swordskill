@@ -6,6 +6,7 @@ import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.DataManager;
 import com.zoma1101.swordskill.payload.SyncSkillLevelsPayload;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -143,13 +144,29 @@ public final class SkillLevelManager {
 
     // --- ダメージへの適用 -----------------------------------------------
 
+    /**
+     * ダメージ計算に使う実効レベル。派生スキルは派生元（チェーン先頭）のレベルも参照し、
+     * 元スキルをレベルアップすると派生スキルのダメージも上がるようにする。
+     */
+    public static int effectiveLevel(ServerPlayer player, int skillId) {
+        if (skillId < 0) {
+            return 1;
+        }
+        int level = getLevel(player, skillId);
+        int start = SkillChains.start(skillId);
+        if (start != skillId) {
+            level = Math.max(level, getLevel(player, start));
+        }
+        return level;
+    }
+
     /** いま実行中のスキル（無ければ 1.0）のレベル倍率を返す。 */
     public static double damageMultiplier(ServerPlayer player) {
         int runningSkillId = SkillExecutionManager.getRunningSkillId(player);
         if (runningSkillId < 0) {
             return 1.0D;
         }
-        return multiplierForLevel(getLevel(player, runningSkillId));
+        return multiplierForLevel(effectiveLevel(player, runningSkillId));
     }
 
     // --- クライアント同期 -------------------------------------------------

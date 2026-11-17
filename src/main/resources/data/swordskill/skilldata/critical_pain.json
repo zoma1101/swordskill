@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "critical_pain",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "critical_pain",
   "animation": "critical_pain",

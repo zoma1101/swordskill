@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "dual_gravity",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "dual_gravity",
   "animation": "dual_gravity",

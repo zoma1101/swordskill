@@ -13,6 +13,8 @@ import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import com.zoma1101.swordskill.swordskills.ProficiencyRules;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,7 +30,7 @@ import java.util.UUID;
  * 熟練度（プロフィシエンシー）の管理。
  *
  * <p>熟練度は「武器種などのカテゴリ」ごとに貯まる。既定では
- * カテゴリのスキルでモンスターを撃破したときに上昇する（料理や鍛冶など、
+ * カテゴリのスキルを当てたモンスターを撃破したときに上昇する（料理や鍛冶など、
  * 別カテゴリの上昇条件は {@link #addProficiency(ServerPlayer, SkillData.WeaponType, int)}
  * を呼ぶ側で実装する）。
  *
@@ -45,6 +47,10 @@ public final class ProficiencyManager {
     public static final String SPENT_KEY = "proficiency_spent";
     /** レベルアップで消費した熟練度の実数値（1.5 倍の端数を保持するため）。 */
     public static final String SPENT_PROF_KEY = "proficiency_spent_raw";
+
+    /** ソードスキルを当てた敵に残す「撃破時に熟練度を入れる」マーカー。 */
+    private static final String PENDING_KILL_PLAYER_KEY = "swordskill_pending_kill_player";
+    private static final String PENDING_KILL_CATEGORY_KEY = "swordskill_pending_kill_category";
 
     private static final Map<UUID, Map<SkillData.WeaponType, Integer>> PROFICIENCY = new HashMap<>();
     private static final Map<UUID, Map<SkillData.WeaponType, Integer>> SPENT = new HashMap<>();
@@ -324,7 +330,30 @@ public final class ProficiencyManager {
 
     // --- 撃破による上昇 -------------------------------------------------
 
-    /** スキルで撃破したときに熟練度を加算する。 */
+    /**
+     * ソードスキルが命中した敵に「撃破時に熟練度を入れる」マーカーを付ける。
+     * この敵を後から通常攻撃などで撃破しても熟練度が入る。
+     */
+    public static void markSwordSkillHit(ServerPlayer player, LivingEntity target, int skillId) {
+        if (proficiencyPerKill() <= 0) {
+            return;
+        }
+        if (player == null || target == null || target == player || !target.isAlive()) {
+            return;
+        }
+        SkillData usedSkill = skillId >= 0 ? SwordSkillRegistry.SKILLS.get(skillId) : null;
+        SkillData.WeaponType category = categoryOf(player, usedSkill);
+        if (category == SkillData.WeaponType.NONE) {
+            return;
+        }
+        CompoundTag data = target.getPersistentData();
+        data.putString(PENDING_KILL_PLAYER_KEY, player.getUUID().toString());
+        data.putString(PENDING_KILL_CATEGORY_KEY, category.name());
+    }
+
+    /**
+     * スキルで撃破したとき、またはソードスキルを当てた敵を撃破したときに熟練度を加算する。
+     */
     public static void awardForKill(ServerPlayer player, LivingEntity killed) {
         int amount = proficiencyPerKill();
         if (amount <= 0 || killed == null || killed == player) {
@@ -338,9 +367,70 @@ public final class ProficiencyManager {
         // 別カテゴリのスキルを装備武器で使っている場合は、その武器側のカテゴリに熟練度が入る
         SkillData.WeaponType category = categoryOf(player, usedSkill);
         if (category == SkillData.WeaponType.NONE) {
+            category = pendingCategory(player, killed);
+        }
+        if (category == SkillData.WeaponType.NONE) {
             return;
         }
         addProficiency(player, category, amount);
+        clearPendingKill(killed);
+    }
+
+    /**
+     * プレイヤー以外（環境・別モブなど）が撃破した場合でも、
+     * ソードスキルを当てたプレイヤーに熟練度を加算する。
+     */
+    public static void awardForMarkedKill(LivingEntity killed) {
+        int amount = proficiencyPerKill();
+        if (amount <= 0 || killed == null) {
+            return;
+        }
+        if (ServerConfig.proficiencyFromMonstersOnly.get()
+                && killed.getType().getCategory() != MobCategory.MONSTER) {
+            return;
+        }
+        CompoundTag data = killed.getPersistentData();
+        if (!data.contains(PENDING_KILL_PLAYER_KEY, Tag.TAG_STRING)) {
+            return;
+        }
+        UUID playerId = parseUuid(data.getString(PENDING_KILL_PLAYER_KEY));
+        SkillData.WeaponType category = parseCategory(data.getString(PENDING_KILL_CATEGORY_KEY));
+        if (playerId == null || category == null || killed.level().getServer() == null) {
+            return;
+        }
+        ServerPlayer player = killed.level().getServer().getPlayerList().getPlayer(playerId);
+        if (player == null) {
+            return;
+        }
+        addProficiency(player, category, amount);
+        clearPendingKill(killed);
+    }
+
+    /** 撃破マーカーがそのプレイヤーのものなら、保存されたカテゴリを返す。 */
+    private static SkillData.WeaponType pendingCategory(ServerPlayer player, LivingEntity killed) {
+        CompoundTag data = killed.getPersistentData();
+        if (!data.contains(PENDING_KILL_PLAYER_KEY, Tag.TAG_STRING)) {
+            return SkillData.WeaponType.NONE;
+        }
+        if (!player.getUUID().toString().equals(data.getString(PENDING_KILL_PLAYER_KEY))) {
+            return SkillData.WeaponType.NONE;
+        }
+        SkillData.WeaponType category = parseCategory(data.getString(PENDING_KILL_CATEGORY_KEY));
+        return category == null ? SkillData.WeaponType.NONE : category;
+    }
+
+    private static void clearPendingKill(LivingEntity killed) {
+        CompoundTag data = killed.getPersistentData();
+        data.remove(PENDING_KILL_PLAYER_KEY);
+        data.remove(PENDING_KILL_CATEGORY_KEY);
+    }
+
+    private static UUID parseUuid(String value) {
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
     }
 
     // --- クライアント同期 -----------------------------------------------

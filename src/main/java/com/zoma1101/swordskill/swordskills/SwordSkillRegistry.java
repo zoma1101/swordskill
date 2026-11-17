@@ -80,14 +80,14 @@ public final class SwordSkillRegistry {
         Set<String> usedNames = new HashSet<>();
         List<DataSkillDefinition> autoIdDefinitions = new ArrayList<>();
         for (DataSkillDefinition definition : ordered) {
-            if (definition.id().isBlank() || definition.legacyId() < 0) {
+            if (definition.id().isBlank() || definition.legacyId() < -1) {
                 throw new IllegalArgumentException("Invalid data skill id: " + definition.id());
             }
             if (!usedNames.add(definition.id())) {
                 throw new IllegalArgumentException("Duplicate data skill id: " + definition.id());
             }
             int intId = definition.legacyId();
-            if (intId <= 0 && definition.replaceBuiltin()) {
+            if (intId < 0 && definition.replaceBuiltin()) {
                 // 旧 Java スキルを名前で置き換える場合はその内部 ID を引き継ぐ
                 for (SkillData javaSkill : JAVA_SKILLS.values()) {
                     if (javaSkill.getName().equals(definition.id())) {
@@ -96,7 +96,7 @@ public final class SwordSkillRegistry {
                     }
                 }
             }
-            if (intId > 0) {
+            if (intId >= 0) {
                 if (!usedIds.add(intId)) {
                     throw new IllegalArgumentException("Duplicate legacy skill ID: " + intId
                             + " (" + definition.id() + ")");

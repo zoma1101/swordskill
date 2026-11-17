@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "deadly_sins",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "deadly_sins",
   "animation": "deadly_sins",

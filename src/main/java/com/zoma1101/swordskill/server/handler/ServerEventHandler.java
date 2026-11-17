@@ -297,6 +297,9 @@ public class ServerEventHandler {
             if (com.zoma1101.swordskill.smithing.SmithingCombat.isForgedWeapon(weapon)) {
                 com.zoma1101.swordskill.smithing.SmithingCombat.recordKill(weapon);
             }
+        } else if (!(event.getEntity() instanceof ServerPlayer)) {
+            // 環境や別モブが撃破した場合でも、ソードスキルを当てたプレイヤーに熟練度を入れる
+            ProficiencyManager.awardForMarkedKill(event.getEntity());
         }
     }
 

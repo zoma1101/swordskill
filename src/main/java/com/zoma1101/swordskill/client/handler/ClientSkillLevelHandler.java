@@ -1,6 +1,7 @@
 package com.zoma1101.swordskill.client.handler;
 
 import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -54,6 +55,27 @@ public class ClientSkillLevelHandler {
 
     public static double getMultiplier(int skillId) {
         return SkillLevelManager.multiplierForLevel(getLevel(skillId), maxLevel, minMultiplier, maxMultiplier);
+    }
+
+    /**
+     * ダメージ計算に使う実効レベル。派生スキルは派生元（チェーン先頭）のレベルも参照する。
+     */
+    public static int getEffectiveLevel(int skillId) {
+        if (skillId < 0) {
+            return 1;
+        }
+        int level = getLevel(skillId);
+        int start = SkillChains.start(skillId);
+        if (start != skillId) {
+            level = Math.max(level, getLevel(start));
+        }
+        return level;
+    }
+
+    /** 実効レベルに対応する攻撃倍率。 */
+    public static double getEffectiveMultiplier(int skillId) {
+        return SkillLevelManager.multiplierForLevel(getEffectiveLevel(skillId), maxLevel, minMultiplier,
+                maxMultiplier);
     }
 
     public static double getMultiplierForLevel(int level) {

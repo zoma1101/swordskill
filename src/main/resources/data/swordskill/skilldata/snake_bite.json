@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "snake_bite",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "snake_bite",
   "animation": "snake_bite",

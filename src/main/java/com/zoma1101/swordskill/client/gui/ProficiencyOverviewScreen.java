@@ -374,7 +374,7 @@ public class ProficiencyOverviewScreen extends Screen {
 
             int textX = iconX + ICON_SIZE + 6;
             Component name = Component.translatable(SwordSkill.MOD_ID + ".skill." + skill.getName());
-            int level = ClientSkillLevelHandler.getLevel(skill.getId());
+            int level = ClientSkillLevelHandler.getEffectiveLevel(skill.getId());
             Component levelText = Component.translatable("gui." + SwordSkill.MOD_ID + ".proficiency_level",
                     level, maxLevel);
 

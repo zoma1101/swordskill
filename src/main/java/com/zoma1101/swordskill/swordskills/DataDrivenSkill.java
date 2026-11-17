@@ -5,6 +5,7 @@ import com.zoma1101.swordskill.effects.EffectRegistry;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
 import com.zoma1101.swordskill.payload.GroundImpactPayload;
 import com.zoma1101.swordskill.payload.SkillShockwavePayload;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
 import com.zoma1101.swordskill.server.handler.HitstopManager;
 import com.zoma1101.swordskill.server.handler.SkillClashManager;
 import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
@@ -686,6 +687,10 @@ public final class DataDrivenSkill implements ISkill {
         float damage = (float) (baseDamage * damageMultiplier
                 * (useChargeMultiplier ? getChargeMultiplier(player.getUUID()) : 1.0F));
         target.invulnerableTime = 0;
+        // この敵を後から通常攻撃などで倒しても熟練度が入るように、命中時点でマーカーを付ける。
+        // 致死ダメージの LivingDeathEvent は hurt() の中で発火するため、ダメージより先に付ける。
+        ProficiencyManager.markSwordSkillHit(player, target,
+                SkillExecutionManager.getRunningSkillId(player));
         // 武器記憶: ヒットボックスの形から突き / 凪払いを判定して通知する
         com.zoma1101.swordskill.smithing.SmithingCombat.pushContext(
                 memoryCategory(hitbox),

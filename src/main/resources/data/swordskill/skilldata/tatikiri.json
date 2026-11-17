@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "tatikiri",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "tatikiri",
   "animation": "tatikiri",

@@ -47,7 +47,7 @@ public record DataSkillDefinition(
     public DataSkillDefinition {
         id = (id == null || id.isBlank()) ? "" : id.trim();
         name = (name == null || name.isBlank()) ? id : name.trim();
-        legacyId = Math.max(0, legacyId);
+        legacyId = Math.max(-1, legacyId);
         weapons = weapons == null ? List.of() : List.copyOf(weapons);
         motion = motion == null ? new Motion(0, 0, 0) : motion;
         motions = motions == null ? List.of() : List.copyOf(motions);

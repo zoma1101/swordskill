@@ -124,7 +124,8 @@ public class ServerConfig {
                         + "proficiency, the player can raise one skill of that category by one level.")
                 .defineInRange("proficiencyPerLevelUp", 100, 1, 1000000);
         proficiencyPerKill = BUILDER.comment(
-                "Proficiency gained in the running skill's category when a monster is defeated with a sword skill. "
+                "Proficiency gained in the running skill's category when a monster is defeated after being hit "
+                        + "by a sword skill. The finishing blow does not have to be a sword skill. "
                         + "0 disables gaining proficiency from kills.")
                 .defineInRange("proficiencyPerKill", 1, 0, 10000);
         proficiencyFromMonstersOnly = BUILDER.comment(

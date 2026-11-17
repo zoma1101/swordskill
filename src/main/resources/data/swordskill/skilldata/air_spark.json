@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "air_spark",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "air_spark",
   "animation": "air_spark",

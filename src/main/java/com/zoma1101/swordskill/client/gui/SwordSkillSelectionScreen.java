@@ -818,9 +818,9 @@ public class SwordSkillSelectionScreen extends Screen {
         drawSmallCenteredString(guiGraphics, skillName, centerX, layout.nameY(), primaryTextColor);
 
         // --- スキルレベルと現在の攻撃倍率 ---
-        int skillLevel = ClientSkillLevelHandler.getLevel(skill.getId());
+        int skillLevel = ClientSkillLevelHandler.getEffectiveLevel(skill.getId());
         int maxSkillLevel = ClientSkillLevelHandler.getMaxLevel();
-        double skillLevelMultiplier = ClientSkillLevelHandler.getMultiplier(skill.getId());
+        double skillLevelMultiplier = ClientSkillLevelHandler.getEffectiveMultiplier(skill.getId());
         if (layout.compact()) {
             Component compactLevel = Component.translatable("gui." + SwordSkill.MOD_ID + ".skill_level_short",
                     skillLevel, maxSkillLevel, formatMultiplier(skillLevelMultiplier));
@@ -1423,7 +1423,7 @@ public class SwordSkillSelectionScreen extends Screen {
         }
         entries.sort(java.util.Comparator.comparingInt(PowerEntry::tick));
 
-        double levelMultiplier = ClientSkillLevelHandler.getMultiplier(skill.getId());
+        double levelMultiplier = ClientSkillLevelHandler.getEffectiveMultiplier(skill.getId());
         boolean leveled = Math.abs(levelMultiplier - 1.0D) > 0.001D;
         for (int index = 0; index < entries.size(); index++) {
             double base = entries.get(index).multiplier();

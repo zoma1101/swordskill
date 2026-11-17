@@ -113,23 +113,27 @@ public final class SkillDataLoader extends SimpleJsonResourceReloadListener {
         if (version != 1) {
             throw new JsonParseException("Unsupported schema_version: " + version);
         }
+        boolean replaceBuiltin = GsonHelper.getAsBoolean(json, "replace_builtin", false);
         // id は文字列（スキルID）が正式。旧形式の数値 id / legacy_id も読み込める。
+        // legacyId = -1 は自動採番（JSON に legacy_id が無い場合）。
         String id;
-        int legacyId = 0;
+        int legacyId;
         JsonElement idElement = json.get("id");
         if (idElement != null && idElement.isJsonPrimitive() && idElement.getAsJsonPrimitive().isNumber()) {
-            legacyId = idElement.getAsInt();
+            int numericId = idElement.getAsInt();
+            // 旧形式で id: 0 は「自動採番」。replace_builtin 付きの 0 だけが明示的な ID 0。
+            legacyId = numericId == 0 && !replaceBuiltin ? -1 : numericId;
             id = GsonHelper.getAsString(json, "name", resourceId.getPath());
         } else if (idElement != null && !idElement.isJsonNull()) {
             id = idElement.getAsString().trim();
-            legacyId = GsonHelper.getAsInt(json, "legacy_id", 0);
+            legacyId = GsonHelper.getAsInt(json, "legacy_id", -1);
         } else {
             id = GsonHelper.getAsString(json, "name", resourceId.getPath());
-            legacyId = GsonHelper.getAsInt(json, "legacy_id", 0);
+            legacyId = GsonHelper.getAsInt(json, "legacy_id", -1);
         }
-        boolean replaceBuiltin = GsonHelper.getAsBoolean(json, "replace_builtin", false);
-        if (legacyId < 0 || !id.matches("[a-z0-9_]+")) {
-            throw new JsonParseException("id must be a lowercase skill name; legacy_id must be 0 or positive");
+        if (legacyId < -1 || !id.matches("[a-z0-9_]+")) {
+            throw new JsonParseException(
+                    "id must be a lowercase skill name; legacy_id must be -1 (auto) or 0 and positive");
         }
         String name = id;
         int cooldown = GsonHelper.getAsInt(json, "cooldown", 0);

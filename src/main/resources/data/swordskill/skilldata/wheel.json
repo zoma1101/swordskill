@@ -1,7 +1,6 @@
 {
   "schema_version": 1,
   "id": "wheel",
-  "legacy_id": 0,
   "replace_builtin": false,
   "name": "wheel",
   "animation": "wheel",
