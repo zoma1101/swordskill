@@ -64,6 +64,8 @@ public class ClientTickHandler {
     public static void onClientTick(ClientTickEvent.Post event) {
         if (Minecraft.getInstance().player != null) {
             LocalPlayer player = Minecraft.getInstance().player;
+            // スキルアニメーション中は体の向きを照準（頭）へ合わせ続ける。
+            AnimationUtils.tickActiveAnimationBodyYaw();
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
 

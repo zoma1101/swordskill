@@ -23,6 +23,7 @@ import java.util.Set;
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
 public class AnimationUtils {
+    private static final ResourceLocation ANIMATION_LAYER_ID = fromNamespaceAndPath(SwordSkill.MOD_ID, "animation");
     private static final Set<String> FIRST_PERSON_RENDER_MODS = Set.of("bettercombat", "epicfight", "firstperson");
     private static final FirstPersonConfiguration FIRST_PERSON_CONFIGURATION = new FirstPersonConfiguration()
             .setShowRightArm(true)
@@ -81,6 +82,43 @@ public class AnimationUtils {
     public static void setRushMoveActive(boolean v) { rushMoveActive = v; }
     public static int getRushMoveSkillId() { return rushMoveSkillId; }
 
+    /**
+     * 体の向きを頭（照準）の向きへ即座に合わせる。
+     *
+     * <p>PlayerAnimator はアニメーションを {@code yBodyRot} 基準で適用するため、
+     * 頭と体がずれた状態でスキルを使うと、アニメーションだけが古い体の向きを向いてしまう。
+     * スキル方向は {@code getYRot()}（頭・照準）基準なので、発動時と再生中は体も照準へ合わせる。</p>
+     */
+    private static void alignBodyYawToHead(AbstractClientPlayer player) {
+        float headYaw = player.getYHeadRot();
+        player.yBodyRot = headYaw;
+        player.yBodyRotO = headYaw;
+    }
+
+    /**
+     * 再生中のスキルアニメーションについて、体の向きを頭の向きへ追従させる。
+     * 移動中でも体が移動方向へ戻らないように、クライアント tick ごとに呼ぶ。
+     */
+    public static void tickActiveAnimationBodyYaw() {
+        if (!ModList.get().isLoaded("playeranimator")) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        for (AbstractClientPlayer player : minecraft.level.players()) {
+            IAnimation animation = PlayerAnimationAccess.getPlayerAssociatedData(player)
+                    .get(ANIMATION_LAYER_ID);
+            if (animation instanceof SwordSkillAnimationLayer layer
+                    && layer.isActive() && layer.shouldLockBodyYaw()) {
+                // 描画時の頭の補間（yHeadRotO → yHeadRot）と体の補間を一致させる。
+                player.yBodyRot = player.yHeadRot;
+                player.yBodyRotO = player.yHeadRotO;
+            }
+        }
+    }
+
     public static void PlayerAnim(Player player,int SkillID, String type){
         // skillId 0 は「アニメーション解除」の合図。ここで色とトレイル長まで戻すと、
         // 消えかけのトレイルが既定色（青）で描かれてしまうので触らない。
@@ -90,6 +128,7 @@ public class AnimationUtils {
                         .get(fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
                 if (playerAnimation instanceof SwordSkillAnimationLayer animationLayer) {
                     animationLayer.setAnimation(null);
+                    animationLayer.setLockBodyYaw(true);
                 }
             }
             rushMoveActive = false;
@@ -145,6 +184,10 @@ public class AnimationUtils {
                     ? FirstPersonMode.THIRD_PERSON_MODEL
                     : FirstPersonMode.NONE);
             animationPlayer.setFirstPersonConfiguration(FIRST_PERSON_CONFIGURATION);
+            if (player instanceof AbstractClientPlayer clientPlayer) {
+                alignBodyYawToHead(clientPlayer);
+            }
+            animationLayer.setLockBodyYaw(true);
             animationLayer.setAnimation(animationPlayer);
         }
 
@@ -183,6 +226,8 @@ public class AnimationUtils {
                     ? FirstPersonMode.THIRD_PERSON_MODEL
                     : FirstPersonMode.NONE);
             animationPlayer.setFirstPersonConfiguration(FIRST_PERSON_CONFIGURATION);
+            // 鍔迫り合いは相手と向かい合うポーズなので、体を照準へ追従させない。
+            animationLayer.setLockBodyYaw(false);
             animationLayer.setAnimation(animationPlayer);
         }
     }
@@ -196,6 +241,7 @@ public class AnimationUtils {
                 .get(fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
         if (playerAnimation instanceof SwordSkillAnimationLayer animationLayer) {
             animationLayer.setAnimation(null);
+            animationLayer.setLockBodyYaw(true);
         }
     }
 
@@ -207,6 +253,8 @@ public class AnimationUtils {
         IAnimation playerAnimation = PlayerAnimationAccess.getPlayerAssociatedData(clientPlayer)
                 .get(fromNamespaceAndPath(SwordSkill.MOD_ID, "animation"));
         if (animationPlayer != null && playerAnimation instanceof SwordSkillAnimationLayer animationLayer) {
+            alignBodyYawToHead(clientPlayer);
+            animationLayer.setLockBodyYaw(true);
             animationLayer.setAnimation(animationPlayer);
         }
     }
@@ -285,6 +333,16 @@ public class AnimationUtils {
     }
 
     private static class SwordSkillAnimationLayer extends ModifierLayer<IAnimation> {
+        private boolean lockBodyYaw = true;
+
+        boolean shouldLockBodyYaw() {
+            return lockBodyYaw;
+        }
+
+        void setLockBodyYaw(boolean lockBodyYaw) {
+            this.lockBodyYaw = lockBodyYaw;
+        }
+
         @Override
         public FirstPersonMode getFirstPersonMode(float tickDelta) {
             return shouldUsePlayerAnimatorFirstPerson()

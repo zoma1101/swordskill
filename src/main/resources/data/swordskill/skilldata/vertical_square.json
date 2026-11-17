@@ -2,8 +2,8 @@
   "schema_version": 1,
   "id": "vertical_square",
   "legacy_id": 7,
-  "replace_builtin": true,
   "name": "vertical_square",
+  "replace_builtin": true,
   "animation": "vertical_square",
   "type": "TRANSFORM_FINISH",
   "weapons": [
@@ -13,13 +13,17 @@
   ],
   "cooldown": 240,
   "sp_cost": 15,
-  "duration_ticks": 14,
+  "duration_ticks": 22,
   "transform_limit_ticks": 20,
   "hidden": true,
   "color": "#54D8FF",
   "trail_length": 1.5,
   "shockwave_ticks": 0,
   "hitstop_ticks": -1,
+  "player_pitch_affected": true,
+  "yaw_limit_degrees": 0,
+  "pitch_limit_degrees": 0,
+  "ground_impact_strength": 0,
   "motions": [],
   "hitboxes": [
     {
@@ -123,7 +127,135 @@
       "particle": "skill_particle_sword/blue"
     }
   ],
-  "projectiles": [],
-  "sounds": [],
-  "unlock_proficiency": 205
+  "projectiles": [
+    {
+      "tick": 19,
+      "offset": [
+        -0.707,
+        1.3145,
+        1.5
+      ],
+      "rotation": [
+        -45,
+        -90,
+        -90
+      ],
+      "render_scale": 0.75,
+      "size": [
+        3.6,
+        1.5,
+        1.2
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "movement": [
+        0,
+        0,
+        3
+      ],
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 19,
+      "offset": [
+        -0.707,
+        -0.0995,
+        1.5
+      ],
+      "rotation": [
+        45,
+        -90,
+        -90
+      ],
+      "render_scale": 0.75,
+      "size": [
+        3.6,
+        1.5,
+        1.2
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "movement": [
+        0,
+        0,
+        3
+      ],
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 19,
+      "offset": [
+        0.707,
+        -0.0995,
+        1.5
+      ],
+      "rotation": [
+        45,
+        90,
+        -90
+      ],
+      "render_scale": 0.75,
+      "size": [
+        3.6,
+        1.5,
+        1.2
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "movement": [
+        0,
+        0,
+        3
+      ],
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    },
+    {
+      "tick": 19,
+      "offset": [
+        0.707,
+        1.3145,
+        1.5
+      ],
+      "rotation": [
+        -45,
+        90,
+        90
+      ],
+      "render_scale": 0.75,
+      "size": [
+        3.6,
+        1.5,
+        1.2
+      ],
+      "damage_multiplier": 1,
+      "damage_type": "BASE",
+      "knockback": 0.5,
+      "knockback_multiplier": -1,
+      "duration_ticks": 12,
+      "travel_distance": 0,
+      "movement": [
+        0,
+        0,
+        3
+      ],
+      "particle": "skill_particle_sword/blue",
+      "sound": ""
+    }
+  ],
+  "sounds": []
 }
