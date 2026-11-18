@@ -137,8 +137,9 @@ public class ServerConfig {
         BUILDER.push("Skill Clash Settings");
         clashEnabled = BUILDER.comment(
                 "Enable sword-skill clashes. Player-vs-player clashes become a blade lock "
-                        + "(鍔迫り合い), projectiles cancel each other, and mobs are never locked.")
-                .define("clashEnabled", true);
+                        + "(鍔迫り合い), projectiles cancel each other, and mobs are never locked. "
+                        + "Disabled by default.")
+                .define("clashEnabled", false);
         clashLockTicks = BUILDER.comment(
                 "Duration of a blade lock in ticks. The winner is decided automatically at the end. "
                         + "0 resolves the clash immediately.")
