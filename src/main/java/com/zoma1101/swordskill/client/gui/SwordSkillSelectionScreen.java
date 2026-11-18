@@ -27,6 +27,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -1415,8 +1416,17 @@ public class SwordSkillSelectionScreen extends Screen {
                 entries.add(new PowerEntry(hitbox.tick(), hitbox.damageMultiplier()));
             }
         }
+        // 飛翔斬撃が同じ tick に複数重なって同時にダメージを与える場合、
+        // 表示上は 1 つの段として扱う（倍率は最も高いものを採用）。
+        Map<Integer, Double> projectileByTick = new java.util.TreeMap<>();
         for (DataSkillDefinition.ProjectileEvent projectile : definition.projectiles()) {
-            entries.add(new PowerEntry(projectile.tick(), projectile.damageMultiplier()));
+            Double current = projectileByTick.get(projectile.tick());
+            if (current == null || projectile.damageMultiplier() > current) {
+                projectileByTick.put(projectile.tick(), projectile.damageMultiplier());
+            }
+        }
+        for (Map.Entry<Integer, Double> tickEntry : projectileByTick.entrySet()) {
+            entries.add(new PowerEntry(tickEntry.getKey(), tickEntry.getValue()));
         }
         if (entries.isEmpty()) {
             return lines;

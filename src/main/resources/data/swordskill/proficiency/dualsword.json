@@ -1,11 +1,11 @@
 {
   "skills": {
-    "dual_gravity": 40,
-    "end_revolver": 40,
-    "ascade_refraction": 45,
-    "cygnus_onslaught": 50,
-    "double_circular": 170,
-    "star_burst_stream": 450,
+    "dual_gravity": 300,
+    "end_revolver": 30,
+    "ascade_refraction": 100,
+    "cygnus_onslaught": 250,
+    "double_circular": 200,
+    "star_burst_stream": 400,
     "the_eclipse": 500
   }
 }

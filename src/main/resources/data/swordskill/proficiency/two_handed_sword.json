@@ -1,11 +1,10 @@
 {
   "skills": {
-    "slash_blade": 85,
-    "aban_rash": 105,
-    "cascade": 125,
-    "wall_wind": 165,
-    "cyclone": 175,
-    "reflect_grand": 245,
-    "stan_hazard": 500
+    "slash_blade": 250,
+    "aban_rash": 180,
+    "cascade": 0,
+    "cyclone": 105,
+    "reflect_grand": 300,
+    "stan_hazard": 400
   }
 }

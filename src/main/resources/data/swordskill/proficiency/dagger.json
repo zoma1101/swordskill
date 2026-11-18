@@ -1,10 +1,11 @@
 {
   "skills": {
-    "canine": 160,
-    "rapid_bite": 160,
-    "kodati": 180,
-    "face_liner": 450,
-    "fad_edge": 460,
-    "octagon_edge": 500
+    "polish" : 50,
+    "canine": 0,
+    "rapid_bite": 300,
+    "kodati": 200,
+    "face_liner": 100,
+    "fad_edge": 250,
+    "octagon_edge": 400
   }
 }

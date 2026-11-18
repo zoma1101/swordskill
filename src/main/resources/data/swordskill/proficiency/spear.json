@@ -1,11 +1,12 @@
 {
   "skills": {
-    "orst": 60,
-    "falling_star": 130,
-    "thrusts": 140,
-    "longlonglong": 150,
-    "sorvelte_charge": 165,
-    "feeling_focus": 245,
-    "spinning_spear": 500
+    "orst": 50,
+    "falling_star": 350,
+    "spark_thrust": 150,
+    "thrusts": 0,
+    "long_piercer": 300,
+    "sorvelte_charge": 200,
+    "feeling_focus": 250,
+    "spinning_spear": 75
   }
 }

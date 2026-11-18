@@ -1,12 +1,12 @@
 {
   "skills": {
-    "talon": 40,
-    "fast": 110,
+    "talon": 0,
+    "fast": 150,
     "hant": 125,
     "dragon_claw": 135,
-    "beast_claw": 165,
-    "golden_claw": 170,
-    "tiger_claw": 295,
-    "hant_killer": 500
+    "beast_claw": 100,
+    "golden_claw": 300,
+    "tiger_claw": 200,
+    "hant_killer": 300
   }
 }
