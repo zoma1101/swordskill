@@ -1,4 +1,0 @@
-name=SF2 SoundFont Tool (&S)
-execute=.\OpenUtauSf2Tool.exe
-notes=all
-encoding=UTF-8
