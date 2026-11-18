@@ -60,6 +60,9 @@ public final class WeaponTrailHandler {
     // 爪武器は1本の手から3本のソードスキルトレイルを発生させる
     private static final int CLAW_TRAIL_COUNT = 3;
     private static final double CLAW_TRAIL_SPREAD = 0.22D;
+    /** 白芯帯が参照するテクスチャ U の下端。テクスチャは U 0.75 以降フェードするため、
+     * 白芯は不透明ゾーン (0.30〜) を参照させ、外周だけ本来のフェードを使う。 */
+    private static final float CORE_TEXTURE_U_FROM = 0.30F;
     private static final Map<TrailRenderMode, Map<ResourceLocation, RenderType>> TRAIL_RENDER_TYPES =
         new EnumMap<>(TrailRenderMode.class);
     private static final Map<TrailRenderMode, Map<ResourceLocation, RenderType>> TRAIL_DEPTH_TYPES =
@@ -695,8 +698,9 @@ public final class WeaponTrailHandler {
         TrailRenderMode mode = ClientConfig.trailRenderMode.get();
         float trailOpacity = (float) ClientConfig.trailOpacity.get().doubleValue();
         float trailGlow = (float) ClientConfig.trailGlow.get().doubleValue();
-        // ADDITIVE は本体を少し透かし、重なった奥のトレイルも見えるようにする。
-        float bodyOpacity = trailOpacity * (mode == TrailRenderMode.ADDITIVE ? 0.80F : 1.0F);
+        // ADDITIVE は本体をわずかに透かし、重なった奥のトレイルも見えるようにする。
+        // それでも「色が薄い」見た目にならないよう、削る量は最小限に留める。
+        float bodyOpacity = trailOpacity * (mode == TrailRenderMode.ADDITIVE ? 0.88F : 1.0F);
         // 加算グローの強さ。ADDITIVE 以外では使わない。
         float glowStrength = mode == TrailRenderMode.ADDITIVE
                 ? (float) ClientConfig.trailAdditiveIntensity.get().doubleValue()
@@ -728,7 +732,10 @@ public final class WeaponTrailHandler {
         }
 
         int subdivisions = 6;
-        // 1) 本体。常に通常の半透明合成で描く（色相を保つ）。
+        // 1) 本体。通常の半透明合成で、スキル色を濃く保ったまま描く。
+        //    刃先の白芯も同じパス内の頂点グラデーションとして描くため、
+        //    平面の上に加算レイヤーを重ねず、シェーダーパック下でも
+        //    Zファイトやギザギザが発生しない。
         for (TrailDraw draw : draws) {
             VertexConsumer vertices = buffers.getBuffer(trailRenderType(draw.texture()));
             emitTrailSegments(vertices, draw.points(), subdivisions, matrix, inverseMatrix,
@@ -736,9 +743,8 @@ public final class WeaponTrailHandler {
                     1.0F, trailGlow, false);
         }
 
-        // 2) ADDITIVE のみ、白寄りの加算グローを重ねる。
-        //    水色をそのまま加算すると空の青が先に飽和して緑寄りになるため、
-        //    本体の色相は半透明パスに任せ、ここでは明るさだけを足す。
+        // 2) ADDITIVE のみ、白寄りの加算グローを薄く重ねる。
+        //    全域に強い加算をかけると色相が飛ぶため、最低限の明るさ補正に留める。
         if (mode == TrailRenderMode.ADDITIVE) {
             for (TrailDraw draw : draws) {
                 VertexConsumer vertices = buffers.getBuffer(trailGlowType(draw.texture()));
@@ -778,13 +784,14 @@ public final class WeaponTrailHandler {
                 TrailSample toSample = interpolate(p0, p1, p2, p3, to);
                 float age = Math.min(1.0F,
                         (now - toSample.createdAtNanos) / (float) TRAIL_LIFETIME_NANOS);
-                // 1枚描きになったぶん、以前のレイヤー合成より減衰を緩めて明るさを保つ
                 float ageAlpha = (float) Math.pow(1.0F - age, 0.8F);
                 float lengthT = (i + to) / (points.length - 1.0F);
-                float lengthAlpha = 0.70F + 0.30F * lengthT;
+                // 尾側の減衰を緩める。AAA のトレイルは尾まで色がはっきり残り、
+                // アルファだけが滑らかに落ちていく。
+                float lengthAlpha = 0.85F + 0.15F * lengthT;
                 float alpha = ageAlpha * lengthAlpha * clawBrightness * trailOpacity;
                 if (glowPass) {
-                    alpha *= 0.35F * modeScale;
+                    alpha *= 0.22F * modeScale;
                 }
                 if (alpha > 0.01F) {
                     // V はテイル先端(古い側)からトレイルの頭(新しい側)へ 0..1
@@ -834,37 +841,60 @@ public final class WeaponTrailHandler {
      * テクスチャ付きリボンを1枚で描く。
      * U (0..1) は刃幅の根元→先端、V (v0..v1) はトレイルの弧に沿った方向。
      * headT はトレイルの根元(古い=0)→頭(新しい=1)。
-     * 頭（刃元付近）だけ白く強く光らせ、尾側はスキル本来の色を濃く見せる。
      *
-     * <p>以前は同じ平面に5枚のレイヤー（本体／中間色／芯／外周グロー／白芯）を
-     * 重ねていたが、深度を書き込む半透明描画ではレイヤー同士がZファイトし、
-     * 上辺のギザギザや内部の黒い亀裂として現れる。発光は1枚の頂点色
-     * （スキル色→白へのグラデーション）で表現して重なりを無くす。</p>
+     * <p>Blender や AAA タイトルのトレイルのように、本体はスキル色を
+     * 飽和状態のまま濃く描き、白い発光は刃先の細い帯だけに限定する。
+     * 白芯は同一パス内の頂点色グラデーションとして描き、別レイヤーを
+     * 重ねないのでシェーダーパック下でも Z ファイトしない。</p>
+     *
+     * <p>白芯の幅はトレイルの頭で最大（刃長の約22%）で、尾に向かって
+     * 消えかけるにつれて細くなり、幅0で自然に消える。</p>
      */
     private static void renderRibbonSegment(VertexConsumer vertices, Matrix4f matrix,
             TrailSample previous, TrailSample current, float alpha, Matrix4f inverseMatrix,
             Vec3 cameraPosition, int tint, float v0, float v1, float headT,
             float glow, boolean glowPass) {
         if (glowPass) {
-            // 加算グローは白寄りにして、青チャンネルの早期飽和による色相ズレを防ぐ。
+            // 加算グローは色相をほとんど変えない程度の白寄りにして薄く重ねる。
             emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                    mixWithWhite(tint, 0.65F), alpha, 0.0F, 1.0F, v0, v1);
+                    mixWithWhite(tint, 0.30F), alpha, 0.0F, 1.0F, 0.0F, 1.0F, v0, v1);
             return;
         }
 
-        // 白い発光エリア: 頭のごく狭い範囲だけ
-        float hot = smoothstep(headT, 0.84F, 0.97F);
-        // 中間色エリア: 頭に向かってスキル色から白へ寄せる
-        float mid = smoothstep(headT, 0.62F, 0.72F);
+        // 本体: スキル色を濃く保つ。白い刃先エッジのみ、頭ほど幅広く、
+        // 尾(消えかける側)に向かって幅を細くしていき、幅0で消える。
+        float hot = smoothstep(headT, 0.90F, 0.99F);
+        float bandWidth = 0.22F * headT;
+        if (bandWidth <= 0.002F) {
+            emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                    tint, alpha, 0.0F, 1.0F, 0.0F, 1.0F, v0, v1);
+            return;
+        }
 
-        // 発光の強さ(glow): 白さと不透明度をスケール
-        // 1枚描きでは尾側まで白を混ぜないと暗く見えるため、全体に白を載せる
-        float whiteAmount = Mth.clamp((0.22F + 0.28F * mid + 0.50F * hot) * glow, 0.0F, 1.0F);
-        int color = mixWithWhite(tint, whiteAmount);
-        float alphaScale = Mth.clamp(0.95F + 0.05F * glow, 0.0F, 1.0F);
-
+        float bandInner = 1.0F - bandWidth;
+        // 内側に白さの段階的ななじみ帯を置き、白芯の縁を柔らかくする。
+        // アルファは本体と同値を保つ（下げると中間がすけて見える）。
+        float featherOuter = Math.max(0.0F, bandInner - bandWidth * 0.35F);
+        float featherInner = Math.max(0.0F, featherOuter - bandWidth * 0.35F);
+        if (featherInner > 0.0F) {
+            emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                    tint, alpha, 0.0F, featherInner, 0.0F, featherInner, v0, v1);
+        }
+        float edgeWhite = Mth.clamp((0.35F + 0.55F * hot) * glow, 0.0F, 1.0F);
+        if (featherOuter > featherInner) {
+            emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                    mixWithWhite(tint, edgeWhite * 0.18F), alpha, featherInner, featherOuter,
+                    featherInner, featherOuter, v0, v1);
+        }
+        // 白芯本体。テクスチャの外周側 (U 0.75〜1.0) はフェードアウトしているため、
+        // この帯はテクスチャの不透明ゾーン (0.30〜) へ再マップする。
+        // 外端はテクスチャ本来のフェードを使うので、輪郭はソフトなまま。
         emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
-                color, alpha * alphaScale, 0.0F, 1.0F, v0, v1);
+                mixWithWhite(tint, edgeWhite * 0.45F), alpha, featherOuter, bandInner,
+                featherOuter, bandInner, v0, v1);
+        emitTrailLayer(vertices, matrix, inverseMatrix, cameraPosition, previous, current,
+                mixWithWhite(tint, edgeWhite), alpha, bandInner, 1.0F,
+                CORE_TEXTURE_U_FROM, 1.0F, v0, v1);
     }
 
     private static float smoothstep(float x, float edge0, float edge1) {
@@ -872,20 +902,25 @@ public final class WeaponTrailHandler {
         return t * t * (3.0F - 2.0F * t);
     }
 
-    /** 刃の根元→先端を fromFrac..toFrac の範囲に切り出して 1 クワッド描画する。 */
+    /** 刃の根元→先端を fromFrac..toFrac の範囲に切り出して 1 クワッド描画する。
+     * テクスチャ座標 U は u0..u1。ジオメトリ範囲と別の値を渡すことで、
+     * 白芯帯をテクスチャの不透明ゾーンへ再マップできる。
+     * 部分範囲にテクスチャ全体をそのまま圧縮すると、テクスチャの縁の
+     * 柔らかい暗部が帯の境界ごとに現れて中間が暗く見えるため、
+     * 通常は fromFrac/toFrac をそのまま渡す。 */
     private static void emitTrailLayer(VertexConsumer vertices, Matrix4f matrix, Matrix4f inverseMatrix,
             Vec3 cameraPosition, TrailSample previous, TrailSample current, int tint, float alpha,
-            float fromFrac, float toFrac, float v0, float v1) {
+            float fromFrac, float toFrac, float u0, float u1, float v0, float v1) {
         Vec3 previousSpan = previous.tip.subtract(previous.base);
         Vec3 currentSpan = current.tip.subtract(current.base);
         Vec3 previousBase = previous.base.add(previousSpan.scale(fromFrac));
         Vec3 previousTip = previous.base.add(previousSpan.scale(toFrac));
         Vec3 currentBase = current.base.add(currentSpan.scale(fromFrac));
         Vec3 currentTip = current.base.add(currentSpan.scale(toFrac));
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousBase, tint, alpha, 0.0F, v0);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousTip, tint, alpha, 1.0F, v0);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentTip, tint, alpha, 1.0F, v1);
-        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentBase, tint, alpha, 0.0F, v1);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousBase, tint, alpha, u0, v0);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, previousTip, tint, alpha, u1, v0);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentTip, tint, alpha, u1, v1);
+        addVertex(vertices, matrix, inverseMatrix, cameraPosition, currentBase, tint, alpha, u0, v1);
     }
 
     /** 色を白へ寄せる（加算合成の発光を強めるため）。 */
