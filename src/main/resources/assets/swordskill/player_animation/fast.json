@@ -2,25 +2,23 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"fast.start": {
-			"animation_length": 0.5,
+			"animation_length": 0.3333,
 			"bones": {
 				"body": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
+							"vector": [12.5, 0, 0]
 						},
-						"0.25": {
+						"0.125": {
 							"vector": [25, 0, 0],
 							"easing": "linear"
 						}
 					},
 					"position": {
 						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
+							"vector": [0, -0.75, 0]
 						},
-						"0.3333": {
+						"0.2083": {
 							"vector": [0, -2, 0],
 							"easing": "linear"
 						}
@@ -29,25 +27,24 @@
 				"right_arm": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
+							"vector": [51.01, 0, 0]
 						},
-						"0.2083": {
+						"0.0833": {
 							"vector": [85, 0, 0],
 							"easing": "linear"
 						},
-						"0.25": {
+						"0.125": {
 							"vector": [93.1972, 4.9327, -237.43723],
 							"easing": "step",
 							"easingArgs": [2]
 						}
 					},
 					"position": {
-						"0.125": {
+						"0.0": {
 							"vector": [0, 0, 0],
 							"easing": "linear"
 						},
-						"0.25": {
+						"0.125": {
 							"vector": [-2, 0, 0],
 							"easing": "linear"
 						}
@@ -55,9 +52,8 @@
 				},
 				"left_arm": {
 					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
+						"0.0833": {
+							"vector": [33.01, 0, 0]
 						},
 						"0.2083": {
 							"vector": [82.5, 0, 0],
@@ -76,30 +72,6 @@
 						},
 						"0.25": {
 							"vector": [2, 0, 0],
-							"easing": "linear"
-						}
-					}
-				},
-				"right_leg": {
-					"position": {
-						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
-						},
-						"0.3333": {
-							"vector": [0, 1.75154, -1.39],
-							"easing": "linear"
-						}
-					}
-				},
-				"left_leg": {
-					"position": {
-						"0.0": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
-						},
-						"0.3333": {
-							"vector": [0, 1.75154, -1.39],
 							"easing": "linear"
 						}
 					}

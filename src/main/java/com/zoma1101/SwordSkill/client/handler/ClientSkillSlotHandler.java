@@ -9,7 +9,7 @@ import java.util.Set;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientSkillSlotHandler {
-    private static int[] currentSkillIds = new int[]{-1, -1, -1, -1, -1}; // 初期値を設定
+    private static int[] currentSkillIds = new int[] { -1, -1, -1, -1, -1 }; // 初期値を設定
     private static String currentWeaponName = "None";
     private static Set<SkillData.WeaponType> currentWeaponTypes = Collections.emptySet();
 
@@ -34,10 +34,10 @@ public class ClientSkillSlotHandler {
         return currentWeaponTypes;
     }
 
-    // ★追加: ログアウト時などにデータをリセットするメソッド
     public static void reset() {
-        currentSkillIds = new int[]{-1, -1, -1, -1, -1};
+        currentSkillIds = new int[] { -1, -1, -1, -1, -1 };
         currentWeaponName = "None";
         currentWeaponTypes = Collections.emptySet();
     }
+
 }

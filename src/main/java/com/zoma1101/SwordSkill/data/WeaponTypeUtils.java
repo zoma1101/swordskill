@@ -1,132 +1,141 @@
 package com.zoma1101.swordskill.data;
 
 import com.zoma1101.swordskill.config.ServerConfig;
-import com.zoma1101.swordskill.effects.SwordSkillAttribute;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
-
-
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WeaponTypeUtils {
-    public static final WeaponData None_WeaponData = new WeaponData(Set.of(SkillData.WeaponType.NONE),null);
+    public static final WeaponData NONE_WEAPON_DATA = new WeaponData(Set.of(SkillData.WeaponType.NONE), null);
 
-    private static Set<SkillData.WeaponType> getWeaponTypes(ItemStack mainHandItem) {
-        Set<SkillData.WeaponType> availableWeaponTypes = new HashSet<>();
+    private static final Map<UUID, WeaponData> playerWeaponDataMap = new ConcurrentHashMap<>();
 
-        if (mainHandItem.isEmpty()) {
-            return availableWeaponTypes;
-        }
-        availableWeaponTypes.addAll(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
-        return availableWeaponTypes;
+
+    public static void clearPlayerCache(Player player) {
+        playerWeaponDataMap.remove(player.getUUID());
     }
 
-    private static WeaponData DualSwordSetter(Player player){
+    private static Set<SkillData.WeaponType> getWeaponTypes(ItemStack mainHandItem) {
+        if (mainHandItem.isEmpty()) {
+            return new HashSet<>();
+        }
+        // 鍛造武器はスタックごとに武器種が決まる
+        com.zoma1101.swordskill.smithing.ForgedWeaponData forged =
+                com.zoma1101.swordskill.smithing.ForgedWeaponData.get(mainHandItem);
+        if (forged != null) {
+            Set<SkillData.WeaponType> forgedTypes = new HashSet<>();
+            if (forged.weaponType() != SkillData.WeaponType.NONE) {
+                forgedTypes.add(forged.weaponType());
+            }
+            return forgedTypes;
+        }
+        // detectWeaponTypesがSetを返すと仮定して、変更可能な新しいSetを作成
+        return new HashSet<>(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
+    }
 
+    /** 武器名（プレイヤーデータの weaponSkills のキー）。鍛造武器は武器種から既存の武器名を引く。 */
+    public static String getWeaponName(ItemStack stack) {
+        if (stack.isEmpty()) {
+            return null;
+        }
+        com.zoma1101.swordskill.smithing.ForgedWeaponData forged =
+                com.zoma1101.swordskill.smithing.ForgedWeaponData.get(stack);
+        if (forged != null) {
+            String shared = WeaponTypeDetector.findWeaponName(forged.weaponType());
+            if (shared != null) {
+                return shared;
+            }
+            return "forged_" + forged.weaponType().name().toLowerCase(java.util.Locale.ROOT);
+        }
+        return WeaponTypeDetector.getWeaponName(stack);
+    }
+
+
+    private static WeaponData determineDualWielding(Player player) {
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack offHandItem = player.getOffhandItem();
 
-        if (!mainHandItem.isEmpty() && !offHandItem.isEmpty()) {
-            Set<SkillData.WeaponType> availableWeaponTypes = new HashSet<>(WeaponTypeDetector.detectWeaponTypes(mainHandItem));
-            Set<SkillData.WeaponType> offHandAvailableWeaponTypes = new HashSet<>(WeaponTypeDetector.detectWeaponTypes(offHandItem));
-            boolean mainHandOneHandedSword = availableWeaponTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
-            boolean offHandOneHandedSword = offHandAvailableWeaponTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
-            boolean mainHandClaw = availableWeaponTypes.contains(SkillData.WeaponType.CLAW);
-            boolean offHandClaw = offHandAvailableWeaponTypes.contains(SkillData.WeaponType.CLAW);
-
-            if (mainHandOneHandedSword && offHandOneHandedSword) {
-                // 武器種をまとめる
-                availableWeaponTypes.addAll(offHandAvailableWeaponTypes);
-                // DUAL_SWORD を追加
-                availableWeaponTypes.add(SkillData.WeaponType.DUALSWORD);
-                Set<SkillData.WeaponType> combinedTypes = new HashSet<>(availableWeaponTypes);// 他の武器種が両手に共通する場合も残すことを考慮し、重複を削除
-                availableWeaponTypes.clear();
-                availableWeaponTypes.addAll(combinedTypes);
-                return new WeaponData(availableWeaponTypes,"dual_sword");
-            }
-            if (mainHandClaw && offHandClaw) {
-                float default_cooldown = (float) player.getAttributeValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get());
-                Objects.requireNonNull(player.getAttribute(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get())).setBaseValue(default_cooldown-0.5);
-                return new WeaponData(availableWeaponTypes,"dual_claw");
-            }
+        if (mainHandItem.isEmpty() || offHandItem.isEmpty()) {
+            return null;
         }
+
+        Set<SkillData.WeaponType> mainTypes = getWeaponTypes(mainHandItem);
+        Set<SkillData.WeaponType> offHandTypes = getWeaponTypes(offHandItem);
+
+        boolean mainHandOneHanded = mainTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
+        boolean offHandOneHanded = offHandTypes.contains(SkillData.WeaponType.ONE_HANDED_SWORD);
+
+        if (mainHandOneHanded && offHandOneHanded) {
+            // 両手の武器種を統合
+            mainTypes.addAll(offHandTypes);
+            mainTypes.add(SkillData.WeaponType.DUALSWORD);
+            return new WeaponData(mainTypes, "dual_sword");
+        }
+
+        boolean mainHandClaw = mainTypes.contains(SkillData.WeaponType.CLAW);
+        boolean offHandClaw = offHandTypes.contains(SkillData.WeaponType.CLAW);
+
+        if (mainHandClaw && offHandClaw) {
+            // Attributeの変更処理はここで行わず、WeaponDataを受け取った呼び出し元やイベントで行うべき
+            mainTypes.addAll(offHandTypes);
+            return new WeaponData(mainTypes, "dual_claw");
+        }
+
         return null;
     }
 
+    private static WeaponData detectWeaponData(Player player) {
+        if (player == null) return null;
 
-    public static Set<SkillData.WeaponType> getWeaponTypes(Player player) {
-        if (player == null) {
-            return Collections.emptySet();
-        }
-        ItemStack mainHandItem = player.getMainHandItem();
-        return getWeaponTypes(mainHandItem);
-    }
+        Set<SkillData.WeaponType> weaponTypes = getWeaponTypes(player.getMainHandItem());
 
-
-    private static WeaponData getWeaponDataDetector(Player player) {
-        if (player != null) {
-            Set<SkillData.WeaponType> weaponTypes = getWeaponTypes(player);
-            if (!weaponTypes.isEmpty()) {
-                WeaponData DualSwordData = DualSwordSetter(player);
-                if (DualSwordData==null){
-                    String weaponName = WeaponTypeDetector.getWeaponName(player.getMainHandItem());
-                    return new WeaponData(weaponTypes, weaponName);
-                }
-                else {
-                    return DualSwordData;
+        if (!weaponTypes.isEmpty()) {
+            // 二刀流チェック
+            WeaponData dualSwordData = determineDualWielding(player);
+            if (dualSwordData != null) {
+                return dualSwordData;
+            }
+            // 爪武器は両手に爪を持たない限り claws スキルを使用できない
+            // 片手の爪を片手剣として自動判定してしまうのを防ぐため、フォールバックせず null を返す
+            if (weaponTypes.contains(SkillData.WeaponType.CLAW)) {
+                weaponTypes.remove(SkillData.WeaponType.CLAW);
+                if (weaponTypes.isEmpty()) {
+                    return null;
                 }
             }
-            else if (ServerConfig.AUTOWEAPON_SETTING.get()) {
-                WeaponData mainHandData = AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
-
-                if (mainHandData != null && !mainHandData.equals(None_WeaponData)) {
-                    // オフハンドもチェック
-                    WeaponData offHandData = AutoWeaponDataSetter.AutoWeaponDataSetting(player.getOffhandItem());
-
-                    if (offHandData != null && !offHandData.equals(None_WeaponData)) {
-                        boolean mainHandOneHandedSword = mainHandData.weaponType().contains(SkillData.WeaponType.ONE_HANDED_SWORD);
-                        boolean offHandOneHandedSword = offHandData.weaponType().contains(SkillData.WeaponType.ONE_HANDED_SWORD);
-
-                        // 両手が片手剣なら二刀流とする
-                        if (mainHandOneHandedSword && offHandOneHandedSword) {
-                            Set<SkillData.WeaponType> dualTypes = new HashSet<>(mainHandData.weaponType());
-                            dualTypes.addAll(offHandData.weaponType());
-                            dualTypes.add(SkillData.WeaponType.DUALSWORD);
-                            return new WeaponData(dualTypes, "dual_sword");
-                        }
-                    }
-                    return mainHandData;
-                }
-            }
+            // 通常武器
+            String weaponName = getWeaponName(player.getMainHandItem());
+            return new WeaponData(weaponTypes, weaponName);
         }
+        // 自動判定フォールバック
+        else if (ServerConfig.AUTOWEAPON_SETTING.get()) {
+            return AutoWeaponDataSetter.AutoWeaponDataSetting(player.getMainHandItem());
+        }
+
         return null;
     }
-
-    private static final Map<UUID, WeaponData> playerWeaponDataMap = new HashMap<>();
 
     public static void setWeaponType(Player player) {
-        WeaponData weaponData = getWeaponDataDetector(player);
-        playerWeaponDataMap.put(player.getUUID(), Objects.requireNonNullElse(weaponData, None_WeaponData));
+        WeaponData weaponData = detectWeaponData(player);
+        playerWeaponDataMap.put(player.getUUID(), Objects.requireNonNullElse(weaponData, NONE_WEAPON_DATA));
     }
 
     public static WeaponData getWeaponData(ServerPlayer player) {
-        return playerWeaponDataMap.get(player.getUUID());
+        return playerWeaponDataMap.getOrDefault(player.getUUID(), NONE_WEAPON_DATA);
     }
 
+    // 以下、Getter類
     public static String getWeaponName(ServerPlayer player) {
-        WeaponData weaponData = getWeaponData(player);
-        return weaponData.weaponName();
+        WeaponData data = getWeaponData(player);
+        return data != null ? data.weaponName() : null;
     }
 
     public static Set<SkillData.WeaponType> getWeaponType(ServerPlayer player) {
-        WeaponData weaponData = getWeaponData(player);
-        // weaponData が null の可能性
-        if (weaponData != null) {
-            return weaponData.weaponType();
-        }
-        return Collections.emptySet(); // null を返さないようにする
+        WeaponData data = getWeaponData(player);
+        return data != null ? data.weaponType() : Collections.emptySet();
     }
 }

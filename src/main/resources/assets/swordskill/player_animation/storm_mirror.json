@@ -6,73 +6,6 @@
 			"bones": {
 				"body": {
 					"rotation": {
-						"0.0417": {
-							"vector": [0, 25, 0],
-							"easing": "linear"
-						},
-						"0.4583": {
-							"vector": [0, -372.5, 0],
-							"easing": "easeOutBack",
-							"easingArgs": []
-						},
-						"0.5": {
-							"vector": [0, 0, 0],
-							"easing": "step",
-							"easingArgs": [1]
-						}
-					}
-				},
-				"right_arm": {
-					"rotation": {
-						"0.0": {
-							"vector": [166.32131, 1.54384, -111.1461],
-							"easing": "linear"
-						},
-						"0.0417": {
-							"vector": [166.32131, 1.54384, -111.1461],
-							"easing": "linear"
-						},
-						"0.4583": {
-							"vector": [322.90281, 7.35827, -70.0589],
-							"easing": "linear"
-						},
-						"0.5": {
-							"vector": [-38, 7.35827, -70.0589],
-							"easing": "step",
-							"easingArgs": [1]
-						}
-					}
-				},
-				"rightItem": {
-					"rotation": {
-						"0.125": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
-						},
-						"0.2083": {
-							"vector": [-45, 0, 0],
-							"easing": "linear"
-						}
-					},
-					"position": {
-						"0.125": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
-						},
-						"0.2083": {
-							"vector": [0, 0, 0],
-							"easing": "linear"
-						}
-					}
-				}
-			}
-		},
-		"storm_mirror.move": {
-			"loop": true,
-			"animation_length": 0.3333,
-			"bones": {
-				"body": {
-					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0],
 							"easing": "linear"
@@ -85,21 +18,59 @@
 				},
 				"right_arm": {
 					"rotation": {
-						"vector": [-178.54645, 14.96197, -84.41926],
-						"easing": "linear"
+						"0.0": {
+							"vector": [0, 0, 85],
+							"easing": "linear"
+						}
 					}
 				},
 				"rightItem": {
 					"rotation": {
-						"vector": [-45, 0, 0],
-						"easing": "linear"
+						"0.0": {
+							"vector": [-90, 0, 0],
+							"easing": "linear"
+						}
+					}
+				}
+			}
+		},
+		"storm_mirror.move": {
+			"loop": true,
+			"animation_length": 0.3333,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [22.5, 0, 0]
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"vector": [-153.85057, -14.7101, -49.40267]
+					}
+				},
+				"rightItem": {
+					"rotation": {
+						"vector": [0, 0, 0]
 					},
 					"position": {
-						"vector": [0, 0, 0],
-						"easing": "linear"
+						"vector": [0, 0, 0]
+					}
+				},
+				"head": {
+					"rotation": {
+						"vector": [-25, 0, 0]
+					},
+					"position": {
+						"vector": [0, 0, -2]
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"vector": [33.83914, -24.94169, -17.23442]
 					}
 				}
 			}
 		}
-	}
+	},
+	"geckolib_format_version": 2
 }

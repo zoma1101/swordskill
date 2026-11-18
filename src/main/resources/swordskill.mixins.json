@@ -1,14 +1,18 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "",
+  "package": "com.zoma1101.swordskill.mixin",
   "compatibilityLevel": "JAVA_8",
   "refmap": "swordskill.refmap.json",
   "mixins": [
+    "BlockDisplayAccessor",
+    "DisplayAccessor"
   ],
-  "client": [],
+  "client": [
+    "CameraMixin",
+    "ItemRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }
 }
-

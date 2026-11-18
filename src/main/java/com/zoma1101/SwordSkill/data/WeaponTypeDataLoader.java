@@ -2,13 +2,13 @@ package com.zoma1101.swordskill.data;
 
 import com.google.gson.*;
 import com.zoma1101.swordskill.swordskills.SkillData;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -100,12 +100,8 @@ public class WeaponTypeDataLoader extends SimpleJsonResourceReloadListener {
         List<Item> items = new ArrayList<>();
         itemIdsJson.forEach(jsonElement -> {
             ResourceLocation itemId = parse(jsonElement.getAsString());
-            Item item = ForgeRegistries.ITEMS.getValue(itemId);
-            if (item != null) {
-                items.add(item);
-            } else {
-                LOGGER.info("Item not found: {}", itemId);
-            }
+            Item item = BuiltInRegistries.ITEM.get(itemId);
+            items.add(item);
         });
 
         return new PendingWeaponTypeData(name, weaponTypes, items);

@@ -1,33 +1,51 @@
 package com.zoma1101.swordskill.client.handler;
+import net.minecraftforge.fml.common.Mod;
 
 import com.zoma1101.swordskill.SwordSkill;
+import com.zoma1101.swordskill.SwordSkillFeatures;
+import com.zoma1101.swordskill.AnimationUtils;
 import com.zoma1101.swordskill.client.gui.HudPositionSettingScreen;
+import com.zoma1101.swordskill.client.gui.ProficiencyOverviewScreen;
+import com.zoma1101.swordskill.client.gui.StatusScreen;
 import com.zoma1101.swordskill.client.gui.SwordSkillSelectionScreen;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailManager;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailRenderer;
 import com.zoma1101.swordskill.client.screen.Keybindings;
+import com.zoma1101.swordskill.client.sound.ChargeSoundInstance;
+import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeDetector;
 import com.zoma1101.swordskill.effects.SwordSkillAttribute;
-import com.zoma1101.swordskill.network.*;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
+import com.zoma1101.swordskill.payload.CheckSkillUnlockedPayload;
+import com.zoma1101.swordskill.payload.CounterChargePayload;
+import com.zoma1101.swordskill.payload.SkillLoadSlotPayload;
+import com.zoma1101.swordskill.payload.SkillRequestPayload;
+import com.zoma1101.swordskill.payload.UseSkillPayload;
+import com.zoma1101.swordskill.swordskills.SkillChains;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
+import com.zoma1101.swordskill.sounds.SwordSkillSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.KeyMapping;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.client.event.InputEvent;
+import com.zoma1101.swordskill.compat.PacketDistributor;
+import com.mojang.blaze3d.platform.InputConstants;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.zoma1101.swordskill.IsAnimation.PlayerAnimation;
 import static com.zoma1101.swordskill.client.handler.ClientTickHandler.getSelectedSlot;
 import static com.zoma1101.swordskill.data.WeaponTypeUtils.*;
 import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
@@ -35,20 +53,41 @@ import static com.zoma1101.swordskill.swordskills.SkillData.SkillType.*;
 @Mod.EventBusSubscriber(modid = SwordSkill.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientForgeHandler {
 
-    // =========================================================================
-    // 既存フィールド
-    // =========================================================================
-
     private static final Map<Integer, Integer> cooldowns = new HashMap<>();
-    private static int addSkillIndex = 0;
-    private static Integer skillUsedTicks = null;
-    private static Integer limitTickMax = 20;
-    private static final Integer limitTickMin = 2;
     private static boolean SetWeaponType = false;
+    private static SkillCharge activeSkillCharge;
 
-    // =========================================================================
-    // 既存ハンドラー
-    // =========================================================================
+    /** チャージ中にメインハンド武器を着色発光させるための色 (RGB)。-1 は非チャージ。 */
+    public static int chargingItemColor = -1;
+
+    /** 現在スキルをチャージ中かどうか。 */
+    public static boolean isCharging = false;
+
+    /** チャージ中に回し続けるループサウンド（終了時は自ら or {@link #clearSkillCharge} が停止する）。 */
+    private static ChargeSoundInstance chargeLoopSound;
+
+    /** スキル使用キー（-1 = 選択中のスロット、0〜4 = 固定スロット）。 */
+    private static final SkillUseKey[] SKILL_KEYS = {
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key, -1),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_0, 0),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_1, 1),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_2, 2),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_3, 3),
+            new SkillUseKey(Keybindings.INSTANCE.SwordSkill_Use_Key_4, 4)
+    };
+
+    @SubscribeEvent
+    public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        ClientSkillSlotHandler.reset();
+        ClientTickHandler.reset();
+        ClientUnlockedSkillsHandler.reset(); // アンロック情報もリセット
+        ClientSkillLevelHandler.reset(); // スキルレベルもリセット
+        ClientProficiencyHandler.reset(); // 熟練度もリセット
+        ClientPlayerLevelHandler.reset(); // プレイヤーレベルもリセット
+        cooldowns.clear();
+        clearSkillCharge(Minecraft.getInstance().player);
+        SetWeaponType = false;
+    }
 
     public static void setSelectedSkillIndex(int index) {
         if (Minecraft.getInstance().player != null) {
@@ -57,111 +96,37 @@ public class ClientForgeHandler {
     }
 
     @SubscribeEvent
-    public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        ClientSkillSlotHandler.reset();
-        cooldowns.clear();
-        addSkillIndex = 0;
-        skillUsedTicks = null;
-        SetWeaponType = false;
-    }
-
-    @SubscribeEvent
-    public static void clientTick(TickEvent.ClientTickEvent event) {
+    public static void clientTick(ClientTickEvent event) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            updateCooldowns();
+        if (player == null)
+            return;
 
-            if (SetWeaponType && event.phase == TickEvent.Phase.END) {
-                if (WeaponTypeDetector.isReady() || Minecraft.getInstance().player == null)
-                    return;
+        // チャージ中に武器スロット／武器そのものが変わったら、その時点でキャンセルする。
+        // 旧実装のように ItemStack の参照を保持し続けると復元先がズレるため。
+        if (activeSkillCharge != null
+                && (player.getInventory().selected != activeSkillCharge.weaponSlot()
+                        || player.getMainHandItem().getItem() != activeSkillCharge.weaponItem())) {
+            clearSkillCharge(player);
+        }
+        if (activeSkillCharge == null) {
+            isCharging = false;
+            chargingItemColor = -1;
+        }
+
+        updateCooldowns();
+
+        // 武器タイプの初期同期
+        if (SetWeaponType) {
+            if (WeaponTypeDetector.isReady()) {
                 String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
                 setWeaponType(player);
-                NetworkHandler.sendToServer(new SkillLoadSlotPacket(weaponName));
+                PacketDistributor.sendToServer(new SkillLoadSlotPayload(weaponName));
                 SetWeaponType = false;
             }
-
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()]);
-            }
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key_0.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[0]);
-            }
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key_1.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[1]);
-            }
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key_2.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[2]);
-            }
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key_3.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[3]);
-            }
-            while (Keybindings.INSTANCE.SwordSkill_Use_Key_4.consumeClick()) {
-                UseSkill(ClientSkillSlotHandler.getSkillSlotInfo()[4]);
-            }
-
-            if (skillUsedTicks != null) {
-                skillUsedTicks++;
-                if (skillUsedTicks > limitTickMax) {
-                    addSkillIndex = 0;
-                    skillUsedTicks = null;
-                }
-            }
         }
+
+        handleSkillUseInputs(player);
     }
-
-    @SubscribeEvent
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
-            return;
-        // 描画のみ（一人称のキャプチャは onRenderHand で行う）
-        SwordTrailRenderer.render(event);
-    }
-
-    // RenderHandEvent を使い、ItemInHandRenderer と同じ数式でビュー空間の剣先座標を計算して記録する。
-    // これにより Player Animator のボーン依存を完全に排除し、一人称で確実にトレイルが動く。
-    @SubscribeEvent
-    public static void onRenderHand(net.minecraftforge.client.event.RenderHandEvent event) {
-        if (event.getHand() != net.minecraft.world.InteractionHand.MAIN_HAND)
-            return;
-
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null || !mc.options.getCameraType().isFirstPerson())
-            return;
-
-        player.getCapability(com.zoma1101.swordskill.capability.PlayerSkillsProvider.PLAYER_SKILLS)
-                .ifPresent(skills -> {
-                    if (!skills.isTrailEnabled()) {
-                        SwordTrailManager.clear(player.getUUID());
-                        return;
-                    }
-
-                    // 攻撃アニメーション中のみ記録
-                    if (player.getAttackAnim(event.getPartialTick()) > 0) {
-                        SwordTrailLayer.TrailSession session = SwordTrailManager.getSession(player.getUUID());
-
-                        if (!session.active) {
-                            session.filterOldPoints();
-                            return;
-                        }
- 
-                        net.minecraft.client.Camera camera = mc.gameRenderer.getMainCamera();
-
-                        // 最初期のコードが持っていた「アニメーションデータから座標を出す」メソッドを呼び出す
-                        // これにより、最も動作が安定していた頃のロジックが一人称で動きます
-                        SwordTrailLayer.captureFirstPersonFromKeyframe(
-                                session,
-                                player,
-                                player.getViewYRot(event.getPartialTick()));
-                    } else {
-                        // アニメーションが終わったら古いポイントを消去
-                        SwordTrailManager.getSession(player.getUUID()).filterOldPoints();
-                    }
-                });
-    }
-    // =========================================================================
-    // 既存ハンドラー（続き）
-    // =========================================================================
 
     private static void updateCooldowns() {
         cooldowns.forEach((skillId, remainingTicks) -> {
@@ -177,46 +142,101 @@ public class ClientForgeHandler {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        NetworkHandler.INSTANCE.sendToServer(new CheckSkillUnlockedPacket());
+        PacketDistributor.sendToServer(new SkillRequestPayload());
+        PacketDistributor.sendToServer(new CheckSkillUnlockedPayload());
+        PacketDistributor.sendToServer(new com.zoma1101.swordskill.payload.RequestSkillLevelsPayload());
         SetWeaponType = true;
     }
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
-        if (event.getAction() != org.lwjgl.glfw.GLFW.GLFW_PRESS) return;
-
-        String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
-        if (weaponName != null && !weaponName.equals("None")) {
-            if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isDown()) {
-                Minecraft.getInstance().setScreen(new SwordSkillSelectionScreen());
-            } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isDown()) {
-                Minecraft.getInstance().setScreen(new HudPositionSettingScreen());
-            } else if (Keybindings.INSTANCE.SwordSkill_Wheel_Key.isDown()) {
-                if (Minecraft.getInstance().screen == null) {
-                    com.zoma1101.swordskill.client.gui.SkillWheelOverlay.openWheel();
-                }
-            }
+        if (event.getAction() == GLFW.GLFW_PRESS) {
+            handleSystemKeyInteraction(event.getKey(), false);
+            suppressVanillaHotbarSwitch(event.getKey(), event.getScanCode());
         }
     }
 
+    /**
+     * スキル使用キーがバニラのホットバー選択キー（1〜9）と重なっている場合、
+     * バニラ側のホットバー切り替えを打ち消す。今の武器でそのスキルを撃てないときは
+     * 通常どおりホットバーを切り替える。
+     */
+    private static void suppressVanillaHotbarSwitch(int key, int scanCode) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.screen != null || minecraft.options == null) {
+            return;
+        }
+        for (int slot = 0; slot < 9; slot++) {
+            KeyMapping hotbar = minecraft.options.keyHotbarSlots[slot];
+            if (!hotbar.matches(key, scanCode)) {
+                continue;
+            }
+            if (!isSkillUsableFromKey(key)) {
+                return;
+            }
+            // KeyMapping.click() はこのイベントの直前に積まれているので、ここで消費して打ち消す
+            while (hotbar.consumeClick()) {
+                // 何もしない
+            }
+            return;
+        }
+    }
+
+    /** そのキーに割り当てたスキルを、今装備している武器種で撃てるか。 */
+    private static boolean isSkillUsableFromKey(int key) {
+        Minecraft minecraft = Minecraft.getInstance();
+        int[] skillSlots = ClientSkillSlotHandler.getSkillSlotInfo();
+        Set<SkillData.WeaponType> equipped = ClientSkillSlotHandler.getCurrentWeaponTypes();
+        if (skillSlots == null || equipped == null || equipped.isEmpty()) {
+            return false;
+        }
+        for (SkillUseKey skillKey : SKILL_KEYS) {
+            if (skillKey.mapping().getKey().getValue() != key) {
+                continue;
+            }
+            int slot = skillKey.slot() < 0 ? minecraft.player.getInventory().selected : skillKey.slot();
+            if (slot < 0 || slot >= skillSlots.length) {
+                return false;
+            }
+            SkillData skill = SwordSkillRegistry.SKILLS.get(skillSlots[slot]);
+            if (skill == null || !skill.isAssignable() || skill.getDataDefinition() == null) {
+                return false;
+            }
+            return skill.getAvailableWeaponTypes().stream().anyMatch(equipped::contains);
+        }
+        return false;
+    }
+
     @SubscribeEvent
-    public static void onClientCommandRegister(net.minecraftforge.client.event.RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(
-                net.minecraft.commands.Commands.literal("testtrailtex")
-                        .then(net.minecraft.commands.Commands.argument("texture", com.mojang.brigadier.arguments.StringArgumentType.string())
-                                .executes(context -> {
-                                    String tex = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "texture");
-                                    com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = 
-                                            net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("swordskill", "textures/entity/" + tex + ".png");
-                                    context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture set to: textures/entity/" + tex + ".png"));
-                                    return 1;
-                                }))
-                        .executes(context -> {
-                            com.zoma1101.swordskill.client.renderer.layer.SwordTrailLayer.TEST_TEXTURE = null;
-                            context.getSource().sendSystemMessage(net.minecraft.network.chat.Component.literal("Trail texture reset to default."));
-                            return 1;
-                        })
-        );
+    public static void onMouseButtonInput(InputEvent.MouseButton.Post event) {
+        if (event.getAction() == GLFW.GLFW_PRESS) {
+            handleSystemKeyInteraction(event.getButton(), true);
+        }
+    }
+
+    /**
+     * GUIを開くなどのシステムキー操作のみハンドル（スキル使用は clientTick で consumeClick する）
+     */
+    private static void handleSystemKeyInteraction(int code, boolean isMouse) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen != null || mc.player == null)
+            return;
+
+        InputConstants.Key inputKey = isMouse ? InputConstants.Type.MOUSE.getOrCreate(code)
+                : InputConstants.Type.KEYSYM.getOrCreate(code);
+
+        if (Keybindings.INSTANCE.SwordSkill_Selector_Key.isActiveAndMatches(inputKey)) {
+            mc.setScreen(new SwordSkillSelectionScreen());
+        } else if (Keybindings.INSTANCE.SwordSkill_HUD_Setting.isActiveAndMatches(inputKey)) {
+            mc.setScreen(new HudPositionSettingScreen());
+        } else if (Keybindings.INSTANCE.SwordSkill_Status_Key.isActiveAndMatches(inputKey)) {
+            // ステータス画面が無効なリリースでは、熟練度一覧を直接開く
+            if (SwordSkillFeatures.STATUS_SCREEN) {
+                mc.setScreen(new StatusScreen());
+            } else {
+                mc.setScreen(new ProficiencyOverviewScreen());
+            }
+        }
     }
 
     public static float getCooldownRatio(int slotIndex) {
@@ -239,48 +259,432 @@ public class ClientForgeHandler {
         return 1.0f;
     }
 
-    private static void ExecuteSkill(int skillID, int coolDownSkillID) {
+    private static void ExecuteSkill(int skillID, int coolDownSkillID, int chargeTicks) {
         SkillData skillData = SwordSkillRegistry.SKILLS.get(skillID);
-        if (skillData != null) {
+        if (skillData != null && canAffordSkill(skillData)) {
             Set<SkillData.WeaponType> weaponType = ClientSkillSlotHandler.getCurrentWeaponTypes();
             String weaponName = ClientSkillSlotHandler.getCurrentWeaponName();
             if (weaponName != null && skillData.getAvailableWeaponTypes().stream()
                     .anyMatch(Objects.requireNonNull(weaponType)::contains)) {
-                NetworkHandler.sendToServer(new UseSkillPacket(skillData.getId(), skillData.getFinalTick()));
+
+                // サーバーへ送信
+                int appliedChargeTicks = (skillData.getDataDefinition() == null || !skillData.isChargeable()) ? 0 : chargeTicks;
+                PacketDistributor.sendToServer(
+                        new UseSkillPayload(skillData.getId(), appliedChargeTicks));
+
+                // クールダウン設定（スロットに対して設定）
                 cooldowns.put(coolDownSkillID, getCoolDown(skillData));
-                limitTickMax = skillData.getTransformLimitTick();
+
+                // アニメーション再生（サーバーからも同じ指示が届くのでエコーとして読み飛ばす）
+                String predictedType = skillData.getType().equals(RUSH) ? "start" : "";
+                PlayerAnimation(Minecraft.getInstance().player.getId(), skillID, predictedType);
+                AnimationUtils.expectServerEcho(skillID, predictedType);
             }
         }
     }
 
-    private static void UseSkill(int selectedSkillIndex) {
-        if (selectedSkillIndex >= 0 && selectedSkillIndex < SwordSkillRegistry.SKILLS.size()) {
-            int currentSkillIndex = selectedSkillIndex + addSkillIndex;
-            if (!cooldowns.containsKey(selectedSkillIndex) || cooldowns.get(selectedSkillIndex) <= 0) {
-                ExecuteSkill(selectedSkillIndex, selectedSkillIndex);
-                skillUsedTicks = 0;
-            } else if (skillUsedTicks != null) {
-                if (skillUsedTicks < limitTickMax && skillUsedTicks > limitTickMin
-                        && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM) {
-                    addSkillIndex++;
-                    currentSkillIndex = selectedSkillIndex + addSkillIndex;
-                    ExecuteSkill(currentSkillIndex, selectedSkillIndex);
-                    skillUsedTicks = 0;
-                } else if (skillUsedTicks < limitTickMax && skillUsedTicks > limitTickMin
-                        && SwordSkillRegistry.SKILLS.get(currentSkillIndex).getType() == TRANSFORM_FINISH) {
-                    ExecuteSkill(currentSkillIndex, selectedSkillIndex);
-                    addSkillIndex = 0;
-                    skillUsedTicks = null;
+    private static void UseSkill(int selectedSkillIndex, int chargeTicks) {
+        UseSkill(selectedSkillIndex, chargeTicks, -1);
+    }
+
+    private static void UseSkill(int selectedSkillIndex, int chargeTicks, int comboNextSkillId) {
+        if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size())
+            return;
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null)
+            return;
+
+        // クールダウン中でないなら、通常発動
+        if (cooldowns.getOrDefault(selectedSkillIndex, 0) <= 0) {
+            // 派生先は元スキルからの派生時のみ使用できる（古いスロットデータ対策）
+            if (SkillChains.isDerived(selectedSkillIndex)) {
+                return;
+            }
+            ExecuteSkill(selectedSkillIndex, selectedSkillIndex, chargeTicks);
+            return;
+        }
+
+        // クールダウン中は派生しない（古いコンボ方式は廃止）
+        return;
+    }
+
+    /** horizontal / vertical 系のチャージ対象スキルから、元の軸名を取り出す。 */
+    private static String chargeAxisOf(String name) {
+        if (name.equals("horizontal") || name.startsWith("horizontal_")) {
+            return "horizontal";
+        }
+        if (name.equals("vertical") || name.startsWith("vertical_")) {
+            return "vertical";
+        }
+        return null;
+    }
+
+    private static boolean isChargeSkill(SkillData skill) {
+        return chargeAxisOf(skill.getName()) != null && skill.isChargeable();
+    }
+
+    /** チャージ時に実際に狙う軸の元スキルID。チャージ対象外なら -1。 */
+    private static int chargeTargetBaseId(SkillData skill, boolean crouching) {
+        String sourceAxis = chargeAxisOf(skill.getName());
+        if (sourceAxis == null) {
+            return -1;
+        }
+        String targetAxis = crouching
+                ? (sourceAxis.equals("horizontal") ? "vertical" : "horizontal")
+                : sourceAxis;
+        return findSkillIdByName(targetAxis);
+    }
+
+    private static boolean isSameChain(int firstSkillId, int secondSkillId) {
+        return firstSkillId >= 0 && secondSkillId >= 0
+                && SkillChains.start(firstSkillId) == SkillChains.start(secondSkillId);
+    }
+
+    private static boolean isNextUnlocked(int skillId) {
+        return skillId >= 0
+                && (ClientUnlockedSkillsHandler.isUnlocked(skillId)
+                        || (ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get()));
+    }
+
+    private static boolean isWeaponUsable(SkillData skill, Set<SkillData.WeaponType> weaponTypes) {
+        return skill != null && weaponTypes != null && !weaponTypes.isEmpty()
+                && skill.getAvailableWeaponTypes().stream().anyMatch(weaponTypes::contains);
+    }
+
+    /**
+     * クライアントが保持している SP で発動できるか。同期値はサーバーより僅かに遅れるが、
+     * 常にサーバー値以下なので、ここで足りなければサーバーでも必ず拒否される。
+     */
+    private static boolean canAffordSkill(SkillData skill) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (skill == null) {
+            return false;
+        }
+        if (player == null || player.isCreative()) {
+            return true;
+        }
+        return com.zoma1101.swordskill.network.toClient.ClientSPData.get() >= skill.getSpCost();
+    }
+
+    /** SP が足りない段を選んでいたら、同じチェーン内の払える段まで下げる。 */
+    private static SkillData highestAffordableTier(SkillData target) {
+        SkillData candidate = target;
+        while (candidate != null && !canAffordSkill(candidate)) {
+            int parentId = SkillChains.parentOf(candidate.getId());
+            if (parentId < 0) {
+                return null;
+            }
+            candidate = SwordSkillRegistry.SKILLS.get(parentId);
+        }
+        return candidate;
+    }
+
+    /**
+     * チャージ開始前に、そのスキルが実際に発動できる状態かを判定する。
+     * 発動できないときにチャージ演出（構え・発光・効果音）だけが再生されるのを防ぐ。
+     */
+    private static boolean canStartSkillUse(int selectedSkillIndex, boolean crouching) {
+        if (selectedSkillIndex < 0 || selectedSkillIndex >= SwordSkillRegistry.SKILLS.size()) {
+            return false;
+        }
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillIndex);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null) {
+            return false;
+        }
+        Set<SkillData.WeaponType> weaponTypes = ClientSkillSlotHandler.getCurrentWeaponTypes();
+        if (!isWeaponUsable(selectedSkill, weaponTypes)) {
+            return false;
+        }
+
+        if (cooldowns.getOrDefault(selectedSkillIndex, 0) <= 0) {
+            if (SkillChains.isDerived(selectedSkillIndex)) {
+                return false;
+            }
+            if (!canAffordSkill(selectedSkill)) {
+                return false;
+            }
+            // しゃがみ中のチャージは別軸のスキルを発動するため、その軸のクールダウン・武器種・SPも必要
+            if (isChargeSkill(selectedSkill)) {
+                int targetBaseId = chargeTargetBaseId(selectedSkill, crouching);
+                return targetBaseId < 0
+                        || (cooldowns.getOrDefault(targetBaseId, 0) <= 0
+                                && isWeaponUsable(SwordSkillRegistry.SKILLS.get(targetBaseId), weaponTypes)
+                                && canAffordSkill(SwordSkillRegistry.SKILLS.get(targetBaseId)));
+            }
+            return true;
+        }
+
+        // クールダウン中は派生しない（古いコンボ方式は廃止）
+        return false;
+    }
+
+    private static SkillData getChargeTransformVariant(int selectedSkillId, int chargeTicks, boolean crouching) {
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillId);
+        if (selectedSkill == null || selectedSkill.getDataDefinition() == null || !selectedSkill.isChargeable()) return null;
+        String sourceAxis = chargeAxisOf(selectedSkill.getName());
+        if (sourceAxis != null) {
+            return getAxisChargeVariant(sourceAxis, chargeTicks, crouching);
+        }
+        return getChainChargeVariant(selectedSkill, chargeTicks);
+    }
+
+    /** horizontal / vertical 系のチャージ派生（しゃがみで軸を入れ替える）。 */
+    private static SkillData getAxisChargeVariant(String sourceAxis, int chargeTicks, boolean crouching) {
+        String targetAxis = crouching
+                ? (sourceAxis.equals("horizontal") ? "vertical" : "horizontal")
+                : sourceAxis;
+        int stage = chargeTicks < 14 ? 0 : chargeTicks < 27 ? 1 : 2;
+        String targetName = targetAxis + (stage == 0 ? "" : stage == 1 ? "_arc" : "_square");
+        SkillData target = findSkillByName(targetName);
+        if (target == null || target.getDataDefinition() == null) return null;
+
+        // If the charge tier is locked, use the highest unlocked tier instead.
+        boolean canUseLockedSkills = ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get();
+        while (target != null && stage >= 0
+                && !canUseLockedSkills && !ClientUnlockedSkillsHandler.isUnlocked(target.getId())) {
+            if (stage == 0) return null;
+            stage--;
+            targetName = targetAxis + (stage == 0 ? "" : stage == 1 ? "_arc" : "_square");
+            target = findSkillByName(targetName);
+        }
+        return target;
+    }
+
+    /**
+     * excite など、horizontal / vertical 以外の TRANSFORM チェーンをチャージ段階で進める。
+     * 選択中スキルがチェーン先頭のときだけ 1 段目・2 段目を返す。
+     */
+    private static SkillData getChainChargeVariant(SkillData selectedSkill, int chargeTicks) {
+        if (!SkillChains.isChainMember(selectedSkill)
+                || SkillChains.start(selectedSkill.getId()) != selectedSkill.getId()) {
+            return null;
+        }
+        List<Integer> chain = SkillChains.chainOf(selectedSkill.getId());
+        if (chain.isEmpty()) {
+            return null;
+        }
+        int stage = Math.min(chargeTicks < 14 ? 0 : chargeTicks < 27 ? 1 : 2, chain.size() - 1);
+        boolean canUseLockedSkills = ServerConfig.UnlockedSkill != null && !ServerConfig.UnlockedSkill.get();
+        while (stage >= 0) {
+            SkillData target = SwordSkillRegistry.SKILLS.get(chain.get(stage));
+            if (target != null && target.getDataDefinition() != null
+                    && (canUseLockedSkills || ClientUnlockedSkillsHandler.isUnlocked(target.getId()))) {
+                return target;
+            }
+            stage--;
+        }
+        return null;
+    }
+
+    private static void UseChargedTransformSkill(int selectedSkillId, int chargeTicks, boolean crouching) {
+        UseChargedTransformSkill(selectedSkillId, chargeTicks, crouching, -1);
+    }
+
+    private static void UseChargedTransformSkill(int selectedSkillId, int chargeTicks, boolean crouching,
+            int comboNextSkillId) {
+        SkillData targetSkill = getChargeTransformVariant(selectedSkillId, chargeTicks, crouching);
+        if (targetSkill == null) {
+            UseSkill(selectedSkillId, chargeTicks);
+            return;
+        }
+
+        // horizontal/vertical は軸の元スキルのクールダウンも共有する。
+        // それ以外のチェーン（excite など）は選択中スキル自身がチェーン先頭。
+        SkillData selectedSkill = SwordSkillRegistry.SKILLS.get(selectedSkillId);
+        String sourceAxis = selectedSkill == null ? null : chargeAxisOf(selectedSkill.getName());
+        int baseSkillId;
+        if (sourceAxis != null) {
+            baseSkillId = targetSkill.getName().startsWith("vertical")
+                    ? findSkillIdByName("vertical") : findSkillIdByName("horizontal");
+            if (baseSkillId < 0) {
+                UseSkill(selectedSkillId, chargeTicks);
+                return;
+            }
+        } else {
+            baseSkillId = selectedSkillId;
+        }
+
+        boolean cooldownReady = cooldowns.getOrDefault(selectedSkillId, 0) <= 0
+                && cooldowns.getOrDefault(baseSkillId, 0) <= 0;
+        if (!cooldownReady) return;
+
+        // 長押しで選んだ段の SP が足りない場合は、払える段まで下げて発動する
+        targetSkill = highestAffordableTier(targetSkill);
+        if (targetSkill == null) {
+            return;
+        }
+
+        ExecuteSkill(targetSkill.getId(), selectedSkillId, chargeTicks);
+        // 別のキーからチャージ派生した場合も、派生元チェーンのスロットをクールダウンさせる
+        if (baseSkillId != selectedSkillId) {
+            cooldowns.put(baseSkillId, getCoolDown(targetSkill));
+        }
+    }
+
+    private static int findSkillIdByName(String name) {
+        SkillData skill = findSkillByName(name);
+        return skill == null ? -1 : skill.getId();
+    }
+
+    private static SkillData findSkillByName(String name) {
+        return SwordSkillRegistry.SKILLS.values().stream()
+                .filter(skill -> skill.getName().equals(name))
+                .findFirst().orElse(null);
+    }
+
+    private static void handleSkillUseInputs(LocalPlayer player) {
+        SkillUseKey[] keys = SKILL_KEYS;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.screen != null || !player.isAlive()) {
+            clearSkillCharge(player);
+            for (SkillUseKey key : keys) {
+                while (key.mapping().consumeClick()) {
+                }
+            }
+            return;
+        }
+
+        // 鍔迫り合い中はスキル入力を消費する（サーバーも発動を拒否する）
+        if (com.zoma1101.swordskill.client.handler.SkillClashHandler.isActive()) {
+            clearSkillCharge(player);
+            for (SkillUseKey key : keys) {
+                while (key.mapping().consumeClick()) {
+                }
+            }
+            return;
+        }
+
+        for (SkillUseKey key : keys) {
+            while (key.mapping().consumeClick()) {
+                if (activeSkillCharge != null) {
+                    continue;
+                }
+                int skillIndex = key.slot() < 0
+                        ? ClientSkillSlotHandler.getSkillSlotInfo()[getSelectedSlot()]
+                        : ClientSkillSlotHandler.getSkillSlotInfo()[key.slot()];
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillIndex);
+                if (skill != null && skill.getDataDefinition() != null) {
+                    // クールダウン中・派生受付外・武器不一致などで発動できない場合は、
+                    // チャージ演出だけが再生されないようにここで消費する
+                    if (!canStartSkillUse(skillIndex, player.isCrouching())) {
+                        continue;
+                    }
+                    // チャージ不可スキルは長押し charge を行わず即時発動
+                    if (!skill.isChargeable()) {
+                        UseSkill(skillIndex, 0);
+                        continue;
+                    }
+                    String animationType = skill.getType() == RUSH ? "start" : "";
+                    AnimationUtils.PlayerChargeAnim(player, skillIndex, animationType);
+                    if (skill.isCounter()) {
+                        PacketDistributor.sendToServer(new CounterChargePayload(skillIndex, true));
+                    }
+                    ItemStack weapon = player.getMainHandItem();
+                    // グリントは描画時に付与する（ItemStack のコンポーネントを書き換えない）。
+                    // 書き換え方式だとキャンセル時に復元漏れが起き、光が残ることがある。
+                    // スキル色も保持（将来的な直接着色用）
+                    if (skill.getDataDefinition() != null) {
+                        String hex = skill.getDataDefinition().color();
+                        if (hex != null && hex.startsWith("#") && hex.length() == 7) {
+                            try {
+                                chargingItemColor = Integer.parseInt(hex.substring(1), 16);
+                            } catch (NumberFormatException ignored) {
+                                chargingItemColor = -1;
+                            }
+                        }
+                    }
+                    isCharging = true;
+                    activeSkillCharge = new SkillCharge(key.mapping(), skillIndex, player.tickCount,
+                            player.getInventory().selected, weapon.getItem(), -1);
+                    startChargeSounds();
+                } else {
+                    UseSkill(skillIndex, 0);
                 }
             }
         }
+
+        if (activeSkillCharge != null && !activeSkillCharge.mapping().isDown()) {
+            SkillCharge charge = activeSkillCharge;
+            int chargeTicks = Math.max(0, Math.min(DataDrivenSkill.MAX_CHARGE_DURATION_TICKS,
+                    player.tickCount - charge.startTick()));
+            clearSkillCharge(player);
+            UseChargedTransformSkill(charge.skillIndex(), chargeTicks, player.isCrouching(),
+                    charge.comboNextSkillId());
+        }
+    }
+
+    private static void clearSkillCharge(LocalPlayer player) {
+        stopChargeSounds();
+        if (activeSkillCharge == null) {
+            return;
+        }
+        SkillData chargeSkill = SwordSkillRegistry.SKILLS.get(activeSkillCharge.skillIndex());
+        if (chargeSkill != null && chargeSkill.isCounter()) {
+            PacketDistributor.sendToServer(new CounterChargePayload(activeSkillCharge.skillIndex(), false));
+        }
+        isCharging = false;
+        chargingItemColor = -1;
+        if (player != null) {
+            AnimationUtils.StopPlayerAnimation(player);
+        }
+        activeSkillCharge = null;
+    }
+
+    /**
+     * チャージ開始時のサウンド。チャージ中ずっと鳴り続けるループ音を再生する。
+     *
+     * <p>ループ音は {@link ChargeSoundInstance} が {@link #isCharging} を見て自ら停止する。</p>
+     */
+    private static void startChargeSounds() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getSoundManager() == null) {
+            return;
+        }
+        stopChargeSounds(); // 二重再生の防止
+        chargeLoopSound = new ChargeSoundInstance(SwordSkillSounds.CHARGE.get(), 1.0F, 1.0F);
+        minecraft.getSoundManager().play(chargeLoopSound);
+    }
+
+    /** チャージ中のループ音を即時停止する（キャンセル・発動・ログアウト時）。 */
+    private static void stopChargeSounds() {
+        if (chargeLoopSound == null) {
+            return;
+        }
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.getSoundManager() != null) {
+            minecraft.getSoundManager().stop(chargeLoopSound);
+        }
+        chargeLoopSound.stopNow();
+        chargeLoopSound = null;
+    }
+
+    /**
+     * チャージ中グリントの描画判定。ItemStack のコンポーネントを書き換えないため、
+     * キャンセル時に消し忘れて武器へ残ることはない。
+     */
+    public static boolean shouldRenderChargeGlint(ItemStack stack) {
+        if (!isCharging || activeSkillCharge == null) {
+            return false;
+        }
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null
+                && player.getInventory().selected == activeSkillCharge.weaponSlot()
+                && stack == player.getMainHandItem()
+                && stack.getItem() == activeSkillCharge.weaponItem();
+    }
+
+    private record SkillUseKey(KeyMapping mapping, int slot) {
+    }
+
+    private record SkillCharge(KeyMapping mapping, int skillIndex, int startTick,
+            int weaponSlot, Item weaponItem, int comboNextSkillId) {
     }
 
     static int getCoolDown(SkillData skillData) {
         LocalPlayer player = Minecraft.getInstance().player;
-        double cooldown = player != null
+        double cooldownAttr = (player != null)
                 ? player.getAttributeBaseValue(SwordSkillAttribute.COOLDOWN_ATTRIBUTE.get())
-                : 0;
-        return (int) (skillData.getCooldown() * cooldown);
+                : 1.0;
+        return (int) (skillData.getCooldown() * cooldownAttr);
     }
 }

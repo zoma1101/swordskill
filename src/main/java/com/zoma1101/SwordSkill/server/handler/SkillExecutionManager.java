@@ -1,15 +1,14 @@
 package com.zoma1101.swordskill.server.handler;
 
-import com.zoma1101.swordskill.event.SkillTryUseEvent; // ★追加
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
+import com.zoma1101.swordskill.payload.PlayAnimationPayload;
 import com.zoma1101.swordskill.swordskills.ISkill;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.PacketDistributor;
+import com.zoma1101.swordskill.compat.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,33 +18,48 @@ import java.util.UUID;
 
 public class SkillExecutionManager {
     public static final Map<UUID, SkillExecutionData> skillExecutions = new HashMap<>();
-
-    // ★追加: ISkillインスタンスのキャッシュ (リフレクション負荷対策)
-    private static final Map<Integer, ISkill> skillInstanceCache = new HashMap<>();
-
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static void startSkillExecution(ServerPlayer player, int skillId, int finalTick) {
-        // ★追加: スキル名を取得
-        SkillData skillData = SwordSkillRegistry.SKILLS.get(skillId);
-        String skillName = (skillData != null) ? skillData.getName() : "";
+    /**
+     * スキル実行インスタンスのキャッシュ。
+     *
+     * <p>{@link ISkill#execute} は状態を引数で受け取る設計で、実装（{@link DataDrivenSkill}）は
+     * フィールドを持たない。毎 tick リフレクションで生成し直す必要はないのでクラスごとに使い回す。</p>
+     */
+    private static final Map<Class<? extends ISkill>, ISkill> SKILL_INSTANCES = new HashMap<>();
 
-        // ★追加: スキル発動試行イベントの発火
-        SkillTryUseEvent event = new SkillTryUseEvent(player, skillName);
-        if (net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(event)) {
-            // イベントがキャンセルされた場合、処理を中断（リターン）する
-            LOGGER.info("スキル実行がキャンセルされました: プレイヤー={}, スキルID={}", player.getName().getString(), skillId);
-            return;
+    /** スキルクラスのインスタンスを取得する（初回のみリフレクションで生成）。 */
+    public static ISkill skillInstance(SkillData skill) throws ReflectiveOperationException {
+        Class<? extends ISkill> skillClass = skill.getSkillClass();
+        ISkill cached = SKILL_INSTANCES.get(skillClass);
+        if (cached != null) {
+            return cached;
         }
+        ISkill created = skillClass.getDeclaredConstructor().newInstance();
+        SKILL_INSTANCES.put(skillClass, created);
+        return created;
+    }
 
-        // ★変更: 開始時のスロット番号を保存
-        int initialSlot = player.getInventory().selected;
-        skillExecutions.put(player.getUUID(), new SkillExecutionData(skillId, (int) player.level().getGameTime(), finalTick, initialSlot));
+    public static void startSkillExecution(ServerPlayer player, int skillId, int finalTick, float chargeMultiplier) {
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+        DataDrivenSkill.setChargeMultiplier(player.getUUID(), chargeMultiplier);
+        // 現在のホットバースロットを保存してインスタンス生成
+        SkillExecutionData execution = new SkillExecutionData(
+                skillId, (int) player.level().getGameTime(), finalTick, player.getInventory().selected);
+        SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+        if (skill != null) {
+            if (skill.getType() == SkillData.SkillType.RUSH && skill.getDataDefinition() != null) {
+                execution.rushPhase = "start";
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                        new PlayAnimationPayload(player.getId(), skillId,
+                                animationForPhase(skill, execution.rushPhase)));
+            } else {
+                PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                        new PlayAnimationPayload(player.getId(), skillId, ""));
+            }
+        }
+        skillExecutions.put(player.getUUID(), execution);
         LOGGER.info("スキル実行開始: プレイヤー={}, スキルID={}, 終了Tick={}", player.getName().getString(), skillId, finalTick);
-
-        // ★追加: クライアントにアニメーション再生パケットを送信
-        NetworkHandler.INSTANCE.send(net.minecraftforge.network.PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), 
-            new com.zoma1101.swordskill.network.toClient.PlayAnimationPacket(player.getId(), skillId, ""));
     }
 
     public static void handleSkillExecution(Level level, ServerPlayer player) {
@@ -53,34 +67,117 @@ public class SkillExecutionManager {
         SkillExecutionData skillExecution = skillExecutions.get(playerId);
 
         if (skillExecution != null) {
-            // ★追加: アイテム切り替え防止処理
+            // --- アイテム切り替え防止処理 ---
             if (player.getInventory().selected != skillExecution.initialSlot) {
                 player.getInventory().selected = skillExecution.initialSlot;
-                // クライアントにスロット変更を通知して同期ズレを防ぐ
                 player.connection.send(new ClientboundSetCarriedItemPacket(skillExecution.initialSlot));
             }
+            // -----------------------------
 
             int currentTick = (int) level.getGameTime();
-            if (currentTick - skillExecution.startTick <= skillExecution.finalTick) {
-                // スキル実行
-                executeSkill(level, player, skillExecution.skillId, currentTick - skillExecution.startTick);
+            // 重量ペナルティ: STR 不足時はソードスキルの進行が遅くなる
+            double skillSpeed = com.zoma1101.swordskill.smithing.SmithingEquipmentHandler
+                    .skillSpeedMultiplier(player);
+            int effectiveFinalTick = skillSpeed < 1.0D
+                    ? (int) Math.ceil(skillExecution.finalTick / skillSpeed)
+                    : skillExecution.finalTick;
+            if (currentTick - skillExecution.startTick <= effectiveFinalTick) {
+                int elapsedTicks = currentTick - skillExecution.startTick;
+                if (skillSpeed < 1.0D) {
+                    elapsedTicks = (int) Math.floor(elapsedTicks * skillSpeed);
+                }
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillExecution.skillId);
+                if (skill != null && skill.getDataDefinition() != null
+                        && skill.getType() == SkillData.SkillType.RUSH
+                        && elapsedTicks >= skill.getDataDefinition().rushStartTicks()
+                        && "start".equals(skillExecution.rushPhase)) {
+                    setRushPhase(player, skillExecution, "move");
+                }
+                executeSkill(level, player, skillExecution.skillId, elapsedTicks);
             } else {
-                // スキル実行情報削除
                 skillExecutions.remove(playerId);
-                if (SwordSkillRegistry.SKILLS.get(skillExecution.skillId).getType() == SkillData.SkillType.RUSH){
-                    NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new PlayAnimationPacket(player.getId(),0,""));
+                DataDrivenSkill.clearPlayerState(playerId);
+                // データパック再読み込みでスキルが消えている可能性があるので null を許容する
+                SkillData finishedSkill = SwordSkillRegistry.SKILLS.get(skillExecution.skillId);
+                if (finishedSkill != null && finishedSkill.getType() == SkillData.SkillType.RUSH) {
+                    PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                            new PlayAnimationPayload(player.getId(), 0, ""));
                 }
                 LOGGER.info("スキル実行終了: プレイヤー={}, スキルID={}", player.getName().getString(), skillExecution.skillId);
             }
         }
     }
 
-    // SkillExecutionData クラスの定義
-    public static class SkillExecutionData {
-        public int skillId;
-        public int startTick;
-        public int finalTick;
-        public int initialSlot; // ★追加
+    // 外部からスキル実行中か確認するためのメソッド
+    public static boolean isSkillActive(ServerPlayer player) {
+        return skillExecutions.containsKey(player.getUUID());
+    }
+
+    // ★追加: 現在実行中のスキルIDを取得するメソッド
+    public static int getRunningSkillId(ServerPlayer player) {
+        SkillExecutionData data = skillExecutions.get(player.getUUID());
+        return data != null ? data.skillId : -1;
+    }
+
+    public static void finishRush(ServerPlayer player) {
+        SkillExecutionData execution = skillExecutions.get(player.getUUID());
+        if (execution == null) {
+            return;
+        }
+        SkillData skill = SwordSkillRegistry.SKILLS.get(execution.skillId);
+        if (skill == null || skill.getDataDefinition() == null
+                || skill.getType() != SkillData.SkillType.RUSH) {
+            return;
+        }
+        if (!"finish".equals(execution.rushPhase)) {
+            setRushPhase(player, execution, "finish");
+        }
+        skillExecutions.remove(player.getUUID());
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+    }
+
+    public static void changeRushPhase(ServerPlayer player, String phase) {
+        SkillExecutionData execution = skillExecutions.get(player.getUUID());
+        SkillData skill = execution == null ? null : SwordSkillRegistry.SKILLS.get(execution.skillId);
+        if (execution == null || skill == null || skill.getType() != SkillData.SkillType.RUSH
+                || phase.equals(execution.rushPhase)) {
+            return;
+        }
+        setRushPhase(player, execution, phase);
+    }
+
+    public static void cancelRush(ServerPlayer player) {
+        SkillExecutionData execution = skillExecutions.remove(player.getUUID());
+        if (execution == null)
+            return;
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new PlayAnimationPayload(player.getId(), 0, ""));
+        DataDrivenSkill.clearPlayerState(player.getUUID());
+    }
+
+    private static void setRushPhase(ServerPlayer player, SkillExecutionData execution, String phase) {
+        execution.rushPhase = phase;
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,
+                new PlayAnimationPayload(player.getId(), execution.skillId,
+                        animationForPhase(SwordSkillRegistry.SKILLS.get(execution.skillId), phase)));
+    }
+
+    private static String animationForPhase(SkillData skill, String phase) {
+        var definition = skill.getDataDefinition();
+        return switch (phase) {
+            case "start" -> definition.rushStartAnimation();
+            case "move" -> definition.rushMoveAnimation();
+            case "finish" -> definition.rushFinishAnimation();
+            default -> phase;
+        };
+    }
+
+    private static class SkillExecutionData {
+        int skillId;
+        int startTick;
+        int finalTick;
+        int initialSlot;
+        String rushPhase;
 
         public SkillExecutionData(int skillId, int startTick, int finalTick, int initialSlot) {
             this.skillId = skillId;
@@ -91,30 +188,12 @@ public class SkillExecutionManager {
     }
 
     private static void executeSkill(Level level, ServerPlayer player, int skillId, int tickCount) {
-        // ★変更: キャッシュからインスタンスを取得 (computeIfAbsentで初回のみ生成)
-        ISkill skillInstance = skillInstanceCache.computeIfAbsent(skillId, id -> {
-            SkillData skill = SwordSkillRegistry.SKILLS.get(id);
-            if (skill != null) {
-                try {
-                    return skill.getSkillClass().getDeclaredConstructor().newInstance();
-                } catch (Exception e) {
-                    LOGGER.error("スキルインスタンスの生成に失敗しました。ID: " + id, e);
-                    return null;
-                }
-            }
-            return null;
-        });
-
-        if (skillInstance != null) {
+        SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+        if (skill != null) {
             try {
-                skillInstance.execute(level, player, tickCount, skillId);
+                skillInstance(skill).execute(level, player, tickCount, skillId);
             } catch (Exception e) {
-                LOGGER.error("スキル実行中にエラーが発生しました。ID: " + skillId, e);
-            }
-        } else {
-            // キャッシュ生成に失敗した場合など
-            if (tickCount == 0) { // ログスパム防止のため最初だけ警告
-                LOGGER.warn("スキルID {} に対応するスキルが見つかりません。", skillId);
+                LOGGER.error("スキル実行中にエラーが発生しました。", e);
             }
         }
     }

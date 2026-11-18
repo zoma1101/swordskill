@@ -1,13 +1,23 @@
 package com.zoma1101.swordskill.network.toClient;
 
-public class ClientSPData {
-    private static double playerSP;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-    public static void set(double sp) {
-        playerSP = sp;
+@OnlyIn(Dist.CLIENT)
+public class ClientSPData {
+    private static double currentSP;
+    private static double maxSP;
+
+    public static void set(double sp, double max) {
+        currentSP = sp;
+        maxSP = max;
     }
 
     public static double get() {
-        return playerSP;
+        return currentSP;
+    }
+
+    public static double getMax() {
+        return maxSP;
     }
 }

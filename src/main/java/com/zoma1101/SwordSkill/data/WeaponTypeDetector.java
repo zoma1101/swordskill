@@ -1,9 +1,6 @@
 package com.zoma1101.swordskill.data;
 
 import com.zoma1101.swordskill.swordskills.SkillData;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -16,18 +13,6 @@ public class WeaponTypeDetector {
     private static WeaponTypeDetector instance;
     private final WeaponTypeDataLoader weaponTypeDataLoader;
     private static volatile boolean dataLoaded = false;
-
-    // ★独自タグ定義
-    private static final TagKey<Item> TAG_GREATSWORDS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "greatswords"));
-    private static final TagKey<Item> TAG_SPEARS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "spears"));
-    private static final TagKey<Item> TAG_MACES = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "maces"));
-    private static final TagKey<Item> TAG_RAPIERS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "rapiers"));
-    private static final TagKey<Item> TAG_DAGGERS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "daggers"));
-    private static final TagKey<Item> TAG_KATANAS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "katanas"));
-    private static final TagKey<Item> TAG_CLAWS = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "claws"));
-    private static final TagKey<Item> TAG_SCYTHES = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "scythes"));
-    private static final TagKey<Item> TAG_BATTLEAXES = ItemTags.create(ResourceLocation.fromNamespaceAndPath("swordskill_extender", "battleaxes"));
-
 
     private WeaponTypeDetector(WeaponTypeDataLoader weaponTypeDataLoader) {
         this.weaponTypeDataLoader = weaponTypeDataLoader;
@@ -55,53 +40,18 @@ public class WeaponTypeDetector {
 
     private Set<SkillData.WeaponType> detectWeaponTypesInternal(ItemStack heldItem) {
         Set<SkillData.WeaponType> weaponTypes = new HashSet<>();
-        
-        // 常に体術（MARTIAL_ARTS）を付与。これによりどの武器でも体術スキルが使用可能になる。
-        weaponTypes.add(SkillData.WeaponType.MARTIAL_ARTS);
- 
-        if (heldItem.isEmpty()) {
-            return weaponTypes;
-        }
- 
         Item item = heldItem.getItem();
-
-        // 1. JSONファイルから武器種を判定 (最優先)
+        // JSONファイルから武器種を判定
         for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
             if (data.items().contains(item)) {
                 weaponTypes.addAll(data.weaponTypes());
                 return weaponTypes;
             }
         }
-
-        // 2. 独自タグによる判定 (swordskill_extender)
-        // ここで判定できた場合、バニラタグの判定は行われません
-        if (heldItem.is(TAG_GREATSWORDS)) weaponTypes.add(SkillData.WeaponType.TWO_HANDED_SWORD);
-        if (heldItem.is(TAG_SPEARS)) weaponTypes.add(SkillData.WeaponType.SPEAR);
-        if (heldItem.is(TAG_MACES)) weaponTypes.add(SkillData.WeaponType.MACE);
-        if (heldItem.is(TAG_RAPIERS)) weaponTypes.add(SkillData.WeaponType.RAPIER);
-        if (heldItem.is(TAG_DAGGERS)) weaponTypes.add(SkillData.WeaponType.DAGGER);
-        if (heldItem.is(TAG_KATANAS)) weaponTypes.add(SkillData.WeaponType.KATANA);
-        if (heldItem.is(TAG_CLAWS)) weaponTypes.add(SkillData.WeaponType.CLAW);
-        if (heldItem.is(TAG_SCYTHES)) weaponTypes.add(SkillData.WeaponType.SCYTHE);
-        if (heldItem.is(TAG_BATTLEAXES)) weaponTypes.add(SkillData.WeaponType.AXE);
-
-        // ★重要: 独自タグで1つでも判定できた場合はここでリターンし、バニラタグ判定をスキップします
-        if (!weaponTypes.isEmpty()) {
-            return weaponTypes;
-        }
-
-        // 3. バニラタグによる判定 (フォールバック / 最低優先度)
-        // 独自タグを持たないアイテムのみ、ここで判定されます
-        if (heldItem.is(ItemTags.SWORDS)) {
-            weaponTypes.add(SkillData.WeaponType.ONE_HANDED_SWORD);
-        }
-        if (heldItem.is(ItemTags.AXES)) {
-            weaponTypes.add(SkillData.WeaponType.AXE);
-        }
-
         return weaponTypes;
     }
 
+    // WeaponTypeDetector.java
     public static String getWeaponName(ItemStack heldItem) {
         if (instance == null) {
             throw new IllegalStateException("WeaponTypeDetector has not been initialized.");
@@ -109,36 +59,57 @@ public class WeaponTypeDetector {
         return instance.getWeaponNameInternal(heldItem);
     }
 
-    private String getWeaponNameInternal(ItemStack heldItem) {
-        if (heldItem.isEmpty()) return "Martial Arts";
-        Item item = heldItem.getItem();
+    /**
+     * 武器種に対応する武器名（weapon_types の name）を返す。
+     *
+     * <p>鍛造武器はアイテムが 1 種類なので、武器種から既存の武器名を引いて
+     * スキルスロットを共有するために使う。</p>
+     */
+    public static String findWeaponName(SkillData.WeaponType weaponType) {
+        if (isReady() || weaponType == null || weaponType == SkillData.WeaponType.NONE) {
+            return null;
+        }
+        return instance.findWeaponNameInternal(weaponType);
+    }
 
-        // 1. JSONデータ
+    private String findWeaponNameInternal(SkillData.WeaponType weaponType) {
+        String best = null;
+        for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
+            if (!data.weaponTypes().contains(weaponType)) {
+                continue;
+            }
+            String name = data.name();
+            if (name == null || name.isBlank()) {
+                continue;
+            }
+            // HashMap の順序に依存しないよう、常に同じ名前を選ぶ
+            if (best == null || preferName(name, best)) {
+                best = name;
+            }
+        }
+        return best;
+    }
+
+    /** MOD 名付きでない素の名前を優先し、次に短いもの、最後は辞書順で決める。 */
+    private static boolean preferName(String candidate, String current) {
+        boolean candidatePlain = !candidate.contains(":");
+        boolean currentPlain = !current.contains(":");
+        if (candidatePlain != currentPlain) {
+            return candidatePlain;
+        }
+        if (candidate.length() != current.length()) {
+            return candidate.length() < current.length();
+        }
+        return candidate.compareTo(current) < 0;
+    }
+
+    private String getWeaponNameInternal(ItemStack heldItem) {
+        Item item = heldItem.getItem();
         for (WeaponTypeDataLoader.WeaponTypeData data : weaponTypeDataLoader.getWeaponTypeDataMap().values()) {
             if (data.items().contains(item)) {
                 return data.name();
             }
         }
-
-        // 2. 独自タグ (優先)
-        if (heldItem.is(TAG_GREATSWORDS)) return "Greatsword";
-        if (heldItem.is(TAG_SPEARS)) return "Spear";
-        if (heldItem.is(TAG_MACES)) return "Mace";
-        if (heldItem.is(TAG_RAPIERS)) return "Rapier";
-        if (heldItem.is(TAG_DAGGERS)) return "Dagger";
-        if (heldItem.is(TAG_KATANAS)) return "Katana";
-        if (heldItem.is(TAG_CLAWS)) return "Claw";
-        if (heldItem.is(TAG_SCYTHES)) return "Scythe";
-        if (heldItem.is(TAG_BATTLEAXES)) return "Battleaxe";
-
-        // 3. バニラタグ (フォールバック)
-        if (heldItem.is(ItemTags.SWORDS)) {
-            return "Sword";
-        }
-        if (heldItem.is(ItemTags.AXES)) {
-            return "Axe";
-        }
-
         return null;
     }
 }

@@ -1,114 +1,57 @@
 package com.zoma1101.swordskill.network;
 
 import com.zoma1101.swordskill.SwordSkill;
-import com.zoma1101.swordskill.network.toClient.PlayAnimationPacket;
-import com.zoma1101.swordskill.network.toClient.SkillSyncPacket;
-import com.zoma1101.swordskill.network.toClient.SyncSPPacket;
-import com.zoma1101.swordskill.network.toClient.SyncTrailActivePacket;
-import com.zoma1101.swordskill.network.toClient.SyncTrailConfigPacket;
-import com.zoma1101.swordskill.network.toClient.UnlockedSkillsResponsePacket;
-import net.minecraftforge.network.NetworkDirection;
+import com.zoma1101.swordskill.compat.CustomPacketPayload;
+import com.zoma1101.swordskill.compat.IPayloadContext;
+import com.zoma1101.swordskill.compat.PayloadRegistrar;
+import com.zoma1101.swordskill.compat.RegisterPayloadHandlersEvent;
+import com.zoma1101.swordskill.compat.StreamCodec;
+import com.zoma1101.swordskill.payload.PayloadRegistryHandler;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.Optional;
+import java.util.function.Supplier;
 
-import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
+/**
+ * Forge 1.20.1 用のネットワークエントリポイント。
+ * 1.21 側のペイロード定義はそのままに、SimpleChannel へ橋渡しする。
+ */
+public final class NetworkHandler {
 
-public class NetworkHandler {
-        private static final String PROTOCOL_VERSION = "1";
-        public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-                        fromNamespaceAndPath(SwordSkill.MOD_ID, "network"),
-                        () -> PROTOCOL_VERSION,
-                        PROTOCOL_VERSION::equals,
-                        PROTOCOL_VERSION::equals);
+    public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
+            ResourceLocation.fromNamespaceAndPath(SwordSkill.MOD_ID, "main"),
+            () -> SwordSkill.PROTOCOL_VERSION,
+            NetworkHandler::isAccepted,
+            NetworkHandler::isAccepted);
 
-        private static int id = 0;
+    private NetworkHandler() {
+    }
 
-        public static void register() {
-                INSTANCE.registerMessage(id++, UseSkillPacket.class,
-                                UseSkillPacket::encode,
-                                UseSkillPacket::new,
-                                UseSkillPacket::handle);
-                INSTANCE.registerMessage(id++, SkillSelectionPacket.class,
-                                SkillSelectionPacket::encode,
-                                SkillSelectionPacket::new,
-                                SkillSelectionPacket::handle);
-                INSTANCE.registerMessage(id++, SkillSlotSelectionPacket.class,
-                                SkillSlotSelectionPacket::encode,
-                                SkillSlotSelectionPacket::new,
-                                SkillSlotSelectionPacket::handle);
-                INSTANCE.registerMessage(id++, SkillSlotInfoPacket.class,
-                                SkillSlotInfoPacket::encode,
-                                SkillSlotInfoPacket::new,
-                                SkillSlotInfoPacket::handle);
-                INSTANCE.registerMessage(id++, SkillLoadSlotPacket.class,
-                                SkillLoadSlotPacket::encode,
-                                SkillLoadSlotPacket::new,
-                                SkillLoadSlotPacket::handle);
-                INSTANCE.registerMessage(id++, SkillUnlockPacket.class,
-                                SkillUnlockPacket::encode,
-                                SkillUnlockPacket::new,
-                                SkillUnlockPacket::handle);
-                INSTANCE.registerMessage(id++, CheckSkillUnlockedPacket.class,
-                                CheckSkillUnlockedPacket::encode,
-                                CheckSkillUnlockedPacket::new,
-                                CheckSkillUnlockedPacket::handle);
-                INSTANCE.registerMessage(
-                                id++,
-                                SkillRequestPacket.class,
-                                SkillRequestPacket::encode,
-                                SkillRequestPacket::new,
-                                SkillRequestPacket::handle);
+    private static boolean isAccepted(String version) {
+        return SwordSkill.PROTOCOL_VERSION.equals(version);
+    }
 
-                INSTANCE.registerMessage(
-                                id++,
-                                SkillSyncPacket.class,
-                                SkillSyncPacket::encode,
-                                SkillSyncPacket::new,
-                                SkillSyncPacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT) // サーバーからクライアントへ
-                );
-                INSTANCE.registerMessage(
-                                id++,
-                                UnlockedSkillsResponsePacket.class,
-                                UnlockedSkillsResponsePacket::encode,
-                                UnlockedSkillsResponsePacket::new,
-                                UnlockedSkillsResponsePacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT) // サーバーからクライアントへ
-                );
-                INSTANCE.registerMessage(
-                                id++,
-                                PlayAnimationPacket.class,
-                                PlayAnimationPacket::encode,
-                                PlayAnimationPacket::new,
-                                PlayAnimationPacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT) // サーバーからクライアントへ
-                );
-                INSTANCE.registerMessage(
-                                id++,
-                                SyncSPPacket.class,
-                                SyncSPPacket::encode,
-                                SyncSPPacket::new,
-                                SyncSPPacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-                INSTANCE.registerMessage(
-                                id++,
-                                SyncTrailConfigPacket.class,
-                                SyncTrailConfigPacket::encode,
-                                SyncTrailConfigPacket::new,
-                                SyncTrailConfigPacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
-                INSTANCE.registerMessage(
-                                id++,
-                                SyncTrailActivePacket.class,
-                                SyncTrailActivePacket::encode,
-                                SyncTrailActivePacket::new,
-                                SyncTrailActivePacket::handle,
-                                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+    public static void init() {
+        RegisterPayloadHandlersEvent event = new RegisterPayloadHandlersEvent();
+        PayloadRegistryHandler.registerPayloads(event);
+        int id = 0;
+        for (PayloadRegistrar.Registration<?> registration : event.registrations()) {
+            register(id++, registration);
         }
+    }
 
-        public static void sendToServer(Object packet) {
-                INSTANCE.sendToServer(packet);
-        }
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static <T extends CustomPacketPayload> void register(
+            int id, PayloadRegistrar.Registration<T> registration) {
+        StreamCodec<FriendlyByteBuf, T> codec = (StreamCodec<FriendlyByteBuf, T>) (StreamCodec) registration.codec;
+        CHANNEL.messageBuilder(registration.messageClass, id, registration.direction)
+                .encoder((T msg, FriendlyByteBuf buf) -> codec.encode(buf, msg))
+                .decoder(codec::decode)
+                .consumerNetworkThread((T msg, Supplier<NetworkEvent.Context> ctx) ->
+                        registration.handler.accept(msg, new IPayloadContext(ctx)))
+                .add();
+    }
 }

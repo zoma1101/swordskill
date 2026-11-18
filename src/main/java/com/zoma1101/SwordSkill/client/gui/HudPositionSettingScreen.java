@@ -63,8 +63,11 @@ public class HudPositionSettingScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
+    }
+
+    @Override
+    public void renderBackground(@NotNull GuiGraphics guiGraphics) {
     }
 
     @Override

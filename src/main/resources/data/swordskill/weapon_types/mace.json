@@ -1,5 +1,5 @@
 {
   "name" : "mace",
-  "item" : ["swordskill:sample_mace"],
+  "item" : ["minecraft:mace"],
   "weapontype" : ["MACE"]
 }

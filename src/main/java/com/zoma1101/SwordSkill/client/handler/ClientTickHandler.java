@@ -1,21 +1,23 @@
 package com.zoma1101.swordskill.client.handler;
+import net.minecraftforge.fml.common.Mod;
 
+import com.zoma1101.swordskill.AnimationUtils;
+import com.zoma1101.swordskill.swordskills.SkillData;
+import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import com.zoma1101.swordskill.client.screen.Keybindings;
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.SkillRequestPacket;
-import com.zoma1101.swordskill.network.SkillSelectionPacket;
+import com.zoma1101.swordskill.payload.SkillRequestPayload;
+import com.zoma1101.swordskill.payload.SkillSelectionPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.minecraftforge.client.event.InputEvent;
+import com.zoma1101.swordskill.compat.PacketDistributor;
 
-import java.util.HashMap;
-import java.util.Map;
+
 
 import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions;
 
@@ -23,24 +25,35 @@ import static com.zoma1101.swordskill.server.handler.SkillExecutionManager.skill
 @Mod.EventBusSubscriber(modid = "swordskill", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientTickHandler {
 
-    private static final Map<LocalPlayer, ItemStack> mainHandItems = new HashMap<>();
-    private static final Map<LocalPlayer, ItemStack> offHandItems = new HashMap<>();
+    private static ItemStack previousMainHandItem = ItemStack.EMPTY;
+    private static ItemStack previousOffHandItem = ItemStack.EMPTY;
 
-    public static long renderFrameCount = 0;
+    private static int lowSpeedTicks = 0;
 
     private static int selectedSlot = 0;
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (Keybindings.INSTANCE.SwordSkill_QuickSelect_Key.isDown()) {
-            selectedSlot -= (int) event.getScrollDelta();
-            if (selectedSlot < 0) {
-                selectedSlot = 4;
-            } else if (selectedSlot > 4) {
-                selectedSlot = 0;
+            // マウスホイールの上下スクロールを取得
+            double scrollDelta = event.getScrollDelta();
+            if (scrollDelta != 0) { // スクロールがあった場合のみ処理
+                if (scrollDelta > 0) {
+                    selectedSlot--;
+                } else {
+                    selectedSlot++;
+                }
+
+                // selectedSlot の範囲を 0 から 4 に制限
+                if (selectedSlot < 0) {
+                    selectedSlot = 4;
+                } else if (selectedSlot > 4) {
+                    selectedSlot = 0;
+                }
+                event.setCanceled(true); // スキル選択時は他のマウスホイール処理をキャンセル
             }
-            event.setCanceled(true);
         }
+        // スキル実行中は他のマウスホイール処理をキャンセル (これは元のロジックのまま)
         else if (!skillExecutions.isEmpty()) {
             event.setCanceled(true);
         }
@@ -48,29 +61,55 @@ public class ClientTickHandler {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && Minecraft.getInstance().player != null) {
+    public static void onClientTick(ClientTickEvent event) {
+        if (Minecraft.getInstance().player != null) {
             LocalPlayer player = Minecraft.getInstance().player;
+            // スキルアニメーション中は体の向きを照準（頭）へ合わせ続ける。
+            AnimationUtils.tickActiveAnimationBodyYaw();
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
 
-            if (mainHandItems.containsKey(player) && offHandItems.containsKey(player)) {
-                ItemStack previousMainHandItem = mainHandItems.get(player);
-                ItemStack previousOffHandItem = offHandItems.get(player);
-                if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
-                    SetSlotSkill();
-                }
+            if (!ItemStack.matches(mainHandItem, previousMainHandItem) || !ItemStack.matches(offHandItem, previousOffHandItem)) {
+                SetSlotSkill();
             }
-            mainHandItems.put(player, mainHandItem.copy());
-            offHandItems.put(player, offHandItem.copy());
-        }
-    }
 
-    @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent
-    public static void onRenderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            renderFrameCount++;
+            if (AnimationUtils.isRushMoveActive()) {
+                int skillId = AnimationUtils.getRushMoveSkillId();
+                SkillData skill = SwordSkillRegistry.SKILLS.get(skillId);
+                boolean hasTickHorizontal = false;
+                if (skill != null && skill.getDataDefinition() != null) {
+                    var def = skill.getDataDefinition();
+                    if (def.motion() != null && (def.motion().forward() != 0.0 || def.motion().strafe() != 0.0)) {
+                        hasTickHorizontal = true;
+                    }
+                    for (var m : def.motions()) {
+                        if ("TICK".equals(m.trigger()) && (m.forward() != 0.0 || m.strafe() != 0.0)) {
+                            hasTickHorizontal = true;
+                            break;
+                        }
+                    }
+                }
+                if (!hasTickHorizontal) {
+                    lowSpeedTicks = 0;
+                } else {
+                    double hSpeedSq = player.getDeltaMovement().horizontalDistanceSqr();
+                    if (hSpeedSq < 0.01D) {
+                        lowSpeedTicks++;
+                        if (lowSpeedTicks >= 3) {
+                            AnimationUtils.StopPlayerAnimation(player);
+                            AnimationUtils.setRushMoveActive(false);
+                            lowSpeedTicks = 0;
+                        }
+                    } else {
+                        lowSpeedTicks = 0;
+                    }
+                }
+            } else {
+                lowSpeedTicks = 0;
+            }
+
+            previousMainHandItem = mainHandItem.copy();
+            previousOffHandItem = offHandItem.copy();
         }
     }
 
@@ -78,20 +117,23 @@ public class ClientTickHandler {
         return selectedSlot;
     }
 
-    public static void setSelectedSlot(int slot) {
-        if (slot >= 0 && slot <= 4) {
-            selectedSlot = slot;
-            SetSlotSkill();
-        }
-    }
-
     public static void SetSlotSkill(){
-        int skillId = ClientSkillSlotHandler.getSkillSlotInfo()[selectedSlot];
-        if (skillId != -1) {
-            NetworkHandler.INSTANCE.sendToServer(new SkillSelectionPacket(skillId));
-            NetworkHandler.INSTANCE.sendToServer(new SkillRequestPacket());
+        int[] skillSlots = ClientSkillSlotHandler.getSkillSlotInfo();
+        if (skillSlots != null && selectedSlot >= 0 && selectedSlot < skillSlots.length) {
+            int skillId = skillSlots[selectedSlot];
+            // skillId が -1 でない場合のみ送信 (未設定スロットは送信しないなど)
+            if (skillId != -1) {
+                PacketDistributor.sendToServer(new SkillSelectionPayload(skillId));
+                PacketDistributor.sendToServer(new SkillRequestPayload());
+            }
         }
     }
 
-
+    /** ログアウト時に状態を破棄する。 */
+    public static void reset() {
+        lowSpeedTicks = 0;
+        selectedSlot = 0;
+        previousMainHandItem = ItemStack.EMPTY;
+        previousOffHandItem = ItemStack.EMPTY;
+    }
 }

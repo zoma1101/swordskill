@@ -1,34 +1,45 @@
 package com.zoma1101.swordskill.entity.custom;
 
-import com.zoma1101.swordskill.swordskills.SkillTag;
+import com.zoma1101.swordskill.swordskills.DataDrivenSkill;
+import com.zoma1101.swordskill.swordskills.SkillProjectileBreaker;
 import com.zoma1101.swordskill.swordskills.SkillTexture;
+import com.zoma1101.swordskill.swordskills.SkillUtils;
+import com.zoma1101.swordskill.proficiency.ProficiencyManager;
+import com.zoma1101.swordskill.server.handler.SkillClashManager;
+import com.zoma1101.swordskill.server.handler.SkillExecutionManager;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.zoma1101.swordskill.swordskills.SkillTexture.*;
 import static com.zoma1101.swordskill.swordskills.SkillUtils.SkillTargetEntity;
 
 public class AttackEffectEntity extends Entity {
 
-    private final Set<Integer> damagedEntityIds = new HashSet<>();
-
     private static final EntityDataAccessor<Float> ROTATION_Z = SynchedEntityData.defineId(AttackEffectEntity.class,
             EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RENDER_PITCH = SynchedEntityData.defineId(AttackEffectEntity.class,
+            EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> FLYING_SLASH = SynchedEntityData.defineId(
+            AttackEffectEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_X = SynchedEntityData
             .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> EFFECT_RADIUS_Y = SynchedEntityData
@@ -37,120 +48,128 @@ public class AttackEffectEntity extends Entity {
             .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<String> SKILL_PARTICLE = SynchedEntityData
             .defineId(AttackEffectEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<String> SKILL_TAGS = SynchedEntityData
-            .defineId(AttackEffectEntity.class, EntityDataSerializers.STRING);
-    private static final EntityDataAccessor<Boolean> FOLLOW_OWNER = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Integer> TRAIL_COLOR = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.INT);
-    // クライアントで確実に速度を再現するための同期データ
-    private static final EntityDataAccessor<Float> MOVEMENT_X = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> MOVEMENT_Y = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> MOVEMENT_Z = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> SYNC_X_ROT = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> SYNC_Y_ROT = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> VISUAL_X_ROT = SynchedEntityData.defineId(AttackEffectEntity.class,
-            EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> SKILL_COLOR = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> RENDER_SCALE = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> SPAWN_HOLD_TICKS = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DURATION = SynchedEntityData
+            .defineId(AttackEffectEntity.class, EntityDataSerializers.INT);
 
-    private double damage = 4.0; // ダメージ量
+    private double damage = 4.0f; // ダメージ量
     private double knockbackStrength = 0.5; // ノックバック強さ
-    private int duration = 15; // 生存時間 (tick)
     private LivingEntity owner;
-    private float relativeXRot = 0;
-    private float relativeYRot = 0;
-    private boolean rotationOffsetInitialized = false;
+    private int skillId = -1;
+    private int movementTick = 0;
+    private final List<Integer> hitEntities = new ArrayList<>();
+    private boolean singleTarget = false; // 命中対象を最も近い 1 体だけにする（サーバー側のみ）
+
+    /** スキル色。トレイル・命中演出・斬撃の描画に使う（クライアントにも同期する）。 */
+    public void setSkillColor(int color) {
+        this.entityData.set(SKILL_COLOR, color & 0xFFFFFF);
+    }
+
+    public int getSkillColor() {
+        return this.entityData.get(SKILL_COLOR);
+    }
+
+    /** true にすると、範囲内で最も近い 1 体だけにダメージを与える。 */
+    public void setSingleTarget(boolean singleTarget) {
+        this.singleTarget = singleTarget;
+    }
 
     public AttackEffectEntity(EntityType<? extends Entity> entityType, Level level) {
         super(entityType, level);
-        this.noPhysics = true; // 壁やプレイヤーの当たり判定で移動が止まるのを防ぐ
     }
 
     @Override
     protected void defineSynchedData() {
         this.entityData.define(ROTATION_Z, 0.0f);
+        this.entityData.define(RENDER_PITCH, 0.0f);
+        this.entityData.define(FLYING_SLASH, false);
         this.entityData.define(EFFECT_RADIUS_X, 2f);
         this.entityData.define(EFFECT_RADIUS_Y, 2f);
         this.entityData.define(EFFECT_RADIUS_Z, 2f);
         this.entityData.define(SKILL_PARTICLE, "skill_particle");
-        this.entityData.define(SKILL_TAGS, "");
-        this.entityData.define(TRAIL_COLOR, 0xFF33AAFF);
-        this.entityData.define(FOLLOW_OWNER, false);
-        this.entityData.define(OWNER_ID, -1); // -1 = オーナー未設定
-        this.entityData.define(MOVEMENT_X, 0.0f);
-        this.entityData.define(MOVEMENT_Y, 0.0f);
-        this.entityData.define(MOVEMENT_Z, 0.0f);
-        this.entityData.define(SYNC_X_ROT, 0.0f);
-        this.entityData.define(SYNC_Y_ROT, 0.0f);
-        this.entityData.define(VISUAL_X_ROT, 0.0f);
+        this.entityData.define(SKILL_COLOR, 0x54D8FF);
+        this.entityData.define(RENDER_SCALE, 1.0f);
+        this.entityData.define(SPAWN_HOLD_TICKS, 0);
+        this.entityData.define(DURATION, 15);
     }
 
-    @Override
-    public void setXRot(float xRot) {
-        super.setXRot(xRot);
-        if (this.entityData != null && this.level() != null && !this.level().isClientSide) {
-            this.entityData.set(SYNC_X_ROT, xRot);
-        }
-    }
-
-    @Override
-    public void setYRot(float yRot) {
-        super.setYRot(yRot);
-        if (this.entityData != null && this.level() != null && !this.level().isClientSide) {
-            this.entityData.set(SYNC_Y_ROT, yRot);
-        }
-    }
+    private boolean hasAppliedDamage = false;
 
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide && this.tickCount <= 3) {
-            // クライアント側で確実に初速度を同期する
-            this.setDeltaMovement(
-                    this.entityData.get(MOVEMENT_X),
-                    this.entityData.get(MOVEMENT_Y),
-                    this.entityData.get(MOVEMENT_Z));
-        }
-
-        if (isFollowOwner() && owner != null) {
-            if (!rotationOffsetInitialized) {
-                relativeXRot = getXRot() - owner.getXRot();
-                relativeYRot = getYRot() - owner.getYRot();
-                rotationOffsetInitialized = true;
-            }
-            this.setPos(owner.getX(), owner.getY() + owner.getEyeHeight() * 0.5, owner.getZ());
-            // 視点に合わせて回転も更新する（オフセットを維持）
-            this.setXRot(owner.getXRot() + relativeXRot);
-            this.setYRot(owner.getYRot() + relativeYRot);
-            this.xRotO = this.getXRot(); // 補間の跳びを防ぐ
-            this.yRotO = this.getYRot();
-        }
-
+        Vec3 previousPos = this.position();
         Movement();
-        if (this.level().isClientSide) {
-            spawnAttributeParticles();
-        }
         if (!this.level().isClientSide) {
-            // 移動速度がある（飛ぶ斬撃など）場合は毎tick判定を行う
-            // 速度がない（通常の突き・叩きつけなど）場合は最初の1tick目のみ判定を行う
-            boolean isMoving = this.getDeltaMovement().lengthSqr() > 0.0001;
-            if (isMoving || this.tickCount <= 1) {
-                if (hasTag(SkillTag.RAY) || SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
+            if (!this.isRemoved() && this.isFlyingSlash()) {
+                // 飛翔斬撃の通り道にある矢・魔法弾などを切り払う
+                SkillProjectileBreaker.destroyAlong(this.level(), this.owner, previousPos, this.position(),
+                        Math.max(this.getBbWidth(), this.getBbHeight()) * 0.5D + 0.3D);
+            }
+            // 飛翔斬撃同士がぶつかったら相殺する
+            if (tryProjectileClash()) {
+                return;
+            }
+            if (!hasAppliedDamage) {
+                if (SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
                     applyRayDamage();
-                } else {
+                } else if (!SkillTexture.Spia_ParticleType.contains(this.getSkillParticle())) {
                     applyDamageAndKnockback();
                 }
+                hasAppliedDamage = this.getDeltaMovement().equals(Vec3.ZERO);
             }
+
         }
-        if (this.tickCount >= duration) {
+        if (this.tickCount >= this.getDurationTicks() + this.getSpawnHoldTicks()) {
             this.discard();
         }
+    }
+
+    /**
+     * 別のプレイヤーが撃った飛翔斬撃と交差したら、双方を消して相殺演出を出す。
+     * 同じプレイヤーの複数本（爪の 3 本トレイルなど）や、その場に留まる斬撃は対象外。
+     */
+    private boolean tryProjectileClash() {
+        if (!isFlyingSlash() || getDeltaMovement().lengthSqr() < 1.0E-6D || owner == null) {
+            return false;
+        }
+        AABB area = this.getBoundingBox().inflate(0.75D);
+        for (AttackEffectEntity other : this.level().getEntitiesOfClass(AttackEffectEntity.class, area)) {
+            if (other == this || other.isRemoved() || other.owner == null || other.owner == owner) {
+                continue;
+            }
+            if (!other.isFlyingSlash()) {
+                continue;
+            }
+            if (!other.getBoundingBox().intersects(this.getBoundingBox().inflate(0.35D))) {
+                continue;
+            }
+            SkillClashManager.cancelProjectiles(this, other);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 飛翔斬撃がスキル実行中のプレイヤーや訓練用マネキンに当たった場合、
+     * ダメージではなく鍔迫り合いにする。
+     *
+     * @return 鍔迫り合いを開始してこの飛翔斬撃を消したら true
+     */
+    private boolean tryPlayerClash(LivingEntity entity) {
+        if (!(owner instanceof net.minecraft.server.level.ServerPlayer attacker)) {
+            return false;
+        }
+        if (!SkillClashManager.tryStartClash(attacker, entity)) {
+            return false;
+        }
+        this.discard();
+        return true;
     }
 
     private void applyDamageAndKnockback() {
@@ -160,15 +179,28 @@ public class AttackEffectEntity extends Entity {
         AABB area = this.getBoundingBox()
                 .inflate((getEffectRadius().x + getEffectRadius().y + getEffectRadius().z) / 5);
         List<LivingEntity> entities = serverLevel.getEntitiesOfClass(LivingEntity.class, area,
-                entity -> (SkillTargetEntity(entity, owner)));
+                entity -> (SkillTargetEntity(entity, owner)) && !hitEntities.contains(entity.getId()));
+        entities = limitToSingleTarget(entities);
 
         for (LivingEntity entity : entities) {
-            if (!damagedEntityIds.contains(entity.getId())) {
-                KnowBack(entity);
-                ApplyDamage(entity);
-                damagedEntityIds.add(entity.getId());
+            if (tryPlayerClash(entity)) {
+                return;
             }
+            KnowBack(entity);
+            ApplyDamage(entity);
+            hitEntities.add(entity.getId());
         }
+    }
+
+    /** 単体指定なら最も近い 1 体だけを残す。 */
+    private List<LivingEntity> limitToSingleTarget(List<LivingEntity> entities) {
+        if (!singleTarget || entities.size() <= 1) {
+            return entities;
+        }
+        LivingEntity closest = entities.stream()
+                .min(Comparator.comparingDouble(entity -> entity.distanceToSqr(this)))
+                .orElse(null);
+        return closest == null ? List.of() : List.of(closest);
     }
 
     private void applyRayDamage() {
@@ -200,117 +232,80 @@ public class AttackEffectEntity extends Entity {
                 expandedBoundingBox,
                 entity -> (SkillTargetEntity(entity, owner)));
 
-        float radius = getEffectRadius().x; // 横幅を判定に反映させる
         Vec3 finalRayEnd = rayEnd;
-        List<LivingEntity> hitEntities = entitiesInRange.stream()
-                .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd, radius))
+        List<LivingEntity> hitEntitiesInRange = entitiesInRange.stream()
+                .filter(entity -> !hitEntities.contains(entity.getId()))
+                .filter(entity -> isEntityInRay(entity, rayStart, finalRayEnd))
                 .toList();
+        hitEntitiesInRange = limitToSingleTarget(hitEntitiesInRange);
 
-        for (LivingEntity entity : hitEntities) {
-            if (!damagedEntityIds.contains(entity.getId())) {
-                ApplyDamage(entity);
-                if (owner != null) {
-                    Vec3 knockbackDir = (this.position().subtract(owner.position())).normalize().scale(knockbackStrength);
-                    entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
-                }
-                damagedEntityIds.add(entity.getId());
+        for (LivingEntity entity : hitEntitiesInRange) {
+            if (tryPlayerClash(entity)) {
+                return;
             }
+            ApplyDamage(entity);
+            if (owner != null) {
+                Vec3 knockbackDir = (this.position().add(owner.position().scale(-1))).scale(knockbackStrength);
+                entity.setDeltaMovement(knockbackDir.x, 0.3 * knockbackStrength, knockbackDir.z);
+            }
+            hitEntities.add(entity.getId());
         }
     }
 
-    private boolean isEntityInRay(LivingEntity entity, Vec3 rayStart, Vec3 rayEnd, float radius) {
-        // エンティティの判定ボックスをスキルの横幅分だけ膨らませてから線分交差判定を行う
-        AABB entityAABB = entity.getBoundingBox().inflate(radius * 0.5f);
+    private boolean isEntityInRay(LivingEntity entity, Vec3 rayStart, Vec3 rayEnd) {
+        AABB entityAABB = entity.getBoundingBox();
         return entityAABB.intersects(rayStart, rayEnd);
     }
 
     private void ApplyDamage(LivingEntity entity) {
+        // 致死ダメージの LivingDeathEvent は hurt() の中で発火するため、どのダメージ経路よりも先にマーカーを付ける
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            ProficiencyManager.markSwordSkillHit(serverPlayer, entity,
+                    skillId >= 0 ? skillId : SkillExecutionManager.getRunningSkillId(serverPlayer));
+        }
+
         float DamagePer = 1;
 
-        // タグベースの判定
-        List<SkillTag> tags = getSkillTags();
-
-        if (tags.contains(SkillTag.HOLY) && entity.getMobType() == MobType.UNDEAD) {
+        if (Objects.equals(this.getSkillParticle(), YellowSkillTexture())
+                && entity.getMobType() == MobType.UNDEAD) {
             DamagePer = 3f;
-        }
-        if (tags.contains(SkillTag.HOLY_ENCHANT) && entity.getMobType() == MobType.UNDEAD) {
-            DamagePer = 1.5f;
-        }
-        if (tags.contains(SkillTag.DARK) && entity.getMobType() != MobType.UNDEAD) {
+        } else if (Objects.equals(this.getSkillParticle(), BlackSkillTexture())
+                && entity.getMobType() == MobType.UNDEAD) {
             DamagePer = 2.5f;
-        }
-        if (tags.contains(SkillTag.BLOOD)) {
-            if (owner != null) {
+        } else if (Objects.equals(this.getSkillParticle(), RedSkillTexture())
+                && entity.getMobType() == MobType.UNDEAD) {
+            DamagePer = 1.25f;
+            if (owner != null) { // owner が null でないかチェック
                 owner.heal((float) (damage * 0.25f));
             }
-            if (entity.getMaxHealth() / 2 >= entity.getHealth()) {
-                DamagePer *= 1.25f;
-            }
-        }
-        if (tags.contains(SkillTag.EXECUTION) && entity.getMaxHealth() / 2 >= entity.getHealth()) {
+        } else if (Objects.equals(this.getSkillParticle(), AxeBloodSkillTexture())
+                && entity.getMaxHealth() / 2 >= entity.getHealth()) {
             DamagePer = 2.5f;
-        }
-        if (tags.contains(SkillTag.MAGIC)) {
+        } else if (Objects.equals(this.getSkillParticle(), AxeKingSkillTexture())) {
             entity.hurt(this.damageSources().magic(), (float) (damage * 0.5f));
             entity.invulnerableTime = 0;
-        }
-        if (tags.contains(SkillTag.SLOWNESS)) {
+        } else if (Objects.equals(this.getSkillParticle(), GoldSkillTexture())) {
+            entity.hurt(this.damageSources().magic(), (float) (damage * 0.25f));
+            entity.invulnerableTime = 0;
+        } else if (Mace_ParticleType.contains(this.getSkillParticle())) {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
         }
- 
-        // 属性エンチャント効果
-        if (tags.contains(SkillTag.FIRE)) {
-            entity.setSecondsOnFire(5);
-        }
-        if (tags.contains(SkillTag.WATER)) {
-            entity.clearFire();
-            entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
-        }
-        if (tags.contains(SkillTag.WIND)) {
-            entity.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 10, 2));
-            if (owner != null) {
-                Vec3 push = entity.position().subtract(owner.position()).normalize().scale(1.5 * knockbackStrength);
-                entity.push(push.x, 0.2, push.z);
-            }
-        }
-        if (tags.contains(SkillTag.DARK)) {
-            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1));
-            entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 160, 2));
-        }
-        if (tags.contains(SkillTag.SONIC)) {
-            entity.hurt(this.damageSources().sonicBoom(owner), (float) (damage));
-            entity.invulnerableTime = 0;
-            // 以降の hurt 処理をスキップするためにダメージ倍率を 0 にする
-            DamagePer = 0;
-        }
 
-        // 互換性のための古いパーティクル名判定
-        if (tags.isEmpty()) {
-            if (Objects.equals(this.getSkillParticle(), YellowSkillTexture())
-                    && entity.getMobType() == MobType.UNDEAD) {
-                DamagePer = 3f;
-            } else if (Objects.equals(this.getSkillParticle(), BlackSkillTexture())
-                    && entity.getMobType() != MobType.UNDEAD) {
-                DamagePer = 2.5f;
-            } else if (Objects.equals(this.getSkillParticle(), RedSkillTexture())
-                    && entity.getMobType() != MobType.UNDEAD) {
-                DamagePer = 1.25f;
-                if (owner != null) {
-                    owner.heal((float) (damage * 0.25f));
-                }
-            } else if (Objects.equals(this.getSkillParticle(), AxeBloodSkillTexture())
-                    && entity.getMaxHealth() / 2 >= entity.getHealth()) {
-                DamagePer = 2.5f;
-            } else if (Objects.equals(this.getSkillParticle(), AxeKingSkillTexture())
-                    || Objects.equals(this.getSkillParticle(), GoldSkillTexture())) {
-                entity.hurt(this.damageSources().magic(), (float) (damage * 0.5f));
-                entity.invulnerableTime = 0;
-            } else if (Mace_ParticleType.contains(this.getSkillParticle())) {
-                entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1));
-            }
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            com.zoma1101.swordskill.smithing.SmithingCombat.pushContext(
+                    com.zoma1101.swordskill.smithing.WeaponMemoryCategory.FLYING,
+                    com.zoma1101.swordskill.smithing.SmithingCombat.runningSkillCooldown(serverPlayer));
         }
-
-        entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
+        try {
+            entity.hurt(this.damageSources().mobAttack(owner), (float) (damage * DamagePer));
+        } finally {
+            com.zoma1101.swordskill.smithing.SmithingCombat.clearContext();
+        }
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer
+                && this.level() instanceof ServerLevel) {
+            double power = damage * DamagePer / Math.max(1.0D, SkillUtils.BaseDamage(serverPlayer));
+            DataDrivenSkill.sendHitEffect(serverPlayer, entity, getSkillColor(), power);
+        }
         if (getDeltaMovement() == Vec3.ZERO) {
             entity.invulnerableTime = 0;
         } else {
@@ -327,49 +322,53 @@ public class AttackEffectEntity extends Entity {
 
     @Override
     protected void readAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
-        if (compound.contains("TrailColor")) {
-            this.setTrailColor(compound.getInt("TrailColor"));
-        }
-        if (compound.contains("EffectRadiusX")) {
-            this.setEffectRadius(new Vector3f(
-                compound.getFloat("EffectRadiusX"),
-                compound.getFloat("EffectRadiusY"),
-                compound.getFloat("EffectRadiusZ")
-            ));
-        }
-        if (compound.contains("Damage")) {
-            this.damage = compound.getDouble("Damage");
-        }
-        if (compound.contains("Knockback")) {
-            this.knockbackStrength = compound.getDouble("Knockback");
-        }
-        if (compound.contains("Duration")) {
-            this.duration = compound.getInt("Duration");
-        }
+        this.damage = compound.getDouble("Damage");
+        this.knockbackStrength = compound.getDouble("Knockback");
+        setDuration(compound.getInt("Duration"));
+        this.tickCount = compound.getInt("TickCount");
         if (compound.contains("SkillParticle")) {
             this.setSkillParticle(compound.getString("SkillParticle"));
         }
-        if (compound.contains("SkillTags")) {
-            this.setSkillTags(SkillTag.fromString(compound.getString("SkillTags")));
+        if (compound.contains("RotationZ")) {
+            this.setRotation(compound.getFloat("RotationZ"));
         }
-        if (compound.contains("FollowOwner")) {
-            this.setFollowOwner(compound.getBoolean("FollowOwner"));
+        if (compound.contains("FlyingSlash")) {
+            this.setFlyingSlash(compound.getBoolean("FlyingSlash"));
         }
+        if (compound.contains("RadiusX")) {
+            this.entityData.set(EFFECT_RADIUS_X, compound.getFloat("RadiusX"));
+            this.entityData.set(EFFECT_RADIUS_Y, compound.getFloat("RadiusY"));
+            this.entityData.set(EFFECT_RADIUS_Z, compound.getFloat("RadiusZ"));
+        }
+        if (compound.hasUUID("OwnerUUID") && this.level() instanceof ServerLevel serverLevel) {
+            Entity ownerEntity = serverLevel.getEntity(compound.getUUID("OwnerUUID"));
+            if (ownerEntity instanceof LivingEntity) {
+                this.owner = (LivingEntity) ownerEntity;
+            }
+        }
+        if (compound.contains("SkillId")) {
+            this.skillId = compound.getInt("SkillId");
+        }
+        this.hasAppliedDamage = compound.getBoolean("HasAppliedDamage");
     }
 
     @Override
     protected void addAdditionalSaveData(net.minecraft.nbt.@NotNull CompoundTag compound) {
-        compound.putInt("TrailColor", this.getTrailColor());
-        Vector3f radius = this.getEffectRadius();
-        compound.putFloat("EffectRadiusX", radius.x);
-        compound.putFloat("EffectRadiusY", radius.y);
-        compound.putFloat("EffectRadiusZ", radius.z);
         compound.putDouble("Damage", this.damage);
         compound.putDouble("Knockback", this.knockbackStrength);
-        compound.putInt("Duration", this.duration);
+        compound.putInt("Duration", this.getDurationTicks());
+        compound.putInt("TickCount", this.tickCount);
         compound.putString("SkillParticle", this.getSkillParticle());
-        compound.putString("SkillTags", this.entityData.get(SKILL_TAGS));
-        compound.putBoolean("FollowOwner", this.isFollowOwner());
+        compound.putFloat("RotationZ", this.getRotation());
+        compound.putBoolean("FlyingSlash", this.isFlyingSlash());
+        compound.putFloat("RadiusX", this.entityData.get(EFFECT_RADIUS_X));
+        compound.putFloat("RadiusY", this.entityData.get(EFFECT_RADIUS_Y));
+        compound.putFloat("RadiusZ", this.entityData.get(EFFECT_RADIUS_Z));
+        compound.putBoolean("HasAppliedDamage", this.hasAppliedDamage);
+        compound.putInt("SkillId", this.skillId);
+        if (this.owner != null) {
+            compound.putUUID("OwnerUUID", this.owner.getUUID());
+        }
     }
 
     public void setDamage(double damage) {
@@ -386,92 +385,98 @@ public class AttackEffectEntity extends Entity {
         this.entityData.set(EFFECT_RADIUS_Z, effectRadius.z);
     }
 
-    public void setDuration(int duration) {
-        this.duration = duration;
+    /** 見た目だけを拡大・縮小する倍率（当たり判定には影響しない）。 */
+    public void setRenderScale(float renderScale) {
+        this.entityData.set(RENDER_SCALE, Math.max(0.05f, Math.min(10.0f, renderScale)));
     }
 
-    public int getDuration() {
-        return this.duration;
+    public float getRenderScale() {
+        return this.entityData.get(RENDER_SCALE);
+    }
+
+    public void setDuration(int duration) {
+        this.entityData.set(DURATION, Math.max(1, Math.min(1200, duration)));
+    }
+
+    public int getDurationTicks() {
+        return this.entityData.get(DURATION);
+    }
+
+    /** スポーン後、指定 tick 数の間は移動せずその場に留める。 */
+    public void setSpawnHoldTicks(int spawnHoldTicks) {
+        this.entityData.set(SPAWN_HOLD_TICKS, Math.max(0, Math.min(1200, spawnHoldTicks)));
+    }
+
+    public int getSpawnHoldTicks() {
+        return this.entityData.get(SPAWN_HOLD_TICKS);
     }
 
     public void setMovement(Vec3 movement) {
         Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
-        Vec3 velocity = direction.scale(movement.z / duration);
+        int durationTicks = Math.max(1, this.getDurationTicks());
+        Vec3 velocity = direction.scale(movement.z / durationTicks);
 
+        // 視点から見て上方向への移動
         Vec3 upDirection = new Vec3(0, 1, 0).yRot((float) Math.toRadians(-this.getYRot()));
-        Vec3 upVelocity = upDirection.scale(movement.y / duration);
+        Vec3 upVelocity = upDirection.scale(movement.y / durationTicks);
 
+        // 視点から見て右方向への移動
         Vec3 rightDirection = direction.cross(new Vec3(0, 1, 0)).normalize();
-        Vec3 rightVelocity = rightDirection.scale(movement.x / duration);
-        Vec3 resultVelocity = velocity.add(upVelocity).add(rightVelocity).scale(0.8f);
-        setDeltaMovement(resultVelocity);
+        Vec3 rightVelocity = rightDirection.scale(movement.x / durationTicks);
+        // 全ての移動ベクトルを加算
+        Vec3 finalVelocity = velocity.add(upVelocity).add(rightVelocity).scale(0.8f);
+        setDeltaMovement(finalVelocity);
+    }
 
-        // クライアントに初速度を同期するためEntityDataに保存
-        this.entityData.set(MOVEMENT_X, (float) resultVelocity.x);
-        this.entityData.set(MOVEMENT_Y, (float) resultVelocity.y);
-        this.entityData.set(MOVEMENT_Z, (float) resultVelocity.z);
+    public void setTravelDistance(double travelDistance) {
+        Vec3 direction = Vec3.directionFromRotation(this.getRotationVector());
+        double ticks = Math.max(1, this.getDurationTicks());
+        double totalTravelFactor = (1.0 - Math.pow(0.99, ticks)) / 0.01;
+        Vec3 finalVelocity = direction.scale(travelDistance / totalTravelFactor);
+        setDeltaMovement(finalVelocity);
     }
 
     public void setSkillParticle(String skillParticle) {
         this.entityData.set(SKILL_PARTICLE, skillParticle);
     }
 
-    public void setSkillTags(List<SkillTag> tags) {
-        this.entityData.set(SKILL_TAGS, SkillTag.toString(tags));
-    }
-
-    public List<SkillTag> getSkillTags() {
-        return SkillTag.fromString(this.entityData.get(SKILL_TAGS));
-    }
-
-    public boolean hasTag(SkillTag tag) {
-        return getSkillTags().contains(tag);
-    }
-
-    public void setTrailColor(int color) {
-        this.entityData.set(TRAIL_COLOR, color);
-    }
-
-    public int getTrailColor() {
-        return this.entityData.get(TRAIL_COLOR);
-    }
-
     public void setRotation(float rotationZ) {
         this.entityData.set(ROTATION_Z, rotationZ);
     }
 
-    public void setFollowOwner(boolean follow) {
-        this.entityData.set(FOLLOW_OWNER, follow);
+    public void setRenderPitch(float renderPitch) {
+        this.entityData.set(RENDER_PITCH, renderPitch);
     }
 
-    public boolean isFollowOwner() {
-        return this.entityData.get(FOLLOW_OWNER);
+    public void setFlyingSlash(boolean flyingSlash) {
+        this.entityData.set(FLYING_SLASH, flyingSlash);
     }
 
     public void setOwner(LivingEntity owner) {
         this.owner = owner;
-        this.entityData.set(OWNER_ID, owner != null ? owner.getId() : -1);
-    }
-
-    public int getOwnerId() {
-        return this.entityData.get(OWNER_ID);
-    }
-
-    public LivingEntity getOwner() {
-        if (this.owner == null) {
-            int id = this.entityData.get(OWNER_ID);
-            if (id != -1) {
-                Entity found = this.level().getEntity(id);
-                if (found instanceof LivingEntity living) {
-                    this.owner = living;
-                }
-            }
+        if (owner instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            this.skillId = SkillExecutionManager.getRunningSkillId(serverPlayer);
         }
-        return this.owner;
+    }
+
+    public int getSkillId() {
+        return this.skillId;
+    }
+
+    public void setSkillId(int skillId) {
+        this.skillId = skillId;
     }
 
     public float getRotation() {
         return this.entityData.get(ROTATION_Z);
+    }
+
+    public float getRenderPitch() {
+        return this.entityData.get(RENDER_PITCH);
+    }
+
+    public boolean isFlyingSlash() {
+        return this.entityData.get(FLYING_SLASH);
     }
 
     public Vector3f getEffectRadius() {
@@ -485,128 +490,22 @@ public class AttackEffectEntity extends Entity {
         return this.entityData.get(SKILL_PARTICLE);
     }
 
-    public float getSyncXRot() {
-        return this.entityData.get(SYNC_X_ROT);
-    }
-
-    public float getSyncYRot() {
-        return this.entityData.get(SYNC_Y_ROT);
-    }
-
-    public void setVisualXRot(float visualXRot) {
-        this.entityData.set(VISUAL_X_ROT, visualXRot);
-    }
-
-    public float getVisualXRot() {
-        return this.entityData.get(VISUAL_X_ROT);
-    }
-
-    private void spawnAttributeParticles() {
-        List<SkillTag> tags = getSkillTags();
-        if (tags.isEmpty()) return;
-
-        Vector3f rVec = getEffectRadius();
-        float radius = rVec.x;
-
-        // 1. 基本的な発生位置の決定
-        for (int i = 0; i < 3; i++) {
-            Vec3 particlePos;
-
-            if (tags.contains(SkillTag.RAY) || tags.contains(SkillTag.SHAPE_THRUST)) {
-                // 直線状（突き・ビーム）: 視線方向の線上に配置
-                float dist = (this.random.nextFloat() - 0.5f) * rVec.z * 1.2f;
-                // 波動（SHAPE_THRUST）の場合は少し周囲にも散らす
-                float spread = tags.contains(SkillTag.SHAPE_THRUST) ? 0.3f : 0.05f;
-                particlePos = this.position().add(this.getLookAngle().scale(dist))
-                        .add((this.random.nextDouble() - 0.5) * spread, (this.random.nextDouble() - 0.5) * spread, (this.random.nextDouble() - 0.5) * spread);
-            } else {
-                // 円弧状（斬撃）: 回転を考慮した円弧上に配置
-                float angleDegrees = (this.random.nextFloat() - 0.5f) * 180.0f; // -90 to 90
-                float angleRad = (float) Math.toRadians(angleDegrees);
-                
-                // ローカルのXY平面上での位置 (Rendererの3DCrescentに合わせる)
-                float lx = (float) Math.sin(angleRad) * radius;
-                float ly = (float) Math.cos(angleRad) * radius;
-                float lz = (this.random.nextFloat() - 0.5f) * 0.1f; // 厚み
-                
-                // 回転行列の計算 (RendererのmulPose順序を再現)
-                float pitch = (float) Math.toRadians(this.getXRot() + 90);
-                float yaw = (float) Math.toRadians(-this.getYRot());
-                float roll = (float) Math.toRadians(this.getRotation());
-                
-                Vector3f local = new Vector3f(lx, ly, lz);
-                // Roll (Z)
-                float cosR = (float)Math.cos(roll), sinR = (float)Math.sin(roll);
-                float x1 = local.x * cosR - local.y * sinR;
-                float y1 = local.x * sinR + local.y * cosR;
-                local.set(x1, y1, local.z);
-                // Pitch (X)
-                float cosP = (float)Math.cos(pitch), sinP = (float)Math.sin(pitch);
-                float y2 = local.y * cosP - local.z * sinP;
-                float z2 = local.y * sinP + local.z * cosP;
-                local.set(local.x, y2, z2);
-                // Yaw (Y)
-                float cosY = (float)Math.cos(yaw), sinY = (float)Math.sin(yaw);
-                float x3 = local.x * cosY + local.z * sinY;
-                float z3 = -local.x * sinY + local.z * cosY;
-                
-                particlePos = this.position().add(x3, local.y, z3);
-            }
-
-            // 2. 属性に応じたパーティクルの生成
-            if (tags.contains(SkillTag.FIRE)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.FLAME, 
-                    particlePos.x, particlePos.y, particlePos.z, 0, 0.02, 0);
-            }
-            if (tags.contains(SkillTag.WATER)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SPLASH, 
-                    particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
-            }
-            if (tags.contains(SkillTag.WIND)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.CLOUD, 
-                    particlePos.x, particlePos.y, particlePos.z, 
-                    (this.random.nextDouble() - 0.5) * 0.05, 0.02, (this.random.nextDouble() - 0.5) * 0.05);
-            }
-            if (tags.contains(SkillTag.HOLY)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.ENCHANTED_HIT, 
-                    particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
-            }
-            if (tags.contains(SkillTag.DARK)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SQUID_INK, 
-                    particlePos.x, particlePos.y, particlePos.z, 0, 0, 0);
-            }
-            if (tags.contains(SkillTag.SONIC)) {
-                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.SCULK_SOUL, 
-                    particlePos.x, particlePos.y, particlePos.z, 
-                    (this.random.nextDouble() - 0.5) * 0.05, 0.02, (this.random.nextDouble() - 0.5) * 0.05);
-            }
-//            if (tags.contains(SkillTag.BLOOD)) {
-//                this.level().addParticle(net.minecraft.core.particles.ParticleTypes.DAMAGE_INDICATOR, 
-//                    particlePos.x, particlePos.y, particlePos.z, 0, 0.1, 0);
-//            }
-        }
-    }
-
     private void Movement() {
+        this.movementTick++;
+        // スポーン直後は速度を保持したまま、その場で停止する。
+        if (this.movementTick <= this.getSpawnHoldTicks()) {
+            return;
+        }
         Vec3 vec3 = getDeltaMovement();
         double d2 = this.getX() + vec3.x;
         double d0 = this.getY() + vec3.y;
         double d1 = this.getZ() + vec3.z;
-        this.setXRot(getSyncXRot()); // クライアントでも同期された回転を反映
-        this.setYRot(getSyncYRot());
-
-        // 召喚直後に初期角度の0.0等から補間（lerp）が走ってしまい向きがズレるラグを防ぐ
-        if (this.level().isClientSide && this.tickCount <= 2) {
-            this.xRotO = this.getXRot();
-            this.yRotO = this.getYRot();
-        }
-
         Vec3 movement = new Vec3(d2, d0, d1);
         this.setDeltaMovement(vec3.scale(0.99));
         this.move(MoverType.SELF, vec3);
         if (!this.position().equals(movement) && getDeltaMovement() != Vec3.ZERO) {
             this.discard();
-        }
+        } // 移動するソードスキルが壁に当たると消滅する。消滅時の処理を記述
     }
 
 }

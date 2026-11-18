@@ -1,9 +1,10 @@
 package com.zoma1101.swordskill.swordskills;
- 
+
 import com.zoma1101.swordskill.config.ServerConfig;
 import com.zoma1101.swordskill.data.WeaponTypeUtils;
 import com.zoma1101.swordskill.entity.SwordSkill_Entities;
 import com.zoma1101.swordskill.entity.custom.AttackEffectEntity;
+import com.zoma1101.swordskill.skilllevel.SkillLevelManager;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -15,153 +16,275 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
- 
-import net.minecraftforge.network.PacketDistributor;
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.toClient.SyncTrailActivePacket;
- 
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
- 
+
 public class SkillUtils {
-    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
-            double damage, double knockback, int duration, String skill_particle, Vec3 Movement, boolean followOwner) {
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle,
-                java.util.Collections.emptyList(), Movement, followOwner);
-    }
- 
-    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
-            double damage, double knockback, int duration, String skill_particle, java.util.List<SkillTag> tags,
-            Vec3 Movement, boolean followOwner) {
-        
-        // 1. 基本となる色を決定 (デフォルト -> スキルの設定色)
-        int trailColor = 0xFF33AAFF;
-        java.util.List<SkillTag> finalTags = tags;
-        float trailLen = 0f;
-        boolean isThrustShape = size.x() < 1.0f && size.y() < 1.0f;
- 
-        if (!level.isClientSide && owner instanceof ServerPlayer player) {
-            com.zoma1101.swordskill.server.handler.SkillExecutionManager.SkillExecutionData data = 
-                com.zoma1101.swordskill.server.handler.SkillExecutionManager.skillExecutions.get(player.getUUID());
-            
-            if (data != null) {
-                SkillData skillData = SwordSkillRegistry.SKILLS.get(data.skillId);
-                if (skillData != null) {
-                    trailColor = skillData.getTrailColor();
-                    trailLen = skillData.getTrailTipOffset() - skillData.getTrailBaseOffset();
-                    
-                    // 特殊なスキル名に基づくタグ付与 (RAY 等)
-                    boolean isThrustType = isThrustShape || skillData.getName().contains("thrust") || 
-                                           skillData.getName().contains("pierce") || skillData.getName().contains("spike") ||
-                                           skillData.getName().contains("linear");
-                    boolean isSpecialAlways = skillData.getName().equals("vorpal_strike") 
-                                           || skillData.getName().equals("rapid_bite");
- 
-                    if (isThrustType || isSpecialAlways) {
-                        if (!finalTags.contains(SkillTag.RAY)) {
-                            finalTags = new java.util.ArrayList<>(finalTags);
-                            finalTags.add(SkillTag.RAY);
-                        }
-                        if (isSpecialAlways && !finalTags.contains(SkillTag.POWERFUL_THRUST)) {
-                            if (finalTags == tags) finalTags = new java.util.ArrayList<>(finalTags);
-                            finalTags.add(SkillTag.POWERFUL_THRUST);
-                        }
-                    }
-                }
-            }
- 
-            // 2. エンチャントによる色と属性タグの上書き (常に実行)
-            Object[] result = getEffectiveEffectSettings(player, trailColor, finalTags);
-            trailColor = (int) result[0];
-            finalTags = (java.util.List<SkillTag>) result[1];
- 
-            // 3. 形状に基づく自動タグ付与
-            if (SkillTexture.Spia_ParticleType.contains(skill_particle) && isThrustShape && !finalTags.contains(SkillTag.SHAPE_THRUST)) {
-                if (finalTags == tags) finalTags = new java.util.ArrayList<>(finalTags);
-                finalTags.add(SkillTag.SHAPE_THRUST);
-            }
- 
-            // 4. 突きスキルの場合、波動の大きさを武器の長さに合わせる
-            if (trailLen > 0 && (SkillTexture.Spia_ParticleType.contains(skill_particle) || finalTags.contains(SkillTag.RAY)) && isThrustShape) {
-                size.set(trailLen * 0.66f, trailLen * 0.66f, size.z());
-            }
-        }
- 
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle, finalTags,
-                trailColor, Movement, followOwner);
-    }
- 
-    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
-            double damage, double knockback, int duration, String skill_particle, java.util.List<SkillTag> tags,
-            int trailColor, Vec3 Movement, boolean followOwner) {
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle, tags,
-                trailColor, Movement, followOwner, true); // デフォルトは相対
-    }
- 
-    public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
-            double damage, double knockback, int duration, String skill_particle, java.util.List<SkillTag> tags,
-            int trailColor, Vec3 Movement, boolean followOwner, boolean isRelativeRotation) {
- 
-        // 引数の trailColor にかかわらず、エンチャントがあればそれを最優先する
-        Object[] result = getEffectiveEffectSettings(owner, trailColor, tags);
-        int finalColor = (int) result[0];
-        java.util.List<SkillTag> finalTags = (java.util.List<SkillTag>) result[1];
- 
-        if (!level.isClientSide) {
-            AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
-            effect.setPos(position.x, position.y, position.z);
-            effect.setRotation((float) rotation.z);
-            
-            if (isRelativeRotation) {
-                effect.setXRot((float) (owner.getXRot() + rotation.x));
-                effect.setYRot((float) (owner.getYRot() + rotation.y));
-            } else {
-                effect.setXRot((float) rotation.x);
-                effect.setYRot((float) rotation.y);
-            }
-            
-            effect.setOwner(owner);
-            effect.setDamage(damage);
-            effect.setKnockbackStrength(knockback);
-            effect.setEffectRadius(size);
-            effect.setSkillParticle(skill_particle);
-            effect.setSkillTags(finalTags);
-            effect.setTrailColor(finalColor);
-            effect.setDuration(duration);
-            effect.setMovement(Movement);
-            effect.setFollowOwner(followOwner);
-            level.addFreshEntity(effect);
-            SwingArm((ServerPlayer) owner);
-        }
-    }
- 
+    /** スキル色が未指定のときに使う既定のトレイル色。 */
+    private static final int DEFAULT_SKILL_COLOR = 0x54D8FF;
+
     public static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size, LivingEntity owner,
             double damage, double knockback, int duration, String skill_particle, Vec3 Movement) {
-        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle, Movement,
-                false);
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skill_particle,
+                Movement, false, 0);
     }
- 
+
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance) {
+        spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, 0);
+    }
+
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                null, true, travelDistance, renderPitch);
+    }
+
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement) {
+        spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, movement, 0);
+    }
+
+    public static void spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, true, travelDistance, renderPitch);
+    }
+
+    private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, 0);
+    }
+
+    private static void spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch) {
+        spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, DEFAULT_SKILL_COLOR);
+    }
+
+    /** トレイル色と同じ色で飛び道具を出す版。色は命中演出に使う。生成したエンティティを返す。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, renderPitch, skillColor, 1.0D);
+    }
+
+    /** 見た目サイズを個別倍率で指定できる飛翔斬撃。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor, double renderScale) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** 見た目サイズとスポーン後の停止tickを指定できる飛翔斬撃。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, double renderPitch, int skillColor, double renderScale, int spawnHoldTicks) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                null, true, travelDistance, renderPitch, skillColor, renderScale, spawnHoldTicks);
+    }
+
+    /** トレイル色と同じ色で飛び道具（移動ベクトル指定）を出す版。生成したエンティティを返す。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, movement, renderPitch, skillColor, 1.0D);
+    }
+
+    /** 見た目サイズを個別倍率で指定できる飛翔斬撃（移動ベクトル指定）。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor, double renderScale) {
+        return spawnFlyingSlash(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                travelDistance, movement, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** 見た目サイズとスポーン後の停止tickを指定できる飛翔斬撃（移動ベクトル指定）。 */
+    public static AttackEffectEntity spawnFlyingSlash(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            double travelDistance, Vec3 movement, double renderPitch, int skillColor, double renderScale,
+            int spawnHoldTicks) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, true, travelDistance, renderPitch, skillColor, renderScale, spawnHoldTicks);
+    }
+
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, skillColor, 1.0D, 0);
+    }
+
+    /** クライアント側では生成しないため null を返す。 */
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor,
+            double renderScale) {
+        return spawnAttackEffect(level, position, rotation, size, owner, damage, knockback, duration, skillParticle,
+                movement, flyingSlash, travelDistance, renderPitch, skillColor, renderScale, 0);
+    }
+
+    /** クライアント側では生成しないため null を返す。 */
+    private static AttackEffectEntity spawnAttackEffect(Level level, Vec3 position, Vec3 rotation, Vector3f size,
+            LivingEntity owner, double damage, double knockback, int duration, String skillParticle,
+            Vec3 movement, boolean flyingSlash, double travelDistance, double renderPitch, int skillColor,
+            double renderScale, int spawnHoldTicks) {
+        if (!level.isClientSide) {
+            AttackEffectEntity effect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(), level);
+            effect.setPos(position.x, position.y, position.z); // 位置を設定
+            effect.setRotation((float) rotation.z);
+            effect.setRenderPitch((float) renderPitch);
+            effect.setFlyingSlash(flyingSlash);
+            effect.setXRot((float) (owner.getXRot() + rotation.x));
+            effect.setYRot((float) (owner.getYRot() + rotation.y));
+            effect.setOwner(owner); // 所有者を設定
+            effect.setDamage(damage); // ダメージ設定
+            effect.setKnockbackStrength(knockback); // ノックバック設定
+            effect.setEffectRadius(size); // 範囲設定
+            effect.setRenderScale((float) renderScale);
+            effect.setSpawnHoldTicks(spawnHoldTicks);
+            effect.setSkillParticle(skillParticle);
+            effect.setSkillColor(skillColor);
+            effect.setDuration(duration);
+            if (flyingSlash) {
+                if (movement != null) {
+                    effect.setMovement(movement);
+                } else {
+                    effect.setTravelDistance(travelDistance);
+                }
+            } else {
+                effect.setMovement(movement);
+            }
+            level.addFreshEntity(effect); // エンティティを追加
+            SwingArm((ServerPlayer) owner);
+
+            // 爪武器使用時の例外的な3本爪トレイル処理
+            if (owner instanceof ServerPlayer player) {
+                var weaponTypes = WeaponTypeUtils.getWeaponType(player);
+                if (weaponTypes != null && weaponTypes.contains(SkillData.WeaponType.CLAW)) {
+                    Vec3 forward = player.getLookAngle().normalize();
+                    Vec3 right = forward.cross(new Vec3(0, 1, 0)).normalize();
+
+                    // 右爪トレイル
+                    AttackEffectEntity rightEffect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(),
+                            level);
+                    Vec3 rightPos = position.add(right.scale(0.4));
+                    rightEffect.setPos(rightPos.x, rightPos.y, rightPos.z);
+                    rightEffect.setRotation((float) (rotation.z + 5));
+                    rightEffect.setRenderPitch((float) renderPitch);
+                    rightEffect.setFlyingSlash(flyingSlash);
+                    rightEffect.setXRot((float) (owner.getXRot() + rotation.x + 5));
+                    rightEffect.setYRot((float) (owner.getYRot() + rotation.y + 5));
+                    rightEffect.setOwner(owner);
+                    rightEffect.setDamage(damage * 0.8);
+                    rightEffect.setKnockbackStrength(knockback);
+                    rightEffect.setEffectRadius(size);
+                    rightEffect.setRenderScale((float) renderScale);
+                    rightEffect.setSpawnHoldTicks(spawnHoldTicks);
+                    rightEffect.setSkillParticle(skillParticle);
+                    rightEffect.setSkillColor(skillColor);
+                    rightEffect.setDuration(duration);
+                    if (flyingSlash) {
+                        if (movement != null)
+                            rightEffect.setMovement(movement);
+                        else
+                            rightEffect.setTravelDistance(travelDistance);
+                    } else
+                        rightEffect.setMovement(movement);
+                    level.addFreshEntity(rightEffect);
+
+                    // 左爪トレイル
+                    AttackEffectEntity leftEffect = new AttackEffectEntity(SwordSkill_Entities.ATTACK_EFFECT.get(),
+                            level);
+                    Vec3 leftPos = position.add(right.scale(-0.4));
+                    leftEffect.setPos(leftPos.x, leftPos.y, leftPos.z);
+                    leftEffect.setRotation((float) (rotation.z - 5));
+                    leftEffect.setRenderPitch((float) renderPitch);
+                    leftEffect.setFlyingSlash(flyingSlash);
+                    leftEffect.setXRot((float) (owner.getXRot() + rotation.x - 5));
+                    leftEffect.setYRot((float) (owner.getYRot() + rotation.y - 5));
+                    leftEffect.setOwner(owner);
+                    leftEffect.setDamage(damage * 0.8);
+                    leftEffect.setKnockbackStrength(knockback);
+                    leftEffect.setEffectRadius(size);
+                    leftEffect.setRenderScale((float) renderScale);
+                    leftEffect.setSpawnHoldTicks(spawnHoldTicks);
+                    leftEffect.setSkillParticle(skillParticle);
+                    leftEffect.setSkillColor(skillColor);
+                    leftEffect.setDuration(duration);
+                    if (flyingSlash) {
+                        if (movement != null)
+                            leftEffect.setMovement(movement);
+                        else
+                            leftEffect.setTravelDistance(travelDistance);
+                    } else
+                        leftEffect.setMovement(movement);
+                    level.addFreshEntity(leftEffect);
+                }
+            }
+            return effect;
+        }
+        return null;
+    }
+
     public static double BaseDamage(ServerPlayer player) {
+        double levelMultiplier = SkillLevelManager.damageMultiplier(player);
+        // STR を独自式に組み込む（バニラの攻撃力属性には触れない）
+        double statMultiplier = com.zoma1101.swordskill.playerlevel.CombatStats.strAttackMultiplier(player);
         if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)) {
             ItemStack mainHandItem = player.getMainHandItem();
             ItemStack offHandItem = player.getOffhandItem();
-            double mainHandDamage = mainHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND)
-                    .get(Attributes.ATTACK_DAMAGE).stream().mapToDouble(attributeModifier -> attributeModifier.getAmount()).sum();
-            double offHandDamage = offHandItem.getAttributeModifiers(EquipmentSlot.MAINHAND)
-                    .get(Attributes.ATTACK_DAMAGE).stream().mapToDouble(attributeModifier -> attributeModifier.getAmount()).sum();
-            return (mainHandDamage + offHandDamage + 1) * ServerConfig.damageMultiplier.get();
+
+            // アイテムから攻撃力を取得
+            double mainHandDamage = getDamageFromStack(mainHandItem);
+            double offHandDamage = getDamageFromStack(offHandItem);
+
+            // 両手の平均攻撃力を計算
+            double totalDamageHalf = (mainHandDamage + offHandDamage) / 2;
+
+            // プレイヤーの現在の攻撃力からメインハンド武器分を引く（素手攻撃力 + バフ分などを抽出）
+            double currentAttackDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+            double attackDamageMinusMainHand = currentAttackDamage - mainHandDamage;
+
+            // (武器平均 + 基礎・バフ分) * 倍率 * スキルレベル倍率 * STR
+            return (totalDamageHalf + attackDamageMinusMainHand) * ServerConfig.damageMultiplier.get()
+                    * levelMultiplier * statMultiplier;
         } else {
-            return (player.getAttributeValue(Attributes.ATTACK_DAMAGE))
-                    * ServerConfig.damageMultiplier.get();
+            return player.getAttributeValue(Attributes.ATTACK_DAMAGE) * ServerConfig.damageMultiplier.get()
+                    * levelMultiplier * statMultiplier;
         }
     }
- 
+
+    private static double getDamageFromStack(ItemStack stack) {
+        final double[] damage = { 0.0 };
+        // getAttributeModifiers はアイテムのデフォルト属性とカスタム属性の両方を含みます
+        for (var entry : stack.getAttributeModifiers(EquipmentSlot.MAINHAND).entries()) {
+            if (entry.getKey().equals(Attributes.ATTACK_DAMAGE)) {
+                damage[0] += entry.getValue().getAmount();
+            }
+        }
+        return damage[0];
+    }
+
     public static float BaseKnowBack(ServerPlayer player) {
         return (float) Objects.requireNonNull(player.getAttribute(Attributes.ATTACK_KNOCKBACK)).getValue() + 1;
     }
- 
+
     public static double RushDamage(ServerPlayer player) {
         double MoveX_ABS = Math.abs(player.getDeltaMovement().x);
         double MoveY_ABS = Math.abs(player.getDeltaMovement().y);
@@ -170,41 +293,42 @@ public class SkillUtils {
         float Motion_BaseDamage = (float) (MoveX_ABS + MoveY_ABS + MoveZ_ABS) * 0.5f + 1;
         return BaseDamage(player) * Motion_BaseDamage + Motion;
     }
- 
+
     public static void swingArm(ServerPlayer player, HumanoidArm arm) {
         InteractionHand hand = arm == HumanoidArm.LEFT ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         player.swing(hand);
+        // クライアント側へアニメーション再生の指示を送信
         player.connection.send(new ClientboundAnimatePacket(player, arm == HumanoidArm.LEFT ? 3 : 0));
     }
- 
-    private static final Map<UUID, Boolean> swingRight = new HashMap<>();
-    private static final Map<UUID, Integer> lastSwingTick = new HashMap<>();
- 
+
+    private static final Map<UUID, Boolean> swingRight = new HashMap<>(); // プレイヤーごとの振り向きを記憶するマップ
+
     public static void SwingArm(ServerPlayer player) {
-        if (lastSwingTick.getOrDefault(player.getUUID(), -1) == player.tickCount) {
-            return;
-        }
-        lastSwingTick.put(player.getUUID(), player.tickCount);
-        if (Objects.requireNonNull(WeaponTypeUtils.getWeaponType(player)).contains(SkillData.WeaponType.DUALSWORD)
-                || Objects.requireNonNull(WeaponTypeUtils.getWeaponName(player)).contains("dual_claw")) {
+        String weaponName = WeaponTypeUtils.getWeaponName(player);
+        if (WeaponTypeUtils.getWeaponType(player).contains(SkillData.WeaponType.DUALSWORD)
+                || (weaponName != null && weaponName.contains("dual_claw"))) {
             UUID playerId = player.getUUID();
-            boolean isSwingRight = swingRight.getOrDefault(playerId, true);
- 
+            boolean isSwingRight = swingRight.getOrDefault(playerId, true); // 初期値は右手振り
+
             if (isSwingRight) {
-                player.connection.send(new ClientboundAnimatePacket(player, 0));
+                player.connection.send(new ClientboundAnimatePacket(player, 0)); // 右手振り
             } else {
-                player.connection.send(new ClientboundAnimatePacket(player, 3));
+                player.connection.send(new ClientboundAnimatePacket(player, 3)); // 左手振り
             }
- 
-            swingRight.put(playerId, !isSwingRight);
+
+            swingRight.put(playerId, !isSwingRight); // 振り向きを反転
         } else {
             swingArm(player, player.getMainArm());
         }
     }
- 
+
+    public static void cleanup(UUID playerId) {
+        swingRight.remove(playerId);
+    }
+
     public static Boolean SkillTargetEntity(LivingEntity entity, LivingEntity owner) {
-        if (entity == owner) {
-            return false;
+        if (entity == owner) { // entity が owner 自身の場合
+            return false; // PvP ゲームルールに関係なく false を返す
         } else if (!ServerConfig.PvP.get() && entity instanceof Player) {
             return false;
         } else if (entity.getType().getCategory() == MobCategory.CREATURE
@@ -214,7 +338,7 @@ public class SkillUtils {
             return true;
         }
     }
- 
+
     public static Vec3 rotateLookVec(Entity entity, double pitch, double yaw) {
         float RotX = (float) (entity.getXRot() + pitch);
         float RotY = (float) (entity.getYRot() + yaw);
@@ -225,39 +349,5 @@ public class SkillUtils {
         float f4 = Mth.cos(f);
         float f5 = Mth.sin(f);
         return new Vec3(f3 * f4, -f5, f2 * f4);
-    }
- 
-    public static void setTrailActive(ServerPlayer player, boolean active) {
-        NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),
-                new SyncTrailActivePacket(player.getId(), active));
-    }
- 
-    public static Object[] getEffectiveEffectSettings(LivingEntity owner, int defaultColor, java.util.List<SkillTag> tags) {
-        int trailColor = defaultColor;
-        java.util.List<SkillTag> finalTags = tags;
- 
-        if (owner instanceof Player player) {
-            net.minecraft.world.item.ItemStack stack = player.getMainHandItem();
-            int fire = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.ENMA_JIN.get());
-            int water = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.SUI_JIN.get());
-            int wind = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.FU_JIN.get());
-            int holy = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.KO_JIN.get());
-            int dark = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.AN_JIN.get());
-            int soul = stack.getEnchantmentLevel(com.zoma1101.swordskill.enchantment.ModEnchantments.KON_JIN.get());
- 
-            SkillTag elementTag = null;
-            if (fire > 0) { trailColor = 0xFFFE210C; elementTag = SkillTag.FIRE; }
-            else if (water > 0) { trailColor = 0xFF0690F8; elementTag = SkillTag.WATER; }
-            else if (wind > 0) { trailColor = 0xFF27D480; elementTag = SkillTag.WIND; }
-            else if (holy > 0) { trailColor = 0xFFFFD700; elementTag = SkillTag.HOLY_ENCHANT; }
-            else if (dark > 0) { trailColor = 0xFF1A1A1A; elementTag = SkillTag.DARK; }
-            else if (soul > 0) { trailColor = 0xFF27D4C6; elementTag = SkillTag.SONIC; }
- 
-            if (elementTag != null && !finalTags.contains(elementTag)) {
-                finalTags = new java.util.ArrayList<>(finalTags);
-                finalTags.add(elementTag);
-            }
-        }
-        return new Object[]{trailColor, finalTags};
     }
 }

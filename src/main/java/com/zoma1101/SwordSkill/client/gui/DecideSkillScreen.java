@@ -2,8 +2,7 @@ package com.zoma1101.swordskill.client.gui;
 
 import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.client.handler.ClientSkillSlotHandler;
-import com.zoma1101.swordskill.network.NetworkHandler;
-import com.zoma1101.swordskill.network.SkillSlotSelectionPacket;
+import com.zoma1101.swordskill.payload.SkillSlotSelectionPayload;
 import com.zoma1101.swordskill.swordskills.SkillData;
 import com.zoma1101.swordskill.swordskills.SwordSkillRegistry;
 import net.minecraft.client.Minecraft;
@@ -11,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import com.zoma1101.swordskill.compat.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 // スキルスロット選択画面
@@ -49,9 +49,8 @@ public class DecideSkillScreen extends Screen {
             SkillData skill = SwordSkillRegistry.SKILLS.get(SELECTSKILL);
             if (skill != null) {
                 String playerWeaponName = ClientSkillSlotHandler.getCurrentWeaponName();
-                // 武器を持っていない場合("None")は送信しないようにチェック
-                if (playerWeaponName != null && !playerWeaponName.equals("None")) {
-                    NetworkHandler.INSTANCE.sendToServer(new SkillSlotSelectionPacket(skill.getId(), slotIndex, playerWeaponName));
+                if (playerWeaponName != null) {
+                    PacketDistributor.sendToServer(new SkillSlotSelectionPayload(skill.getId(), slotIndex, playerWeaponName));
                 }
             }
         }

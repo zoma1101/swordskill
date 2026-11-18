@@ -4,9 +4,9 @@ import com.zoma1101.swordskill.SwordSkill;
 import com.zoma1101.swordskill.config.ServerConfig;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.HashMap; // 追加
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map; // 追加
+import java.util.Map;
 
 import static net.minecraft.resources.ResourceLocation.fromNamespaceAndPath;
 
@@ -22,23 +22,21 @@ public class SkillData {
     private final int final_tick;
     private final int transform_limit_tick;
     private final double spCost;
-
-    // トレイル設定
-    private final int trailColor;
-    private final ResourceLocation trailTexture;
-    private final int trailMaxLength;
-    private final float trailBaseOffset; // ★追加: 根元のオフセット
-    private final float trailTipOffset; // ★追加: 先端のオフセット
-    private final float trailArcAngle; // ★追加: 円弧の角度
-    private final int trailPointCount; // ★追加: 分割数
+    private final DataSkillDefinition dataDefinition;
 
     // ★追加: 外部データを保存するためのマップ
     private final Map<String, Object> additionalData = new HashMap<>();
 
     public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
             Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
-            int TransformLimitTick, int trailColor, String trailTexture, int trailMaxLength, float trailBaseOffset,
-            float trailTipOffset, float trailArcAngle, int trailPointCount) {
+            int TransformLimitTick) {
+        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick,
+                TransformLimitTick, null);
+    }
+
+    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
+            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
+            int TransformLimitTick, DataSkillDefinition dataDefinition) {
         this.id = id;
         this.name = name;
         this.iconTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/gui/" + this.name + ".png");
@@ -50,29 +48,7 @@ public class SkillData {
         this.isHide = isHide;
         this.final_tick = final_tick;
         this.transform_limit_tick = TransformLimitTick;
-        this.trailColor = trailColor;
-        this.trailTexture = fromNamespaceAndPath(SwordSkill.MOD_ID, "textures/entity/" + trailTexture + ".png");
-        this.trailMaxLength = trailMaxLength;
-        this.trailBaseOffset = trailBaseOffset;
-        this.trailTipOffset = trailTipOffset;
-        this.trailArcAngle = trailArcAngle;
-        this.trailPointCount = trailPointCount;
-    }
-
-    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
-            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
-            int TransformLimitTick, int trailColor, String trailTexture, int trailMaxLength, float trailBaseOffset,
-            float trailTipOffset) {
-        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick, TransformLimitTick,
-                trailColor, trailTexture, trailMaxLength, trailBaseOffset, trailTipOffset, 0f, 2);
-    }
-
-    // デフォルト設定用コンストラクタ
-    public SkillData(int id, String name, int cooldown, double spCost, SkillType type,
-            Class<? extends ISkill> skillClass, List<WeaponType> availableWeaponTypes, boolean isHide, int final_tick,
-            int TransformLimitTick) {
-        this(id, name, cooldown, spCost, type, skillClass, availableWeaponTypes, isHide, final_tick, TransformLimitTick,
-                0xFF33AAFF, "simple_2", 10, 1.6f, 3.2f);
+        this.dataDefinition = dataDefinition;
     }
 
     // ゲッターメソッド
@@ -84,12 +60,18 @@ public class SkillData {
         return name;
     }
 
+    /** 正式なスキルID（文字列）。旧数値 ID は {@link #getId()}。 */
+    public String getSkillId() {
+        return name;
+    }
+
     public ResourceLocation getIconTexture() {
         return iconTexture;
     }
 
     public int getCooldown() {
-        return (int) (cooldown * ServerConfig.cooldownMultiplier.get());
+        // 前のステップでの要求に基づき、ベースを50%短縮
+        return (int) (cooldown * 0.5 * ServerConfig.cooldownMultiplier.get());
     }
 
     public List<WeaponType> getAvailableWeaponTypes() {
@@ -112,40 +94,71 @@ public class SkillData {
         return transform_limit_tick;
     }
 
-    public int getTrailColor() {
-        return trailColor;
-    }
-
-    public ResourceLocation getTrailTexture() {
-        return trailTexture;
-    }
-
-    public int getTrailMaxLength() {
-        return trailMaxLength;
-    }
-
-    public float getTrailBaseOffset() {
-        return trailBaseOffset;
-    }
-
-    public float getTrailTipOffset() {
-        return trailTipOffset;
-    }
-
-    public float getTrailArcAngle() {
-        return trailArcAngle;
-    }
-
-    public int getTrailPointCount() {
-        return trailPointCount;
-    }
-
     // ★追加: 外部データへのアクセサ
     public Map<String, Object> getAdditionalData() {
         return additionalData;
     }
 
-    // ★追加: 熟練度設定用のヘルパーメソッド（あると便利）
+    /** 熟練度のカテゴリ。JSON 未指定のときは先頭の武器種を使う。 */
+    public WeaponType getProficiencyCategory() {
+        if (dataDefinition != null && dataDefinition.proficiencyCategory() != null) {
+            return dataDefinition.proficiencyCategory();
+        }
+        return availableWeaponTypes.isEmpty() ? WeaponType.NONE : availableWeaponTypes.get(0);
+    }
+
+    /** 解放に必要な熟練度（0 なら熟練度不要）。 */
+    public int getUnlockProficiency() {
+        return dataDefinition == null ? 0 : dataDefinition.unlockProficiency();
+    }
+
+    /** 最初から解放されているスキルか（武器カテゴリごとの初期スキル）。 */
+    public boolean isDefaultUnlocked() {
+        return dataDefinition != null && dataDefinition.defaultUnlocked();
+    }
+
+    /** スロットにセットできるスキルか（説明用エントリなどは false）。 */
+    public boolean isAssignable() {
+        return dataDefinition == null || dataDefinition.assignable();
+    }
+
+    /** チャージ（長押し）でダメージ倍率を上げられるスキルか。 */
+    public boolean isChargeable() {
+        return dataDefinition == null || dataDefinition.chargeable();
+    }
+
+    /** スキルスロットに直接セットできるか。派生先は元スキルからのコンボでのみ使用する。 */
+    public boolean isSlotAssignable() {
+        return isAssignable() && !SkillChains.isDerived(id);
+    }
+
+    /** カウンタースキルか（チャージ中にダメージ軽減 + 被ダメージで威力上昇）。 */
+    public boolean isCounter() {
+        return type == SkillType.COUNTER;
+    }
+
+    /** チャージ中に軽減するダメージ割合 (0.0〜1.0)。 */
+    public double getCounterDamageCut() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterDamageCut();
+    }
+
+    /** 受けたダメージ 1 あたりの威力ボーナス倍率。 */
+    public double getCounterDamageScale() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterDamageScale();
+    }
+
+    /** 被ダメージによる威力ボーナスの上限（0 なら上限なし）。 */
+    public double getCounterMaxBonus() {
+        return dataDefinition == null ? 0.0D : dataDefinition.counterMaxBonus();
+    }
+
+    /** 発動に必要な「足元から地面までの高さ」（ブロック）。0 なら条件なし。 */
+    public double getMinAirHeight() {
+        return dataDefinition == null ? 0.0D : dataDefinition.minAirHeight();
+    }
+
+    // ★追加: 熟練度設定用のヘルパーメソッド
+    @SuppressWarnings("unchecked")
     public void setRequiredProficiency(String weaponType, int amount) {
         // "proficiency_req" というキーの中に、さらに "WeaponType -> Amount" のマップを作る構造
         Map<String, Integer> reqs = (Map<String, Integer>) additionalData.computeIfAbsent("proficiency_req",
@@ -153,6 +166,7 @@ public class SkillData {
         reqs.put(weaponType, amount);
     }
 
+    @SuppressWarnings("unchecked")
     public int getRequiredProficiency(String weaponType) {
         if (additionalData.containsKey("proficiency_req")) {
             Map<String, Integer> reqs = (Map<String, Integer>) additionalData.get("proficiency_req");
@@ -161,29 +175,6 @@ public class SkillData {
         return 0;
     }
 
-    // --- トレイル追跡部位の設定 ---
-    public SkillData setFollowBone(FollowBone bone) {
-        additionalData.put("follow_bone", bone);
-        return this;
-    }
- 
-    public FollowBone getFollowBone() {
-        return (FollowBone) additionalData.getOrDefault("follow_bone", FollowBone.MAIN_HAND);
-    }
- 
-    public enum FollowBone {
-        MAIN_HAND,
-        OFF_HAND,
-        RIGHT_HAND,
-        LEFT_HAND,
-        RIGHT_ARM,
-        LEFT_ARM,
-        RIGHT_LEG,
-        LEFT_LEG,
-        BOTH_LEGS,
-        HEAD
-    }
- 
     public enum WeaponType {
         ONE_HANDED_SWORD, // 片手剣〇
         TWO_HANDED_SWORD, // 両手剣〇
@@ -196,8 +187,14 @@ public class SkillData {
         SCYTHE, // 鎌〇
         DAGGER, // 短剣〇
         DUALSWORD, // 二刀流〇
-        MARTIAL_ARTS, // 体術
         NONE // 設定しないでください
+        ;
+
+        /** 武器種の表示名（lang: {@code swordskill.weapon.<type>}）。 */
+        public net.minecraft.network.chat.Component displayName() {
+            return net.minecraft.network.chat.Component.translatable(
+                    SwordSkill.MOD_ID + ".weapon." + name().toLowerCase(java.util.Locale.ROOT));
+        }
     }
 
     public SkillType getType() {
@@ -208,10 +205,16 @@ public class SkillData {
         return skillClass;
     }
 
+    public DataSkillDefinition getDataDefinition() {
+        return dataDefinition;
+    }
+
     public enum SkillType {
         SIMPLE,
         TRANSFORM,
         TRANSFORM_FINISH,
-        RUSH
+        RUSH,
+        /** チャージ中にダメージを軽減し、受けたダメージに応じて威力が上がるカウンタースキル。 */
+        COUNTER
     }
 }
