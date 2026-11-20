@@ -64,7 +64,7 @@
   "gui.swordskill.skill.derived": "派生スキル",
   "gui.swordskill.cooldown": "クールダウン: %s tick",
   "gui.swordskill.sp_cost": "SPコスト: %s",
-  "gui.swordskill.skill_level": "スキルレベル: Lv.%s / %s　倍率 ×%s",
+  "gui.swordskill.skill_level": "スキルレベル: Lv.%s / %s 倍率 ×%s",
   "gui.swordskill.skill_level_short": "Lv.%s/%s ×%s",
   "gui.swordskill.power_prefix": "攻撃倍率",
   "gui.swordskill.power_hit": "%s段目 %s",

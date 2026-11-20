@@ -679,7 +679,7 @@ public class SwordSkillSelectionScreen extends Screen {
             }
             if (hover) {
                 hovered = Component.translatable(SwordSkill.MOD_ID + ".weapon." + type.name().toLowerCase())
-                        .append(Component.literal("\n"))
+                        .append(Component.literal(" "))
                         .append(Component.translatable("gui." + SwordSkill.MOD_ID + ".weapon_tab_hint")
                                 .withStyle(net.minecraft.ChatFormatting.GRAY));
             }
