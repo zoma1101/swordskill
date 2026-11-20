@@ -86,6 +86,7 @@ public class SwordSkill {
     private void onAddReloadListener(AddReloadListenerEvent event) {
         WeaponTypeDataLoader dataLoader = new WeaponTypeDataLoader();
         event.addListener(dataLoader);
+        event.addListener(new com.zoma1101.swordskill.data.BetterCombatWeaponTypeLoader());
         WeaponTypeDetector.initialize(dataLoader);
         event.addListener(new SkillDataLoader());
         if (SwordSkillFeatures.SMITHING) {

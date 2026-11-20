@@ -12,6 +12,7 @@ public class ServerConfig {
     public static final ModConfigSpec.DoubleValue defaultSpRegen;
     public static final ModConfigSpec.BooleanValue PvP;
     public static final ModConfigSpec.BooleanValue AUTOWEAPON_SETTING;
+    public static final ModConfigSpec.BooleanValue useBetterCombatWeaponTypes;
     public static final ModConfigSpec.BooleanValue UnlockedSkill;
     public static final ModConfigSpec.BooleanValue attackNeutralMobs;
     public static final ModConfigSpec.IntValue hitstopTicks;
@@ -88,6 +89,11 @@ public class ServerConfig {
                 1.0, 0.01, 10.0);
         AUTOWEAPON_SETTING = BUILDER.comment("The available weapons are set automatically to some extent.")
                 .define("AutoWeaponSetting", false);
+        useBetterCombatWeaponTypes = BUILDER.comment(
+                "Read Better Combat's weapon_attributes datapack files and use their 'category' "
+                        + "to detect Sword Skill weapon types for items that are not listed in "
+                        + "data/swordskill/weapon_types. Only affects items without an explicit entry.")
+                .define("useBetterCombatWeaponTypes", true);
         PvP = BUILDER.comment("Allow PVP with sword skills").define("pvp", false);
         UnlockedSkill = BUILDER.comment("Enable Sword Skill Unlock").define("UnlockedSkill", true);
         attackNeutralMobs = BUILDER.comment("Include neutral mobs as attack targets").define("attackNeutralMobs", true);

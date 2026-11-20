@@ -48,6 +48,11 @@ public class WeaponTypeDetector {
                 return weaponTypes;
             }
         }
+        // 明示設定が無いアイテムは Better Combat の weapon_attributes から判定する
+        SkillData.WeaponType betterCombatType = BetterCombatWeaponTypeLoader.detect(heldItem);
+        if (betterCombatType != null) {
+            weaponTypes.add(betterCombatType);
+        }
         return weaponTypes;
     }
 
@@ -110,6 +115,8 @@ public class WeaponTypeDetector {
                 return data.name();
             }
         }
-        return null;
+        // 明示設定が無いアイテムは Better Combat の判定結果から武器名を作る
+        SkillData.WeaponType betterCombatType = BetterCombatWeaponTypeLoader.detect(heldItem);
+        return BetterCombatWeaponTypeLoader.weaponName(heldItem, betterCombatType);
     }
 }
